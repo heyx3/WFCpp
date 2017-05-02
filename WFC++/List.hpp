@@ -13,11 +13,11 @@ namespace WFC
     public:
 
         List() { }
-        List(const T& first) { vec.push_back(first); }
-        List(const T& first, const T& second) { vec.push_back(first); vec.push_back(second); }
-        List(const T& first, const T& second, const T& third)
+        explicit List(const T& first) { vec.push_back(first); }
+        explicit List(const T& first, const T& second) { vec.push_back(first); vec.push_back(second); }
+        explicit List(const T& first, const T& second, const T& third)
             { vec.push_back(first); vec.push_back(second); vec.push_back(third); }
-        List(const T& first, const T& second, const T& third, const T& fourth)
+        explicit List(const T& first, const T& second, const T& third, const T& fourth)
             { vec.push_back(first); vec.push_back(second); vec.push_back(third); vec.push_back(fourth); }
 
 
@@ -48,7 +48,7 @@ namespace WFC
         {
             for (size_t i = 0; i < GetSize(); ++i)
                 if (p(vec[i]))
-                    return i;
+                    return (int)i;
             return -1;
         }
 

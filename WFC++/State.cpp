@@ -16,6 +16,8 @@ void State::Reset(Vector2i newOutputSize)
 		Output[pos] = OutputPixel();
 
 		auto& pixel = Output[pos];
+        pixel.ColorFrequencies.Clear();
+
 		Input.GetPixelFrequencies().DoToEach([&pixel, &colorFrequencies](Pixel key)
 		{
 			pixel.ColorFrequencies[key] = colorFrequencies[key];
@@ -116,7 +118,7 @@ void State::SetPixel(Vector2i pixelPos, Pixel value)
 }
 void State::ClearArea(Vector2i center)
 {
-	Vector2i clearSize = Input.MaxPatternSize * ViolationClearSize,
+	Vector2i clearSize = Input.MaxPatternSize * (int)ViolationClearSize,
 			 halfClearSize = clearSize / 2;
 	Vector2i clearCenter = center + (Input.MaxPatternSize / 2);
 
@@ -195,7 +197,7 @@ void State::RecalculatePixelChances(const Region2i& area)
 
 		//If the position is outside the output, or the pixel is already set,
 		//    nothing needs to be done.
-		if (outputRegion.Contains(pixelPos) || Output[pixelPos].Value.HasValue)
+		if (!outputRegion.Contains(pixelPos) || Output[pixelPos].Value.HasValue)
 			continue;
 
 		auto& pixel = Output[pixelPos];

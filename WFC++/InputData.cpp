@@ -119,9 +119,9 @@ InputData::InputData(const Array2D<Pixel>& pixelData, Vector2i patternSize,
 	//Remove duplicate patterns.
 	//Hash the patterns for quicker comparisons.
 	List<size_t> patternHashes;
-	patternHashes.Reserve(patterns.GetSize());
+	patternHashes.Resize(patterns.GetSize());
 	for (size_t i = 0; i < patterns.GetSize(); ++i)
-		patternHashes = patterns[i].GetHashCode();
+		patternHashes[i] = patterns[i].GetHashCode();
 	for (size_t i = 0; i < patterns.GetSize(); ++i)
 	{
 		for (size_t j = i - 1; j < patterns.GetSize(); ++j)

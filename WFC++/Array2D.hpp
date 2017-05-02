@@ -8,7 +8,6 @@
 
 namespace WFC
 {
-	//The type of item this array contains. Should generally be trivially-copiable/assignable.
 	template<class ArrayType>
 	//Wraps a contiguous heap-allocated one-dimensional array
 	//    so it can be treated like a two-dimensional array.
@@ -96,9 +95,9 @@ namespace WFC
 
 
 		//Gets the X size of this array.
-		int GetWidth() const { return width; }
+		inline int GetWidth() const { return width; }
 		//Gets the Y size of this array.
-		int GetHeight() const { return height; }
+        inline int GetHeight() const { return height; }
 		//Gets the size of this array along each axis.
 		Vector2i GetDimensions() const { return Vector2i(width, height); }
 
