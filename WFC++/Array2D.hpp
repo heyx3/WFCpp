@@ -90,8 +90,16 @@ namespace WFC
 		}
 
 
-		ArrayType& operator[](Vector2i l) { return arrayVals[GetIndex(l.x, l.y)]; }
-		const ArrayType& operator[](Vector2i l) const { return arrayVals[GetIndex(l.x, l.y)]; }
+		ArrayType& operator[](Vector2i l)
+        {
+            assert(Region2i(GetDimensions()).Contains(l));
+            return arrayVals[GetIndex(l.x, l.y)];
+        }
+		const ArrayType& operator[](Vector2i l) const
+        {
+            assert(Region2i(GetDimensions()).Contains(l));
+            return arrayVals[GetIndex(l.x, l.y)];
+        }
 
 
 		//Gets the X size of this array.

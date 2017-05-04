@@ -42,7 +42,7 @@ bool Pattern::HasSameData(const Pattern& otherPattern) const
 bool Pattern::DoesFit(Vector2i outputMinCorner,
 					  std::function<Nullable<Pixel>(Vector2i)> getOutputPixel) const
 {
-	for (Vector2i patternPos : Region2i(InputDataRegion.MaxExclusive))
+	for (Vector2i patternPos : Region2i(InputDataRegion.GetSize()))
 	{
 		Vector2i inputPos = patternPos + InputDataRegion.MinInclusive,
 				 outputPos = patternPos + outputMinCorner;

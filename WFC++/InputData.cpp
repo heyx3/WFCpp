@@ -19,7 +19,7 @@ InputData::InputData(const Array2D<Pixel>& pixelData, Vector2i patternSize,
 						 patternSize)
 {
 	//Copy the original input data.
-	//If periodic, add wrapped data before/after actual pixel data.
+	//If periodic, add wrapped data after the actual pixel data to simulate wrapping.
 	{
 		Vector2i extraBorder;
 		if (PeriodicX)
@@ -27,10 +27,10 @@ InputData::InputData(const Array2D<Pixel>& pixelData, Vector2i patternSize,
 		if (PeriodicY)
 			extraBorder.y = MaxPatternSize.y - 1;
 
-		Array2D<Pixel> dataCopy(pixelData.GetDimensions() + (extraBorder * 2));
+		Array2D<Pixel> dataCopy(pixelData.GetDimensions() + extraBorder);
 		for (Vector2i copyPos : Region2i(dataCopy.GetDimensions()))
 		{
-			Vector2i originalPos = pixelData.Wrap(copyPos - extraBorder);
+			Vector2i originalPos = pixelData.Wrap(copyPos);
 			dataCopy[copyPos] = pixelData[originalPos];
 		}
 
@@ -88,15 +88,6 @@ InputData::InputData(const Array2D<Pixel>& pixelData, Vector2i patternSize,
 		pixelDataByTransform[Transformations::MirrorY] = std::move(transformedData_y);
 	}
 
-	//Count the pixel frequencies.
-	for (Vector2i inputPos : Region2i(pixelData.GetDimensions()))
-	{
-		Pixel pixel = pixelData[inputPos];
-		if (!pixelFrequencies.Contains(pixel))
-			pixelFrequencies[pixel] = 0;
-		pixelFrequencies[pixel] += 1;
-	}
-
 	//Create patterns.
 	auto& _this = *this;
 	List<Pattern>& _patterns = patterns;
@@ -124,7 +115,7 @@ InputData::InputData(const Array2D<Pixel>& pixelData, Vector2i patternSize,
 		patternHashes[i] = patterns[i].GetHashCode();
 	for (size_t i = 0; i < patterns.GetSize(); ++i)
 	{
-		for (size_t j = i - 1; j < patterns.GetSize(); ++j)
+		for (size_t j = i + 1; j < patterns.GetSize(); ++j)
 		{
 			if (patternHashes[i] == patternHashes[j] && patterns[i].HasSameData(patterns[j]))
 			{
@@ -136,6 +127,17 @@ InputData::InputData(const Array2D<Pixel>& pixelData, Vector2i patternSize,
 			}
 		}
 	}
+
+    //Count the pixel frequencies.
+    for (size_t i = 0; i < patterns.GetSize(); ++i)
+    {
+        auto& pattern = patterns[i];
+        for (Vector2i patternPos : Region2i(pattern.InputDataRegion.GetSize()))
+        {
+            Pixel color = pattern[patternPos];
+            pixelFrequencies[color] += pattern.Frequency;
+        }
+    }
 }
 
 

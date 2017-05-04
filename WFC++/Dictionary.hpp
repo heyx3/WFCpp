@@ -47,6 +47,7 @@ namespace WFC
 			return (TValue&)((const Dictionary<TKey, TValue>*)this)->Get(key, valIfNotFound);
 		}
 
+
 		//A function that just takes a const reference to a key.
 		template<typename Func>
 		//Runs the given function for every key in this dictionary.
@@ -64,6 +65,16 @@ namespace WFC
 			for (auto& keyAndVal : dict)
 				func(keyAndVal.first, keyAndVal.second);
 		}
+
+        template<typename NumberType>
+        //Sums the values.
+        NumberType Sum(NumberType(*valueToNumber)(const TValue& value)) const
+        {
+            NumberType sum = 0;
+            for (auto& keyAndVal : dict)
+                sum += valueToNumber(keyAndVal.second);
+            return sum;
+        }
 
 
 	private:

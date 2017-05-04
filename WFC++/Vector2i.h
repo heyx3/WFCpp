@@ -106,7 +106,7 @@ namespace WFC
 
 		Vector2i MinInclusive, MaxExclusive;
 
-		Region2i(const Vector2i& maxExclusive)
+		explicit Region2i(const Vector2i& maxExclusive)
 			: MinInclusive(0, 0), MaxExclusive(maxExclusive) { }
 		Region2i(const Vector2i& minInclusive, const Vector2i& maxExclusive)
 			: MinInclusive(minInclusive), MaxExclusive(maxExclusive) { }

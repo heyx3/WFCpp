@@ -46,18 +46,25 @@ namespace WFC
 
 		void Reset(Vector2i newOutputSize);
 
-		//Runs one iteration. Returns true (success), false (failure), or null (not done yet).
-		//If the algorithm failed, "out_failedAt" will contain
-		//    the positions that the algorithm failed at.
-		Nullable<bool> Iterate(List<Vector2i>& out_failedAt);
+        //Runs one iteration. Returns true (success), false (failure), or null (not done yet).
+        //If the algorithm failed, "out_failedAt" will contain
+        //    the positions that the algorithm failed at.
+        Nullable<bool> Iterate(List<Vector2i>& out_failedAt) { Vector2i _; return Iterate(_, out_failedAt); }
+        //Runs one iteration. Returns true (success), false (failure), or null (not done yet).
+        //If the algorithm failed, "out_failedAt" will contain
+        //    the positions that the algorithm failed at.
+        //After running, "out_changedPos" contains the pixel that was changed,
+        //    assuming the algorithm didn't fail.
+        Nullable<bool> Iterate(Vector2i& out_changedPos, List<Vector2i>& out_failedAt);
 		
 		//Sets the given pixel to have the given value.
 		//Updates the status of neighboring pixels to take this into account.
 		void SetPixel(Vector2i pixelPos, Pixel value);
-		//Clears all output pixels surrounding the given pixel.
+        //Clears all output pixels surrounding the given pixel.
 		//The size of the area to clear is determined by ViolationClearSize.
 		//Assumes that ViolationClearSize is greater than 0.
-		void ClearArea(Vector2i center);
+        //Returns the range of pixels whose probabilities will be affected by this.
+        Region2i ClearArea(Vector2i center);
 
 
 	private:
@@ -68,17 +75,8 @@ namespace WFC
 		static inline int Wrap(int val, int maxExclusive)
 		{
 			//http://stackoverflow.com/questions/3417183/modulo-of-negative-numbers
-
-			//TODO: Test.
-
 			val %= maxExclusive;
-			return (val > 0) ? (val + maxExclusive) : val;
-
-			//return ((val % maxExclusive) + maxExclusive) % maxExclusive;
-
-			//while (val < 0)
-			//	val += maxExclusive;
-			//return val % maxExclusive;
+			return (val < 0) ? (val + maxExclusive) : val;
 		}
 
 		//Gets a function that filters an output position to account for wrapping along each axis.
@@ -89,8 +87,13 @@ namespace WFC
 		//Ignores any pixels whose color is already set.
 		void GetBestPixels(List<Vector2i>& outValues) const;
 
-		//For every unset output pixel in the given region,
+        void SetPixel(Vector2i pixelPos, Pixel value,
+                      std::function<Vector2i(Vector2i)> posFilterer,
+                      std::function<Nullable<Pixel>(Vector2i)> outputColorGetter);
+		//If the given output pixel is unset,
 		//    this function recalculates that pixel's "ColorFrequencies" field.
-		void RecalculatePixelChances(const Region2i& area);
+		void RecalculatePixelChances(Vector2i pixelPos,
+                                     std::function<Vector2i(Vector2i)> posFilterer,
+                                     std::function<Nullable<Pixel>(Vector2i)> outputColorGetter);
 	};
 }
