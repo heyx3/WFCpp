@@ -164,6 +164,13 @@ WFC::InputData GetDataFromStream(std::istream& input, std::ostream* output)
             std::getline(input, imageLine);
         }
 
+        if (pixelsByRow.size() == 0)
+        {
+            if (output != nullptr)
+                *output << "No rows for input image.\n";
+            exit(1);
+        }
+
         //Convert to the Array2D<Pixel>.
         inputPixels = WFC::Array2D<WFC::Pixel>((int)nPixelsPerRow, (int)pixelsByRow.size());
         for (WFC::Vector2i inputPos : WFC::Region2i(inputPixels.GetDimensions()))
@@ -260,8 +267,7 @@ void PrintOutput(const WFC::State& state, std::ostream& stream)
             pixel.ColorFrequencies.DoToEach(
                 [&elementStr](const WFC::Pixel& key)
                 {
-                    if (elementStr.size() > 0)
-                        elementStr += "|";
+                    elementStr += "|";
                     elementStr += std::to_string(key);
                 });
         }
@@ -304,8 +310,10 @@ int main(int argc, char* argv[])
     //Parse command-line options.
     bool shellMode = false;
     for (int i = 1; i < argc; ++i)
+    {
         if (std::string(argv[i]) == "-shellMode")
             shellMode = true;
+    }
 
     auto outputStream = (shellMode ? nullptr : &std::cout);
 
@@ -323,11 +331,14 @@ int main(int argc, char* argv[])
     size_t nIterations = (_nIterations < 0 ?
                               std::numeric_limits<size_t>::max() :
                               (size_t)_nIterations + 1);
+    WFC::Vector2i changedPos;
     WFC::List<WFC::Vector2i> failedPoses;
+    size_t iterationCount = 0;
     while (nIterations > 0)
     {
+        iterationCount += 1;
         nIterations -= 1;
-        WFC::Nullable<bool> result = wfcState.Iterate(failedPoses);
+        WFC::Nullable<bool> result = wfcState.Iterate(changedPos, failedPoses);
 
         if (result.HasValue)
         {
@@ -351,12 +362,30 @@ int main(int argc, char* argv[])
                 break;
             }
         }
+        else
+        {
+            //Print the current state of the output.
+            if (!shellMode)
+            {
+                std::cout << "#" << iterationCount << "\tChanged {"
+                          << changedPos.x << ", " << changedPos.y << "}\n";
+                PrintOutput(wfcState, std::cout);
+                std::cout << "\n\n";
+            }
+        }
     }
 
+    //Print the final output.
     PrintOutput(wfcState, std::cout);
 
     if (!shellMode)
-        std::cout << "\n\n";
+    {
+        std::cout << "\n\nEnter anything to exit.\n";
+
+        std::string dummy;
+        std::cin >> dummy;
+        std::cout << "\n\n\n";
+    }
 
     return errorCode;
 }
