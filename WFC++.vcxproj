@@ -95,6 +95,16 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDLL;WFC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>if exist "$(TargetDir)include" del /q "$(TargetDir)include"
+mkdir "$(TargetDir)include"
+
+xcopy "$(ProjectDir)WFC++\*.h" "$(TargetDir)include" /sy
+xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy headers to build folder</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -103,6 +113,16 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDLL;WFC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>if exist "$(TargetDir)include" del /q "$(TargetDir)include"
+mkdir "$(TargetDir)include"
+
+xcopy "$(ProjectDir)WFC++\*.h" "$(TargetDir)include" /sy
+xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy headers to build folder</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -117,6 +137,16 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Command>if exist "$(TargetDir)include" del /q "$(TargetDir)include"
+mkdir "$(TargetDir)include"
+
+xcopy "$(ProjectDir)WFC++\*.h" "$(TargetDir)include" /sy
+xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy headers to build folder</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -131,6 +161,16 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Command>if exist "$(TargetDir)include" del /q "$(TargetDir)include"
+mkdir "$(TargetDir)include"
+
+xcopy "$(ProjectDir)WFC++\*.h" "$(TargetDir)include" /sy
+xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy headers to build folder</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="WFC++\Array2D.hpp" />
