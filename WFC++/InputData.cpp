@@ -18,9 +18,13 @@ InputData::InputData(const Array2D<Pixel>& pixelData, Vector2i patternSize,
 								  max(patternSize.x, patternSize.y)) :
 						 patternSize)
 {
+	std::vector<Transformations> usedTransformations;
+
 	//Copy the original input data.
 	//If periodic, add wrapped data after the actual pixel data to simulate wrapping.
 	{
+		usedTransformations.push_back(Transformations::None);
+
 		Vector2i extraBorder;
 		if (PeriodicX)
 			extraBorder.x = MaxPatternSize.x - 1;
@@ -41,6 +45,10 @@ InputData::InputData(const Array2D<Pixel>& pixelData, Vector2i patternSize,
 	const Array2D<Pixel>& originalData = getOriginalData();
 	if (useRotations)
 	{
+		usedTransformations.push_back(Transformations::Rotate90CW);
+		usedTransformations.push_back(Transformations::Rotate180);
+		usedTransformations.push_back(Transformations::Rotate270CW);
+
 		Vector2i originalSize = originalData.GetDimensions(),
 				 rotatedSize(originalSize.y, originalSize.x);
 
@@ -68,6 +76,9 @@ InputData::InputData(const Array2D<Pixel>& pixelData, Vector2i patternSize,
 	}
 	if (useReflections)
 	{
+		usedTransformations.push_back(Transformations::MirrorX);
+		usedTransformations.push_back(Transformations::MirrorY);
+
 		Vector2i size = originalData.GetDimensions();
 
 		Array2D<Pixel> transformedData_x(size),
@@ -89,23 +100,22 @@ InputData::InputData(const Array2D<Pixel>& pixelData, Vector2i patternSize,
 	}
 
 	//Create patterns.
-	auto& _this = *this;
-	List<Pattern>& _patterns = patterns;
-	pixelDataByTransform.DoToEach([&_this, &_patterns, patternSize](Transformations transf)
+	for (Transformations transf : usedTransformations)
 	{
-		auto& transformedData = *_this.GetPixels(transf);
+		auto& transformedData = pixelDataByTransform[transf];
 		Vector2i transfPatternSize = (transf == Transformations::Rotate90CW ||
 							  		  transf == Transformations::Rotate270CW) ?
 									     Vector2i(patternSize.y, patternSize.x) :
 										 patternSize;
 
+		//Iterate across every pattern-sized chunk of the input and make a pattern out of it.
 		Vector2i maxPos = transformedData.GetDimensions() - transfPatternSize + 1;
 		for (Vector2i transfPos : Region2i(maxPos))
 		{
 			Region2i patternRange(transfPos, transfPos + transfPatternSize);
-			_patterns.PushBack(Pattern(_this, transf, patternRange));
+			patterns.PushBack(Pattern(*this, transf, patternRange));
 		}
-	});
+	}
 
 	//Remove duplicate patterns.
 	//Hash the patterns for quicker comparisons.
@@ -138,13 +148,4 @@ InputData::InputData(const Array2D<Pixel>& pixelData, Vector2i patternSize,
             pixelFrequencies[color] += pattern.Frequency;
         }
     }
-}
-
-
-const Array2D<Pixel>* InputData::GetPixels(Transformations transform) const
-{
-	if (pixelDataByTransform.Contains(transform))
-		return &pixelDataByTransform[transform];
-	else
-		return nullptr;
 }

@@ -37,9 +37,6 @@ namespace WFC
 						Vector2i(originalSize.y, originalSize.x) :
 						originalSize);
 		}
-		//Gets the input data after the given transformation.
-		//Returns "nullptr" if the given transformation of the data doesn't exist.
-		const Array2D<Pixel>* GetPixels(Transformations transform) const;
 
 		//Gets the pixel at the given position using the given transformation of the input data.
 		inline const Pixel& GetPixel(Vector2i inputPos, Transformations transform) const
@@ -60,7 +57,7 @@ namespace WFC
 		Dictionary<Pixel, size_t> pixelFrequencies;
 
 		//Different transformed versions of the input pixel data.
-		Dictionary<Transformations, Array2D<Pixel>> pixelDataByTransform;
+		Array2D<Pixel> pixelDataByTransform[Transformations::Count];
 
 		const Array2D<Pixel>& getOriginalData() const { return pixelDataByTransform[Transformations::None]; }
 	};

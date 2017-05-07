@@ -44,6 +44,27 @@ namespace WFC
 		}
 
 
+		inline const OutputPixel* operator[](Vector2i pos) const
+		{
+			Filter(pos);
+			return (Region2i(Output.GetDimensions()).Contains(pos)) ?
+				       &Output[pos] :
+					   nullptr;
+		}
+		inline OutputPixel* operator[](Vector2i pos)
+		{
+			Filter(pos);
+			return (Region2i(Output.GetDimensions()).Contains(pos)) ?
+				       &Output[pos] :
+					   nullptr;
+		}
+		inline void Filter(Vector2i& pos) const
+		{
+			pos.x = (PeriodicX ? Wrap(pos.x, Output.GetWidth()) : pos.x);
+			pos.y = (PeriodicY ? Wrap(pos.y, Output.GetHeight()) : pos.y);
+		}
+
+
 		void Reset(Vector2i newOutputSize);
 
         //Runs one iteration. Returns true (success), false (failure), or null (not done yet).
@@ -79,21 +100,12 @@ namespace WFC
 			return (val < 0) ? (val + maxExclusive) : val;
 		}
 
-		//Gets a function that filters an output position to account for wrapping along each axis.
-		//This reduces the amount of branching needed during the algorithm.
-		std::function<Vector2i(Vector2i)> GetPosFilterer() const;
-
 		//Gets all output pixels with the fewest number of possible colors.
 		//Ignores any pixels whose color is already set.
 		void GetBestPixels(List<Vector2i>& outValues) const;
 
-        void SetPixel(Vector2i pixelPos, Pixel value,
-                      std::function<Vector2i(Vector2i)> posFilterer,
-                      std::function<Nullable<Pixel>(Vector2i)> outputColorGetter);
 		//If the given output pixel is unset,
 		//    this function recalculates that pixel's "ColorFrequencies" field.
-		void RecalculatePixelChances(Vector2i pixelPos,
-                                     std::function<Vector2i(Vector2i)> posFilterer,
-                                     std::function<Nullable<Pixel>(Vector2i)> outputColorGetter);
+		void RecalculatePixelChances(Vector2i pixelPos);
 	};
 }

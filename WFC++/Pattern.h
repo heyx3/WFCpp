@@ -12,6 +12,8 @@ namespace WFC
 
 	//Input image data for the WFC algorithm.
 	class WFC_API InputData;
+	//The current state/output image data for the WFC algorithm.
+	class WFC_API State;
 
 	//A 2D grid of pixel data that appears in the input at least once.
 	class WFC_API Pattern
@@ -53,7 +55,6 @@ namespace WFC
 
 		//Gets whether this pattern can be placed at the given position
 		//    without contradicting an output pixel that is already set.
-		bool DoesFit(Vector2i outputMinCorner,
-					 std::function<Nullable<Pixel>(Vector2i)> getOutputPixel) const;
+		bool DoesFit(Vector2i outputMinCorner, const State& outputState) const;
 	};
 }

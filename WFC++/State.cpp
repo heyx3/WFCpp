@@ -27,36 +27,11 @@ void State::Reset(Vector2i newOutputSize)
 	}
 }
 
-std::function<Vector2i(Vector2i)> State::GetPosFilterer() const
-{
-	Vector2i outputSize = Output.GetDimensions();
-	if (PeriodicX)
-		if (PeriodicY)
-			return [outputSize](Vector2i p) { return Vector2i(Wrap(p.x, outputSize.x), Wrap(p.y, outputSize.y)); };
-		else
-			return [outputSize](Vector2i p) { return Vector2i(Wrap(p.x, outputSize.x), p.y); };
-	else
-		if (PeriodicY)
-			return [outputSize](Vector2i p) { return Vector2i(p.x, Wrap(p.y, outputSize.y)); };
-		else
-			return [outputSize](Vector2i p) { return p; };
-}
-
 Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_failedAt)
 {
     //Define some useful lambdas.
     auto& outputArray = Output;
     Region2i outputRegion(Output.GetDimensions());
-    std::function<Vector2i       (Vector2i)> posFilterer = GetPosFilterer();
-    std::function<Nullable<Pixel>(Vector2i)> outputColorGetter =
-        [posFilterer, &outputRegion, &outputArray](Vector2i pixelPos)
-        {
-            pixelPos = posFilterer(pixelPos);
-            if (outputRegion.Contains(pixelPos))
-                return outputArray[pixelPos].Value;
-            else
-                return Nullable<Pixel>();
-        };
 
 	//Get the pixels that are closest to being certain.
 	List<Vector2i> lowestEntropyPixelPoses;
@@ -81,7 +56,7 @@ Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_fail
 
             //Recalculate positions that will be affected by this.
             for (Vector2i affectedPos : affectedPoses)
-                RecalculatePixelChances(affectedPos, posFilterer, outputColorGetter);
+                RecalculatePixelChances(affectedPos);
 
             out_changedPos = Vector2i(-1, -1);
             return Nullable<bool>();
@@ -129,41 +104,21 @@ Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_fail
 	}
 
 	//Finally set the pixel and wait for the next iteration.
-	SetPixel(chosenPixelPos, chosenColor, posFilterer, outputColorGetter);
+	SetPixel(chosenPixelPos, chosenColor);
     out_changedPos = chosenPixelPos;
 	return Nullable<bool>();
 }
 
 void State::SetPixel(Vector2i pixelPos, Pixel value)
 {
-    //Define some useful lambdas.
-    auto& outputArray = Output;
-    Region2i outputRegion(Output.GetDimensions());
-    std::function<Vector2i(Vector2i)> posFilterer = GetPosFilterer();
-    std::function<Nullable<Pixel>(Vector2i)> outputColorGetter =
-        [posFilterer, &outputRegion, &outputArray](Vector2i pixelPos)
-    {
-        pixelPos = posFilterer(pixelPos);
-        if (outputRegion.Contains(pixelPos))
-            return outputArray[pixelPos].Value;
-        else
-            return Nullable<Pixel>();
-    };
-
-    SetPixel(pixelPos, value, posFilterer, outputColorGetter);
-}
-void State::SetPixel(Vector2i pixelPos, Pixel value,
-                     std::function<Vector2i(Vector2i)> posFilterer,
-                     std::function<Nullable<Pixel>(Vector2i)> outputColorGetter)
-{
 	Output[pixelPos].Value = value;
 
 	//Any pixel that could share a pattern with the changed pixel needs to be updated.
 	for (Vector2i affectedPixel : Region2i(pixelPos - Input.MaxPatternSize,
-							               pixelPos + Input.MaxPatternSize + 1))
-    {
-        RecalculatePixelChances(affectedPixel, posFilterer, outputColorGetter);
-    }
+										   pixelPos + Input.MaxPatternSize + 1))
+	{
+		RecalculatePixelChances(affectedPixel);
+	}
 }
 
 Region2i State::ClearArea(Vector2i center)
@@ -172,14 +127,13 @@ Region2i State::ClearArea(Vector2i center)
 			 halfClearSize = clearSize / 2;
 	Vector2i clearCenter = center + (Input.MaxPatternSize / 2);
 
-	auto posFilterer = GetPosFilterer();
 	Region2i regionToClear(clearCenter - halfClearSize,
 						   clearCenter + halfClearSize + 1);
 	for (Vector2i posToClear : regionToClear)
 	{
-		posToClear = posFilterer(posToClear);
-		if (Region2i(Output.GetDimensions()).Contains(posToClear))
-			Output[posToClear].Value = Nullable<Pixel>();
+		auto tryPixel = operator[](posToClear);
+		if (tryPixel != nullptr)
+			tryPixel->Value = Nullable<Pixel>();
 	}
 
 	return Region2i(regionToClear.MinInclusive - Input.MaxPatternSize + 1,
@@ -218,15 +172,13 @@ void State::GetBestPixels(List<Vector2i>& outValues) const
 	}
 }
 
-void State::RecalculatePixelChances(Vector2i pixelPos,
-                                    std::function<Vector2i(Vector2i)> posFilterer,
-                                    std::function<Nullable<Pixel>(Vector2i)> outputColorGetter)
+void State::RecalculatePixelChances(Vector2i pixelPos)
 {
 	Region2i outputRegion(Output.GetDimensions());
 
 	auto& inputData = Input;
     auto& outputArray = Output;
-	pixelPos = posFilterer(pixelPos);
+	Filter(pixelPos);
 
 	//If the position is outside the output, or the pixel is already set,
 	//    nothing needs to be done.
@@ -241,17 +193,7 @@ void State::RecalculatePixelChances(Vector2i pixelPos,
 		[&](const Pixel& color)
 		{
 			//Assume that the color is placed.
-			std::function<Nullable<Pixel>(Vector2i)> newOutputColorGetter =
-				[&](Vector2i outputPos) -> Nullable<Pixel>
-				{
-					outputPos = posFilterer(outputPos);
-					if (outputPos == pixelPos)
-						return color;
-					else if (outputRegion.Contains(outputPos))
-						return outputArray[outputPos].Value;
-					else
-						return Nullable<Pixel>();
-				};
+            Output[pixelPos].Value = color;
 
 			//Test the constraint: any NxM pattern in the output
 			//    appears at least once in the input.
@@ -262,8 +204,7 @@ void State::RecalculatePixelChances(Vector2i pixelPos,
                 bool passed = false;
 				for (size_t patternI = 0; patternI < inputData.GetPatterns().GetSize(); ++patternI)
 				{
-					if (inputData.GetPatterns()[patternI].DoesFit(nearbyAffectedPixelPos,
-									 							    newOutputColorGetter))
+					if (inputData.GetPatterns()[patternI].DoesFit(nearbyAffectedPixelPos, *this))
 					{
                         passed = true;
                         break;
@@ -275,6 +216,9 @@ void State::RecalculatePixelChances(Vector2i pixelPos,
                     break;
                 }
 			}
+
+            //Undo the color placement.
+            Output[pixelPos].Value = Nullable<Pixel>();
 		});
 
 	//Check which patterns can be applied at which positions around this pixel.
@@ -295,7 +239,7 @@ void State::RecalculatePixelChances(Vector2i pixelPos,
 
             size_t index = badColors.IndexOf(
                 [&patternColor](const Pixel& p) { return p == patternColor; });
-            if (index == -1 && pattern.DoesFit(patternMinCorner, outputColorGetter))
+            if (index == -1 && pattern.DoesFit(patternMinCorner, *this))
                 pixel.ColorFrequencies[patternColor] += pattern.Frequency;
         }
     }

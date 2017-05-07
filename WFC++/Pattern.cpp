@@ -1,5 +1,6 @@
 #include "Pattern.h"
 #include "InputData.h"
+#include "State.h"
 
 using namespace WFC;
 
@@ -39,8 +40,7 @@ bool Pattern::HasSameData(const Pattern& otherPattern) const
 	return true;
 }
 
-bool Pattern::DoesFit(Vector2i outputMinCorner,
-					  std::function<Nullable<Pixel>(Vector2i)> getOutputPixel) const
+bool Pattern::DoesFit(Vector2i outputMinCorner, const State& outputState) const
 {
 	for (Vector2i patternPos : Region2i(InputDataRegion.GetSize()))
 	{
@@ -48,9 +48,8 @@ bool Pattern::DoesFit(Vector2i outputMinCorner,
 				 outputPos = patternPos + outputMinCorner;
 
 		Pixel inputPixel = input->GetPixel(inputPos, InputDataTransform);
-		Nullable<Pixel> outputPixel = getOutputPixel(outputPos);
-
-		if (outputPixel.HasValue && outputPixel.Value != inputPixel)
+		auto tryPixel = outputState[outputPos];
+		if (tryPixel != nullptr && tryPixel->Value.HasValue && tryPixel->Value.Value != inputPixel)
 			return false;
 	}
 
