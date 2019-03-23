@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -21,32 +21,32 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{38A88B72-ACE0-400E-AC82-677C89622B69}</ProjectGuid>
     <RootNamespace>WFC</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -177,18 +177,18 @@ xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
     <ClInclude Include="WFC++\Dictionary.hpp" />
     <ClInclude Include="WFC++\Exports.h" />
     <ClInclude Include="WFC++\HelperClasses.h" />
-    <ClInclude Include="WFC++\InputData.h" />
     <ClInclude Include="WFC++\List.hpp" />
     <ClInclude Include="WFC++\Nullable.hpp" />
-    <ClInclude Include="WFC++\Pattern.h" />
     <ClInclude Include="WFC++\Platform.h" />
-    <ClInclude Include="WFC++\State.h" />
+    <ClInclude Include="WFC++\Simple\InputData.h" />
+    <ClInclude Include="WFC++\Simple\Pattern.h" />
+    <ClInclude Include="WFC++\Simple\State.h" />
     <ClInclude Include="WFC++\Vector2i.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WFC++\InputData.cpp" />
-    <ClCompile Include="WFC++\Pattern.cpp" />
-    <ClCompile Include="WFC++\State.cpp" />
+    <ClCompile Include="WFC++\Simple\InputData.cpp" />
+    <ClCompile Include="WFC++\Simple\Pattern.cpp" />
+    <ClCompile Include="WFC++\Simple\State.cpp" />
     <ClCompile Include="WFC++\Vector2i.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

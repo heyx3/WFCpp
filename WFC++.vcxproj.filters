@@ -1,15 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="WFC++\InputData.h">
-      <Filter>Generator Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\Pattern.h">
-      <Filter>Generator Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\State.h">
-      <Filter>Generator Classes</Filter>
-    </ClInclude>
     <ClInclude Include="WFC++\Nullable.hpp">
       <Filter>Helper Classes</Filter>
     </ClInclude>
@@ -28,6 +19,15 @@
     <ClInclude Include="WFC++\HelperClasses.h" />
     <ClInclude Include="WFC++\Platform.h" />
     <ClInclude Include="WFC++\Exports.h" />
+    <ClInclude Include="WFC++\Simple\InputData.h">
+      <Filter>Generator Classes\Simple</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\Simple\Pattern.h">
+      <Filter>Generator Classes\Simple</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\Simple\State.h">
+      <Filter>Generator Classes\Simple</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Helper Classes">
@@ -36,19 +36,25 @@
     <Filter Include="Generator Classes">
       <UniqueIdentifier>{a9d77f97-4a85-4d0d-a950-cbc1b00ec7a1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Generator Classes\Simple">
+      <UniqueIdentifier>{765c03fd-88b1-4127-9294-4dab7529dd1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generator Classes\Tiled">
+      <UniqueIdentifier>{0269a151-36ad-4c76-b778-79c39a4f0a93}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WFC++\Pattern.cpp">
-      <Filter>Generator Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="WFC++\State.cpp">
-      <Filter>Generator Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="WFC++\InputData.cpp">
-      <Filter>Generator Classes</Filter>
-    </ClCompile>
     <ClCompile Include="WFC++\Vector2i.cpp">
       <Filter>Helper Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="WFC++\Simple\InputData.cpp">
+      <Filter>Generator Classes\Simple</Filter>
+    </ClCompile>
+    <ClCompile Include="WFC++\Simple\Pattern.cpp">
+      <Filter>Generator Classes\Simple</Filter>
+    </ClCompile>
+    <ClCompile Include="WFC++\Simple\State.cpp">
+      <Filter>Generator Classes\Simple</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

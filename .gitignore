@@ -85,3 +85,5 @@ WFC++.VC.db
 WFC++.VC.VC.db
 WFC++.VC.opendb
 WFC++.VC.VC.opendb
+.vs
+**/*.vcxproj.user

@@ -3,6 +3,7 @@
 #include "State.h"
 
 using namespace WFC;
+using namespace WFC::Simple;
 
 
 const Pixel& Pattern::operator[](const Vector2i& patternPos) const

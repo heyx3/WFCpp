@@ -3,6 +3,7 @@
 #include <unordered_set>
 
 using namespace WFC;
+using namespace WFC::Simple;
 
 
 void State::Reset(Vector2i newOutputSize)

@@ -3,7 +3,7 @@
 #include <string>
 #include <algorithm>
 
-#include <State.h>
+#include <Simple/State.h>
 
 
 //Takes in an input image (where each pixel is an unsigned int), and some parameters.
@@ -38,6 +38,7 @@ false               <----- Make the output periodic horizontally?
 true                <----- Make the output periodic vertically?
 2                   <----- Violation clear size (enter 0 to simply fail on a constraint violation).
 -1                  <----- Number of iterations (anything below 0 is interpreted as "infinity").
+true                <----- Display each step of the process? (not needed if in shell mode).
     [File end on previous line]
 */
 
@@ -49,7 +50,7 @@ true                <----- Make the output periodic vertically?
 
 //Parses a pixel, expected to be a uint.
 //Returns whether or not the parse succeeded.
-bool TryParsePixel(const std::string& pixel, WFC::Pixel& outValue)
+bool TryParsePixel(const std::string& pixel, WFC::Simple::Pixel& outValue)
 {
     std::stringstream converter(pixel);
     return !(converter >> outValue).fail() &&
@@ -57,7 +58,7 @@ bool TryParsePixel(const std::string& pixel, WFC::Pixel& outValue)
 }
 //Parses a row of pixels, where each pixel is a uint separated by at least one space each.
 //Returns whether or not the parse succeeded.
-bool TryParsePixelRow(const std::string& rowAsString, std::vector<WFC::Pixel>& outValue)
+bool TryParsePixelRow(const std::string& rowAsString, std::vector<WFC::Simple::Pixel>& outValue)
 {
     std::string number;
     for (char c : rowAsString)
@@ -66,7 +67,7 @@ bool TryParsePixelRow(const std::string& rowAsString, std::vector<WFC::Pixel>& o
         {
             if (!number.empty())
             {
-                WFC::Pixel p;
+                WFC::Simple::Pixel p;
                 if (!TryParsePixel(number, p))
                     return false;
 
@@ -86,7 +87,7 @@ bool TryParsePixelRow(const std::string& rowAsString, std::vector<WFC::Pixel>& o
 
     if (!number.empty())
     {
-        WFC::Pixel p;
+        WFC::Simple::Pixel p;
         if (!TryParsePixel(number, p))
             return false;
 
@@ -101,7 +102,7 @@ bool TryParsePixelRow(const std::string& rowAsString, std::vector<WFC::Pixel>& o
 //The following two functions get data from the given input stream.
 //If the given output stream isn't null, it writes instructions to the user as it gets input.
 
-WFC::InputData GetDataFromStream(std::istream& input, std::ostream* output)
+WFC::Simple::InputData GetDataFromStream(std::istream& input, std::ostream* output)
 {
     //Let input stream parse "true" as true and "false" as false.
     std::boolalpha(input);
@@ -109,10 +110,10 @@ WFC::InputData GetDataFromStream(std::istream& input, std::ostream* output)
     const size_t maxUint = std::numeric_limits<size_t>().max();
 
     //Get the input image data.
-    WFC::Array2D<WFC::Pixel> inputPixels;
+    WFC::Array2D<WFC::Simple::Pixel> inputPixels;
     {
         size_t nPixelsPerRow = maxUint;
-        std::vector<std::vector<WFC::Pixel>> pixelsByRow;
+        std::vector<std::vector<WFC::Simple::Pixel>> pixelsByRow;
 
         if (output != nullptr)
         {
@@ -124,7 +125,7 @@ WFC::InputData GetDataFromStream(std::istream& input, std::ostream* output)
         std::string imageLine;
         std::getline(input, imageLine);
 
-        std::vector<WFC::Pixel> pixelRow;
+        std::vector<WFC::Simple::Pixel> pixelRow;
         while (!imageLine.empty())
         {
             if (!TryParsePixelRow(imageLine, pixelRow))
@@ -172,8 +173,8 @@ WFC::InputData GetDataFromStream(std::istream& input, std::ostream* output)
         }
 
         //Convert to the Array2D<Pixel>.
-        inputPixels = WFC::Array2D<WFC::Pixel>((int)nPixelsPerRow, (int)pixelsByRow.size());
-        for (WFC::Vector2i inputPos : WFC::Region2i(inputPixels.GetDimensions()))
+        inputPixels = WFC::Array2D<WFC::Simple::Pixel>((int)nPixelsPerRow, (int)pixelsByRow.size());
+        for (auto inputPos : WFC::Region2i(inputPixels.GetDimensions()))
             inputPixels[inputPos] = pixelsByRow[inputPos.y][inputPos.x];
     }
 
@@ -182,7 +183,7 @@ WFC::InputData GetDataFromStream(std::istream& input, std::ostream* output)
         *output << "Enter the width of each pattern:\n";
     input >> patternSize.x;
     if (output != nullptr)
-        *output << "Enter the hight of each pattern:\n";
+        *output << "Enter the height of each pattern:\n";
     input >> patternSize.y;
 
     bool periodicX, periodicY;
@@ -201,11 +202,11 @@ WFC::InputData GetDataFromStream(std::istream& input, std::ostream* output)
         *output << "Also use reflected copies of the input? (true/false)\n";
     input >> reflectInput;
 
-    return WFC::InputData(inputPixels, patternSize, periodicX, periodicY,
-                          rotateInput, reflectInput);
+    return WFC::Simple::InputData(inputPixels, patternSize, periodicX, periodicY,
+                                  rotateInput, reflectInput);
 }
-WFC::State InitializeStateFromStream(const WFC::InputData& wfcInput,
-                                     std::istream& input, std::ostream* output)
+WFC::Simple::State InitializeStateFromStream(const WFC::Simple::InputData& wfcInput,
+                                             std::istream& input, std::ostream* output)
 {
     //Let input stream parse "true" as true and "false" as false.
     std::boolalpha(input);
@@ -236,11 +237,11 @@ WFC::State InitializeStateFromStream(const WFC::InputData& wfcInput,
         *output << "Enter the violation clear size (0 for failure on violations):\n";
     input >> violationClearSize;
 
-    return WFC::State(wfcInput, size, seed, periodicX, periodicY, violationClearSize);
+    return WFC::Simple::State(wfcInput, size, seed, periodicX, periodicY, violationClearSize);
 }
 
 
-void PrintOutput(const WFC::State& state, std::ostream& stream)
+void PrintOutput(const WFC::Simple::State& state, std::ostream& stream)
 {
     //Convert each element to a string, and find the longest string.
 
@@ -265,7 +266,7 @@ void PrintOutput(const WFC::State& state, std::ostream& stream)
         else
         {
             pixel.ColorFrequencies.DoToEach(
-                [&elementStr](const WFC::Pixel& key)
+                [&elementStr](const WFC::Simple::Pixel& key)
                 {
                     elementStr += "|";
                     elementStr += std::to_string(key);
@@ -317,20 +318,31 @@ int main(int argc, char* argv[])
 
     auto outputStream = (shellMode ? nullptr : &std::cout);
 
+    //Get input data:
     auto inputData = GetDataFromStream(std::cin, shellMode ? nullptr : &std::cout);
     if (!shellMode)
         std::cout << "\n\n";
     auto wfcState = InitializeStateFromStream(inputData, std::cin, shellMode ? nullptr : &std::cout);
 
+    //Get output data:
     int _nIterations;
     if (!shellMode)
         std::cout << "Enter the number of iterations (anything less than 0 is interpreted as \"infinity\":\n";
     std::cin >> _nIterations;
-
-    int errorCode = 0;
     size_t nIterations = (_nIterations < 0 ?
                               std::numeric_limits<size_t>::max() :
                               (size_t)_nIterations + 1);
+
+    //Get whether to print the status at each stage:
+    bool printStatus = false;
+    if (!shellMode)
+    {
+        std::cout << "Show the output at each stage? (true/false):\n";
+        std::cin >> printStatus;
+    }
+
+    //Run the generator loop.
+    int errorCode = 0;
     WFC::Vector2i changedPos;
     WFC::List<WFC::Vector2i> failedPoses;
     size_t iterationCount = 0;
@@ -345,7 +357,7 @@ int main(int argc, char* argv[])
             if (result.Value)
             {
                 if (!shellMode)
-                    std::cout << "Finished!\n\n";
+                    std::cout << "Finished! Took " << iterationCount << " iterations.\n\n";
                 break;
             }
             else
@@ -365,7 +377,7 @@ int main(int argc, char* argv[])
         else
         {
             //Print the current state of the output.
-            if (!shellMode)
+            if (printStatus)
             {
                 std::cout << "#" << iterationCount << "\tChanged {"
                           << changedPos.x << ", " << changedPos.y << "}\n";

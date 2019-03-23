@@ -1,6 +1,7 @@
 #include "InputData.h"
 
 using namespace WFC;
+using namespace WFC::Simple;
 
 
 namespace
