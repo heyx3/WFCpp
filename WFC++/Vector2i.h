@@ -9,7 +9,11 @@
 
 namespace WFC
 {
+    //NOTE: By convention, the positive Y axis points downward.
+
 	//Things that can be done to 2D vectors.
+    //Note that this set is completely closed -- any combination of these transformations
+    //    is equivalent to a single one of these transformations.
 	enum WFC_API Transformations
 	{
 		Rotate90CW = 0,

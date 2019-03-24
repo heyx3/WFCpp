@@ -265,12 +265,11 @@ void PrintOutput(const WFC::Simple::State& state, std::ostream& stream)
         }
         else
         {
-            pixel.ColorFrequencies.DoToEach(
-                [&elementStr](const WFC::Simple::Pixel& key)
-                {
-                    elementStr += "|";
-                    elementStr += std::to_string(key);
-                });
+            for (const auto& kvp : pixel.ColorFrequencies)
+            {
+                elementStr += "|";
+                elementStr += std::to_string(kvp.second);
+            }
         }
 
         maxLength = std::max(maxLength, elementStr.size());

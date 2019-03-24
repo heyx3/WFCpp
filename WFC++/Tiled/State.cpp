@@ -3,7 +3,7 @@
 #include <unordered_set>
 
 using namespace WFC;
-using namespace WFC::Simple;
+using namespace WFC::Tiled;
 
 
 void State::Reset(Vector2i newOutputSize)
@@ -21,8 +21,10 @@ void State::Reset(Vector2i newOutputSize)
 		auto& pixel = Output[pos];
         pixel.ColorFrequencies.Clear();
 
-        for (const auto& kvp : Input.GetPixelFrequencies())
-            pixel.ColorFrequencies[kvp.second] = colorFrequencies[kvp.second];
+		Input.GetPixelFrequencies().DoToEach([&pixel, &colorFrequencies](Pixel key)
+		{
+			pixel.ColorFrequencies[key] = colorFrequencies[key];
+		});
 	}
 }
 
@@ -77,8 +79,10 @@ Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_fail
 	//If there's only one possible color, this is easy.
 	if (chosenPixel.ColorFrequencies.GetSize() == 1)
 	{
-        for (const auto& kvp : chosenPixel.ColorFrequencies)
-            chosenColor = kvp.second;
+		chosenPixel.ColorFrequencies.DoToEach([&chosenColor](const Pixel& key)
+		{
+			chosenColor = key;
+		});
 	}
 	//Otherwise, make a weighted random choice.
 	else
@@ -87,12 +91,13 @@ Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_fail
 		std::vector<Pixel> colors(chosenPixel.ColorFrequencies.GetSize());
 		std::vector<size_t> weights(chosenPixel.ColorFrequencies.GetSize());
 		size_t index = 0;
-        for (const auto& colAndWeight : chosenPixel.ColorFrequencies)
-        {
-            colors[index] = colAndWeight.first;
-            weights[index] = colAndWeight.second;
-            index += 1;
-        }
+		chosenPixel.ColorFrequencies.DoToEach_Pair(
+			[&colors, &weights, &index](const Pixel& color, size_t weight)
+			{
+				colors[index] = color;
+				weights[index] = weight;
+				index += 1;
+			});
 
 		//Plug that into the RNG.
 		std::discrete_distribution<size_t> distribution(weights.begin(), weights.end());
@@ -185,38 +190,37 @@ void State::RecalculatePixelChances(Vector2i pixelPos)
 
 	//Find any colors that, if placed here, would cause a violation of the WFC constraint.
 	List<Pixel> badColors;
-    for (const auto& kvp : Input.GetPixelFrequencies())
-    {
-        auto color = kvp.second;
+    Input.GetPixelFrequencies().DoToEach(
+		[&](const Pixel& color)
+		{
+			//Assume that the color is placed.
+            Output[pixelPos].Value = color;
 
-        //Assume that the color is placed.
-        Output[pixelPos].Value = color;
-
-        //Test the constraint: any NxM pattern in the output
-        //    appears at least once in the input.
-        Region2i nearbyAffectedPixels(pixelPos - inputData.MaxPatternSize + 1,
-                                      pixelPos + 1);
-        for (Vector2i nearbyAffectedPixelPos : nearbyAffectedPixels)
-        {
-            bool passed = false;
-            for (size_t patternI = 0; patternI < inputData.GetPatterns().GetSize(); ++patternI)
-            {
-                if (inputData.GetPatterns()[patternI].DoesFit(nearbyAffectedPixelPos, *this))
+			//Test the constraint: any NxM pattern in the output
+			//    appears at least once in the input.
+			Region2i nearbyAffectedPixels(pixelPos - inputData.MaxPatternSize + 1,
+											pixelPos + 1);
+			for (Vector2i nearbyAffectedPixelPos : nearbyAffectedPixels)
+			{
+                bool passed = false;
+				for (size_t patternI = 0; patternI < inputData.GetPatterns().GetSize(); ++patternI)
+				{
+					if (inputData.GetPatterns()[patternI].DoesFit(nearbyAffectedPixelPos, *this))
+					{
+                        passed = true;
+                        break;
+					}
+				}
+                if (!passed)
                 {
-                    passed = true;
+                    badColors.PushBack(color);
                     break;
                 }
-            }
-            if (!passed)
-            {
-                badColors.PushBack(color);
-                break;
-            }
-        }
+			}
 
-        //Undo the color placement.
-        Output[pixelPos].Value = Nullable<Pixel>();
-    }
+            //Undo the color placement.
+            Output[pixelPos].Value = Nullable<Pixel>();
+		});
 
 	//Check which patterns can be applied at which positions around this pixel.
     pixel.ColorFrequencies.Clear();

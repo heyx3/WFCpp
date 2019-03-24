@@ -13,6 +13,7 @@ namespace WFC
     public:
 
         List() { }
+
         explicit List(const T& first) { vec.push_back(first); }
         explicit List(const T& first, const T& second) { vec.push_back(first); vec.push_back(second); }
         explicit List(const T& first, const T& second, const T& third)
@@ -58,6 +59,11 @@ namespace WFC
         T& GetBack() { return vec[vec.size() - 1]; }
         const T& GetBack() const { return vec[vec.size() - 1]; }
 
+        //Iterators for ranged-for loops.
+        auto begin() const { return vec.begin(); }
+        auto begin() { return vec.begin(); }
+        auto end() const { return vec.end(); }
+        auto end() { return vec.end(); }
 
     private:
 

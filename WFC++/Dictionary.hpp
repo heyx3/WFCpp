@@ -47,25 +47,6 @@ namespace WFC
 			return (TValue&)((const Dictionary<TKey, TValue>*)this)->Get(key, valIfNotFound);
 		}
 
-
-		//A function that just takes a const reference to a key.
-		template<typename Func>
-		//Runs the given function for every key in this dictionary.
-		void DoToEach(Func func) const
-		{
-			for (auto& keyAndVal : dict)
-				func(keyAndVal.first);
-		}
-
-		//A function that just takes const references to a key and its value.
-		template<typename Func>
-		//Runs the given function for every key/value pair in this dictionary.
-		void DoToEach_Pair(Func func) const
-		{
-			for (auto& keyAndVal : dict)
-				func(keyAndVal.first, keyAndVal.second);
-		}
-
         template<typename NumberType>
         //Sums the values.
         NumberType Sum(NumberType(*valueToNumber)(const TValue& value)) const
@@ -76,6 +57,11 @@ namespace WFC
             return sum;
         }
 
+        //Iterators for ranged-for loops.
+        auto begin() const { return dict.begin(); }
+        auto begin() { return dict.begin(); }
+        auto end() const { return dict.end(); }
+        auto end() { return dict.end(); }
 
 	private:
 

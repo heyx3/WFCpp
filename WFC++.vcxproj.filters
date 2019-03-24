@@ -28,6 +28,18 @@
     <ClInclude Include="WFC++\Simple\State.h">
       <Filter>Generator Classes\Simple</Filter>
     </ClInclude>
+    <ClInclude Include="WFC++\Tiled\InputData.h">
+      <Filter>Generator Classes\Tiled</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\Tiled\State.h">
+      <Filter>Generator Classes\Tiled</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\Tiled\Tile.hpp">
+      <Filter>Generator Classes\Tiled</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\Set.hpp">
+      <Filter>Helper Classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Helper Classes">
@@ -55,6 +67,12 @@
     </ClCompile>
     <ClCompile Include="WFC++\Simple\State.cpp">
       <Filter>Generator Classes\Simple</Filter>
+    </ClCompile>
+    <ClCompile Include="WFC++\Tiled\InputData.cpp">
+      <Filter>Generator Classes\Tiled</Filter>
+    </ClCompile>
+    <ClCompile Include="WFC++\Tiled\State.cpp">
+      <Filter>Generator Classes\Tiled</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

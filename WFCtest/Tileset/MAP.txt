@@ -1,0 +1,2 @@
+Grass:Asymmetric
+Street:Symmetric
