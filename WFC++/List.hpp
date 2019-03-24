@@ -42,6 +42,8 @@ namespace WFC
         void RemoveAt(size_t i) { vec.erase(vec.begin() + i); }
 
         void Insert(size_t i, const T& value) { vec.insert(vec.begin() + i, value); }
+        void Insert(size_t i, const List<T>& elements) { vec.insert(vec.begin() + i, elements.begin(), elements.end()); }
+
         void Clear() { vec.clear(); }
 
         template<typename Predicate>

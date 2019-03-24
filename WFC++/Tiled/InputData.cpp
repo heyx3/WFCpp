@@ -32,7 +32,7 @@ InputData::InputData(const List<Tile>& originalTiles,
     nextEdgeID += 1;
 
     //Create any requested permutations of tiles.
-    auto tiles = List<Tile>(originalTiles);
+    tiles.Insert(0, originalTiles);
 
     //Macro helpers:
     #define TRANSFORM_EDGE(srcEdge, destEdge) \
@@ -100,6 +100,21 @@ InputData::InputData(const List<Tile>& originalTiles,
         }
     }
 
-    //Now match every tile's edge to a set of tiles that can line up with it.
-    //TODO: Implement.
+
+    //Find all pairs of edge type with direction that actually exist in the set.
+    Set<TileConnection> allDesiredEdges;
+    for (const auto& tile : tiles)
+        for (uint8_t edgeI = 0; edgeI < 4; ++edgeI)
+            allDesiredEdges.Add(TileConnection(tile.Edges[edgeI], GetOppositeEdge((Edges)edgeI)));
+    //Find all the matches for those edges.
+    for (const auto& tile : tiles)
+    {
+        for (uint8_t edgeI = 0; edgeI < 4; ++edgeI)
+        {
+            auto key = TileConnection(tile.Edges[edgeI], (Edges)edgeI);
+
+            assert(allDesiredEdges.Contains(key));
+            matchingEdges[key].Add(&tile);
+        }
+    }
 }

@@ -21,7 +21,31 @@ namespace WFC
                 MissingSymmetricalDict,
                 //The dictionary indicating whether edges are symmetrical was missing an edge.
                 MissingEdgeID,
+            };
 
+            //A specific edge type and direction.
+            struct TileConnection
+            {
+                EdgeID Type;
+                Edges Edge;
+
+                TileConnection(EdgeID src, Edges dest)
+                    : Type(src), Edge(dest) { }
+
+                //Gets the hash value for an instance.
+                //Allows it to be used as a Dictionary<> key.
+                inline unsigned int operator()(const TileConnection& t) const
+                {
+                    //Use the Vector2i hasher that already exists.
+                    Vector2i v2(t.Type, t.Edge);
+                    return Vector2i()(v2);
+                }
+
+                inline bool operator==(const TileConnection& t2) const
+                {
+                    return (Type == t2.Type) & (Edge == t2.Edge);
+                }
+                inline bool operator!=(const TileConnection& t2) const { return !(operator==(t2)); }
             };
 
 
@@ -37,43 +61,18 @@ namespace WFC
             //    connecting to the given edge of the matched tile
             //    (i.e. if your tile is connecting to the right,
             //     "destEdge" should be "left").
-            inline const Set<Tile>& GetMatches(EdgeID srcEdge, Edges destEdge)
+            inline const Set<const Tile*>& GetMatches(EdgeID srcEdge, Edges destEdge)
             {
-                return matchingEdges[TileAndEdge(srcEdge, destEdge)];
+                return matchingEdges[TileConnection(srcEdge, destEdge)];
             }
 
 
 	    private:
-            
-            //A source tile's edge and desired destination edge.
-            //Used for quick lookup of what tiles can fit in a given situation.
-            struct TileAndEdge
-            {
-                EdgeID SrcEdge;
-                Edges DestEdge;
 
-                TileAndEdge(EdgeID src, Edges dest)
-                    : SrcEdge(src), DestEdge(dest) { }
-
-                //Gets the hash value for an instance.
-                //Allows it to be used as a Dictionary<> key.
-                inline unsigned int operator()(const TileAndEdge& t) const
-                {
-                    //Use the Vector2i hasher that already exists.
-                    Vector2i v2(t.SrcEdge, t.DestEdge);
-                    return Vector2i()(v2);
-                }
-
-                inline bool operator==(const TileAndEdge& t2) const
-                {
-                    return (SrcEdge == t2.SrcEdge) & (DestEdge == t2.DestEdge);
-                }
-                inline bool operator!=(const TileAndEdge& t2) const { return !(operator==(t2)); }
-            };
-
-
+            //All the tiles in the input data, including rotated/reflected permutations.
+            List<Tile> tiles;
             //A quick lookup of which tiles can match with which environments.
-            Dictionary<TileAndEdge, Set<Tile>> matchingEdges;
+            Dictionary<TileConnection, Set<const Tile*>> matchingEdges;
 	    };
     }
 }

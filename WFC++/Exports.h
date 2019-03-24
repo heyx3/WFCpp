@@ -27,6 +27,8 @@ namespace WFC
     }
     namespace Tiled
     {
-        EXPORT_WFC_SET(Tile);
+        EXPORT_WFC_LIST(Tile);
+        EXPORT_WFC_SET(const Tile*);
+        EXPORT_WFC_DICT(EdgeID, bool);
     }
 }
