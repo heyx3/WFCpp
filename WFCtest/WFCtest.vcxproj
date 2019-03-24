@@ -154,6 +154,10 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="Tileset\Grass -.txt" />
+    <Text Include="Tileset\Grass r.txt" />
+    <Text Include="Tileset\Grass T.txt" />
+    <Text Include="Tileset\Grass u.txt" />
     <Text Include="Tileset\MAP.txt">
       <DeploymentContent>true</DeploymentContent>
     </Text>

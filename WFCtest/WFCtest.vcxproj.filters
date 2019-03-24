@@ -16,5 +16,9 @@
     <Text Include="Tileset\MAP.txt" />
     <Text Include="Tileset\Street +.txt" />
     <Text Include="Tileset\Street 0.txt" />
+    <Text Include="Tileset\Grass r.txt" />
+    <Text Include="Tileset\Grass T.txt" />
+    <Text Include="Tileset\Grass u.txt" />
+    <Text Include="Tileset\Grass -.txt" />
   </ItemGroup>
 </Project>
