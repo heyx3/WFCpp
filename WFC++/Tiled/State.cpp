@@ -5,6 +5,8 @@
 using namespace WFC;
 using namespace WFC::Tiled;
 
+//TODO: Update based on header file changes.
+
 
 void State::Reset(Vector2i newOutputSize)
 {

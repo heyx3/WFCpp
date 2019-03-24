@@ -66,13 +66,45 @@ namespace WFC
                 return matchingEdges[TileConnection(srcEdge, destEdge)];
             }
 
+            //Gets the tile with the given ID.
+            inline const Tile* GetTile(TileID id) const
+            {
+                assert(tileIndices.Contains(id));
+                return &tiles[tileIndices[id]];
+            }
+            //Gets the given permutation of the given tile, generated in this class's constructor.
+            //Returns null if the permutation doesn't exist.
+            inline const Tile* GetPermutation(TileID parent, Transformations transform) const
+            {
+                assert(tilePermutations.Contains(parent));
+                assert(tileIndices.Contains(parent));
+
+                for (auto childID : tilePermutations[parent])
+                {
+                    assert(tileIndices.Contains(parent));
+                    const auto* childTile = GetTile(childID);
+
+                    if ((childTile->ParentID == parent) & (childTile->ParentToMeTransform == transform))
+                        return childTile;
+                }
+
+                return nullptr;
+            }
+
 
 	    private:
 
             //All the tiles in the input data, including rotated/reflected permutations.
             List<Tile> tiles;
+
+            //A quick lookup of a tile's index in the "tiles" list.
+            Dictionary<TileID, size_t> tileIndices;
+
             //A quick lookup of which tiles can match with which environments.
             Dictionary<TileConnection, Set<const Tile*>> matchingEdges;
+
+            //A quick lookup of a tile's children.
+            Dictionary<TileID, List<TileID>> tilePermutations;
 	    };
     }
 }

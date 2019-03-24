@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../Platform.h"
 #include "../HelperClasses.h"
 #include "InputData.h"
 
@@ -15,47 +14,49 @@ namespace WFC
 	    {
 	    public:
 
-		    struct WFC_API OutputPixel
+            //A space that may become one of several tiles,
+            //    until eventually a single specific tile is chosen.
+		    struct WFC_API OutputTile
 		    {
 		    public:
-			    //The chosen value for this pixel.
-			    Nullable<Pixel> Value;
-			    //The number of ways this pixel can become various colors.
-			    Dictionary<Pixel, size_t> ColorFrequencies;
+			    //The chosen tile, if it exists yet.
+			    Nullable<TileID> Value;
+
+                //The chances of this space becoming different tiles.
+			    Dictionary<TileID, float> ValuePossibilities;
 		    };
 
 
 		    const InputData& Input;
-		    Array2D<OutputPixel> Output;
+		    Array2D<OutputTile> Output;
 
-		    //Whether the output wraps along each axis.
+		    //Whether the output must wrap along each axis.
 		    bool PeriodicX, PeriodicY;
 
-		    //If a constraint violation is found,
-		    //    an area surrounding that violation will be cleared out and regenerated.
-		    //The size of that area is [pattern size] * ViolationClearSize.
-		    //If this is set to 0, this generator just fails instead of clearing out the violation.
-		    size_t ViolationClearSize;
+		    //If an area with no matching tiles is found,
+		    //    the area surrounding that problem will be cleared out and regenerated.
+		    //The size of that area is given in tiles.
+		    //If this is set to 0, this generator just fails instead of clearing space.
+		    size_t ClearSize;
 
 
 		    State(const InputData& input, Vector2i outputSize,
-			      unsigned int seed, bool periodicX, bool periodicY, size_t violationClearSize)
+			      unsigned int seed, bool periodicX, bool periodicY, size_t clearSize)
 			    : Input(input), Output(outputSize), rng(seed),
-                  PeriodicX(periodicX), PeriodicY(periodicY),
-                  ViolationClearSize(violationClearSize)
+                  PeriodicX(periodicX), PeriodicY(periodicY), ClearSize(clearSize)
 		    {
 			    Reset(outputSize);
 		    }
 
 
-		    inline const OutputPixel* operator[](Vector2i pos) const
+		    inline const OutputTile* operator[](Vector2i pos) const
 		    {
 			    Filter(pos);
 			    return (Region2i(Output.GetDimensions()).Contains(pos)) ?
 				           &Output[pos] :
 					       nullptr;
 		    }
-		    inline OutputPixel* operator[](Vector2i pos)
+		    inline OutputTile* operator[](Vector2i pos)
 		    {
 			    Filter(pos);
 			    return (Region2i(Output.GetDimensions()).Contains(pos)) ?
@@ -78,18 +79,17 @@ namespace WFC
             //Runs one iteration. Returns true (success), false (failure), or null (not done yet).
             //If the algorithm failed, "out_failedAt" will contain
             //    the positions that the algorithm failed at.
-            //After running, "out_changedPos" contains the pixel that was changed,
+            //After running, "out_changedPos" contains the coordinate of the tile that was changed,
             //    assuming the algorithm didn't fail.
             Nullable<bool> Iterate(Vector2i& out_changedPos, List<Vector2i>& out_failedAt);
 		
-		    //Sets the given pixel to have the given value.
-		    //Updates the status of neighboring pixels to take this into account.
-		    void SetPixel(Vector2i pixelPos, Pixel value);
-            //Clears all output pixels surrounding the given pixel.
-		    //The size of the area to clear is determined by ViolationClearSize.
-		    //Assumes that ViolationClearSize is greater than 0.
-            //Returns the range of pixels whose probabilities will be affected by this.
-            Region2i ClearArea(Vector2i center);
+		    //Sets the given space to use the given tile.
+		    //Re-calculates the status of neighboring tiles to take this into account.
+		    void SetPixel(Vector2i pixelPos, TileID value);
+            //Clears all output tiles surrounding the given pixel.
+		    //The size of the area to clear is determined by the "ClearSize" field.
+		    //Assumes that ClearSize is greater than 0.
+            void ClearArea(Vector2i center);
 
 
 	    private:
@@ -104,13 +104,13 @@ namespace WFC
 			    return (val < 0) ? (val + maxExclusive) : val;
 		    }
 
-		    //Gets all output pixels with the fewest number of possible colors.
-		    //Ignores any pixels whose color is already set.
-		    void GetBestPixels(List<Vector2i>& outValues) const;
+		    //Gets all output tiles with the fewest number of possible states.
+		    //Ignores any tiles whose value is already set.
+		    void GetBestTiles(List<Vector2i>& outValues) const;
 
-		    //If the given output pixel is unset,
-		    //    this function recalculates that pixel's "ColorFrequencies" field.
-		    void RecalculatePixelChances(Vector2i pixelPos);
+		    //If the given output tile is unset,
+		    //    this function recalculates that space's "ValuePossibilities" field.
+		    void RecalculateTileChances(Vector2i pixelPos);
 	    };
     }
 }

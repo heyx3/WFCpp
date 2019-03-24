@@ -21,7 +21,10 @@ InputData::InputData(const List<Tile>& originalTiles,
     //Get the smallest ID that has not been used yet, for tile permutations.
     TileID nextTileID = 0;
     for (size_t i = 0; i < originalTiles.GetSize(); ++i)
+    {
         nextTileID = getMax(nextTileID, originalTiles[i].ID);
+        tileIndices[originalTiles[i].ID] = i;
+    }
     nextTileID += 1;
 
     //Do the same for edge IDs.
@@ -45,6 +48,8 @@ InputData::InputData(const List<Tile>& originalTiles,
         TRANSFORM_EDGE(MinY, minYTo); \
         TRANSFORM_EDGE(MaxX, maxXTo); \
         TRANSFORM_EDGE(MaxY, maxYTo); \
+        tilePermutations[tile.ID].Add(tile2.ID); \
+        tileIndices[tile2.ID] = tiles.GetSize(); \
         tiles.PushBack(tile2)
 
     //Rotated tiles:

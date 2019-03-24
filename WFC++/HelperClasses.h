@@ -8,6 +8,8 @@
 
 #include <random>
 
+//TODO: Support for seeding initial values in both generator types.
+
 namespace WFC
 {
     //TODO: Switch to custom PRNG struct.
