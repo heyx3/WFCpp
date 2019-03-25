@@ -2,6 +2,8 @@
 *.slo
 *.lo
 *.o
+*.obj
+*.pdb
 
 # Precompiled Headers
 *.gch
@@ -80,6 +82,10 @@ $RECYCLE.BIN/
 # Visual C++ projects
 *.suo
 *.sdf
+*.log
+*.tlog
+*.ilk
+*.idb
 Build
 WFC++.VC.db
 WFC++.VC.VC.db

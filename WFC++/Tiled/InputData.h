@@ -10,6 +10,7 @@ namespace WFC
     {
         using EdgeIDSet = Set<EdgeID, std::hash<EdgeID>>;
         using TileIDSet = Set<TileID, std::hash<TileID>>;
+        using EdgeToEdgeMap = Dictionary<EdgeID, EdgeID, std::hash<EdgeID>>;
 
 
 	    //Tile data for the WFC algorithm to generate from.
@@ -33,6 +34,7 @@ namespace WFC
                 EdgeID Type;
                 EdgeDirs Dir;
 
+                EdgeInstance() : Type(0), Dir((EdgeDirs)0) { }
                 EdgeInstance(EdgeID type, EdgeDirs connectionDir)
                     : Type(type), Dir(connectionDir) { }
 
@@ -61,7 +63,7 @@ namespace WFC
                       bool useRotations, bool useReflections,
                       ErrorCodes& outErrorCode,
                       const EdgeIDSet* symmetricalEdges = nullptr,
-                      const Dictionary<EdgeID, EdgeID>* edgeToReflectedEdge = nullptr);
+                      const EdgeToEdgeMap* edgeToReflectedEdge = nullptr);
 
 
             inline const List<Tile>& GetTiles() const { return tiles; }
@@ -69,8 +71,8 @@ namespace WFC
             //Gets all tiles that have the given edge type on the given side.
             inline const TileIDSet& GetTilesWithEdge(EdgeID type, EdgeDirs side) const
             {
-                matchingEdges.Get(EdgeInstance(type, side),
-                                  EmptyTileSet);
+                return matchingEdges.Get(EdgeInstance(type, side),
+                                         EmptyTileSet);
             }
 
             //Gets the tile with the given ID.
@@ -110,22 +112,21 @@ namespace WFC
 
             //TODO: Refactor input permutations/lookups into a separate class.
 
-
             //All the tiles in the input data, including rotated/reflected permutations.
             List<Tile> tiles;
 
             //A quick lookup of a tile's index in the "tiles" list.
-            Dictionary<TileID, size_t> tileIndices;
+            Dictionary<TileID, size_t, std::hash<TileID>> tileIndices;
 
             //A quick lookup of which tiles have a certain edge type in a certain direction.
             Dictionary<EdgeInstance, TileIDSet> matchingEdges;
 
             //A quick lookup of a tile's children.
-            Dictionary<TileID, List<TileID>> tilePermutations;
+            Dictionary<TileID, List<TileID>, std::hash<TileID>> tilePermutations;
 
             //Maps each edge to the reflected version of itself.
             //Symmetrical edges are not stored.
-            Dictionary<EdgeID, EdgeID> reflectedEdgeMap;
+            EdgeToEdgeMap reflectedEdgeMap;
 
 
             //The default response for "GetTilesWithEdge()".

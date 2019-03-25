@@ -19,7 +19,7 @@ InputData::InputData(const List<Tile>& originalTiles,
                      bool useRotations, bool useReflections,
                      ErrorCodes& outErrorCode,
                      const EdgeIDSet* symmetricalEdges,
-                     const Dictionary<EdgeID, EdgeID>* edgeToReflectedEdge)
+                     const EdgeToEdgeMap* edgeToReflectedEdge)
 {
     //If we were given some edge reflections, copy them over.
     if (edgeToReflectedEdge != nullptr)

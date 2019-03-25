@@ -8,6 +8,9 @@ namespace WFC
 {
     namespace Simple
     {
+        using PixelFrequencyLookup = Dictionary<Pixel, size_t, std::hash<Pixel>>;
+
+
 	    //Input image data for the WFC algorithm.
 	    class WFC_API InputData
 	    {
@@ -45,7 +48,7 @@ namespace WFC
 			    { return pixelDataByTransform[transform][inputPos]; }
 
 		    //Gets the number of times each pixel appears in this input data.
-		    const Dictionary<Pixel, size_t>& GetPixelFrequencies() const { return pixelFrequencies; }
+		    const PixelFrequencyLookup& GetPixelFrequencies() const { return pixelFrequencies; }
 		    //Gets all patterns contained in this input data.
 		    const List<Pattern>& GetPatterns() const { return patterns; }
 
@@ -56,7 +59,7 @@ namespace WFC
 		    List<Pattern> patterns;
 
 		    //The number of times each pixel appears in this input data.
-		    Dictionary<Pixel, size_t> pixelFrequencies;
+		    PixelFrequencyLookup pixelFrequencies;
 
 		    //Different transformed versions of the input pixel data.
 		    Array2D<Pixel> pixelDataByTransform[Transformations::Count];

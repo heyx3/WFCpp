@@ -11,7 +11,7 @@ void State::Reset(Vector2i newOutputSize)
 	//Re-initialize the output array.
 
 	//Set the pixel frequencies for every pixel to the frequencies of the input image itself.
-	auto& colorFrequencies = Input.GetPixelFrequencies();
+	const auto& colorFrequencies = Input.GetPixelFrequencies();
 
 	Output.Reset(newOutputSize.x, newOutputSize.y);
 	for (Vector2i pos : Region2i(Output.GetDimensions()))
@@ -19,10 +19,7 @@ void State::Reset(Vector2i newOutputSize)
 		Output[pos] = OutputPixel();
 
 		auto& pixel = Output[pos];
-        pixel.ColorFrequencies.Clear();
-
-        for (const auto& kvp : Input.GetPixelFrequencies())
-            pixel.ColorFrequencies[kvp.second] = colorFrequencies[kvp.second];
+        pixel.ColorFrequencies = colorFrequencies;
 	}
 }
 
@@ -74,7 +71,7 @@ Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_fail
 	if (chosenPixel.ColorFrequencies.GetSize() == 1)
 	{
         for (const auto& kvp : chosenPixel.ColorFrequencies)
-            chosenColor = kvp.second;
+            chosenColor = kvp.first;
 	}
 	//Otherwise, make a weighted random choice.
 	else
@@ -183,7 +180,7 @@ void State::RecalculatePixelChances(Vector2i pixelPos)
 	List<Pixel> badColors;
     for (const auto& kvp : Input.GetPixelFrequencies())
     {
-        auto color = kvp.second;
+        auto color = kvp.first;
 
         //Assume that the color is placed.
         Output[pixelPos].Value = color;

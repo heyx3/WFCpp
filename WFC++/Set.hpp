@@ -37,10 +37,10 @@ namespace WFC
         std::unordered_set<T, Hasher> set;
     };
 
-	//Use this macro to export a specific Set<> type in the dll.
-    #define EXPORT_WFC_SET(elementType)                  template class WFC_API Set<elementType>;
-    //Use this macro to export a specific Set<> type with the STL hasher in the dll.
-    #define EXPORT_WFC_SET_STD(elementType) template class WFC_API Set<elementType, std::hash<elementType>>;
-    //Use this macro to export a specific Set<> type with custom hasher in the dll.
-    #define EXPORT_WFC_SET_FULL(elementType, hasherType) template class WFC_API Set<elementType, hasherType>;
+	//Use this macro to DLL-export a Set<> type whose element type is also its hasher.
+    #define EXPORT_WFC_SET_SELF  (elementType)             template class WFC_API Set<elementType>;
+    //Use this macro to DLL-export a Set<> type who uses the standard STL hasher.
+    #define EXPORT_WFC_SET_STD   (elementType)             template class WFC_API Set<elementType, std::hash<elementType>>;
+    //Use this macro to DLL-export a Set<> type who uses a custom hasher.
+    #define EXPORT_WFC_SET_CUSTOM(elementType, hasherType) template class WFC_API Set<elementType, hasherType>;
 }

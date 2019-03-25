@@ -21,7 +21,7 @@ namespace WFC
 			    //The chosen value for this pixel.
 			    Nullable<Pixel> Value;
 			    //The number of ways this pixel can become various colors.
-			    Dictionary<Pixel, size_t> ColorFrequencies;
+			    PixelFrequencyLookup ColorFrequencies;
 		    };
 
 
