@@ -58,8 +58,12 @@ namespace WFC
             //Used to determine whether this tile can fit alongside another one.
             EdgeID Edges[4];
 
-            //How often this tile should generally appear, relative to the other tiles.
-            float Weight = 1;
+            //How often this tile should generally appear.
+            //Used as a weight for the random number generator,
+            //    so higher values means more appearances.
+            //The default weight is set at 100 so that there's plenty of room
+            //    to be given a weight under the default.
+            uint32_t Weight = 100;
 
             //If this tile is a permutation of another one, these fields describe the relationship.
             TileID ParentID = std::numeric_limits<TileID>().max();

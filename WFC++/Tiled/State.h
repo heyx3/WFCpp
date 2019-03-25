@@ -21,9 +21,11 @@ namespace WFC
 		    public:
 			    //The chosen tile, if it exists yet.
 			    Nullable<TileID> Value;
+                //The different tiles this one might become.
+                //If a tile has been chosen, this set will only have one element.
+			    Set<TileID> PossibleTiles;
 
-                //The chances of this space becoming different tiles.
-			    Dictionary<TileID, float> ValuePossibilities;
+                bool IsSet() const { return Value.HasValue; }
 		    };
 
 
@@ -33,9 +35,10 @@ namespace WFC
 		    //Whether the output must wrap along each axis.
 		    bool PeriodicX, PeriodicY;
 
-		    //If an area with no matching tiles is found,
+		    //If an area with no possible tiles is created,
 		    //    the area surrounding that problem will be cleared out and regenerated.
-		    //The size of that area is given in tiles.
+		    //The area is a square whose radius is given in tiles
+            //    (e.x. 1 is a 3x3 box, 2 is a 5x5, etc).
 		    //If this is set to 0, this generator just fails instead of clearing space.
 		    size_t ClearSize;
 
@@ -49,25 +52,33 @@ namespace WFC
 		    }
 
 
+            //Applies wrapping to each axis if applicable.
+		    inline Vector2i Filter(const Vector2i& pos) const
+		    {
+                return Vector2i(PeriodicX ? Wrap(pos.x, Output.GetWidth()) : pos.x,
+                                PeriodicY ? Wrap(pos.y, Output.GetHeight()) : pos.y);
+		    }
+            //Gets whether the given tile position is a valid output position
+            //    (after taking wrapping into account).
+            inline bool IsValidPos(Vector2i tilePos) const
+            {
+                return (PeriodicX | ((tilePos.x >= 0) & (tilePos.y >= 0))) &
+                    (PeriodicY | ((tilePos.x < Output.GetWidth()) &
+                    (tilePos.y < Output.GetHeight())));
+            }
+
+            //Gets the output tile at the given position (after taking wrapping into account).
+            //Returns nullptr if the position is invalid.
 		    inline const OutputTile* operator[](Vector2i pos) const
 		    {
-			    Filter(pos);
-			    return (Region2i(Output.GetDimensions()).Contains(pos)) ?
-				           &Output[pos] :
-					       nullptr;
+                return IsValidPos(pos) ? &Output[Filter(pos)] : nullptr;
 		    }
+            //Gets the output tile at the given position (after taking wrapping into account).
+            //Returns nullptr if the position is invalid.
 		    inline OutputTile* operator[](Vector2i pos)
 		    {
-			    Filter(pos);
-			    return (Region2i(Output.GetDimensions()).Contains(pos)) ?
-				           &Output[pos] :
-					       nullptr;
-		    }
-		    inline void Filter(Vector2i& pos) const
-		    {
-			    pos.x = (PeriodicX ? Wrap(pos.x, Output.GetWidth()) : pos.x);
-			    pos.y = (PeriodicY ? Wrap(pos.y, Output.GetHeight()) : pos.y);
-		    }
+                return IsValidPos(pos) ? &Output[Filter(pos)] : nullptr;
+            }
 
 
 		    void Reset(Vector2i newOutputSize);
@@ -85,17 +96,10 @@ namespace WFC
 		
 		    //Sets the given space to use the given tile.
 		    //Re-calculates the status of neighboring tiles to take this into account.
-		    void SetPixel(Vector2i pixelPos, TileID value);
-            //Clears all output tiles surrounding the given pixel.
-		    //The size of the area to clear is determined by the "ClearSize" field.
-		    //Assumes that ClearSize is greater than 0.
-            void ClearArea(Vector2i center);
+		    void SetTile(Vector2i tilePos, TileID value);
 
 
 	    private:
-
-            PRNG rng;
-
 
 		    static inline int Wrap(int val, int maxExclusive)
 		    {
@@ -104,13 +108,23 @@ namespace WFC
 			    return (val < 0) ? (val + maxExclusive) : val;
 		    }
 
+
+            Set<TileID> allTileIDs;
+            PRNG rng;
+
+            //Clears all output tiles surrounding the given pixel.
+		    //The size of the area to clear is determined by the "ClearSize" field.
+            //Adds the cleared tiles and any adjacent ones to "out_affectedPoses".
+		    //Assumes that ClearSize is greater than 0.
+            void ClearArea(Vector2i center, Set<Vector2i>& out_affectedPoses);
+
 		    //Gets all output tiles with the fewest number of possible states.
 		    //Ignores any tiles whose value is already set.
 		    void GetBestTiles(List<Vector2i>& outValues) const;
 
 		    //If the given output tile is unset,
 		    //    this function recalculates that space's "ValuePossibilities" field.
-		    void RecalculateTileChances(Vector2i pixelPos);
+		    void RecalculateTileChances(Vector2i tilePos);
 	    };
     }
 }

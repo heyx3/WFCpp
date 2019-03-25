@@ -8,6 +8,9 @@ namespace WFC
 {
     namespace Tiled
     {
+        using TilePtrSet = Set<const Tile*, std::hash<const Tile*>>;
+
+
 	    //Tile data for the WFC algorithm to generate from.
 	    class WFC_API InputData
 	    {
@@ -57,11 +60,13 @@ namespace WFC
                       const Dictionary<EdgeID, bool>* isEdgeSymmetrical = nullptr);
 
 
+            inline const List<Tile>& GetTiles() const { return tiles; }
+
             //Gets all tiles that can match the given source edge,
             //    connecting to the given edge of the matched tile
             //    (i.e. if your tile is connecting to the right,
             //     "destEdge" should be "left").
-            inline const Set<const Tile*>& GetMatches(EdgeID srcEdge, Edges destEdge)
+            inline const TilePtrSet& GetMatches(EdgeID srcEdge, Edges destEdge)
             {
                 return matchingEdges[TileConnection(srcEdge, destEdge)];
             }
@@ -101,7 +106,7 @@ namespace WFC
             Dictionary<TileID, size_t> tileIndices;
 
             //A quick lookup of which tiles can match with which environments.
-            Dictionary<TileConnection, Set<const Tile*>> matchingEdges;
+            Dictionary<TileConnection, TilePtrSet> matchingEdges;
 
             //A quick lookup of a tile's children.
             Dictionary<TileID, List<TileID>> tilePermutations;

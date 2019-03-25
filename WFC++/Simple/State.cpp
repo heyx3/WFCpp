@@ -28,10 +28,6 @@ void State::Reset(Vector2i newOutputSize)
 
 Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_failedAt)
 {
-    //Define some useful lambdas.
-    auto& outputArray = Output;
-    Region2i outputRegion(Output.GetDimensions());
-
 	//Get the pixels that are closest to being certain.
 	List<Vector2i> lowestEntropyPixelPoses;
 	GetBestPixels(lowestEntropyPixelPoses);

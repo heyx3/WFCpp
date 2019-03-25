@@ -8,3 +8,6 @@ Top:Street
 Bottom:Street
 Left:Street
 Right:Street
+
+//Weight it less than other tiles, to prevent too many streets from forming.
+Weight:25

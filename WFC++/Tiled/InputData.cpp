@@ -40,7 +40,10 @@ InputData::InputData(const List<Tile>& originalTiles,
     //Macro helpers:
     #define TRANSFORM_EDGE(srcEdge, destEdge) \
         tile2.Edges[Edges::destEdge] = tile.Edges[Edges::srcEdge]
-    #define MAKE_TILE(transform, minXTo, minYTo, maxXTo, maxYTo) \
+    #define MAKE_TILE(transform, minXTo, minYTo, maxXTo, maxYTo) { \
+        Tile tile2; \
+        tile2.ParentID = tile.ID; \
+        tile2.Weight = tile.Weight; \
         tile2.ID = nextTileID; \
         nextTileID += 1; \
         tile2.ParentToMeTransform = Transformations::transform; \
@@ -48,9 +51,10 @@ InputData::InputData(const List<Tile>& originalTiles,
         TRANSFORM_EDGE(MinY, minYTo); \
         TRANSFORM_EDGE(MaxX, maxXTo); \
         TRANSFORM_EDGE(MaxY, maxYTo); \
-        tilePermutations[tile.ID].Add(tile2.ID); \
+        tilePermutations[tile.ID].PushBack(tile2.ID); \
         tileIndices[tile2.ID] = tiles.GetSize(); \
-        tiles.PushBack(tile2)
+        tiles.PushBack(tile2); \
+    }
 
     //Rotated tiles:
     if (useRotations)
@@ -59,8 +63,6 @@ InputData::InputData(const List<Tile>& originalTiles,
         {
             const auto& tile = originalTiles[i];
 
-            Tile tile2;
-            tile2.ParentID = tile.ID;
             MAKE_TILE(Rotate90CW, MinY, MaxX, MaxY, MinX);
             MAKE_TILE(Rotate180, MaxX, MaxY, MinX, MinY);
             MAKE_TILE(Rotate270CW, MaxY, MinX, MinY, MaxX);
@@ -98,8 +100,6 @@ InputData::InputData(const List<Tile>& originalTiles,
                 }
             }
 
-            Tile tile2;
-            tile2.ParentID = tile.ID;
             MAKE_TILE(MirrorX, MaxX, MinY, MinX, MaxY);
             MAKE_TILE(MirrorY, MinX, MaxY, MaxX, MinY);
         }
