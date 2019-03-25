@@ -13,12 +13,13 @@
     <Text Include="Tileset\Street r.txt" />
     <Text Include="Tileset\Street u.txt" />
     <Text Include="Tileset\Street T.txt" />
-    <Text Include="Tileset\MAP.txt" />
     <Text Include="Tileset\Street +.txt" />
     <Text Include="Tileset\Street 0.txt" />
     <Text Include="Tileset\Grass r.txt" />
     <Text Include="Tileset\Grass T.txt" />
     <Text Include="Tileset\Grass u.txt" />
     <Text Include="Tileset\Grass -.txt" />
+    <Text Include="Tileset\SYMMETRIC.txt" />
+    <Text Include="Tileset\ASYMMETRIC.txt" />
   </ItemGroup>
 </Project>

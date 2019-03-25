@@ -29,11 +29,11 @@ namespace WFC
     namespace Tiled
     {
         EXPORT_WFC_LIST(Tile);
-        EXPORT_WFC_SET_STD(const Tile*);
-        EXPORT_WFC_DICT(EdgeID, bool);
+        EXPORT_WFC_SET(EdgeID);
+        EXPORT_WFC_DICT(EdgeID, EdgeID);
+        EXPORT_WFC_SET_STD(TileID);
 
         EXPORT_WFC_NULLABLE(TileID);
-        EXPORT_WFC_SET(TileID);
         EXPORT_WFC_ARRAY2D(State::OutputTile);
     }
 }

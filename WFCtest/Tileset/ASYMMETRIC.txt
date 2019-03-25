@@ -1,0 +1,2 @@
+//A file where each non-commented line is a pair of edges who are each others' reflections.
+Grass:Grass2

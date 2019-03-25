@@ -8,7 +8,8 @@ namespace WFC
 {
     namespace Tiled
     {
-        using TilePtrSet = Set<const Tile*, std::hash<const Tile*>>;
+        using EdgeIDSet = Set<EdgeID, std::hash<EdgeID>>;
+        using TileIDSet = Set<TileID, std::hash<TileID>>;
 
 
 	    //Tile data for the WFC algorithm to generate from.
@@ -20,55 +21,56 @@ namespace WFC
             {
                 //Everything went fine!
                 NoError,
-                //The dictionary indicating whether edges are symmetrical was missing.
-                MissingSymmetricalDict,
-                //The dictionary indicating whether edges are symmetrical was missing an edge.
-                MissingEdgeID,
+                //One or more parameters needed for reflecting tiles does not exist.
+                MissingReflectionData,
+                //The "edgeToReflectedEdge" parameter has invalid values.
+                InvalidReflectionMap,
             };
 
             //A specific edge type and direction.
-            struct TileConnection
+            struct EdgeInstance
             {
                 EdgeID Type;
-                Edges Edge;
+                EdgeDirs Dir;
 
-                TileConnection(EdgeID src, Edges dest)
-                    : Type(src), Edge(dest) { }
+                EdgeInstance(EdgeID type, EdgeDirs connectionDir)
+                    : Type(type), Dir(connectionDir) { }
 
                 //Gets the hash value for an instance.
                 //Allows it to be used as a Dictionary<> key.
-                inline unsigned int operator()(const TileConnection& t) const
+                inline unsigned int operator()(const EdgeInstance& t) const
                 {
                     //Use the Vector2i hasher that already exists.
-                    Vector2i v2(t.Type, t.Edge);
+                    Vector2i v2(t.Type, t.Dir);
                     return Vector2i()(v2);
                 }
 
-                inline bool operator==(const TileConnection& t2) const
+                inline bool operator==(const EdgeInstance& t2) const
                 {
-                    return (Type == t2.Type) & (Edge == t2.Edge);
+                    return (Type == t2.Type) & (Dir == t2.Dir);
                 }
-                inline bool operator!=(const TileConnection& t2) const { return !(operator==(t2)); }
+                inline bool operator!=(const EdgeInstance& t2) const { return !(operator==(t2)); }
             };
 
 
-            //Creates a new set of input data.
-            //The "isEdgeSymmetrical" dictionary is only needed if reflections are enabled.
+            //Creates a new set of input data,
+            //    potentially including rotated/reflected permutations of tiles.
+            //The "symmetricalEdges" and "edgeToReflectedEdge" data parameters are only needed
+            //    if reflections are enabled.
 		    InputData(const List<Tile>& tiles,
                       bool useRotations, bool useReflections,
                       ErrorCodes& outErrorCode,
-                      const Dictionary<EdgeID, bool>* isEdgeSymmetrical = nullptr);
+                      const EdgeIDSet* symmetricalEdges = nullptr,
+                      const Dictionary<EdgeID, EdgeID>* edgeToReflectedEdge = nullptr);
 
 
             inline const List<Tile>& GetTiles() const { return tiles; }
 
-            //Gets all tiles that can match the given source edge,
-            //    connecting to the given edge of the matched tile
-            //    (i.e. if your tile is connecting to the right,
-            //     "destEdge" should be "left").
-            inline const TilePtrSet& GetMatches(EdgeID srcEdge, Edges destEdge)
+            //Gets all tiles that have the given edge type on the given side.
+            inline const TileIDSet& GetTilesWithEdge(EdgeID type, EdgeDirs side) const
             {
-                return matchingEdges[TileConnection(srcEdge, destEdge)];
+                matchingEdges.Get(EdgeInstance(type, side),
+                                  EmptyTileSet);
             }
 
             //Gets the tile with the given ID.
@@ -95,9 +97,19 @@ namespace WFC
 
                 return nullptr;
             }
+            
+            //Gets the reflected version of the given edge.
+            inline EdgeID GetReflectedEdge(EdgeID e) const
+            {
+                //Remember: if it's not in the lookup, then it is symmetrical.
+                return reflectedEdgeMap.Get(e, e);
+            }
 
 
 	    private:
+
+            //TODO: Refactor input permutations/lookups into a separate class.
+
 
             //All the tiles in the input data, including rotated/reflected permutations.
             List<Tile> tiles;
@@ -105,11 +117,19 @@ namespace WFC
             //A quick lookup of a tile's index in the "tiles" list.
             Dictionary<TileID, size_t> tileIndices;
 
-            //A quick lookup of which tiles can match with which environments.
-            Dictionary<TileConnection, TilePtrSet> matchingEdges;
+            //A quick lookup of which tiles have a certain edge type in a certain direction.
+            Dictionary<EdgeInstance, TileIDSet> matchingEdges;
 
             //A quick lookup of a tile's children.
             Dictionary<TileID, List<TileID>> tilePermutations;
+
+            //Maps each edge to the reflected version of itself.
+            //Symmetrical edges are not stored.
+            Dictionary<EdgeID, EdgeID> reflectedEdgeMap;
+
+
+            //The default response for "GetTilesWithEdge()".
+            static const TileIDSet EmptyTileSet;
 	    };
     }
 }

@@ -23,7 +23,7 @@ namespace WFC
 			    Nullable<TileID> Value;
                 //The different tiles this one might become.
                 //If a tile has been chosen, this set will only have one element.
-			    Set<TileID> PossibleTiles;
+                TileIDSet PossibleTiles;
 
                 bool IsSet() const { return Value.HasValue; }
 		    };
@@ -109,7 +109,7 @@ namespace WFC
 		    }
 
 
-            Set<TileID> allTileIDs;
+            TileIDSet allTileIDs, tempTileIdSet;
             PRNG rng;
 
             //Clears all output tiles surrounding the given pixel.

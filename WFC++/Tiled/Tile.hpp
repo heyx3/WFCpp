@@ -9,7 +9,7 @@ namespace WFC
         using TileID = uint16_t;
         using EdgeID = uint16_t;
 
-        enum WFC_API Edges : uint8_t
+        enum WFC_API EdgeDirs : uint8_t
         {
             MinX = 0,
             MaxX = 1,
@@ -18,30 +18,30 @@ namespace WFC
         };
 
         //Gets the direction the given edge points in.
-        inline Vector2i GetEdgeDirection(Edges e)
+        inline Vector2i GetEdgeDirection(EdgeDirs e)
         {
             switch (e)
             {
                 default: assert(false);
 
-                case Edges::MaxX: return Vector2i(1, 0);
-                case Edges::MaxY: return Vector2i(0, 1);
+                case EdgeDirs::MaxX: return Vector2i(1, 0);
+                case EdgeDirs::MaxY: return Vector2i(0, 1);
 
-                case Edges::MinX: return Vector2i(-1, 0);
-                case Edges::MinY: return Vector2i(0, -1);
+                case EdgeDirs::MinX: return Vector2i(-1, 0);
+                case EdgeDirs::MinY: return Vector2i(0, -1);
             }
         }
         //Gets the edge on the other side of the given one.
-        inline Edges GetOppositeEdge(Edges e)
+        inline EdgeDirs GetOppositeEdge(EdgeDirs e)
         {
             switch (e)
             {
                 default: assert(false);
 
-                case Edges::MinX: return Edges::MaxX;
-                case Edges::MaxX: return Edges::MinX;
-                case Edges::MinY: return Edges::MaxY;
-                case Edges::MaxY: return Edges::MinY;
+                case EdgeDirs::MinX: return EdgeDirs::MaxX;
+                case EdgeDirs::MaxX: return EdgeDirs::MinX;
+                case EdgeDirs::MinY: return EdgeDirs::MaxY;
+                case EdgeDirs::MaxY: return EdgeDirs::MinY;
             }
         }
 
@@ -72,15 +72,15 @@ namespace WFC
 
             bool IsChild() const { return ParentID != std::numeric_limits<TileID>().max(); }
 
-            EdgeID MinX() const { return Edges[Edges::MinX]; }
-            EdgeID MaxX() const { return Edges[Edges::MaxX]; }
-            EdgeID MinY() const { return Edges[Edges::MinY]; }
-            EdgeID MaxY() const { return Edges[Edges::MaxY]; }
+            EdgeID MinX() const { return Edges[EdgeDirs::MinX]; }
+            EdgeID MaxX() const { return Edges[EdgeDirs::MaxX]; }
+            EdgeID MinY() const { return Edges[EdgeDirs::MinY]; }
+            EdgeID MaxY() const { return Edges[EdgeDirs::MaxY]; }
 
-            EdgeID& MinX() { return Edges[Edges::MinX]; }
-            EdgeID& MaxX() { return Edges[Edges::MaxX]; }
-            EdgeID& MinY() { return Edges[Edges::MinY]; }
-            EdgeID& MaxY() { return Edges[Edges::MaxY]; }
+            EdgeID& MinX() { return Edges[EdgeDirs::MinX]; }
+            EdgeID& MaxX() { return Edges[EdgeDirs::MaxX]; }
+            EdgeID& MinY() { return Edges[EdgeDirs::MinY]; }
+            EdgeID& MaxY() { return Edges[EdgeDirs::MaxY]; }
 
             
             //Hashes an instance.

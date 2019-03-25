@@ -154,11 +154,19 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Tileset\Grass -.txt" />
-    <Text Include="Tileset\Grass r.txt" />
-    <Text Include="Tileset\Grass T.txt" />
-    <Text Include="Tileset\Grass u.txt" />
-    <Text Include="Tileset\MAP.txt">
+    <Text Include="Tileset\ASYMMETRIC.txt">
+      <DeploymentContent>true</DeploymentContent>
+    </Text>
+    <Text Include="Tileset\Grass -.txt">
+      <DeploymentContent>true</DeploymentContent>
+    </Text>
+    <Text Include="Tileset\Grass r.txt">
+      <DeploymentContent>true</DeploymentContent>
+    </Text>
+    <Text Include="Tileset\Grass T.txt">
+      <DeploymentContent>true</DeploymentContent>
+    </Text>
+    <Text Include="Tileset\Grass u.txt">
       <DeploymentContent>true</DeploymentContent>
     </Text>
     <Text Include="Tileset\Street +.txt">
@@ -177,6 +185,9 @@
       <DeploymentContent>true</DeploymentContent>
     </Text>
     <Text Include="Tileset\Street u.txt">
+      <DeploymentContent>true</DeploymentContent>
+    </Text>
+    <Text Include="Tileset\SYMMETRIC.txt">
       <DeploymentContent>true</DeploymentContent>
     </Text>
   </ItemGroup>

@@ -12,12 +12,39 @@ namespace
     I getMax(I a, I b) { return (a > b) ? a : b; }
 }
 
+const TileIDSet InputData::EmptyTileSet;
+
 
 InputData::InputData(const List<Tile>& originalTiles,
                      bool useRotations, bool useReflections,
                      ErrorCodes& outErrorCode,
-                     const Dictionary<EdgeID, bool>* isEdgeSymmetrical)
+                     const EdgeIDSet* symmetricalEdges,
+                     const Dictionary<EdgeID, EdgeID>* edgeToReflectedEdge)
 {
+    //If we were given some edge reflections, copy them over.
+    if (edgeToReflectedEdge != nullptr)
+    {
+        reflectedEdgeMap = *edgeToReflectedEdge;
+
+        //Make sure they're stored in the other direction too.
+        for (const auto& kvp : reflectedEdgeMap)
+        {
+            if (reflectedEdgeMap.Contains(kvp.second))
+            {
+                //Double-check that the pair is stored correctly.
+                if (reflectedEdgeMap[kvp.second] != kvp.first)
+                {
+                    outErrorCode = ErrorCodes::InvalidReflectionMap;
+                    return;
+                }
+            }
+            else
+            {
+                reflectedEdgeMap[kvp.second] = kvp.first;
+            }
+        }
+    }
+
     //Get the smallest ID that has not been used yet, for tile permutations.
     TileID nextTileID = 0;
     for (size_t i = 0; i < originalTiles.GetSize(); ++i)
@@ -39,7 +66,7 @@ InputData::InputData(const List<Tile>& originalTiles,
 
     //Macro helpers:
     #define TRANSFORM_EDGE(srcEdge, destEdge) \
-        tile2.Edges[Edges::destEdge] = tile.Edges[Edges::srcEdge]
+        tile2.Edges[EdgeDirs::destEdge] = tile.Edges[EdgeDirs::srcEdge]
     #define MAKE_TILE(transform, minXTo, minYTo, maxXTo, maxYTo) { \
         Tile tile2; \
         tile2.ParentID = tile.ID; \
@@ -71,9 +98,9 @@ InputData::InputData(const List<Tile>& originalTiles,
     //Reflected tiles:
     if (useReflections)
     {
-        if (isEdgeSymmetrical == nullptr)
+        if (symmetricalEdges == nullptr || edgeToReflectedEdge == nullptr)
         {
-            outErrorCode = ErrorCodes::MissingSymmetricalDict;
+            outErrorCode = ErrorCodes::MissingReflectionData;
             return;
         }
 
@@ -82,21 +109,26 @@ InputData::InputData(const List<Tile>& originalTiles,
             //Get a copy of the source tile.
             auto tile = originalTiles[i];
 
-            //For each edge, if the edge is asymmetrical, then think of it as a new edge.
+            //For each edge in the original tile, change it to a reflected version.
+            //Note that for BOTH types of reflection (X and Y), all 4 edges will become reflected.
             for (int edgeI = 0; edgeI < 4; ++edgeI)
             {
-                EdgeID edgeType = tile.Edges[edgeI];
-                
-                const bool* isSymmetrical = isEdgeSymmetrical->TryGet(edgeType);
-                if (isSymmetrical == nullptr)
+                EdgeID oldEdgeType = tile.Edges[edgeI];
+                if (!symmetricalEdges->Contains(oldEdgeType))
                 {
-                    outErrorCode = ErrorCodes::MissingEdgeID;
-                    return;
-                }
-                else if (!(*isSymmetrical))
-                {
-                    tile.Edges[edgeI] = nextEdgeID;
-                    nextEdgeID += 1;
+                    //If a reflected version of this edge already exists, use it.
+                    if (reflectedEdgeMap.Contains(oldEdgeType))
+                        tile.Edges[edgeI] = reflectedEdgeMap[oldEdgeType];
+                    //Otherwise, create a new edge type for this.
+                    else
+                    {
+                        auto newEdgeType = nextEdgeID;
+                        nextEdgeID += 1;
+
+                        tile.Edges[edgeI] = newEdgeType;
+                        reflectedEdgeMap[oldEdgeType] = newEdgeType;
+                        reflectedEdgeMap[newEdgeType] = oldEdgeType;
+                    }
                 }
             }
 
@@ -105,21 +137,15 @@ InputData::InputData(const List<Tile>& originalTiles,
         }
     }
 
+    //TODO: Rotation+Reflection tiles? At least SOME of them are new transformations in terms of edges, right? Maybe provide an "ignoreRotateReflect" parameter. However, this feature would complicate GetPermutation().
 
-    //Find all pairs of edge type with direction that actually exist in the set.
-    Set<TileConnection> allDesiredEdges;
-    for (const auto& tile : tiles)
-        for (uint8_t edgeI = 0; edgeI < 4; ++edgeI)
-            allDesiredEdges.Add(TileConnection(tile.Edges[edgeI], GetOppositeEdge((Edges)edgeI)));
-    //Find all the matches for those edges.
+    //Collect all tiles that fit each type of edge.
     for (const auto& tile : tiles)
     {
         for (uint8_t edgeI = 0; edgeI < 4; ++edgeI)
         {
-            auto key = TileConnection(tile.Edges[edgeI], (Edges)edgeI);
-
-            assert(allDesiredEdges.Contains(key));
-            matchingEdges[key].Add(&tile);
+            auto key = EdgeInstance(tile.Edges[edgeI], (EdgeDirs)edgeI);
+            matchingEdges[key].Add(tile.ID);
         }
     }
 }

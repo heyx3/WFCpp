@@ -122,14 +122,14 @@ void State::SetTile(Vector2i tilePos, TileID value)
     outTile.Value = value;
 
 	//Adjacent tiles need to be updated.
-    if (tilePos.x > 0)
-        RecalculateTileChances(tilePos.LessX());
-    if (tilePos.y > 0)
-        RecalculateTileChances(tilePos.LessY());
-    if (tilePos.x < Output.GetWidth() - 1)
-        RecalculateTileChances(tilePos.MoreX());
-    if (tilePos.y < Output.GetHeight() - 1)
-        RecalculateTileChances(tilePos.MoreY());
+    if (PeriodicX | (tilePos.x > 0))
+        RecalculateTileChances(Filter(tilePos.LessX()));
+    if (PeriodicY | (tilePos.y > 0))
+        RecalculateTileChances(Filter(tilePos.LessY()));
+    if (PeriodicX | (tilePos.x < Output.GetWidth() - 1))
+        RecalculateTileChances(Filter(tilePos.MoreX()));
+    if (PeriodicY | (tilePos.y < Output.GetHeight() - 1))
+        RecalculateTileChances(Filter(tilePos.MoreY()));
 }
 
 void State::ClearArea(Vector2i center, Set<Vector2i>& out_affectedPoses)
@@ -152,14 +152,16 @@ void State::ClearArea(Vector2i center, Set<Vector2i>& out_affectedPoses)
                                            1, Output.GetHeight());
     }
 
-    //Clear it.
-    for (const auto& posToClear : clearRegion)
+    //Clear the area.
+    for (auto posToClear : clearRegion)
     {
-        out_affectedPoses.Add(posToClear);
-
-        auto& tile = Output[Filter(posToClear)];
-        tile.Value = Nullable<TileID>();
-        tile.PossibleTiles = allTileIDs;
+        posToClear = Filter(posToClear);
+        if (out_affectedPoses.Add(posToClear))
+        {
+            auto& tile = Output[posToClear];
+            tile.Value = Nullable<TileID>();
+            tile.PossibleTiles = allTileIDs;
+        }
     }
 
     //Add the neighbors of the region to the list of affected tiles.
@@ -173,17 +175,17 @@ void State::ClearArea(Vector2i center, Set<Vector2i>& out_affectedPoses)
     for (int y = clearRegion.MinInclusive.y; y < clearRegion.MaxExclusive.y; ++y)
     {
         if (allowMinX)
-            out_affectedPoses.Add(Vector2i(minEdge.x, y));
+            out_affectedPoses.Add(Filter(Vector2i(minEdge.x, y)));
         if (allowMaxX)
-            out_affectedPoses.Add(Vector2i(maxEdge.x, y));
+            out_affectedPoses.Add(Filter(Vector2i(maxEdge.x, y)));
     }
     //Top and bottom edges:
     for (int x = clearRegion.MinInclusive.x; x < clearRegion.MaxExclusive.x; ++x)
     {
         if (allowMinY)
-            out_affectedPoses.Add(Vector2i(x, minEdge.y));
+            out_affectedPoses.Add(Filter(Vector2i(x, minEdge.y)));
         if (allowMaxY)
-            out_affectedPoses.Add(Vector2i(x, maxEdge.y));
+            out_affectedPoses.Add(Filter(Vector2i(x, maxEdge.y)));
     }
 }
 
@@ -201,7 +203,7 @@ void State::GetBestTiles(List<Vector2i>& outValues) const
 		auto& outTile = Output[outputPos];
 		if (!outTile.IsSet())
 		{
-            //TODO: If a tile has a higher weight, it's more certain to happen. So scale each potential tile's entropy contribution inversely to its weight.
+            //TODO: If a tile has a higher weight, it's more certain to happen. So scale each possible tile's entropy contribution inversely to its weight. This would imply making the entropy a float, but floating-point error is a problem here. So have InputData cache the max entropy and do "tiles.Sum(tile => maxEntropy + 1 - tile.Weight)".
             size_t thisEntropy = outTile.PossibleTiles.GetSize();
 
 			//If it's less than the current minimum, then we've found a new minimum.
@@ -220,76 +222,44 @@ void State::GetBestTiles(List<Vector2i>& outValues) const
 	}
 }
 
-//TODO: This method! Then it should be done.
-void State::RecalculatePixelChances(Vector2i pixelPos)
+void State::RecalculateTileChances(Vector2i tilePos)
 {
+    //TODO: I feel like there's room for optimization here.
+
 	Region2i outputRegion(Output.GetDimensions());
 
-	auto& inputData = Input;
-    auto& outputArray = Output;
-	Filter(pixelPos);
+	tilePos = Filter(tilePos);
 
-	//If the position is outside the output, or the pixel is already set,
-	//    nothing needs to be done.
-	if (!outputRegion.Contains(pixelPos) || Output[pixelPos].IsSet())
+	//If the tile is already set, nothing needs to be done.
+	if (Output[tilePos].IsSet())
 		return;
 
-	auto& pixel = Output[pixelPos];
+	auto& tile = Output[tilePos];
 
-	//Find any colors that, if placed here, would cause a violation of the WFC constraint.
-	List<Pixel> badColors;
-    Input.GetPixelFrequencies().DoToEach(
-		[&](const Pixel& color)
-		{
-			//Assume that the color is placed.
-            Output[pixelPos].Value = color;
-
-			//Test the constraint: any NxM pattern in the output
-			//    appears at least once in the input.
-			Region2i nearbyAffectedPixels(pixelPos - inputData.MaxPatternSize + 1,
-											pixelPos + 1);
-			for (Vector2i nearbyAffectedPixelPos : nearbyAffectedPixels)
-			{
-                bool passed = false;
-				for (size_t patternI = 0; patternI < inputData.GetPatterns().GetSize(); ++patternI)
-				{
-					if (inputData.GetPatterns()[patternI].DoesFit(nearbyAffectedPixelPos, *this))
-					{
-                        passed = true;
-                        break;
-					}
-				}
-                if (!passed)
-                {
-                    badColors.PushBack(color);
-                    break;
-                }
-			}
-
-            //Undo the color placement.
-            Output[pixelPos].Value = Nullable<Pixel>();
-		});
-
-	//Check which patterns can be applied at which positions around this pixel.
-    pixel.ColorFrequencies.Clear();
-    for (size_t patternI = 0; patternI < Input.GetPatterns().GetSize(); ++patternI)
+    //Find any tiles that may fit here.
+    //Do this by starting with all tiles, then eliminating any that don't fit
+    //    based on each of the four adjacent neighbor tiles.
+    tile.PossibleTiles = allTileIDs;
+    for (int edgeI = 0; edgeI < 4; ++edgeI)
     {
-        //Try placing this pattern everywhere that touches the pixel.
+        EdgeDirs edge = (EdgeDirs)edgeI;
 
-        auto& pattern = Input.GetPatterns()[patternI];
-        Vector2i patternSize = pattern.InputDataRegion.GetSize();
-        Region2i patternMinCorners(pixelPos - patternSize + 1,
-                                    pixelPos + 1);
+        //Get the neighbor tile at this edge.
+        //If it's nonexistent or not set yet, we don't care about it.
+        const auto* neighborTileOutput = (*this)[tilePos + GetEdgeDirection(edge)];
+        if (neighborTileOutput == nullptr || !neighborTileOutput->IsSet())
+            continue;
+        const auto& neighborTile = Input.GetTile(neighborTileOutput->Value.Value);
 
-        for (Vector2i patternMinCorner : patternMinCorners)
-        {
-            Vector2i patternPos = pixelPos - patternMinCorner;
-            Pixel patternColor = pattern[patternPos];
+        //Get all tiles that fit the neighbor tile at this edge.
+        EdgeDirs neighborEdge = GetOppositeEdge(edge);
+        const auto& neighborMatches = Input.GetTilesWithEdge(neighborTile->Edges[neighborEdge],
+                                                             edge);
 
-            size_t index = badColors.IndexOf(
-                [&patternColor](const Pixel& p) { return p == patternColor; });
-            if (index == -1 && pattern.DoesFit(patternMinCorner, *this))
-                pixel.ColorFrequencies[patternColor] += pattern.Frequency;
-        }
+        //Remove tiles that don't exist in this set.
+        tempTileIdSet = tile.PossibleTiles;
+        for (TileID tileOptionID : tempTileIdSet)
+            if (!neighborMatches.Contains(tileOptionID))
+                tile.PossibleTiles.Erase(tileOptionID);
     }
 }

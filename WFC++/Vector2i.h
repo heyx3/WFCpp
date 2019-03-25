@@ -20,7 +20,9 @@ namespace WFC
 		Rotate180,
 		Rotate270CW,
 
+        //A horizontal mirror (a.k.a. along the Y axis!).
 		MirrorX,
+        //A vertical mirror (a.k.a. along the X axis!).
 		MirrorY,
 
 		None,
