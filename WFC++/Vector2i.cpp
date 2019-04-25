@@ -3,7 +3,7 @@
 using namespace WFC;
 
 
-Transformations Invert(Transformations t)
+Transformations WFC::Invert(Transformations t)
 {
 	switch (t)
 	{

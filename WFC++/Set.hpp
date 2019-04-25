@@ -17,7 +17,7 @@ namespace WFC
         void Reserve(size_t n) { set.reserve(n); }
 
         bool Add(const T& t) { return set.insert(t).second; }
-        void Add(const Set<T, Hasher>& set2) { set.insert(set2.set.begin(), set2.set.end()) }
+        void Add(const Set<T, Hasher>& set2) { set.insert(set2.set.begin(), set2.set.end()); }
 
         bool Erase(const T& t) { return set.erase(t) > 0; }
         void Erase(const Set<T, Hasher>& t) { set.erase(t.begin(), t.end()); }

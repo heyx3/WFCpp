@@ -43,7 +43,7 @@ namespace WFC
 				arrayVals[i] = defaultValue;
 			}
 		}
-		Array2D(Vector2i size, const ArrayType& defaultValue) : this(size.x, size.y, defaultValue) { }
+		Array2D(Vector2i size, const ArrayType& defaultValue) : Array2D(size.x, size.y, defaultValue) { }
 
 		//Move operator.
 		Array2D(Array2D&& toMove) : arrayVals(0) { *this = std::move(toMove); }
@@ -197,7 +197,7 @@ namespace WFC
 						break;
 
 					if (offsetLoc.x >= 0)
-						operator[](ToV2u(offsetLoc)) = toCopy[loc];
+						operator[](offsetLoc) = toCopy[loc];
 				}
 			}
 		}
