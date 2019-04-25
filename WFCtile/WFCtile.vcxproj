@@ -22,8 +22,9 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{F9BF29DC-701E-441A-82F0-DBB5E1C59633}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>WFCtest</RootNamespace>
+    <RootNamespace>WFCtile</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <ProjectName>WFCtile</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -72,15 +73,31 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(SolutionDir)WFC++;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Build\temp\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(SolutionDir)WFC++;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Build\temp\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir)WFC++;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Build\temp\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir)WFC++;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Build\temp\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -95,7 +112,13 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>WFC++.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>set WFCPP_PATH=$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration)
+xcopy /Y "%WFCPP_PATH%\*.dll" "$(TargetDir)*.dll"*
+xcopy /y "%WFCPP_PATH%\*.pdb" "$(TargetDir)*.pdb"*</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -110,7 +133,13 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>WFC++.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>set WFCPP_PATH=$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration)
+xcopy /Y "%WFCPP_PATH%\*.dll" "$(TargetDir)*.dll"*
+xcopy /y "%WFCPP_PATH%\*.pdb" "$(TargetDir)*.pdb"*</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -129,7 +158,13 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>WFC++.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>set WFCPP_PATH=$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration)
+xcopy /Y "%WFCPP_PATH%\*.dll" "$(TargetDir)*.dll"*
+xcopy /y "%WFCPP_PATH%\*.pdb" "$(TargetDir)*.pdb"*</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -148,7 +183,13 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>WFC++.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>set WFCPP_PATH=$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration)
+xcopy /Y "%WFCPP_PATH%\*.dll" "$(TargetDir)*.dll"*
+xcopy /y "%WFCPP_PATH%\*.pdb" "$(TargetDir)*.pdb"*</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
