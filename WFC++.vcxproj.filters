@@ -18,7 +18,6 @@
     </ClInclude>
     <ClInclude Include="WFC++\HelperClasses.h" />
     <ClInclude Include="WFC++\Platform.h" />
-    <ClInclude Include="WFC++\Exports.h" />
     <ClInclude Include="WFC++\Simple\InputData.h">
       <Filter>Generator Classes\Simple</Filter>
     </ClInclude>

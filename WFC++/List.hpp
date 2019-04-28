@@ -8,7 +8,7 @@
 namespace WFC
 {
 	template<typename T>
-    class WFC_API List
+    class List
     {
     public:
 
@@ -71,7 +71,4 @@ namespace WFC
 
         std::vector<T> vec;
     };
-
-	//Use this macro to export a specific List<> type in the dll.
-	#define EXPORT_WFC_LIST(elementType) template class WFC_API List<elementType>;
 }

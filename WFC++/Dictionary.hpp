@@ -9,7 +9,7 @@ namespace WFC
 {
 	template<typename TKey, typename TValue, typename Hasher = TKey>
 	//A wrapper around std::unordered_map so that it can cross DLL boundaries.
-	class WFC_API Dictionary
+	class Dictionary
 	{
 	public:
 
@@ -67,11 +67,4 @@ namespace WFC
 
 		std::unordered_map<TKey, TValue, Hasher> dict;
 	};
-
-    //Use this macro to DLL-export a Dictionary<> type whose element type is also its hasher.
-	#define EXPORT_WFC_DICT_SELF   (keyType, valType)             template class WFC_API Dictionary<keyType, valType>;
-    //Use this macro to DLL-export a Dictionary<> type who uses the standard STL hasher.
-	#define EXPORT_WFC_DICT_STD    (keyType, valType)             template class WFC_API Dictionary<keyType, valType, std::hash<valType>>;
-    //Use this macro to DLL-export a Dictionary<> type who uses a custom hasher.
-	#define EXPORT_WFC_DICT_CUSTOM (keyType, valType, hasherType) template class WFC_API Dictionary<keyType, valType, hasherType>;
 }

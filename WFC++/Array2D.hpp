@@ -13,7 +13,7 @@ namespace WFC
 	//    so it can be treated like a two-dimensional array.
 	//The most cache-efficient way to iterate through this array is through
 	//    the Y in the outer loop and then the X in the inner loop.
-	class WFC_API Array2D
+	class Array2D
 	{
 	public:
 
@@ -46,7 +46,7 @@ namespace WFC
 		Array2D(Vector2i size, const ArrayType& defaultValue) : Array2D(size.x, size.y, defaultValue) { }
 
 		//Move operator.
-		Array2D(Array2D&& toMove) : arrayVals(0) { *this = std::move(toMove); }
+		Array2D(Array2D&& toMove) : arrayVals(nullptr) { *this = std::move(toMove); }
 		Array2D& operator=(Array2D&& toMove)
 		{
 			if (arrayVals != nullptr)
@@ -83,7 +83,7 @@ namespace WFC
 
 		~Array2D()
 		{
-			if (arrayVals != 0)
+			if (arrayVals != nullptr)
 			{
 				delete[] arrayVals;
 			}
@@ -118,8 +118,9 @@ namespace WFC
 			//Only resize if the current array does not have the same number of elements.
 			if ((width * height) != (_width * _height))
 			{
-				assert(arrayVals != 0);
-				delete[] arrayVals;
+				if (arrayVals != nullptr)
+				    delete[] arrayVals;
+
 				arrayVals = new ArrayType[_width * _height];
 			}
 
@@ -321,9 +322,6 @@ namespace WFC
 		int width, height;
 		ArrayType* arrayVals;
 	};
-
-	//Allows this class to be exported in the dll.
-	#define EXPORT_WFC_ARRAY2D(valType) template class WFC_API Array2D<valType>;
 }
 
 #pragma warning(default: 4018)

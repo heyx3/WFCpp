@@ -5,7 +5,7 @@
 namespace WFC
 {
     template<typename T>
-    struct WFC_API Nullable
+    struct Nullable
     {
     public:
 	    bool HasValue;
@@ -20,5 +20,3 @@ namespace WFC
 	    Nullable& operator=(Nullable<T>&& moveFrom) = default;
     };
 }
-
-#define EXPORT_WFC_NULLABLE(nullableType) template struct WFC_API Nullable<nullableType>;

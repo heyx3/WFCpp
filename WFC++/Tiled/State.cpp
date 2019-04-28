@@ -135,8 +135,8 @@ void State::SetTile(Vector2i tilePos, TileID value)
 void State::ClearArea(Vector2i center, Set<Vector2i>& out_affectedPoses)
 {
     //Calculate the region to be cleared.
-    Region2i clearRegion(center - ClearSize,
-                         center + ClearSize + 1);
+    Region2i clearRegion(center - (int)ClearSize,
+                         center + (int)ClearSize + 1);
     if (!PeriodicX)
     {
         clearRegion.MinInclusive.x = Clamp(clearRegion.MinInclusive.x,
