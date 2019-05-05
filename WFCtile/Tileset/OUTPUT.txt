@@ -1,0 +1,12 @@
+//Required fields:
+Width:8
+Height:8
+ClearSize:3
+
+//Optional fields:
+PeriodicX:false
+PeriodicY:false
+Seed:12345
+
+//Give up after 500 iterations (by default, never gives up).
+GiveUpAfter:500

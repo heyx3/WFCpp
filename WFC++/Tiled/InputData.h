@@ -21,7 +21,7 @@ namespace WFC
             enum WFC_API ErrorCodes
             {
                 //Everything went fine!
-                NoError,
+                NoError = 0,
                 //One or more parameters needed for reflecting tiles does not exist.
                 MissingReflectionData,
                 //The "edgeToReflectedEdge" parameter has invalid values.

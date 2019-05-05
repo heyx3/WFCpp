@@ -214,6 +214,12 @@ xcopy /y "%WFCPP_PATH%\*.pdb" "$(TargetDir)*.pdb"*</Command>
     <Text Include="Tileset\Grass u.txt">
       <DeploymentContent>true</DeploymentContent>
     </Text>
+    <Text Include="Tileset\INPUT.txt">
+      <DeploymentContent>true</DeploymentContent>
+    </Text>
+    <Text Include="Tileset\OUTPUT.txt">
+      <DeploymentContent>true</DeploymentContent>
+    </Text>
     <Text Include="Tileset\Street +.txt">
       <DeploymentContent>true</DeploymentContent>
     </Text>

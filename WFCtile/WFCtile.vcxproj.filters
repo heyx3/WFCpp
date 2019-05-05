@@ -45,5 +45,11 @@
     <Text Include="Tileset\SYMMETRIC.txt">
       <Filter>Tileset</Filter>
     </Text>
+    <Text Include="Tileset\OUTPUT.txt">
+      <Filter>Tileset</Filter>
+    </Text>
+    <Text Include="Tileset\INPUT.txt">
+      <Filter>Tileset</Filter>
+    </Text>
   </ItemGroup>
 </Project>

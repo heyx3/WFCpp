@@ -7,7 +7,11 @@ namespace WFC
     namespace Tiled
     {
         using TileID = uint16_t;
+        const TileID TileID_INVALID = std::numeric_limits<TileID>().max();
+        
         using EdgeID = uint16_t;
+        const EdgeID EdgeID_INVALID = std::numeric_limits<EdgeID>().max();
+
 
         enum WFC_API EdgeDirs : uint8_t
         {
@@ -66,11 +70,11 @@ namespace WFC
             uint32_t Weight = 100;
 
             //If this tile is a permutation of another one, these fields describe the relationship.
-            TileID ParentID = std::numeric_limits<TileID>().max();
+            TileID ParentID = TileID_INVALID;
             Transformations ParentToMeTransform = Transformations::None;
 
 
-            bool IsChild() const { return ParentID != std::numeric_limits<TileID>().max(); }
+            bool IsChild() const { return ParentID != TileID_INVALID; }
 
             EdgeID MinX() const { return Edges[EdgeDirs::MinX]; }
             EdgeID MaxX() const { return Edges[EdgeDirs::MaxX]; }

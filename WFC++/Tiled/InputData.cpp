@@ -21,6 +21,8 @@ InputData::InputData(const List<Tile>& originalTiles,
                      const EdgeIDSet* symmetricalEdges,
                      const EdgeToEdgeMap* edgeToReflectedEdge)
 {
+    outErrorCode = ErrorCodes::NoError;
+
     //If we were given some edge reflections, copy them over.
     if (edgeToReflectedEdge != nullptr)
     {
