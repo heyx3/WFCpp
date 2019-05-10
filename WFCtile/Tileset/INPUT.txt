@@ -3,5 +3,5 @@ Width:5
 Height:5
 
 //Optional fields:
-UseRotations:false
+UseRotations:true
 UseReflections:false

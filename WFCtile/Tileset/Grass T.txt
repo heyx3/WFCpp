@@ -1,4 +1,4 @@
-0 0 0 8 0
+0 5 0 0 0
 0 0 0 0 8
 0 0 0 0 0
 8 0 0 0 0
@@ -8,3 +8,6 @@ Top:Grass2
 Bottom:Grass
 Left:Grass
 Right:Grass
+
+//Weight less than other tiles, because Grass2 doesn't fit with any streets.
+Weight:50

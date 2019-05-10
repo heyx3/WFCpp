@@ -28,7 +28,10 @@ namespace WFCT = WFC::Tiled;
 //The tilesets and parameters file are expected to be alongside this executable;
 //    you can change this by passing the directory as an argument: -dir C:\foo\bar
 
-//You can also make the program output its progress every N iterations with -progress N
+//You can also make the program log its progress every N iterations with -progress N
+
+//Finally, you can change the output format from binary to a PGM image file with "-pgm".
+
 
 //Returns the following error codes:
 // 0: Success.
@@ -58,6 +61,9 @@ using Pixel_t = uint8_t;
 
 using EdgeID_t = WFCT::EdgeID;
 #define EdgeID_INVALID WFCT::EdgeID_INVALID
+
+using TileID_t = WFCT::TileID;
+#define TileID_INVALID WFCT::TileID_INVALID
 
 using EdgeDirs = WFCT::EdgeDirs;
 
@@ -276,6 +282,7 @@ struct CmdArgs
 {
     fs::path DataDir;
     size_t ProgressInterval = 0;
+    bool PgmMode = false;
 
     CmdArgs() { }
     CmdArgs(int nArgs, char** argData,
@@ -318,6 +325,10 @@ struct CmdArgs
                                     "\" isn't a valid non-negative integer";
                     return;
                 }
+            }
+            else if (argData[i] == std::string("-pgm"))
+            {
+                PgmMode = true;
             }
             else
             {
@@ -911,16 +922,40 @@ int main(int argc, char* argv[])
     //Output the result.
     if (!isFinished.HasValue)
     {
-        std::cout << (unsigned char)0;
         std::cerr << "Ran out of iterations before finishing!\n";
+
+        if (!args.PgmMode)
+            std::cout << (unsigned char)0;
         return 15;
     }
     else if (isFinished.Value)
     {
-        std::cout << (unsigned char)1;
-        std::cerr << "Completed successfully! Writing result...\n";
-        
-        //Print the pixels.
+        std::cerr << "Completed successfully in " << iterI << " iterations! Writing result...\n";
+
+        //Output the results header.
+        if (args.PgmMode)
+        {
+            std::cout << "P2\n" << (outData.Width * inputData.Width) << " " <<
+                                   (outData.Height * inputData.Height) << "\n";
+
+            Pixel_t maxVal = 0;
+            for (auto& tile : tiles)
+                for (auto tilePos : WFC::Region2i(tile.Pixels.GetDimensions()))
+                    maxVal = std::max(maxVal, tile.Pixels[tilePos]);
+
+            std::cout << (int)maxVal << "\n\n";
+        }
+        else
+        {
+            std::cout << (unsigned char)1;
+        }
+
+        //Output the results data.
+        std::function<void(Pixel_t)> outputPixel;
+        if (args.PgmMode)
+            outputPixel = [](Pixel_t p) { std::cout << (int)p << ' '; };
+        else
+            outputPixel = [](Pixel_t p) { std::cout << p; };
         for (int pY = 0; pY < algoState.Output.GetHeight() * inputData.Height; ++pY)
         {
             int tY = pY / inputData.Height;
@@ -931,11 +966,20 @@ int main(int argc, char* argv[])
                 int tX = pX / inputData.Width;
                 int tpX = pX % inputData.Width;
 
+                //Get the pixel array of the original untransformed version of this tile.
+                //Look up the correct pixel with the current transformed version.
                 auto tileID = algoState.Output[WFC::Vector2i(tX, tY)].Value.Value;
-                const auto& tile = tiles[tileID];
-                auto pixel = tile.Pixels[WFC::Vector2i(tpX, tpY)];
+                const auto* tile = algoInput.GetTile(tileID);
+                auto parentID = (tile->ParentID == TileID_INVALID) ?
+                                    tileID : tile->ParentID;
+                const auto& parentTile = tiles[parentID];
+                const auto& tilePixels = parentTile.Pixels;
 
-                std::cout << pixel;
+                auto pixel = tilePixels[WFC::Vector2i(tpX, tpY)
+                                            .Transform(WFC::Invert(tile->ParentToMeTransform),
+                                                       tilePixels.GetDimensions())];
+
+                outputPixel(pixel);
                 std::cerr << (int)pixel << ' ';
 
                 //For the log output, add padding spaces.
@@ -946,6 +990,8 @@ int main(int argc, char* argv[])
             }
 
             std::cerr << '\n';
+            if (args.PgmMode)
+                std::cout << '\n';
         }
 
         return 0;

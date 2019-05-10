@@ -8,3 +8,6 @@ Top:Street
 Bottom:Grass
 Left:Grass
 Right:Grass
+
+//Make this tile less common so the streets stay more connected.
+Weight:50
