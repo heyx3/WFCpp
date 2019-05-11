@@ -12,6 +12,7 @@
 
 namespace WFC
 {
-    //TODO: Switch to custom PRNG struct.
+    //We could use a custom RNG that's much more lightweight,
+    //    but WFC only samples the RNG like twice per iteration.
     using PRNG = std::mt19937;
 }

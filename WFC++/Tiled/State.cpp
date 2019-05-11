@@ -76,8 +76,11 @@ Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_fail
 	}
 
 	//Pick one of the low-entropy tiles at random and set its value.
-	std::uniform_int_distribution<size_t> pixelIndexRange(0, lowestEntropyTilePoses.GetSize() - 1);
-	auto chosenTilePos = lowestEntropyTilePoses[pixelIndexRange(rng)];
+    //The correct way to do this is with std::uniform_int_distribution,
+    //    but that incurs a LOT of overhead.
+    //In practice, the non-uniform distribution from the simpler "rng() % count" is unnoticeable.
+    size_t chosenTileI = rng() % lowestEntropyTilePoses.GetSize();
+    auto chosenTilePos = lowestEntropyTilePoses[chosenTileI];
 	auto& chosenTile = Output[chosenTilePos];
 
 	//Pick a tile based on their weights.
