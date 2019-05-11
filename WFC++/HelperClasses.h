@@ -5,6 +5,7 @@
 #include "List.hpp"
 #include "Set.hpp"
 #include "Dictionary.hpp"
+#include "EnumFlags.h"
 
 #include <random>
 

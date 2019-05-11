@@ -8,3 +8,5 @@ Top:Grass
 Bottom:Grass
 Left:Street
 Right:Street
+
+Symmetry:Rot180

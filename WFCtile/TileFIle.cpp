@@ -110,6 +110,19 @@ TileFile::TileFile(const std::string& fileContents, const InputFile& data,
                     return;
                 }
             }
+            else if (key == "Symmetry")
+            {
+                WFC::Transformations transf;
+                if (Utils::TryParse(val, transf))
+                {
+                    Symmetries += transf;
+                }
+                else
+                {
+                    outErrCode = 6;
+                    return;
+                }
+            }
             else
             {
                 outErrCode = 5;

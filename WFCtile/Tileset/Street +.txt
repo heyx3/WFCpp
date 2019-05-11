@@ -11,3 +11,10 @@ Right:Street
 
 //Weight it less than other tiles, to prevent too many streets from forming.
 Weight:25
+
+//Unchanged under all types of symmetry.
+Symmetry:Rot90
+Symmetry:Rot180
+Symmetry:Rot270
+Symmetry:FlipX
+Symmetry:FlipY

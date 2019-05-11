@@ -39,6 +39,9 @@
     <ClInclude Include="WFC++\Set.hpp">
       <Filter>Helper Classes</Filter>
     </ClInclude>
+    <ClInclude Include="WFC++\EnumFlags.h">
+      <Filter>Helper Classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Helper Classes">

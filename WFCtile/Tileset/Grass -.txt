@@ -12,3 +12,6 @@ Right:Grass
 
 //Weight it less than other tiles, because Grass2 doesn't fit with any streets.
 Weight:35
+
+//Transformations that don't affect it:
+Symmetry:Rot180

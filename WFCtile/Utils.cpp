@@ -40,6 +40,37 @@ void Utils::TrimSpaceAndComments(std::string& str, const std::string& commentSta
     TrimString(str);
 }
 
+bool Utils::TryParse(std::string str, WFC::Transformations& outTransf)
+{
+    //Convert to lower-case.
+    for (char& c : str)
+        if (std::isalpha(c))
+            c = std::tolower(c);
+
+    //Macro to simplify text.
+    #define CASE(condition, result) \
+        if (condition) { \
+            outTransf = WFC::Transformations::result; \
+            return true; \
+        }
+
+    //Check every case. Provide as many convenient names for each type of transform as possible.
+    CASE(str == "none", None)
+    else CASE(str == "90" || str == "rot90" || str == "rot90cw" || str == "rotcw90" || str == "rot270ccw" || str == "rotccw270",
+              Rotate90CW)
+    else CASE(str == "180" || str == "rot180", Rotate180)
+    else CASE(str == "270" || str == "rot270" || str == "rot270cw" || str == "rotcw270" || str == "rot90ccw" || str == "rotccw90",
+              Rotate90CW)
+    else CASE(str == "flipx" || str == "flipxaxis" || str == "reflectalongy",
+              FlipX)
+    else CASE(str == "flipy" || str == "flipyaxis" || str == "reflectalongx",
+              FlipY)
+    else
+        return false;
+    #undef CASE
+
+    return true;
+}
 bool Utils::TryParse(const std::string& str, size_t& outUint)
 {
     //Fails if:

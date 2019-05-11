@@ -34,6 +34,7 @@ namespace Utils
     void TrimSpaceAndComments(std::string& str,
                               const std::string& commentStart);
 
+    bool TryParse(std::string str, WFC::Transformations& outTransf);
     bool TryParse(const std::string& str, size_t& outUint);
     bool TryParse(const std::string& str, int64_t& outInt);
     bool TryParse(const std::string& str, float& outF);

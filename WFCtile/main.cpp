@@ -20,7 +20,6 @@ namespace fs = std::filesystem;
 #include "EdgeData.h"
 
 //TODO: Replace all "size_t" with "uint_fast32_t" or "uint_fast16_t".
-//TODO: Remove "symmetric" data; just use asymmetric to map edges to themselves.
 
 
 #include <Tiled/State.h>
@@ -52,7 +51,7 @@ namespace WFCT = WFC::Tiled;
 // 3: Tile data does not specify all 4 edges.
 // 4: Tile data is wrong size compared to INPUT.txt.
 // 5: Tile data has unknown field name.
-// 6: Tile data's "Weight" field has invalid value.
+// 6: Tile data's field has invalid value.
 // 7: Invalid command-line arguments.
 // 8: Edge name is defined in more than one place in EDGE_PAIRS.txt.
 // 9: Missing one of the key text files: OUTPUT.txt or INPUT.txt.
@@ -81,7 +80,7 @@ namespace
             case 3: return "Needs to specify all four edge IDs";
             case 4: return "This tile's width or height doesn't match up with the Width/Height fields in INPUT.txt";
             case 5: return "Unexpected field; did you mean to comment a line out?";
-            case 6: return "'Weight' field doesn't have a number value";
+            case 6: return "Tile's field doesn't have a valid/parsable value";
             case 7: return "Invalid command-line arguments";
             case 8: return "Edge's name is defined in more than one place";
             case 9: return "Can't find INPUT.txt and/or OUTPUT.txt";
@@ -106,7 +105,6 @@ std::vector<TileFile> ReadTileFiles(const fs::path& directory, const InputFile& 
     std::string fileContents;
     for (auto& file : fs::directory_iterator(directory))
     {
-        std::cerr << "Reading " << file.path() << "...\n";
         if (file.is_regular_file() &&
             file.path().has_extension() &&
             file.path().extension() == ".txt" &&
@@ -114,6 +112,8 @@ std::vector<TileFile> ReadTileFiles(const fs::path& directory, const InputFile& 
             file.path().filename() != "INPUT.txt" &&
             file.path().filename() != "OUTPUT.txt")
         {
+            std::cerr << "Reading " << file.path() << "...\n";
+
             //Try to read the file.
             if (!Utils::ReadWholeFile(file.path().string(), fileContents))
             {
@@ -158,13 +158,15 @@ WFCT::InputData MakeAlgoInput(const std::vector<TileFile>& tileFiles,
 
         tile.Weight = tileFile.Weight;
         tile.ID = (WFCT::TileID)i;
+        tile.Symmetries = tileFile.Symmetries;
+
         for (int edgeI = 0; edgeI < 4; ++edgeI)
             tile.Edges[edgeI] = tileset.EdgeIDsByName.at(tileFile.Edges[edgeI]);
 
         algoInputTiles.PushBack(tile);
     }
 
-    //Convert the asymmetric edge data into WFC's data format.
+    //Convert the edge data into WFC's data format.
     WFCT::EdgeToEdgeMap algoEdgePairs;
     for (const auto& pair : tileset.Pairs)
         algoEdgePairs[tileset.EdgeIDsByName.at(pair.first)] =
@@ -332,13 +334,13 @@ int main(int argc, char* argv[])
             outputPixel = [](Pixel_t p) { std::cout << p; };
         for (int pY = 0; pY < algoState.Output.GetHeight() * inputData.Height; ++pY)
         {
-            int tY = pY / inputData.Height;
-            int tpY = pY % inputData.Height;
+            int tY = pY / (int)inputData.Height;
+            int tpY = pY % (int)inputData.Height;
 
             for (int pX = 0; pX < algoState.Output.GetWidth() * inputData.Width; ++pX)
             {
-                int tX = pX / inputData.Width;
-                int tpX = pX % inputData.Width;
+                int tX = pX / (int)inputData.Width;
+                int tpX = pX % (int)inputData.Width;
 
                 //Get the pixel array of the original untransformed version of this tile.
                 //Look up the correct pixel with the current transformed version.

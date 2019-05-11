@@ -8,3 +8,8 @@ Top:Grass
 Bottom:Grass
 Left:Grass
 Right:Grass
+
+//Rotations do not change this tile.
+Symmetry:Rot90
+Symmetry:Rot180
+Symmetry:Rot270

@@ -183,6 +183,7 @@ xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
   <ItemGroup>
     <ClInclude Include="WFC++\Array2D.hpp" />
     <ClInclude Include="WFC++\Dictionary.hpp" />
+    <ClInclude Include="WFC++\EnumFlags.h" />
     <ClInclude Include="WFC++\HelperClasses.h" />
     <ClInclude Include="WFC++\List.hpp" />
     <ClInclude Include="WFC++\Nullable.hpp" />

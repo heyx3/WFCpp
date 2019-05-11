@@ -77,8 +77,8 @@ InputData::InputData(const Array2D<Pixel>& pixelData, Vector2i patternSize,
 	}
 	if (useReflections)
 	{
-		usedTransformations.push_back(Transformations::MirrorX);
-		usedTransformations.push_back(Transformations::MirrorY);
+		usedTransformations.push_back(Transformations::FlipX);
+		usedTransformations.push_back(Transformations::FlipY);
 
 		Vector2i size = originalData.GetDimensions();
 
@@ -89,15 +89,15 @@ InputData::InputData(const Array2D<Pixel>& pixelData, Vector2i patternSize,
 		{
 			Pixel pixel = originalData[originalPos];
 
-			Vector2i mirroredPos = originalPos.Transform(Transformations::MirrorX, size);
+			Vector2i mirroredPos = originalPos.Transform(Transformations::FlipX, size);
 			transformedData_x[mirroredPos] = pixel;
 
-			mirroredPos = originalPos.Transform(Transformations::MirrorY, size);
+			mirroredPos = originalPos.Transform(Transformations::FlipY, size);
 			transformedData_y[mirroredPos] = pixel;
 		}
 
-		pixelDataByTransform[Transformations::MirrorX] = std::move(transformedData_x);
-		pixelDataByTransform[Transformations::MirrorY] = std::move(transformedData_y);
+		pixelDataByTransform[Transformations::FlipX] = std::move(transformedData_x);
+		pixelDataByTransform[Transformations::FlipY] = std::move(transformedData_y);
 	}
 
 	//Create patterns.

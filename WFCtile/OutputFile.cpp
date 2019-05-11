@@ -43,7 +43,7 @@ OutputFile::Placements::Placements(const std::string& configFileData,
                     rectElements[0];
         return;
     }
-    MinCorner.x = i;
+    MinCorner.x = (int)i;
     if (!Utils::TryParse(rectElements[1], i))
     {
         outErrCode = 14;
@@ -61,7 +61,7 @@ OutputFile::Placements::Placements(const std::string& configFileData,
                         rectElements[2];
             return;
         }
-        MaxCorner.x = i;
+        MaxCorner.x = (int)i;
 
         if (!Utils::TryParse(rectElements[3], i))
         {
@@ -70,7 +70,7 @@ OutputFile::Placements::Placements(const std::string& configFileData,
                 rectElements[3];
             return;
         }
-        MaxCorner.y = i;
+        MaxCorner.y = (int)i;
     }
     else
     {
@@ -84,19 +84,7 @@ OutputFile::Placements::Placements(const std::string& configFileData,
     if (elements.size() > 2)
     {
         const auto& transfStr = elements[2];
-        if (transfStr == "None")
-            TilePermutation = WFC::Transformations::None;
-        else if (transfStr == "Rot90CW")
-            TilePermutation = WFC::Transformations::Rotate90CW;
-        else if (transfStr == "Rot180")
-            TilePermutation = WFC::Transformations::Rotate180;
-        else if (transfStr == "Rot270CW")
-            TilePermutation = WFC::Transformations::Rotate270CW;
-        else if (transfStr == "FlipX")
-            TilePermutation = WFC::Transformations::MirrorX;
-        else if (transfStr == "FlipY")
-            TilePermutation = WFC::Transformations::MirrorY;
-        else
+        if (!Utils::TryParse(transfStr, TilePermutation))
         {
             outErrCode = 14;
             outErrMsg = "Unknown transformation type: " + transfStr;
@@ -117,7 +105,7 @@ bool OutputFile::Placements::Apply(const WFCT::InputData& inputs,
 
     //Get the child tile with my permutation.
     const auto& parentTile = *tileFound;
-    TileID_t parentID = tileFound - tiles.begin();
+    TileID_t parentID = (TileID_t)(tileFound - tiles.begin());
     const auto* childTile = inputs.GetPermutation(parentID, TilePermutation);
     if (childTile == nullptr)
         return false;

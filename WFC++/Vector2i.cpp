@@ -12,8 +12,8 @@ Transformations WFC::Invert(Transformations t)
 
 		case Transformations::Rotate180: return Transformations::Rotate180;
 
-		case Transformations::MirrorX: return Transformations::MirrorX;
-		case Transformations::MirrorY: return Transformations::MirrorY;
+		case Transformations::FlipX: return Transformations::FlipX;
+		case Transformations::FlipY: return Transformations::FlipY;
 
 		case Transformations::None: return Transformations::None;
 
@@ -27,8 +27,8 @@ const char* WFC::ToString(Transformations t)
         case Transformations::Rotate90CW: return "Rot90CW";
         case Transformations::Rotate180: return "Rot180";
         case Transformations::Rotate270CW: return "Rot270CW";
-        case Transformations::MirrorX: return "FlipX";
-        case Transformations::MirrorY: return "FlipY";
+        case Transformations::FlipX: return "FlipX";
+        case Transformations::FlipY: return "FlipY";
         case Transformations::None: return "None";
 
         default: assert(false); return "UNKNOWN";
@@ -57,9 +57,9 @@ Vector2i Vector2i::Transform(Transformations trnsf, Vector2i size) const
 			//Just mirror along both axes.
 			return size - *this - 1;
 
-		case Transformations::MirrorX:
+		case Transformations::FlipX:
 			return Vector2i(size.x - x - 1, y);
-		case Transformations::MirrorY:
+		case Transformations::FlipY:
 			return Vector2i(x, size.y - y - 1);
 
 		case Transformations::None:

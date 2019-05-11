@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Platform.h"
+#include "EnumFlags.h"
 
 #include <assert.h>
 #include <iterator>
@@ -16,22 +17,23 @@ namespace WFC
     //    is equivalent to a single one of these transformations.
 	enum WFC_API Transformations
 	{
-		Rotate90CW = 0,
+        None,
+
+		Rotate90CW,
 		Rotate180,
 		Rotate270CW,
 
-        //TODO: Rename to horizontal and vertical, not X and Y.
-        //A horizontal mirror (a.k.a. along the Y axis!).
-		MirrorX,
-        //A vertical mirror (a.k.a. along the X axis!).
-		MirrorY,
+		FlipX,
+		FlipY,
 
         //TODO: Missing mirror along diagonals!
 
-		None, //TODO: None should be the 0 value!
-
 		Count, //The size of this enum list -- not an actual transformation
 	};
+
+    //A Set of transformations.
+    using TransformationFlags =
+        EnumFlags<Transformations, uint_fast8_t, (uint_fast8_t)Transformations::Count>;
 
     WFC_API Transformations Invert(Transformations t);
     WFC_API const char* ToString(Transformations t);

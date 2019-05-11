@@ -68,21 +68,22 @@ InputData::InputData(const List<Tile>& originalTiles,
     //Macro helpers:
     #define TRANSFORM_EDGE(srcEdge, destEdge) \
         tile2.Edges[EdgeDirs::destEdge] = tile.Edges[EdgeDirs::srcEdge]
-    #define MAKE_TILE(transform, minXTo, minYTo, maxXTo, maxYTo) { \
-        Tile tile2; \
-        tile2.ParentID = tile.ID; \
-        tile2.Weight = tile.Weight; \
-        tile2.ID = nextTileID; \
-        nextTileID += 1; \
-        tile2.ParentToMeTransform = Transformations::transform; \
-        TRANSFORM_EDGE(MinX, minXTo); \
-        TRANSFORM_EDGE(MinY, minYTo); \
-        TRANSFORM_EDGE(MaxX, maxXTo); \
-        TRANSFORM_EDGE(MaxY, maxYTo); \
-        tilePermutations[tile.ID].PushBack(tile2.ID); \
-        tileIndices[tile2.ID] = tiles.GetSize(); \
-        tiles.PushBack(tile2); \
-    }
+    #define MAKE_TILE(transform, minXTo, minYTo, maxXTo, maxYTo) \
+        if (!tile.Symmetries.Contains(transform)) { \
+            Tile tile2; \
+            tile2.ParentID = tile.ID; \
+            tile2.Weight = tile.Weight; \
+            tile2.ID = nextTileID; \
+            nextTileID += 1; \
+            tile2.ParentToMeTransform = Transformations::transform; \
+            TRANSFORM_EDGE(MinX, minXTo); \
+            TRANSFORM_EDGE(MinY, minYTo); \
+            TRANSFORM_EDGE(MaxX, maxXTo); \
+            TRANSFORM_EDGE(MaxY, maxYTo); \
+            tilePermutations[tile.ID].PushBack(tile2.ID); \
+            tileIndices[tile2.ID] = tiles.GetSize(); \
+            tiles.PushBack(tile2); \
+        }
 
     //Rotated tiles:
     if (useRotations)
@@ -90,7 +91,6 @@ InputData::InputData(const List<Tile>& originalTiles,
         for (size_t i = 0; i < originalTiles.GetSize(); ++i)
         {
             const auto& tile = originalTiles[i];
-
             MAKE_TILE(Rotate90CW, MinY, MaxX, MaxY, MinX);
             MAKE_TILE(Rotate180, MaxX, MaxY, MinX, MinY);
             MAKE_TILE(Rotate270CW, MaxY, MinX, MinY, MaxX);
@@ -133,8 +133,8 @@ InputData::InputData(const List<Tile>& originalTiles,
                 }
             }
 
-            MAKE_TILE(MirrorX, MaxX, MinY, MinX, MaxY);
-            MAKE_TILE(MirrorY, MinX, MaxY, MaxX, MinY);
+            MAKE_TILE(FlipX, MaxX, MinY, MinX, MaxY);
+            MAKE_TILE(FlipY, MinX, MaxY, MaxX, MinY);
         }
     }
 
