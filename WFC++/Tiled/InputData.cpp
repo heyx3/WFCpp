@@ -18,7 +18,6 @@ const TileIDSet InputData::EmptyTileSet;
 InputData::InputData(const List<Tile>& originalTiles,
                      bool useRotations, bool useReflections,
                      ErrorCodes& outErrorCode,
-                     const EdgeIDSet* symmetricalEdges,
                      const EdgeToEdgeMap* edgeToReflectedEdge)
 {
     outErrorCode = ErrorCodes::NoError;
@@ -100,7 +99,7 @@ InputData::InputData(const List<Tile>& originalTiles,
     //Reflected tiles:
     if (useReflections)
     {
-        if (symmetricalEdges == nullptr || edgeToReflectedEdge == nullptr)
+        if (edgeToReflectedEdge == nullptr)
         {
             outErrorCode = ErrorCodes::MissingReflectionData;
             return;
@@ -116,21 +115,21 @@ InputData::InputData(const List<Tile>& originalTiles,
             for (int edgeI = 0; edgeI < 4; ++edgeI)
             {
                 EdgeID oldEdgeType = tile.Edges[edgeI];
-                if (!symmetricalEdges->Contains(oldEdgeType))
-                {
-                    //If a reflected version of this edge already exists, use it.
-                    if (reflectedEdgeMap.Contains(oldEdgeType))
-                        tile.Edges[edgeI] = reflectedEdgeMap[oldEdgeType];
-                    //Otherwise, create a new edge type for this.
-                    else
-                    {
-                        auto newEdgeType = nextEdgeID;
-                        nextEdgeID += 1;
 
-                        tile.Edges[edgeI] = newEdgeType;
-                        reflectedEdgeMap[oldEdgeType] = newEdgeType;
-                        reflectedEdgeMap[newEdgeType] = oldEdgeType;
-                    }
+                //If a reflected version of this edge already exists, use it.
+                if (reflectedEdgeMap.Contains(oldEdgeType))
+                {
+                    tile.Edges[edgeI] = reflectedEdgeMap[oldEdgeType];
+                }
+                //Otherwise, create a new edge type for this.
+                else
+                {
+                    auto newEdgeType = nextEdgeID;
+                    nextEdgeID += 1;
+
+                    tile.Edges[edgeI] = newEdgeType;
+                    reflectedEdgeMap[oldEdgeType] = newEdgeType;
+                    reflectedEdgeMap[newEdgeType] = oldEdgeType;
                 }
             }
 

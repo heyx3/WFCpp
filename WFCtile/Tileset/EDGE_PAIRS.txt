@@ -1,0 +1,6 @@
+//A file where each non-comment, non-empty line
+//    is a pair of edges who are each others' reflections.
+Grass:Grass2
+
+//The "Street" edge is symmetrical.
+Street:Street

@@ -1,3 +1,0 @@
-//A file where each non-comment line is the name of an edge that is symmetric,
-//    meaning it is its own reflection.
-Street

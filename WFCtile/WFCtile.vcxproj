@@ -205,7 +205,7 @@ xcopy /y "%WFCPP_PATH%\*.pdb" "$(TargetDir)*.pdb"*</Command>
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Tileset\ASYMMETRIC.txt">
+    <Text Include="Tileset\EDGE_PAIRS.txt">
       <DeploymentContent>true</DeploymentContent>
     </Text>
     <Text Include="Tileset\Grass -.txt">
@@ -242,9 +242,6 @@ xcopy /y "%WFCPP_PATH%\*.pdb" "$(TargetDir)*.pdb"*</Command>
       <DeploymentContent>true</DeploymentContent>
     </Text>
     <Text Include="Tileset\Street u.txt">
-      <DeploymentContent>true</DeploymentContent>
-    </Text>
-    <Text Include="Tileset\SYMMETRIC.txt">
       <DeploymentContent>true</DeploymentContent>
     </Text>
   </ItemGroup>

@@ -3,8 +3,7 @@
 #include <sstream>
 
 
-EdgeData::EdgeData(const std::string& symmetricFileContents,
-                   const std::string& asymmetricFileContents,
+EdgeData::EdgeData(const std::string& dataFile,
                    const std::vector<TileFile>& tiles,
                    int& outErrCode, std::string& outErrMsg)
 {
@@ -30,11 +29,8 @@ EdgeData::EdgeData(const std::string& symmetricFileContents,
     }
 
     //Next, read and parse file data.
-    std::stringstream fileContents;
+    std::stringstream fileContents(dataFile);
     std::string line;
-
-    //Read the symmetric edges.
-    fileContents = std::stringstream(symmetricFileContents);
     while (std::getline(fileContents, line))
     {
         //Trim, and skip comments.
@@ -42,27 +38,6 @@ EdgeData::EdgeData(const std::string& symmetricFileContents,
         if (line.size() == 0)
             continue;
 
-        //Error-checking.
-        if (SymmetricEdges.find(line) != SymmetricEdges.end())
-        {
-            outErrCode = 8;
-            outErrMsg = std::string("Edge named \"") + line +
-                            "\" appears more than once in SYMMETRIC.txt";
-            return;
-        }
-
-        SymmetricEdges.insert(line);
-    }
-
-    //Read the asymmetric edges.
-    fileContents = std::stringstream(asymmetricFileContents);
-    while (std::getline(fileContents, line))
-    {
-        //Trim and ignore comments.
-        Utils::TrimSpaceAndComments(line, "//");
-        if (line.size() == 0)
-            continue;
-            
         //Get the edge pair.
         std::string edges[2];
         Utils::SplitFirst(line, ':', edges[0], edges[1]);
@@ -73,21 +48,16 @@ EdgeData::EdgeData(const std::string& symmetricFileContents,
             auto otherI = (i + 1) % 2;
 
             //Error-checking.
-            if (AsymmetricEdges.find(edges[i]) != AsymmetricEdges.end())
+            if (Pairs.find(edges[i]) != Pairs.end() &&
+                edges[0] != edges[1])
             {
                 outErrCode = 8;
                 outErrMsg = std::string("Edge named \"") + edges[i] +
-                                "\" appears more than once in ASYMMETRIC.txt";
+                                "\" appears more than once in EDGE_PAIRS.txt";
                 return;
             }
-            if (SymmetricEdges.find(edges[i]) != SymmetricEdges.end())
-            {
-                outErrCode = 8;
-                outErrMsg = std::string("Edge named \"") + edges[i] +
-                                "\" appears in both SYMMETRIC.txt and ASYMMETRIC.txt";
-            }
-                
-            AsymmetricEdges[edges[i]] = edges[otherI];
+
+            Pairs[edges[i]] = edges[otherI];
         }
     }
 }

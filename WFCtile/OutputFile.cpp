@@ -103,7 +103,6 @@ OutputFile::Placements::Placements(const std::string& configFileData,
             return;
         }
     }
-        
 }
 bool OutputFile::Placements::Apply(const WFCT::InputData& inputs,
                                    const std::vector<TileFile>& tiles,

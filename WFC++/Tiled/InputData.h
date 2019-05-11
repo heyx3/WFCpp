@@ -22,7 +22,7 @@ namespace WFC
             {
                 //Everything went fine!
                 NoError = 0,
-                //One or more parameters needed for reflecting tiles does not exist.
+                //The "edgeToReflectedEdge" parameter is needed if reflecting tiles.
                 MissingReflectionData,
                 //The "edgeToReflectedEdge" parameter has invalid values.
                 InvalidReflectionMap,
@@ -57,12 +57,10 @@ namespace WFC
 
             //Creates a new set of input data,
             //    potentially including rotated/reflected permutations of tiles.
-            //The "symmetricalEdges" and "edgeToReflectedEdge" data parameters are only needed
-            //    if reflections are enabled.
+            //The "edgeToReflectedEdge" parameter is only needed if any reflections are enabled.
 		    InputData(const List<Tile>& tiles,
                       bool useRotations, bool useReflections,
                       ErrorCodes& outErrorCode,
-                      const EdgeIDSet* symmetricalEdges = nullptr,
                       const EdgeToEdgeMap* edgeToReflectedEdge = nullptr);
 
 

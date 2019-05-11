@@ -30,9 +30,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Tileset\ASYMMETRIC.txt">
-      <Filter>Tileset</Filter>
-    </Text>
     <Text Include="Tileset\Grass -.txt">
       <Filter>Tileset</Filter>
     </Text>
@@ -63,13 +60,13 @@
     <Text Include="Tileset\Street u.txt">
       <Filter>Tileset</Filter>
     </Text>
-    <Text Include="Tileset\SYMMETRIC.txt">
-      <Filter>Tileset</Filter>
-    </Text>
     <Text Include="Tileset\OUTPUT.txt">
       <Filter>Tileset</Filter>
     </Text>
     <Text Include="Tileset\INPUT.txt">
+      <Filter>Tileset</Filter>
+    </Text>
+    <Text Include="Tileset\EDGE_PAIRS.txt">
       <Filter>Tileset</Filter>
     </Text>
   </ItemGroup>

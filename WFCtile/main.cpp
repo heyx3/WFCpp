@@ -37,10 +37,8 @@ namespace WFCT = WFC::Tiled;
 //    you can change this by passing the directory as an argument: -dir C:\foo\bar.
 //  * INPUT.txt: Data about the input tileset.
 //  * OUTPUT.txt: Data about what kind of output to generate.
-//  * SYMMETRIC.txt: (optional) A line-break-separated list of all edges
-//        that are symmetric under reflection.
-//  * ASYMMETRIC.txt: (optional) A line-break-separated list of pairs of edges,
-//        separated with a colon, who are each others' reflection.
+//  * EDGE_PAIRS.txt: (optional) A list of pairs of edges who are each others' reflections.
+//        Each line should have one pair, with a colon between the two names.
 
 //You can also make the program log its progress every N iterations with -progress N
 
@@ -56,8 +54,8 @@ namespace WFCT = WFC::Tiled;
 // 5: Tile data has unknown field name.
 // 6: Tile data's "Weight" field has invalid value.
 // 7: Invalid command-line arguments.
-// 8: Edge name is defined in more than one place across SYMMETRIC.txt and ASYMMETRIC.txt.
-// 9: Missing one of the key text files: SYMMETRIC.txt, ASYMMETRIC.txt, OUTPUT.txt, INPUT.txt.
+// 8: Edge name is defined in more than one place in EDGE_PAIRS.txt.
+// 9: Missing one of the key text files: OUTPUT.txt or INPUT.txt.
 // 10: No tile files found.
 // 11: I/O error opening one of the tile data files.
 // 12: Tile grid data contains a pixel that isn't an integer from 0-255.
@@ -86,10 +84,15 @@ namespace
             case 6: return "'Weight' field doesn't have a number value";
             case 7: return "Invalid command-line arguments";
             case 8: return "Edge's name is defined in more than one place";
-            case 9: return "Can't find SYMMETRIC.txt and/or ASYMMETRIC.txt and/or OUTPUT.txt";
+            case 9: return "Can't find INPUT.txt and/or OUTPUT.txt";
             case 10: return "No tile data files were found";
             case 11: return "I/O error when opening file";
             case 12: return "Tile grid data contains an invalid value (must be non-negative integer)";
+            case 13: return "OUTPUT.txt is missing a required field, or uses an unknown field";
+            case 14: return "OUTPUT.txt gives an invalid value of one of its fields";
+            case 15: return "Generation failed: not enough iterations, OR we hit a contradiction";
+            case 16: return "INPUT.txt is missing a required field, or uses an unknown field";
+            case 17: return "INPUT.txt gives an invalid value for one of its fields";
             default: return "UNKNOWN ERROR CODE " + std::to_string(i);
         }
     }
@@ -107,8 +110,7 @@ std::vector<TileFile> ReadTileFiles(const fs::path& directory, const InputFile& 
         if (file.is_regular_file() &&
             file.path().has_extension() &&
             file.path().extension() == ".txt" &&
-            file.path().filename() != "SYMMETRIC.txt" &&
-            file.path().filename() != "ASYMMETRIC.txt" &&
+            file.path().filename() != "EDGE_PAIRS.txt" &&
             file.path().filename() != "INPUT.txt" &&
             file.path().filename() != "OUTPUT.txt")
         {
@@ -162,22 +164,17 @@ WFCT::InputData MakeAlgoInput(const std::vector<TileFile>& tileFiles,
         algoInputTiles.PushBack(tile);
     }
 
-    //Convert the symmetric edge data into WFC's data format.
-    WFCT::EdgeIDSet algoSymmetricTiles;
-    for (const auto& symmetricEdge : tileset.SymmetricEdges)
-        algoSymmetricTiles.Add(tileset.EdgeIDsByName.at(symmetricEdge));
-
     //Convert the asymmetric edge data into WFC's data format.
-    WFCT::EdgeToEdgeMap algoAsymmetricTiles;
-    for (const auto& asymmetricEdge : tileset.AsymmetricEdges)
-        algoAsymmetricTiles[tileset.EdgeIDsByName.at(asymmetricEdge.first)] =
-            tileset.EdgeIDsByName.at(asymmetricEdge.second);
+    WFCT::EdgeToEdgeMap algoEdgePairs;
+    for (const auto& pair : tileset.Pairs)
+        algoEdgePairs[tileset.EdgeIDsByName.at(pair.first)] =
+            tileset.EdgeIDsByName.at(pair.second);
 
     //Construct the input instance.
     WFCT::InputData::ErrorCodes algoInputErr;
     WFCT::InputData algoInput(algoInputTiles,
                               inputData.UseRotations, inputData.UseReflections,
-                              algoInputErr, &algoSymmetricTiles, &algoAsymmetricTiles);
+                              algoInputErr, &algoEdgePairs);
 
     //Check the result.
     if (algoInputErr != WFCT::InputData::ErrorCodes::NoError)
@@ -228,15 +225,12 @@ int main(int argc, char* argv[])
     CHECK_ERR;
     std::cerr << "Read OUTPUT.txt\n";
 
-    //Symmetric and Asymmetric edges:
-    std::string edgeData_symmetric, edgeData_asymmetric;
-    READ_DATA_FILE_SOFT("SYMMETRIC.txt");
+    //Edge pairs:
+    std::string edgePairs;
+    READ_DATA_FILE_SOFT("EDGE_PAIRS.txt");
     if (success)
-        edgeData_symmetric = fileContents;
-    READ_DATA_FILE_SOFT("ASYMMETRIC.txt");
-    if (success)
-        edgeData_asymmetric = fileContents;
-    std::cerr << "Finished looking for SYMMETRIC.txt and ASYMMETRIC.txt\n";
+        edgePairs = fileContents;
+    std::cerr << "Finished looking for EDGE_PAIRS.txt\n";
 
     //Read tile files.
     std::vector<TileFile> tiles = ReadTileFiles(args.DataDir, inputData, errCode, errMsg);
@@ -256,9 +250,8 @@ int main(int argc, char* argv[])
     }
 
     //Read tileset data files.
-    std::cerr << "Parsing SYMMETRIC.txt and ASYMMETRIC.txt...\n";
-    EdgeData tileset(edgeData_symmetric, edgeData_asymmetric, tiles,
-                     errCode, errMsg);
+    std::cerr << "Parsing EDGE_PAIRS.txt if it exists...\n";
+    EdgeData tileset(edgePairs, tiles, errCode, errMsg);
     CHECK_ERR;
 
     std::cerr << "Done reading data!\n\n";

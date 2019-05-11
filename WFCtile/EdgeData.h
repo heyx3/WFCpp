@@ -12,12 +12,10 @@ public:
 
     EdgeToIDLookup EdgeIDsByName;
     IDToEdgeLookup EdgeNamesByID;
-    std::unordered_set<std::string> SymmetricEdges;
-    std::unordered_map<std::string, std::string> AsymmetricEdges;
+    std::unordered_map<std::string, std::string> Pairs;
 
     EdgeData() { }
-    EdgeData(const std::string& symmetricFileContents,
-             const std::string& asymmetricFileContents,
+    EdgeData(const std::string& edgePairsFileContents,
              const std::vector<TileFile>& tiles,
              int& outErrCode, std::string& outErrMsg);
 };
