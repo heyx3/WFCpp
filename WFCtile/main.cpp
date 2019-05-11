@@ -41,9 +41,6 @@ namespace WFCT = WFC::Tiled;
 //        that are symmetric under reflection.
 //  * ASYMMETRIC.txt: (optional) A line-break-separated list of pairs of edges,
 //        separated with a colon, who are each others' reflection.
-//  * INIT.txt: (optional) A line-break-separated list of tiles that should be pre-placed. E.x.:
-//        0,1:MyTileFileName:Rot90CW
-//        The available transformations are: None, Rot90CW, Rot270CW, Rot180, FlipX, FlipY.
 
 //You can also make the program log its progress every N iterations with -progress N
 
@@ -113,8 +110,7 @@ std::vector<TileFile> ReadTileFiles(const fs::path& directory, const InputFile& 
             file.path().filename() != "SYMMETRIC.txt" &&
             file.path().filename() != "ASYMMETRIC.txt" &&
             file.path().filename() != "INPUT.txt" &&
-            file.path().filename() != "OUTPUT.txt" &&
-            file.path().filename() != "INIT.txt")
+            file.path().filename() != "OUTPUT.txt")
         {
             //Try to read the file.
             if (!Utils::ReadWholeFile(file.path().string(), fileContents))
@@ -279,6 +275,16 @@ int main(int argc, char* argv[])
                           (unsigned int)outData.Seed,
                           outData.PeriodicX, outData.PeriodicY,
                           outData.ClearSize);
+
+    //Apply any hard-coded output values.
+    for (const auto& placement : outData.InitialPlacements)
+        if (!placement.Apply(algoInput, tiles, tileset, algoState))
+        {
+            std::cerr << "Unable to find tile \"" << placement.TileName <<
+                         "\" with transform " << WFC::ToString(placement.TilePermutation) <<
+                         " to execute an Init command\n";
+            return 14;
+        }
 
     //Run the algorithm.
     std::cerr << "Running at most " << outData.NIterations << " iterations of algorithm...\n";

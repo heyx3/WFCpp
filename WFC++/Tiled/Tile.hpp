@@ -62,6 +62,8 @@ namespace WFC
             //Used to determine whether this tile can fit alongside another one.
             EdgeID Edges[4];
 
+            //TODO: Flags for whether it's affected by each transformation. Update WFCtile accordingly.
+
             //How often this tile should generally appear.
             //Used as a weight for the random number generator,
             //    so higher values means more appearances.

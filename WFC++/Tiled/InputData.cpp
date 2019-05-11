@@ -139,8 +139,6 @@ InputData::InputData(const List<Tile>& originalTiles,
         }
     }
 
-    //TODO: Revamp the whole concept of transformations to exhaustively search for all unique combinations of them (breadth-first).
-
     //Collect all tiles that fit each type of edge.
     for (const auto& tile : tiles)
     {

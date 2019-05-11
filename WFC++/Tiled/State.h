@@ -24,6 +24,8 @@ namespace WFC
                 //The different tiles this one might become.
                 //If a tile has been chosen, this set will only have one element.
                 TileIDSet PossibleTiles;
+                //Whether this tile can be cleared out when the algorithm needs to back up.
+                bool IsDeletable = true;
 
                 bool IsSet() const { return Value.HasValue; }
 		    };
@@ -96,7 +98,9 @@ namespace WFC
 		
 		    //Sets the given space to use the given tile.
 		    //Re-calculates the status of neighboring tiles to take this into account.
-		    void SetTile(Vector2i tilePos, TileID value);
+            //If "permanent" is true, this tile will never get cleared out in the future
+            //    (e.x. if the algorithm runs into an unsolvable state and needs to back up).
+		    void SetTile(Vector2i tilePos, TileID value, bool permanent = false);
 
 
 	    private:

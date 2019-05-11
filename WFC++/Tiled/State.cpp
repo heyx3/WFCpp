@@ -113,13 +113,14 @@ Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_fail
 	return Nullable<bool>();
 }
 
-void State::SetTile(Vector2i tilePos, TileID value)
+void State::SetTile(Vector2i tilePos, TileID value, bool permanent)
 {
     //Set the pixel.
     auto& outTile = Output[tilePos];
     outTile.PossibleTiles.Clear();
     outTile.PossibleTiles.Add(value);
     outTile.Value = value;
+    outTile.IsDeletable = !permanent;
 
 	//Adjacent tiles need to be updated.
     if (PeriodicX | (tilePos.x > 0))
@@ -159,8 +160,15 @@ void State::ClearArea(Vector2i center, Set<Vector2i>& out_affectedPoses)
         if (out_affectedPoses.Add(posToClear))
         {
             auto& tile = Output[posToClear];
-            tile.Value = Nullable<TileID>();
-            tile.PossibleTiles = allTileIDs;
+            if (tile.IsDeletable)
+            {
+                tile.Value = Nullable<TileID>();
+                tile.PossibleTiles = allTileIDs;
+            }
+            else
+            {
+                out_affectedPoses.Erase(posToClear);
+            }
         }
     }
 

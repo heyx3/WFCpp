@@ -72,9 +72,6 @@
     <Text Include="Tileset\INPUT.txt">
       <Filter>Tileset</Filter>
     </Text>
-    <Text Include="Tileset\INIT.txt">
-      <Filter>Tileset</Filter>
-    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CmdArgs.h" />

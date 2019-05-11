@@ -88,6 +88,9 @@ namespace WFC
                 assert(tilePermutations.Contains(parent));
                 assert(tileIndices.Contains(parent));
 
+                if (transform == WFC::Transformations::None)
+                    return GetTile(parent);
+
                 for (auto childID : tilePermutations[parent])
                 {
                     assert(tileIndices.Contains(parent));

@@ -3,8 +3,133 @@
 #include <random>
 #include <sstream>
 #include <fstream>
+#include <algorithm>
 
 #include "Utils.h"
+#include "EdgeData.h"
+#include "TileFile.h"
+
+
+OutputFile::Placements::Placements(const std::string& configFileData,
+                                   int& outErrCode, std::string& outErrMsg)
+{
+    //Split the data into its elements.
+    std::vector<std::string> elements;
+    Utils::Split(configFileData, elements, [](char c) { return c == ';'; });
+    if (elements.size() < 2 || elements.size() > 3)
+    {
+        outErrCode = 14;
+        outErrMsg = "Expected 2 or 3 arguments for Init field; got this: " +
+                    configFileData;
+        return;
+    }
+
+    //Parse the first element: position/region that is set.
+    std::vector<std::string> rectElements;
+    Utils::Split(elements[0], rectElements, [](char c) { return c == ','; });
+    if (rectElements.size() != 2 && rectElements.size() != 4)
+    {
+        outErrCode = 14;
+        outErrMsg = "Expected 2 or 4 arguments for Init field's position; got this: " +
+                    elements[0];
+        return;
+    }
+    //Grab the min corner.
+    int64_t i;
+    if (!Utils::TryParse(rectElements[0], i))
+    {
+        outErrCode = 14;
+        outErrMsg = "Expected MinX coordinate of Init placement; got this: " +
+                    rectElements[0];
+        return;
+    }
+    MinCorner.x = i;
+    if (!Utils::TryParse(rectElements[1], i))
+    {
+        outErrCode = 14;
+        outErrMsg = "Expected MinY coordinate of Init placement; got this: " +
+                    rectElements[1];
+        return;
+    }
+    //Grab the max corner.
+    if (rectElements.size() == 4)
+    {
+        if (!Utils::TryParse(rectElements[2], i))
+        {
+            outErrCode = 14;
+            outErrMsg = "Expected MaxX coordinate of Init placement; got this: " +
+                        rectElements[2];
+            return;
+        }
+        MaxCorner.x = i;
+
+        if (!Utils::TryParse(rectElements[3], i))
+        {
+            outErrCode = 14;
+            outErrMsg = "Expected MaxY coordinate of Init placement; got this: " +
+                rectElements[3];
+            return;
+        }
+        MaxCorner.y = i;
+    }
+    else
+    {
+        MaxCorner = MinCorner + 1;
+    }
+
+    //Get the tile's name.
+    TileName = elements[1];
+
+    //Get the tile's permutation.
+    if (elements.size() > 2)
+    {
+        const auto& transfStr = elements[2];
+        if (transfStr == "None")
+            TilePermutation = WFC::Transformations::None;
+        else if (transfStr == "Rot90CW")
+            TilePermutation = WFC::Transformations::Rotate90CW;
+        else if (transfStr == "Rot180")
+            TilePermutation = WFC::Transformations::Rotate180;
+        else if (transfStr == "Rot270CW")
+            TilePermutation = WFC::Transformations::Rotate270CW;
+        else if (transfStr == "FlipX")
+            TilePermutation = WFC::Transformations::MirrorX;
+        else if (transfStr == "FlipY")
+            TilePermutation = WFC::Transformations::MirrorY;
+        else
+        {
+            outErrCode = 14;
+            outErrMsg = "Unknown transformation type: " + transfStr;
+            return;
+        }
+    }
+        
+}
+bool OutputFile::Placements::Apply(const WFCT::InputData& inputs,
+                                   const std::vector<TileFile>& tiles,
+                                   const EdgeData& edges,
+                                   WFCT::State& algoState) const
+{
+    //Get the tile with my name.
+    auto tileFound = std::find_if(tiles.begin(), tiles.end(),
+                                  [&](const TileFile& t) { return t.Name == TileName; });
+    if (tileFound == tiles.end())
+        return false;
+
+    //Get the child tile with my permutation.
+    const auto& parentTile = *tileFound;
+    TileID_t parentID = tileFound - tiles.begin();
+    const auto* childTile = inputs.GetPermutation(parentID, TilePermutation);
+    if (childTile == nullptr)
+        return false;
+
+    //Apply that tile to the output.
+    TileID_t childID = childTile->ID;
+    for (auto pos : WFC::Region2i(MinCorner, MaxCorner))
+        algoState.SetTile(pos, childID, true);
+
+    return true;
+}
 
 
 OutputFile::OutputFile()
@@ -54,6 +179,16 @@ OutputFile::OutputFile(const std::string& inputFileContents,
         else MATCH("PeriodicY", PeriodicY)
         else MATCH("Seed", Seed)
         else MATCH("GiveUpAfter", NIterations)
+        else if (key == "Init")
+        {
+            InitialPlacements.emplace_back(val, outErrCode, outErrMsg);
+            if (outErrCode != 0)
+            {
+                outErrMsg = "Error parsing Init command \"" + val + "\": " +
+                            outErrMsg;
+                return;
+            }
+        }
         else
         {
             outErrCode = 13;

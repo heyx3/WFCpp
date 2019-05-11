@@ -6,7 +6,19 @@ ClearSize:3
 //Optional fields:
 PeriodicX:true
 PeriodicY:true
-Seed:89345
+Seed:989345
 
 //Give up after 1500 iterations (by default, never gives up).
 GiveUpAfter:10000
+
+//Set some initial values:
+
+//Put a 4-way street on the top-left tile.
+Init:0,0;Street +
+
+//Put a left-bottom elbow street to the right of that:
+Init:1,0;Street r;Rot90CW
+
+//Fill the rest of the top row with horizontal streets:
+Init:2,0;Street u;Rot90CW
+Init:3,0,20,1;Street -

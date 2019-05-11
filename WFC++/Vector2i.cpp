@@ -20,6 +20,20 @@ Transformations WFC::Invert(Transformations t)
 		default: assert(false); return Transformations::None;
 	}
 }
+const char* WFC::ToString(Transformations t)
+{
+    switch (t)
+    {
+        case Transformations::Rotate90CW: return "Rot90CW";
+        case Transformations::Rotate180: return "Rot180";
+        case Transformations::Rotate270CW: return "Rot270CW";
+        case Transformations::MirrorX: return "FlipX";
+        case Transformations::MirrorY: return "FlipY";
+        case Transformations::None: return "None";
+
+        default: assert(false); return "UNKNOWN";
+    }
+}
 
 Vector2i Vector2i::Transform(Transformations trnsf, Vector2i size) const
 {

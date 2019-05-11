@@ -9,8 +9,10 @@
 struct InputFile;
 
 
-struct TileFile
+class TileFile
 {
+public:
+
     std::string Name;
     WFC::Array2D<Pixel_t> Pixels;
     std::array<std::string, 4> Edges;

@@ -20,17 +20,21 @@ namespace WFC
 		Rotate180,
 		Rotate270CW,
 
+        //TODO: Rename to horizontal and vertical, not X and Y.
         //A horizontal mirror (a.k.a. along the Y axis!).
 		MirrorX,
         //A vertical mirror (a.k.a. along the X axis!).
 		MirrorY,
 
-		None,
+        //TODO: Missing mirror along diagonals!
+
+		None, //TODO: None should be the 0 value!
 
 		Count, //The size of this enum list -- not an actual transformation
 	};
 
-	Transformations WFC_API Invert(Transformations t);
+    WFC_API Transformations Invert(Transformations t);
+    WFC_API const char* ToString(Transformations t);
 
 
 	//A 2D integer coordinate.

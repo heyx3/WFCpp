@@ -6,8 +6,10 @@
 #include "TileFile.h"
 
 
-struct EdgeData
+class EdgeData
 {
+public:
+
     EdgeToIDLookup EdgeIDsByName;
     IDToEdgeLookup EdgeNamesByID;
     std::unordered_set<std::string> SymmetricEdges;
