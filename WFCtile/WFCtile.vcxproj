@@ -196,7 +196,13 @@ xcopy /y "%WFCPP_PATH%\*.pdb" "$(TargetDir)*.pdb"*</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CmdArgs.cpp" />
+    <ClCompile Include="EdgeData.cpp" />
+    <ClCompile Include="InputFile.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="OutputFile.cpp" />
+    <ClCompile Include="TileFIle.cpp" />
+    <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Tileset\ASYMMETRIC.txt">
@@ -212,6 +218,9 @@ xcopy /y "%WFCPP_PATH%\*.pdb" "$(TargetDir)*.pdb"*</Command>
       <DeploymentContent>true</DeploymentContent>
     </Text>
     <Text Include="Tileset\Grass u.txt">
+      <DeploymentContent>true</DeploymentContent>
+    </Text>
+    <Text Include="Tileset\INIT.txt">
       <DeploymentContent>true</DeploymentContent>
     </Text>
     <Text Include="Tileset\INPUT.txt">
@@ -241,6 +250,14 @@ xcopy /y "%WFCPP_PATH%\*.pdb" "$(TargetDir)*.pdb"*</Command>
     <Text Include="Tileset\SYMMETRIC.txt">
       <DeploymentContent>true</DeploymentContent>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CmdArgs.h" />
+    <ClInclude Include="EdgeData.h" />
+    <ClInclude Include="InputFile.h" />
+    <ClInclude Include="OutputFile.h" />
+    <ClInclude Include="TileFile.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

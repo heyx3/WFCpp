@@ -6,7 +6,7 @@ ClearSize:3
 //Optional fields:
 PeriodicX:true
 PeriodicY:true
-Seed:345
+Seed:89345
 
 //Give up after 1500 iterations (by default, never gives up).
-GiveUpAfter:1500
+GiveUpAfter:10000

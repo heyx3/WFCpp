@@ -139,7 +139,7 @@ InputData::InputData(const List<Tile>& originalTiles,
         }
     }
 
-    //TODO: Rotation+Reflection tiles? At least SOME of them are new transformations in terms of edges, right? Maybe provide an "ignoreRotateReflect" parameter. However, this feature would complicate GetPermutation().
+    //TODO: Revamp the whole concept of transformations to exhaustively search for all unique combinations of them (breadth-first).
 
     //Collect all tiles that fit each type of edge.
     for (const auto& tile : tiles)

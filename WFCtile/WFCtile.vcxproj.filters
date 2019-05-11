@@ -2,10 +2,31 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Utils.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="CmdArgs.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="OutputFile.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="InputFile.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TileFIle.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="EdgeData.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Tileset">
       <UniqueIdentifier>{c6aaf62b-e759-4d3e-9e7d-85898c0cfa93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{625399f8-3a79-4a41-a6fb-9b57b1fb37c7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -51,5 +72,16 @@
     <Text Include="Tileset\INPUT.txt">
       <Filter>Tileset</Filter>
     </Text>
+    <Text Include="Tileset\INIT.txt">
+      <Filter>Tileset</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CmdArgs.h" />
+    <ClInclude Include="Utils.h" />
+    <ClInclude Include="InputFile.h" />
+    <ClInclude Include="OutputFile.h" />
+    <ClInclude Include="TileFile.h" />
+    <ClInclude Include="EdgeData.h" />
   </ItemGroup>
 </Project>

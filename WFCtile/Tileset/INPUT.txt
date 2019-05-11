@@ -4,4 +4,4 @@ Height:5
 
 //Optional fields:
 UseRotations:true
-UseReflections:false
+UseReflections:true
