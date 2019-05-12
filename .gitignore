@@ -93,3 +93,6 @@ WFC++.VC.opendb
 WFC++.VC.VC.opendb
 .vs
 **/*.vcxproj.user
+
+# Other/test files
+**/*.pgm
