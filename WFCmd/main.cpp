@@ -5,6 +5,7 @@
 
 #include <Simple/State.h>
 
+//TODO: Support diagonal reflections.
 
 //Takes in an input image (where each pixel is an unsigned int), and some parameters.
 //Generates an output image via WFC.

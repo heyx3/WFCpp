@@ -92,7 +92,8 @@ OutputFile::Placements::Placements(const std::string& configFileData,
         }
     }
 }
-bool OutputFile::Placements::Apply(const WFCT::InputData& inputs,
+bool OutputFile::Placements::Apply(const WFCT::TilePermutator& tileData,
+                                   const WFCT::InputData& inputs,
                                    const std::vector<TileFile>& tiles,
                                    const EdgeData& edges,
                                    WFCT::State& algoState) const
@@ -106,14 +107,13 @@ bool OutputFile::Placements::Apply(const WFCT::InputData& inputs,
     //Get the child tile with my permutation.
     const auto& parentTile = *tileFound;
     TileID_t parentID = (TileID_t)(tileFound - tiles.begin());
-    const auto* childTile = inputs.GetPermutation(parentID, TilePermutation);
-    if (childTile == nullptr)
+    auto childTileID = tileData.GetTileChild(parentID, TilePermutation);
+    if (childTileID == TileID_INVALID)
         return false;
 
     //Apply that tile to the output.
-    TileID_t childID = childTile->ID;
     for (auto pos : WFC::Region2i(MinCorner, MaxCorner))
-        algoState.SetTile(pos, childID, true);
+        algoState.SetTile(pos, childTileID, true);
 
     return true;
 }

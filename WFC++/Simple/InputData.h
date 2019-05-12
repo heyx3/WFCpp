@@ -10,6 +10,7 @@ namespace WFC
     {
         using PixelFrequencyLookup = Dictionary<Pixel, size_t, std::hash<Pixel>>;
 
+        //TODO: Support diagonal reflections.
 
 	    //Input image data for the WFC algorithm.
 	    class WFC_API InputData
@@ -35,10 +36,7 @@ namespace WFC
 		    inline Vector2i GetSize(Transformations transform = Transformations::None) const
 		    {
 			    Vector2i originalSize = getOriginalData().GetDimensions();
-			    bool isQuarterTurn = (transform == Transformations::Rotate90CW ||
-								      transform == Transformations::Rotate270CW);
-
-			    return (isQuarterTurn ?
+			    return (WillSwapAxes(transform) ?
 						    Vector2i(originalSize.y, originalSize.x) :
 						    originalSize);
 		    }

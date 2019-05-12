@@ -47,7 +47,7 @@ bool Utils::TryParse(std::string str, WFC::Transformations& outTransf)
         if (std::isalpha(c))
             c = std::tolower(c);
 
-    //Macro to simplify text.
+    //Macro for readability.
     #define CASE(condition, result) \
         if (condition) { \
             outTransf = WFC::Transformations::result; \
@@ -58,13 +58,18 @@ bool Utils::TryParse(std::string str, WFC::Transformations& outTransf)
     CASE(str == "none", None)
     else CASE(str == "90" || str == "rot90" || str == "rot90cw" || str == "rotcw90" || str == "rot270ccw" || str == "rotccw270",
               Rotate90CW)
-    else CASE(str == "180" || str == "rot180", Rotate180)
+    else CASE(str == "180" || str == "rot180",
+              Rotate180)
     else CASE(str == "270" || str == "rot270" || str == "rot270cw" || str == "rotcw270" || str == "rot90ccw" || str == "rotccw90",
               Rotate90CW)
     else CASE(str == "flipx" || str == "flipxaxis" || str == "reflectalongy",
               FlipX)
     else CASE(str == "flipy" || str == "flipyaxis" || str == "reflectalongx",
               FlipY)
+    else CASE(str == "flipdiag1" || str == "flipdiagonal1" || str == "flipdiagonalmajor" || str == "flipmajordiagonal",
+              FlipDiag1)
+    else CASE(str == "flipdiag2" || str == "flipdiagonal2" || str == "flipdiagonalminor" || str == "flipminordiagonal",
+              FlipDiag2)
     else
         return false;
     #undef CASE

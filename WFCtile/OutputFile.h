@@ -6,6 +6,7 @@
 #include "Utils.h"
 #include <Vector2i.h>
 
+#include <Tiled/TilePermutator.h>
 #include <Tiled/InputData.h>
 #include <Tiled/State.h>
 
@@ -32,7 +33,8 @@ struct OutputFile
         //Applies this instance to the given output array.
         //Returns false if the tile with my name or permutation couldn't be found.
         //Returns true if successful.
-        bool Apply(const WFCT::InputData& inputs,
+        bool Apply(const WFCT::TilePermutator& tileData,
+                   const WFCT::InputData& inputs,
                    const std::vector<TileFile>& tiles,
                    const EdgeData& edges,
                    WFCT::State& algoState) const;

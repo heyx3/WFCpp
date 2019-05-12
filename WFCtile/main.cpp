@@ -22,6 +22,7 @@ namespace fs = std::filesystem;
 //TODO: Replace all "size_t" with "uint_fast32_t" or "uint_fast16_t".
 
 
+#include <Tiled/TilePermutator.h>
 #include <Tiled/State.h>
 namespace WFCT = WFC::Tiled;
 
@@ -64,8 +65,8 @@ namespace WFCT = WFC::Tiled;
 //       or we couldn't fix a contradiction.
 // 16: INPUT.txt doesn't specify a required field, or uses an unknown field.
 // 17: INPUT.txt gives an invalid value for a field.
-// 100+: Error setting up WFC input data structures;
-//           subtract 100 and look up the WFC::Tiled::InputData::ErrorCodes enum.
+// 100+: Error using the WFC Tile Permutator; subtract 100
+//         and look up the value in the WFC::Tiled::TilePermutator::ErrorCodes enum.
 
 
 namespace
@@ -144,44 +145,44 @@ std::vector<TileFile> ReadTileFiles(const fs::path& directory, const InputFile& 
     return files;
 }
 
-WFCT::InputData MakeAlgoInput(const std::vector<TileFile>& tileFiles,
-                              const EdgeData& tileset,
-                              const InputFile& inputData,
-                              int& outErrCode)
+std::tuple<WFCT::TilePermutator, WFCT::InputData>
+    MakeAlgoInput(const std::vector<TileFile>& tileFiles,
+                  const EdgeData& tileset, const InputFile& inputData,
+                  int& outErrCode)
 {
     //Convert the tile data into WFC's data format.
-    WFC::List<WFCT::Tile> algoInputTiles;
+    WFC::List<WFCT::Tile> algoOriginalTiles;
     for (size_t i = 0; i < tileFiles.size(); ++i)
     {
         const auto& tileFile = tileFiles[i];
         WFCT::Tile tile;
 
         tile.Weight = tileFile.Weight;
-        tile.ID = (WFCT::TileID)i;
         tile.Symmetries = tileFile.Symmetries;
 
         for (int edgeI = 0; edgeI < 4; ++edgeI)
             tile.Edges[edgeI] = tileset.EdgeIDsByName.at(tileFile.Edges[edgeI]);
 
-        algoInputTiles.PushBack(tile);
+        algoOriginalTiles.PushBack(tile);
     }
 
     //Convert the edge data into WFC's data format.
-    WFCT::EdgeToEdgeMap algoEdgePairs;
+    WFCT::EdgeReflectionMap algoEdgePairs;
     for (const auto& pair : tileset.Pairs)
         algoEdgePairs[tileset.EdgeIDsByName.at(pair.first)] =
             tileset.EdgeIDsByName.at(pair.second);
 
-    //Construct the input instance.
-    WFCT::InputData::ErrorCodes algoInputErr;
-    WFCT::InputData algoInput(algoInputTiles,
-                              inputData.UseRotations, inputData.UseReflections,
-                              algoInputErr, &algoEdgePairs);
-
-    //Check the result.
-    if (algoInputErr != WFCT::InputData::ErrorCodes::NoError)
-        outErrCode = 100 + algoInputErr;
-    return algoInput;
+    //Compute all permutations of the input tiles.
+    WFCT::TilePermutator::ErrorCodes permutatorErrCode;
+    WFCT::TilePermutator permutator(algoOriginalTiles, inputData.PermutationsToUse,
+                                    permutatorErrCode, &algoEdgePairs);
+    if (permutatorErrCode != WFCT::TilePermutator::ErrorCodes::NoError)
+    {
+        outErrCode = permutatorErrCode + 100;
+        return { permutator, WFCT::InputData(algoOriginalTiles) };
+    }
+    
+    return { permutator, WFCT::InputData(permutator.GetTiles()) };
 }
 
 
@@ -259,12 +260,17 @@ int main(int argc, char* argv[])
     std::cerr << "Done reading data!\n\n";
 
     //Set up the WFC library data.
-    auto algoInput = MakeAlgoInput(tiles, tileset, inputData, errCode);
+    WFCT::TilePermutator algoTilePermutator;
+    WFCT::InputData algoInput;
+    std::tie(algoTilePermutator, algoInput) = MakeAlgoInput(tiles, tileset, inputData,
+                                                            errCode);
     if (errCode != 0)
     {
         std::cerr << "WFC input error: " << (errCode - 100) << "\n";
         return errCode;
     }
+
+    //Set up the WFC algorithm itself.
     WFCT::State algoState(algoInput,
                           WFC::Vector2i((int)outData.Width, (int)outData.Height),
                           (unsigned int)outData.Seed,
@@ -273,7 +279,7 @@ int main(int argc, char* argv[])
 
     //Apply any hard-coded output values.
     for (const auto& placement : outData.InitialPlacements)
-        if (!placement.Apply(algoInput, tiles, tileset, algoState))
+        if (!placement.Apply(algoTilePermutator, algoInput, tiles, tileset, algoState))
         {
             std::cerr << "Unable to find tile \"" << placement.TileName <<
                          "\" with transform " << WFC::ToString(placement.TilePermutation) <<
@@ -342,29 +348,30 @@ int main(int argc, char* argv[])
                 int tX = pX / (int)inputData.Width;
                 int tpX = pX % (int)inputData.Width;
 
-                //Get the pixel array of the original untransformed version of this tile.
-                //Look up the correct pixel with the current transformed version.
+                //Get the pixel array of the original, un-transformed version of this tile.
                 auto tileID = algoState.Output[WFC::Vector2i(tX, tY)].Value.Value;
-                const auto* tile = algoInput.GetTile(tileID);
-                auto parentID = (tile->ParentID == TileID_INVALID) ?
-                                    tileID : tile->ParentID;
-                const auto& parentTile = tiles[parentID];
-                const auto& tilePixels = parentTile.Pixels;
+                auto tileParentID = algoTilePermutator.GetTileRoot(tileID);
+                const auto& parentTile = tiles[tileParentID];
+                const auto& tilePixels = tiles[tileParentID].Pixels;
 
+                //Look up the correct pixel with the current transformed version.
+                auto transform = WFC::Invert(algoTilePermutator.GetMyPermutation(tileID));
                 auto pixel = tilePixels[WFC::Vector2i(tpX, tpY)
-                                            .Transform(WFC::Invert(tile->ParentToMeTransform),
+                                            .Transform(transform,
                                                        tilePixels.GetDimensions())];
 
+                //Output.
                 outputPixel(pixel);
                 std::cerr << (int)pixel << ' ';
 
-                //For the log output, add padding spaces.
+                //For the log, add padding spaces so that all the numbers line up.
                 if (pixel < 10)
                     std::cerr << "  ";
                 else if (pixel < 100)
                     std::cerr << ' ';
             }
 
+            //Line break between rows.
             std::cerr << '\n';
             if (args.PgmMode)
                 std::cout << '\n';

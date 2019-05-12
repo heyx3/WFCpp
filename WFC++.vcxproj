@@ -195,6 +195,7 @@ xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
     <ClInclude Include="WFC++\Tiled\InputData.h" />
     <ClInclude Include="WFC++\Tiled\Tile.hpp" />
     <ClInclude Include="WFC++\Tiled\State.h" />
+    <ClInclude Include="WFC++\Tiled\TilePermutator.h" />
     <ClInclude Include="WFC++\Vector2i.h" />
   </ItemGroup>
   <ItemGroup>
@@ -203,6 +204,7 @@ xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
     <ClCompile Include="WFC++\Simple\State.cpp" />
     <ClCompile Include="WFC++\Tiled\InputData.cpp" />
     <ClCompile Include="WFC++\Tiled\State.cpp" />
+    <ClCompile Include="WFC++\Tiled\TilePermutator.cpp" />
     <ClCompile Include="WFC++\Vector2i.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

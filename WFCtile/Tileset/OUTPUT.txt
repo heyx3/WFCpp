@@ -22,3 +22,8 @@ Init:1,0;Street r;Rot90CW
 //Fill the rest of the top row with horizontal streets:
 Init:2,0;Street u;Rot90CW
 Init:3,0,20,1;Street -
+
+//Replace a few of those horizontal streets with T-pieces:
+Init:8,0;Street T
+Init:13,0;Street T;Rot180
+Init:18,0;Street T

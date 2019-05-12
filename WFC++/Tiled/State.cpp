@@ -21,10 +21,10 @@ namespace
 
 void State::Reset(Vector2i newOutputSize)
 {
-    //To start with, all output tiles will have a chance of being anything.
+    //To start with, all output tiles will share the same chances of being anything.
     allTileIDs.Clear();
-    for (const auto& tile : Input.GetTiles())
-        allTileIDs.Add(tile.ID);
+    for (TileID id = 0; id < (TileID)Input.GetTiles().GetSize(); ++id)
+        allTileIDs.Add(id);
 
 	//Re-initialize the output array.
     Output.Reset(newOutputSize.x, newOutputSize.y);
@@ -99,9 +99,9 @@ Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_fail
         List<uint32_t> optionWeights;
         for (TileID tileOptionID : chosenTile.PossibleTiles)
         {
-            const Tile* tileOption = Input.GetTile(tileOptionID);
+            const Tile& tileOption = Input.GetTiles()[tileOptionID];
             optionValues.PushBack(tileOptionID);
-            optionWeights.PushBack(tileOption->Weight);
+            optionWeights.PushBack(tileOption.Weight);
         }
 
 		//Plug that into the RNG.
@@ -260,11 +260,11 @@ void State::RecalculateTileChances(Vector2i tilePos)
         const auto* neighborTileOutput = (*this)[tilePos + GetEdgeDirection(edge)];
         if (neighborTileOutput == nullptr || !neighborTileOutput->IsSet())
             continue;
-        const auto& neighborTile = Input.GetTile(neighborTileOutput->Value.Value);
+        const auto& neighborTile = Input.GetTiles()[neighborTileOutput->Value.Value];
 
         //Get all tiles that fit the neighbor tile at this edge.
         EdgeDirs neighborEdge = GetOppositeEdge(edge);
-        const auto& neighborMatches = Input.GetTilesWithEdge(neighborTile->Edges[neighborEdge],
+        const auto& neighborMatches = Input.GetTilesWithEdge(neighborTile.Edges[neighborEdge],
                                                              edge);
 
         //Remove tiles that don't exist in this set.

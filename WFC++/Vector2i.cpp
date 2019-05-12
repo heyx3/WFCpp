@@ -15,10 +15,32 @@ Transformations WFC::Invert(Transformations t)
 		case Transformations::FlipX: return Transformations::FlipX;
 		case Transformations::FlipY: return Transformations::FlipY;
 
+        case Transformations::FlipDiag1: return Transformations::FlipDiag1;
+        case Transformations::FlipDiag2: return Transformations::FlipDiag2;
+
 		case Transformations::None: return Transformations::None;
 
 		default: assert(false); return Transformations::None;
 	}
+}
+bool WFC::WillSwapAxes(Transformations t)
+{
+    switch (t)
+    {
+        case Transformations::None:
+        case Transformations::Rotate180:
+        case Transformations::FlipX:
+        case Transformations::FlipY:
+            return false;
+
+        case Transformations::Rotate90CW:
+        case Transformations::Rotate270CW:
+        case Transformations::FlipDiag1:
+        case Transformations::FlipDiag2:
+            return true;
+
+        default: assert(false); return false;
+    }
 }
 const char* WFC::ToString(Transformations t)
 {
@@ -29,11 +51,33 @@ const char* WFC::ToString(Transformations t)
         case Transformations::Rotate270CW: return "Rot270CW";
         case Transformations::FlipX: return "FlipX";
         case Transformations::FlipY: return "FlipY";
+        case Transformations::FlipDiag1: return "FlipDiag1";
+        case Transformations::FlipDiag2: return "FlipDiag2";
         case Transformations::None: return "None";
 
         default: assert(false); return "UNKNOWN";
     }
 }
+bool WFC::IsReflection(Transformations t)
+{
+    switch (t)
+    {
+        case Transformations::None:
+        case Transformations::Rotate90CW:
+        case Transformations::Rotate180:
+        case Transformations::Rotate270CW:
+            return false;
+
+        case Transformations::FlipX:
+        case Transformations::FlipY:
+        case Transformations::FlipDiag1:
+        case Transformations::FlipDiag2:
+            return true;
+
+        default: assert(false); return false;
+    }
+}
+
 
 Vector2i Vector2i::Transform(Transformations trnsf, Vector2i size) const
 {
@@ -61,6 +105,11 @@ Vector2i Vector2i::Transform(Transformations trnsf, Vector2i size) const
 			return Vector2i(size.x - x - 1, y);
 		case Transformations::FlipY:
 			return Vector2i(x, size.y - y - 1);
+
+        case Transformations::FlipDiag1:
+            return Vector2i(y, x);
+        case Transformations::FlipDiag2:
+            return Vector2i(size.y - y - 1, size.x - x - 1);
 
 		case Transformations::None:
 			return *this;

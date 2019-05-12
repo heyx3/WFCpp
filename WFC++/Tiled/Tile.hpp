@@ -6,9 +6,11 @@ namespace WFC
 {
     namespace Tiled
     {
-        using TileID = uint16_t;
+        //A tile's index in a list that holds it.
+        using TileID = uint_fast32_t;
         const TileID TileID_INVALID = std::numeric_limits<TileID>().max();
         
+        //A unique identifier for an edge. Two edges with the same ID can connect to each other.
         using EdgeID = uint16_t;
         const EdgeID EdgeID_INVALID = std::numeric_limits<EdgeID>().max();
 
@@ -55,8 +57,6 @@ namespace WFC
         {
         public:
 
-            //The unique identifier for this tile.
-            TileID ID;
             //Any transformations that would not change this tile at all.
             TransformationFlags Symmetries;
 
@@ -87,13 +87,6 @@ namespace WFC
             EdgeID& MaxX() { return Edges[EdgeDirs::MaxX]; }
             EdgeID& MinY() { return Edges[EdgeDirs::MinY]; }
             EdgeID& MaxY() { return Edges[EdgeDirs::MaxY]; }
-
-            
-            //Hashes an instance.
-            //Allows this class to be used as a Dictionary<> key or Set<> element.
-            inline unsigned int operator()(const Tile& t) { return ID; }
-            inline bool operator==(const Tile& t2) const { return ID == t2.ID; }
-            inline bool operator!=(const Tile& t2) const { return !operator==(t2); }
         };
     }
 }

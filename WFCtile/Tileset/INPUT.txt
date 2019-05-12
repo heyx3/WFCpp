@@ -3,5 +3,4 @@ Width:5
 Height:5
 
 //Optional fields:
-UseRotations:true
-UseReflections:true
+Permutations: Rot90, Rot180, Rot270, FlipX, FlipY, FlipDiag1, FlipDiag2

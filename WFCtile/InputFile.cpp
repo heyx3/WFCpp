@@ -38,8 +38,25 @@ InputFile::InputFile(const std::string& inputFileContents,
             }
         MATCH("Width", Width)
         else MATCH("Height", Height)
-        else MATCH("UseRotations", UseRotations)
-        else MATCH("UseReflections", UseReflections)
+        else if (key == "Permutations")
+        {
+            std::vector<std::string> transforms;
+            Utils::Split(val, transforms, [](char c) { return c == ','; });
+            for (std::string transformStr : transforms)
+            {
+                Utils::TrimString(transformStr);
+
+                WFC::Transformations tr;
+                if (!Utils::TryParse(transformStr, tr))
+                {
+                    outErrCode = 17;
+                    outErrMsg = std::string("Couldn't parse transform: " + transformStr);
+                    return;
+                }
+
+                PermutationsToUse += tr;
+            }
+        }
         else
         {
             outErrCode = 16;

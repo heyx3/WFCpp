@@ -12,7 +12,7 @@ namespace WFC
 {
     //NOTE: By convention, the positive Y axis points downward.
 
-	//Things that can be done to 2D vectors.
+	//Things that can be done to 2D integer vectors.
     //Note that this set is completely closed -- any combination of these transformations
     //    is equivalent to a single one of these transformations.
 	enum WFC_API Transformations
@@ -26,7 +26,10 @@ namespace WFC
 		FlipX,
 		FlipY,
 
-        //TODO: Missing mirror along diagonals!
+        //Mirror along the primary diagonal, going from the min corner to the max corner.
+        FlipDiag1,
+        //Mirror along the secondary diagonal.
+        FlipDiag2,
 
 		Count, //The size of this enum list -- not an actual transformation
 	};
@@ -36,7 +39,9 @@ namespace WFC
         EnumFlags<Transformations, uint_fast8_t, (uint_fast8_t)Transformations::Count>;
 
     WFC_API Transformations Invert(Transformations t);
+    WFC_API bool WillSwapAxes(Transformations t);
     WFC_API const char* ToString(Transformations t);
+    WFC_API bool IsReflection(Transformations t);
 
 
 	//A 2D integer coordinate.
