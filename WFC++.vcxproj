@@ -182,10 +182,12 @@ xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="WFC++\Array2D.hpp" />
+    <ClInclude Include="WFC++\Array3D.hpp" />
     <ClInclude Include="WFC++\Dictionary.hpp" />
     <ClInclude Include="WFC++\EnumFlags.h" />
     <ClInclude Include="WFC++\HelperClasses.h" />
     <ClInclude Include="WFC++\List.hpp" />
+    <ClInclude Include="WFC++\WFCMath.h" />
     <ClInclude Include="WFC++\Nullable.hpp" />
     <ClInclude Include="WFC++\Platform.h" />
     <ClInclude Include="WFC++\Set.hpp" />
@@ -197,6 +199,7 @@ xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
     <ClInclude Include="WFC++\Tiled\State.h" />
     <ClInclude Include="WFC++\Tiled\TilePermutator.h" />
     <ClInclude Include="WFC++\Vector2i.h" />
+    <ClInclude Include="WFC++\Vector3i.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WFC++\Simple\InputData.cpp" />
@@ -206,6 +209,7 @@ xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
     <ClCompile Include="WFC++\Tiled\State.cpp" />
     <ClCompile Include="WFC++\Tiled\TilePermutator.cpp" />
     <ClCompile Include="WFC++\Vector2i.cpp" />
+    <ClCompile Include="WFC++\Vector3i.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

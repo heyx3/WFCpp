@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Platform.h"
+#include "WFCMath.h"
 #include "Vector2i.h"
 
 #pragma warning(disable: 4018)
@@ -58,7 +58,7 @@ namespace WFC
 
 			toMove.width = 0;
 			toMove.height = 0;
-			toMove.arrayVals = 0;
+			toMove.arrayVals = nullptr;
 
 			return *this;
 		}
@@ -150,16 +150,8 @@ namespace WFC
 		//Wraps the given index around the range of allowable indices for this array.
 		Vector2i Wrap(Vector2i in) const
 		{
-			//First handle negative values.
-			while (in.x < 0)
-				in.x += GetWidth();
-			while (in.y < 0)
-				in.y += GetHeight();
-        
-			//Next, handle positive values.
-			in.x %= GetWidth();
-			in.y %= GetHeight();
-
+            in.x = Math::PositiveModulo(in.x, width);
+            in.y = Math::PositiveModulo(in.y, height);
 			return in;
 		}
 
@@ -174,33 +166,6 @@ namespace WFC
 			int size = width * height;
 			for (int i = 0; i < size; ++i)
 				arrayVals[i] = value;
-		}
-		//Copies the given array into this one. The given array may be offset a certain amount.
-		//Any values of the given array that don't correspond to a value in this array are ignored.
-		void Fill(const Array2D<ArrayType>& toCopy, Vector2i copyOffset = Vector2i(0, 0))
-		{
-			Vector2i offsetLoc;
-
-			for (Vector2i loc; loc.y < toCopy.height; ++loc.y)
-			{
-				offsetLoc.y = (int)loc.y + copyOffset.y;
-
-				if (offsetLoc.y < 0)
-					continue;
-				if (offsetLoc.y >= (int)height)
-					break;
-
-				for (loc.x = 0; loc.x < toCopy.width; ++loc.x)
-				{
-					offsetLoc.x = (int)loc.x + copyOffset.x;
-
-					if (offsetLoc.x >= (int)width)
-						break;
-
-					if (offsetLoc.x >= 0)
-						operator[](offsetLoc) = toCopy[loc];
-				}
-			}
 		}
 		//Copies the given elements to this array.
 		//Assumes that the size of this array matches with the given one.
@@ -275,23 +240,6 @@ namespace WFC
 					break;
 
 				default: assert(false);
-			}
-		}
-
-		//Resizes this array to the given size, preserving all data
-		//    (although some data will of course be lost if the array gets shortened).
-		//If the array is being extended, the new elements will be filled with the given default value.
-		void Resize(int newWidth, int newHeight, const ArrayType& defaultVal)
-		{
-			if (width != newWidth || height != newHeight)
-			{
-				//Create a copy of this array.
-				Array2D<ArrayType> cpy(width, height);
-				cpy.Fill(arrayVals, true);
-
-				//Resize this array and fill it with the old values.
-				Reset(newWidth, newHeight, defaultVal);
-				Fill(cpy);
 			}
 		}
 

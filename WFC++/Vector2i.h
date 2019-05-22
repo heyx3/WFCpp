@@ -64,15 +64,6 @@ namespace WFC
 
 		Vector2i() : Vector2i(0, 0) { }
 		Vector2i(int X, int Y) : x(X), y(Y) { }
-		Vector2i(const Vector2i& cpy) : x(cpy.x), y(cpy.y) { }
-
-		inline Vector2i& operator=(const Vector2i& cpy)
-		{
-			x = cpy.x;
-			y = cpy.y;
-
-			return *this;
-		}
 
 
 		//Access the X or Y component with 0 or 1, respectively.

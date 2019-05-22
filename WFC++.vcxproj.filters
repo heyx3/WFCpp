@@ -45,6 +45,15 @@
     <ClInclude Include="WFC++\Tiled\TilePermutator.h">
       <Filter>Generator Classes\Tiled</Filter>
     </ClInclude>
+    <ClInclude Include="WFC++\Array3D.hpp">
+      <Filter>Helper Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\Vector3i.h">
+      <Filter>Helper Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\WFCMath.h">
+      <Filter>Helper Classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Helper Classes">
@@ -81,6 +90,9 @@
     </ClCompile>
     <ClCompile Include="WFC++\Tiled\TilePermutator.cpp">
       <Filter>Generator Classes\Tiled</Filter>
+    </ClCompile>
+    <ClCompile Include="WFC++\Vector3i.cpp">
+      <Filter>Helper Classes</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
