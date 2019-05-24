@@ -36,11 +36,13 @@ namespace WFC
             //Notated with the face that the edges are parallel to, and "a" or "b"
             //    for "major diagonal" (i.e. one of the edges is an axis)
             //    or "minor diagonal" respectively.
-            EdgesXa, EdgesYa, EdgesZa,
-            EdgesXb, EdgesYb, EdgesZb,
+            EdgesXa, EdgesXb,
+            EdgesYa, EdgesYb,
+            EdgesZa, EdgesZb,
 
             //Rotation by grabbing opposite corners and rotating 120 or 240 degrees.
-            //Notated with one corner and rotation amount.
+            //Notated with one corner, and rotation amount
+            //    (clockwise while staring at the notated corner).
             //The corner is notated as "CornerXYZ", where X, Y, and Z are either
             //    "A" for the min side, or "B" for the max side.
             CornerAAA_120, CornerAAA_240,

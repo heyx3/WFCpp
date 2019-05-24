@@ -16,7 +16,6 @@ namespace
     //    "Lookup_DirTransforms[MinX][RotY90]".
     std::array<std::array<Directions3D, Rotations3D::Count>,
                Directions3D::Count> Lookup_DirTransforms = { {
-        //TODO: Finish.
         #pragma region MinX
         {
             MinX, //None
@@ -29,20 +28,20 @@ namespace
             MinY, //AxisZ_90
             MaxX, //AxisZ_180
             MaxY, //AxisZ_270
-            , //EdgesXa
-            , //EdgesYa
-            , //EdgesZa
-            , //EdgesXb
-            , //EdgesYb
-            , //EdgesZb
-            , //CornerAAA_120
-            , //CornerAAA_240
-            , //CornerABA_120
-            , //CornerABA_240
-            , //CornerBAA_120
-            , //CornerBAA_240
-            , //CornerBBA_120
-            , //CornerBBA_240
+            MaxX, //EdgesXa
+            MaxX, //EdgesXb
+            MinZ, //EdgesYa
+            MaxZ, //EdgesYb
+            MinY, //EdgesZa
+            MaxY, //EdgesZb
+            MinZ, //CornerAAA_120
+            MinY, //CornerAAA_240
+            MaxY, //CornerABA_120
+            MinZ, //CornerABA_240
+            MaxY, //CornerBAA_120
+            MaxZ, //CornerBAA_240
+            MaxZ, //CornerBBA_120
+            MinY, //CornerBBA_240
         },
         #pragma endregion
         #pragma region MaxX
@@ -57,20 +56,20 @@ namespace
             MaxY, //AxisZ_90
             MinX, //AxisZ_180
             MinY, //AxisZ_270
-            , //EdgesXa
-            , //EdgesYa
-            , //EdgesZa
-            , //EdgesXb
-            , //EdgesYb
-            , //EdgesZb
-            , //CornerAAA_120
-            , //CornerAAA_240
-            , //CornerABA_120
-            , //CornerABA_240
-            , //CornerBAA_120
-            , //CornerBAA_240
-            , //CornerBBA_120
-            , //CornerBBA_240
+            MinX, //EdgesXa
+            MinX, //EdgesXb
+            MaxZ, //EdgesYa
+            MinZ, //EdgesYb
+            MaxY, //EdgesZa
+            MinY, //EdgesZb
+            MaxZ, //CornerAAA_120
+            MaxY, //CornerAAA_240
+            MinY, //CornerABA_120
+            MaxZ, //CornerABA_240
+            MinY, //CornerBAA_120
+            MinZ, //CornerBAA_240
+            MinZ, //CornerBBA_120
+            MaxY, //CornerBBA_240
         },
         #pragma endregion
         #pragma region MinY
@@ -85,20 +84,20 @@ namespace
             MaxX, //AxisZ_90
             MaxY, //AxisZ_180
             MinX, //AxisZ_270
-            , //EdgesXa
-            , //EdgesYa
-            , //EdgesZa
-            , //EdgesXb
-            , //EdgesYb
-            , //EdgesZb
-            , //CornerAAA_120
-            , //CornerAAA_240
-            , //CornerABA_120
-            , //CornerABA_240
-            , //CornerBAA_120
-            , //CornerBAA_240
-            , //CornerBBA_120
-            , //CornerBBA_240
+            MinZ, //EdgesXa
+            MaxZ, //EdgesXb
+            MaxY, //EdgesYa
+            MaxY, //EdgesYb
+            MinX, //EdgesZa
+            MaxX, //EdgesZb
+            MinX, //CornerAAA_120
+            MinZ, //CornerAAA_240
+            MaxZ, //CornerABA_120
+            MaxX, //CornerABA_240
+            MinZ, //CornerBAA_120
+            MaxX, //CornerBAA_240
+            MinX, //CornerBBA_120
+            MaxZ, //CornerBBA_240
         },
         #pragma endregion
         #pragma region MaxY
@@ -113,20 +112,20 @@ namespace
             MinX, //AxisZ_90
             MinY, //AxisZ_180
             MaxX, //AxisZ_270
-            , //EdgesXa
-            , //EdgesYa
-            , //EdgesZa
-            , //EdgesXb
-            , //EdgesYb
-            , //EdgesZb
-            , //CornerAAA_120
-            , //CornerAAA_240
-            , //CornerABA_120
-            , //CornerABA_240
-            , //CornerBAA_120
-            , //CornerBAA_240
-            , //CornerBBA_120
-            , //CornerBBA_240
+            MaxZ, //EdgesXa
+            MinZ, //EdgesXb
+            MinY, //EdgesYa
+            MinY, //EdgesYb
+            MaxX, //EdgesZa
+            MinX, //EdgesZb
+            MaxX, //CornerAAA_120
+            MaxZ, //CornerAAA_240
+            MinZ, //CornerABA_120
+            MinX, //CornerABA_240
+            MaxZ, //CornerBAA_120
+            MinX, //CornerBAA_240
+            MaxX, //CornerBBA_120
+            MinZ, //CornerBBA_240
         },
         #pragma endregion
         #pragma region MinZ
@@ -141,20 +140,20 @@ namespace
             MinZ, //AxisZ_90
             MinZ, //AxisZ_180
             MinZ, //AxisZ_270
-            , //EdgesXa
-            , //EdgesYa
-            , //EdgesZa
-            , //EdgesXb
-            , //EdgesYb
-            , //EdgesZb
-            , //CornerAAA_120
-            , //CornerAAA_240
-            , //CornerABA_120
-            , //CornerABA_240
-            , //CornerBAA_120
-            , //CornerBAA_240
-            , //CornerBBA_120
-            , //CornerBBA_240
+            MinY, //EdgesXa
+            MaxY, //EdgesXb
+            MinX, //EdgesYa
+            MaxX, //EdgesYb
+            MaxZ, //EdgesZa
+            MaxZ, //EdgesZb
+            MinY, //CornerAAA_120
+            MinX, //CornerAAA_240
+            MinX, //CornerABA_120
+            MaxY, //CornerABA_240
+            MaxX, //CornerBAA_120
+            MinY, //CornerBAA_240
+            MaxY, //CornerBBA_120
+            MaxX, //CornerBBA_240
         },
         #pragma endregion
         #pragma region MaxZ
@@ -169,20 +168,20 @@ namespace
             MaxZ, //AxisZ_90
             MaxZ, //AxisZ_180
             MaxZ, //AxisZ_270
-            , //EdgesXa
-            , //EdgesYa
-            , //EdgesZa
-            , //EdgesXb
-            , //EdgesYb
-            , //EdgesZb
-            , //CornerAAA_120
-            , //CornerAAA_240
-            , //CornerABA_120
-            , //CornerABA_240
-            , //CornerBAA_120
-            , //CornerBAA_240
-            , //CornerBBA_120
-            , //CornerBBA_240
+            MaxY, //EdgesXa
+            MinY, //EdgesXb
+            MaxX, //EdgesYa
+            MinX, //EdgesYb
+            MinZ, //EdgesZa
+            MinZ, //EdgesZb
+            MaxY, //CornerAAA_120
+            MaxX, //CornerAAA_240
+            MaxX, //CornerABA_120
+            MinY, //CornerABA_240
+            MinX, //CornerBAA_120
+            MaxY, //CornerBAA_240
+            MinY, //CornerBBA_120
+            MinX, //CornerBBA_240
         }
         #pragma endregion
     } };
