@@ -187,6 +187,7 @@ xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
     <ClInclude Include="WFC++\EnumFlags.h" />
     <ClInclude Include="WFC++\HelperClasses.h" />
     <ClInclude Include="WFC++\List.hpp" />
+    <ClInclude Include="WFC++\Tiled3D\CubeTransform.h" />
     <ClInclude Include="WFC++\WFCMath.h" />
     <ClInclude Include="WFC++\Nullable.hpp" />
     <ClInclude Include="WFC++\Platform.h" />
@@ -205,6 +206,7 @@ xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
     <ClCompile Include="WFC++\Simple\InputData.cpp" />
     <ClCompile Include="WFC++\Simple\Pattern.cpp" />
     <ClCompile Include="WFC++\Simple\State.cpp" />
+    <ClCompile Include="WFC++\Tiled3D\CubeTransform.cpp" />
     <ClCompile Include="WFC++\Tiled\InputData.cpp" />
     <ClCompile Include="WFC++\Tiled\State.cpp" />
     <ClCompile Include="WFC++\Tiled\TilePermutator.cpp" />

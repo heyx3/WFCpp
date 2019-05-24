@@ -54,6 +54,9 @@
     <ClInclude Include="WFC++\WFCMath.h">
       <Filter>Helper Classes</Filter>
     </ClInclude>
+    <ClInclude Include="WFC++\Tiled3D\CubeTransform.h">
+      <Filter>Generator Classes\Tiled3D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Helper Classes">
@@ -67,6 +70,9 @@
     </Filter>
     <Filter Include="Generator Classes\Tiled">
       <UniqueIdentifier>{0269a151-36ad-4c76-b778-79c39a4f0a93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generator Classes\Tiled3D">
+      <UniqueIdentifier>{121f403f-0d14-4448-92fb-0d22215d6e55}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -93,6 +99,9 @@
     </ClCompile>
     <ClCompile Include="WFC++\Vector3i.cpp">
       <Filter>Helper Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="WFC++\Tiled3D\CubeTransform.cpp">
+      <Filter>Generator Classes\Tiled3D</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
