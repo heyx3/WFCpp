@@ -25,6 +25,8 @@ namespace WFC
 			return *((unsigned int*)(&i));
 		}
 
+        static inline Vector3i Zero() { return Vector3i(); }
+
 
         int x, y, z;
 

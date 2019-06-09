@@ -54,7 +54,7 @@
     <ClInclude Include="WFC++\WFCMath.h">
       <Filter>Helper Classes</Filter>
     </ClInclude>
-    <ClInclude Include="WFC++\Tiled3D\CubeTransform.h">
+    <ClInclude Include="WFC++\Tiled3D\Transform3D.h">
       <Filter>Generator Classes\Tiled3D</Filter>
     </ClInclude>
   </ItemGroup>
@@ -100,7 +100,7 @@
     <ClCompile Include="WFC++\Vector3i.cpp">
       <Filter>Helper Classes</Filter>
     </ClCompile>
-    <ClCompile Include="WFC++\Tiled3D\CubeTransform.cpp">
+    <ClCompile Include="WFC++\Tiled3D\Transform3D.cpp">
       <Filter>Generator Classes\Tiled3D</Filter>
     </ClCompile>
   </ItemGroup>
