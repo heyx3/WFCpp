@@ -38,6 +38,14 @@ namespace WFC
             //The axes are ordered X, Y, Z (e.x. the Y face's axes are ordered "XZ").
             AA, AB, BA, BB
         };
+        inline bool WFC_API IsFirstMin(FacePoints p) { return (uint_fast8_t)p / 2 == 0; }
+        inline bool WFC_API IsSecondMin(FacePoints p) { return (uint_fast8_t)p % 2 == 0; }
+        inline FacePoints WFC_API MakeFacePoint(bool axis1IsMin, bool axis2IsMin)
+        {
+            return axis1IsMin ?
+                       (axis2IsMin ? FacePoints::AA : FacePoints::AB) :
+                       (axis2IsMin ? FacePoints::BA : FacePoints::BB);
+        }
 
         //The different axis directions/faces of a cube.
         enum WFC_API Directions3D : uint8_t
@@ -48,11 +56,11 @@ namespace WFC
             MinY, MaxY,
             MinZ, MaxZ,
 
-            //Used for enumeration:
-            Count
+            #define N_DIRECTIONS3D 6
         };
         inline bool WFC_API IsMin(Directions3D dir) { return (uint_fast8_t)dir % 2 == 0; }
         inline bool WFC_API IsMax(Directions3D dir) { return (uint_fast8_t)dir % 2 == 1; }
+        inline uint_fast8_t GetAxisIndex(Directions3D dir) { return (uint_fast8_t)dir / 2; }
         inline Directions3D WFC_API GetOpposite(Directions3D dir) { return (Directions3D)(IsMin(dir) ? (dir + 1) : (dir - 1)); }
 
 
@@ -147,7 +155,7 @@ namespace WFC
             //The faces of this cube.
             //Their positions in the array are based on the original un-transformed cube --
             //    e.x. Faces[Directions::MinX] is the face that STARTED as the MinX face.
-            FacePermutation Faces[Directions3D::Count];
+            FacePermutation Faces[N_DIRECTIONS3D];
 
             //Gets the index in "Faces" for the face currently facing the given direction.
             uint_fast8_t GetFace(Directions3D dir) const;

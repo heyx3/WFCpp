@@ -121,7 +121,7 @@ TilePermutator::TilePermutator(const List<Tile>& originalTiles,
             }
 
             //Register the tile.
-            TileID childID = tiles.GetSize();
+            TileID childID = (TileID)tiles.GetSize();
             tiles.PushBack(childTile);
             tileParents.PushBack(ParentData{ parentID, tr });
             tilePermutations[parentID].PushBack(childID);

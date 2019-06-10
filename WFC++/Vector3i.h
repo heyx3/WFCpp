@@ -36,9 +36,9 @@ namespace WFC
 
 
         //Access each component with 0, 1, or 2.
-		const int& operator[](int index) const { return (&x)[index]; }
+		const int& operator[](uint_fast8_t index) const { return (&x)[index]; }
         //Access each component with 0, 1, or 2.
-		int& operator[](int index) { return (&x)[index]; }
+		int& operator[](uint_fast8_t index) { return (&x)[index]; }
 
 
         Vector3i& operator+=(const Vector3i& other) { x += other.x; y += other.y; z += other.z; return *this; }
