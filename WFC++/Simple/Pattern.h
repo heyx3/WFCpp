@@ -47,10 +47,10 @@ namespace WFC
 		    const Pixel& operator[](const Vector2i& patternPos) const;
 
 		    //Gets the hash value for the given instance.
-		    size_t GetHashCode() const;
+		    size_t GetHashcode() const;
 		    //Gets the hash value for the given instance.
 		    //Enables this class to be used as a key in Dictionary<> or std::unordered_map<>.
-		    size_t operator()(const Pattern& v) const { return v.GetHashCode(); }
+		    size_t operator()(const Pattern& v) const { return v.GetHashcode(); }
 
 		    //Gets whether this pattern is functionally identical to the given one.
 		    bool HasSameData(const Pattern& p) const;

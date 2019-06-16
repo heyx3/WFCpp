@@ -493,13 +493,13 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Vector2i_Transform(void * jarg1, int jarg2,
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_Vector2i_GetHashCode(void * jarg1) {
+SWIGEXPORT int SWIGSTDCALL CSharp_Vector2i_GetHashcode(void * jarg1) {
   int jresult ;
   WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
   int result;
   
   arg1 = (WFC::Vector2i *)jarg1; 
-  result = (int)((WFC::Vector2i const *)arg1)->GetHashCode();
+  result = (int)((WFC::Vector2i const *)arg1)->GetHashcode();
   jresult = result; 
   return jresult;
 }
@@ -815,13 +815,13 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Vector3i_MoreZ(void * jarg1) {
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_Vector3i_GetHashCode(void * jarg1) {
+SWIGEXPORT int SWIGSTDCALL CSharp_Vector3i_GetHashcode(void * jarg1) {
   int jresult ;
   WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
   int result;
   
   arg1 = (WFC::Vector3i *)jarg1; 
-  result = (int)((WFC::Vector3i const *)arg1)->GetHashCode();
+  result = (int)((WFC::Vector3i const *)arg1)->GetHashcode();
   jresult = result; 
   return jresult;
 }

@@ -53,7 +53,7 @@ namespace WFC
 		//Enables this class to be used for std collections that use hashes.
 		inline unsigned int operator()(const Vector2i& v) const
 		{
-			int i = v.GetHashCode();
+			int i = v.GetHashcode();
 			return *((unsigned int*)(&i));
 		}
 
@@ -102,7 +102,7 @@ namespace WFC
 		//    assuming the "pivot" is halfway between the origin and "size".
 		Vector2i Transform(Transformations trnsf, Vector2i size) const;
 
-		int GetHashCode() const { return (x * 73856093) ^ (y * 19349663); }
+		int GetHashcode() const { return (x * 73856093) ^ (y * 19349663); }
 	};
 
 

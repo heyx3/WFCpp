@@ -28,11 +28,15 @@
 	#if UNITY_2018_1_OR_NEWER
 	UnityEngine.Vector2Int ToUnityStruct() { return new UnityEngine.Vector2Int(x, y); }
 	#endif
+
+	public override int GetHashCode() { return GetHashcode(); }
 %}
 %typemap(cscode) WFC::Vector3i %{
 	#if UNITY_2018_1_OR_NEWER
 	UnityEngine.Vector3Int ToUnityStruct() { return new UnityEngine.Vector3Int(x, y, z); }
 	#endif
+
+	public override int GetHashCode() { return GetHashcode(); }
 %}
 %include "../Vector2i.h"
 %include "../Vector3i.h"

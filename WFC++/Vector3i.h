@@ -21,7 +21,7 @@ namespace WFC
 		//Enables this class to be used for std collections that use hashes.
 		inline unsigned int operator()(const Vector3i& v) const
 		{
-			int i = v.GetHashCode();
+			int i = v.GetHashcode();
 			return *((unsigned int*)(&i));
 		}
 
@@ -69,7 +69,7 @@ namespace WFC
         Vector3i LessZ() const { return Vector3i(x, y, z - 1); }
         Vector3i MoreZ() const { return Vector3i(x, y, z + 1); }
 
-		int GetHashCode() const { return (x * 73856093) ^ (y * 19349663) ^ (z * 6869627); }
+		int GetHashcode() const { return (x * 73856093) ^ (y * 19349663) ^ (z * 6869627); }
 	};
 
 

@@ -12,7 +12,7 @@ const Pixel& Pattern::operator[](const Vector2i& patternPos) const
 	return input->GetPixel(inputPos, InputDataTransform);
 }
 
-size_t Pattern::GetHashCode() const
+size_t Pattern::GetHashcode() const
 {
 	const unsigned int prime = 59;
 	unsigned int hash = 1;

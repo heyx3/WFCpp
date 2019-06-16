@@ -123,7 +123,7 @@ InputData::InputData(const Array2D<Pixel>& pixelData, Vector2i patternSize,
 	List<size_t> patternHashes;
 	patternHashes.Resize(patterns.GetSize());
 	for (size_t i = 0; i < patterns.GetSize(); ++i)
-		patternHashes[i] = patterns[i].GetHashCode();
+		patternHashes[i] = patterns[i].GetHashcode();
 	for (size_t i = 0; i < patterns.GetSize(); ++i)
 	{
 		for (size_t j = i + 1; j < patterns.GetSize(); ++j)
