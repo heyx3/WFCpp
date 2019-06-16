@@ -6,6 +6,12 @@ For more explanation of the algorithm itself, you can read this project's source
 
 The core library has a "Simple" version (for pixel art images), a "tiled" version (for tile-sets), and a "tiled 3D" version (for 3D tile-sets). The first two systems have corresponding command-line programs for playing with them. The 3D tile-set system is more complicated; it uses SWIG to generate a C# interface, and then a Unity3D plugin to facilitate its use.
 
+## Setup
+
+After cloning the repo, just open **WFC++.sln** in Visual Studio, set the platform to **x64**, and build. You may want to change the "startup project" to one of the command-line apps, if that's what you want to use.
+
+After building the "WFC++" project in **WFC++.sln**, relevant DLLs and C# files will be automatically copied to the "WFCunity" project for the "Tiled3D" system. That Unity project will not work until you build WFC++.
+
 ## Structure
 
 The project has one Visual C++ solution with three projects, plus a Unity3D project:
