@@ -118,7 +118,8 @@ swig -help &gt;nul 2&gt;&amp;1 &amp;&amp; (
 )
 
 REM Clear the CSharp output folder, and run SWIG to output there and overwrite the C++ file already in this project
-set CS_OUT_PATH=$(OutputPath)CSharp_include
+REM Note that the CSharp folder does not change with Debug vs Release
+set CS_OUT_PATH=$(OutputPath)..\CSharp_include
 if exist %CS_OUT_PATH% (
     del /Q "%CS_OUT_PATH%"
 ) else (
@@ -160,7 +161,8 @@ swig -help &gt;nul 2&gt;&amp;1 &amp;&amp; (
 )
 
 REM Clear the CSharp output folder, and run SWIG to output there and overwrite the C++ file already in this project
-set CS_OUT_PATH=$(OutputPath)CSharp_include
+REM Note that the CSharp folder does not change with Debug vs Release
+set CS_OUT_PATH=$(OutputPath)..\CSharp_include
 if exist %CS_OUT_PATH% (
     del /Q "%CS_OUT_PATH%"
 ) else (
@@ -208,7 +210,8 @@ swig -help &gt;nul 2&gt;&amp;1 &amp;&amp; (
 )
 
 REM Clear the CSharp output folder, and run SWIG to output there and overwrite the C++ file already in this project
-set CS_OUT_PATH=$(OutputPath)CSharp_include
+REM Note that the CSharp folder does not change with Debug vs Release
+set CS_OUT_PATH=$(OutputPath)..\CSharp_include
 if exist %CS_OUT_PATH% (
     del /Q "%CS_OUT_PATH%"
 ) else (
@@ -256,7 +259,8 @@ swig -help &gt;nul 2&gt;&amp;1 &amp;&amp; (
 )
 
 REM Clear the CSharp output folder, and run SWIG to output there and overwrite the C++ file already in this project
-set CS_OUT_PATH=$(OutputPath)CSharp_include
+REM Note that the CSharp folder does not change with Debug vs Release
+set CS_OUT_PATH=$(OutputPath)..\CSharp_include
 if exist %CS_OUT_PATH% (
     del /Q "%CS_OUT_PATH%"
 ) else (
