@@ -2,6 +2,7 @@
 
 #include "../Platform.h"
 #include "../Vector3i.h"
+#include <stdint.h>
 
 namespace WFC
 {

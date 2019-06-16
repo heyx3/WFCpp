@@ -119,7 +119,11 @@ swig -help &gt;nul 2&gt;&amp;1 &amp;&amp; (
 
 REM Clear the CSharp output folder, and run SWIG to output there and overwrite the C++ file already in this project
 set CS_OUT_PATH=$(OutputPath)CSharp_include
-if exist %CS_OUT_PATH% del /Q %CS_OUT_PATH% else mkdir %CS_OUT_PATH%
+if exist %CS_OUT_PATH% (
+    del /Q "%CS_OUT_PATH%"
+) else (
+    mkdir "%CS_OUT_PATH%"
+)
 swig -c++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp" "$(ProjectDir)WFC++\SWIG\SWIG_build.i"</Command>
     </PreBuildEvent>
     <PreBuildEvent>
@@ -157,7 +161,11 @@ swig -help &gt;nul 2&gt;&amp;1 &amp;&amp; (
 
 REM Clear the CSharp output folder, and run SWIG to output there and overwrite the C++ file already in this project
 set CS_OUT_PATH=$(OutputPath)CSharp_include
-if exist %CS_OUT_PATH% del /Q %CS_OUT_PATH% else mkdir %CS_OUT_PATH%
+if exist %CS_OUT_PATH% (
+    del /Q "%CS_OUT_PATH%"
+) else (
+    mkdir "%CS_OUT_PATH%"
+)
 swig -c++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp" "$(ProjectDir)WFC++\SWIG\SWIG_build.i"</Command>
     </PreBuildEvent>
     <PreBuildEvent>
@@ -201,7 +209,11 @@ swig -help &gt;nul 2&gt;&amp;1 &amp;&amp; (
 
 REM Clear the CSharp output folder, and run SWIG to output there and overwrite the C++ file already in this project
 set CS_OUT_PATH=$(OutputPath)CSharp_include
-if exist %CS_OUT_PATH% del /Q %CS_OUT_PATH% else mkdir %CS_OUT_PATH%
+if exist %CS_OUT_PATH% (
+    del /Q "%CS_OUT_PATH%"
+) else (
+    mkdir "%CS_OUT_PATH%"
+)
 swig -c++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp" "$(ProjectDir)WFC++\SWIG\SWIG_build.i"</Command>
     </PreBuildEvent>
     <PreBuildEvent>
@@ -245,7 +257,11 @@ swig -help &gt;nul 2&gt;&amp;1 &amp;&amp; (
 
 REM Clear the CSharp output folder, and run SWIG to output there and overwrite the C++ file already in this project
 set CS_OUT_PATH=$(OutputPath)CSharp_include
-if exist %CS_OUT_PATH% del /Q %CS_OUT_PATH% else mkdir %CS_OUT_PATH%
+if exist %CS_OUT_PATH% (
+    del /Q "%CS_OUT_PATH%"
+) else (
+    mkdir "%CS_OUT_PATH%"
+)
 swig -c++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp" "$(ProjectDir)WFC++\SWIG\SWIG_build.i"</Command>
     </PreBuildEvent>
     <PreBuildEvent>

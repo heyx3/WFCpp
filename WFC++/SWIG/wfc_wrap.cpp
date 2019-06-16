@@ -300,11 +300,1042 @@ SWIGEXPORT void SWIGSTDCALL SWIGRegisterStringCallback_wfc(SWIG_CSharpStringHelp
 
 
     #include "../HelperClasses.h"
+	#include "../Tiled3D/Transform3D.h"
 
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+SWIGEXPORT int SWIGSTDCALL CSharp_Invert(int jarg1) {
+  int jresult ;
+  WFC::Transformations arg1 ;
+  WFC::Transformations result;
+  
+  arg1 = (WFC::Transformations)jarg1; 
+  result = (WFC::Transformations)WFC::Invert(arg1);
+  jresult = (int)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_WillSwapAxes(int jarg1) {
+  unsigned int jresult ;
+  WFC::Transformations arg1 ;
+  bool result;
+  
+  arg1 = (WFC::Transformations)jarg1; 
+  result = (bool)WFC::WillSwapAxes(arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_ToString(int jarg1) {
+  char * jresult ;
+  WFC::Transformations arg1 ;
+  char *result = 0 ;
+  
+  arg1 = (WFC::Transformations)jarg1; 
+  result = (char *)WFC::ToString(arg1);
+  jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_IsReflection(int jarg1) {
+  unsigned int jresult ;
+  WFC::Transformations arg1 ;
+  bool result;
+  
+  arg1 = (WFC::Transformations)jarg1; 
+  result = (bool)WFC::IsReflection(arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_Vector2i_x_set(void * jarg1, int jarg2) {
+  WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
+  int arg2 ;
+  
+  arg1 = (WFC::Vector2i *)jarg1; 
+  arg2 = (int)jarg2; 
+  if (arg1) (arg1)->x = arg2;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_Vector2i_x_get(void * jarg1) {
+  int jresult ;
+  WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
+  int result;
+  
+  arg1 = (WFC::Vector2i *)jarg1; 
+  result = (int) ((arg1)->x);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_Vector2i_y_set(void * jarg1, int jarg2) {
+  WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
+  int arg2 ;
+  
+  arg1 = (WFC::Vector2i *)jarg1; 
+  arg2 = (int)jarg2; 
+  if (arg1) (arg1)->y = arg2;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_Vector2i_y_get(void * jarg1) {
+  int jresult ;
+  WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
+  int result;
+  
+  arg1 = (WFC::Vector2i *)jarg1; 
+  result = (int) ((arg1)->y);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_Vector2i__SWIG_0() {
+  void * jresult ;
+  WFC::Vector2i *result = 0 ;
+  
+  result = (WFC::Vector2i *)new WFC::Vector2i();
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_Vector2i__SWIG_1(int jarg1, int jarg2) {
+  void * jresult ;
+  int arg1 ;
+  int arg2 ;
+  WFC::Vector2i *result = 0 ;
+  
+  arg1 = (int)jarg1; 
+  arg2 = (int)jarg2; 
+  result = (WFC::Vector2i *)new WFC::Vector2i(arg1,arg2);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Vector2i_LessX(void * jarg1) {
+  void * jresult ;
+  WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
+  WFC::Vector2i result;
+  
+  arg1 = (WFC::Vector2i *)jarg1; 
+  result = ((WFC::Vector2i const *)arg1)->LessX();
+  jresult = new WFC::Vector2i((const WFC::Vector2i &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Vector2i_MoreX(void * jarg1) {
+  void * jresult ;
+  WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
+  WFC::Vector2i result;
+  
+  arg1 = (WFC::Vector2i *)jarg1; 
+  result = ((WFC::Vector2i const *)arg1)->MoreX();
+  jresult = new WFC::Vector2i((const WFC::Vector2i &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Vector2i_LessY(void * jarg1) {
+  void * jresult ;
+  WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
+  WFC::Vector2i result;
+  
+  arg1 = (WFC::Vector2i *)jarg1; 
+  result = ((WFC::Vector2i const *)arg1)->LessY();
+  jresult = new WFC::Vector2i((const WFC::Vector2i &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Vector2i_MoreY(void * jarg1) {
+  void * jresult ;
+  WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
+  WFC::Vector2i result;
+  
+  arg1 = (WFC::Vector2i *)jarg1; 
+  result = ((WFC::Vector2i const *)arg1)->MoreY();
+  jresult = new WFC::Vector2i((const WFC::Vector2i &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Vector2i_Transform(void * jarg1, int jarg2, void * jarg3) {
+  void * jresult ;
+  WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
+  WFC::Transformations arg2 ;
+  WFC::Vector2i arg3 ;
+  WFC::Vector2i *argp3 ;
+  WFC::Vector2i result;
+  
+  arg1 = (WFC::Vector2i *)jarg1; 
+  arg2 = (WFC::Transformations)jarg2; 
+  argp3 = (WFC::Vector2i *)jarg3; 
+  if (!argp3) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null WFC::Vector2i", 0);
+    return 0;
+  }
+  arg3 = *argp3; 
+  result = ((WFC::Vector2i const *)arg1)->Transform(arg2,arg3);
+  jresult = new WFC::Vector2i((const WFC::Vector2i &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_Vector2i_GetHashCode(void * jarg1) {
+  int jresult ;
+  WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
+  int result;
+  
+  arg1 = (WFC::Vector2i *)jarg1; 
+  result = (int)((WFC::Vector2i const *)arg1)->GetHashCode();
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_delete_Vector2i(void * jarg1) {
+  WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
+  
+  arg1 = (WFC::Vector2i *)jarg1; 
+  delete arg1;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_Region2i_MinInclusive_set(void * jarg1, void * jarg2) {
+  WFC::Region2i *arg1 = (WFC::Region2i *) 0 ;
+  WFC::Vector2i *arg2 = 0 ;
+  
+  arg1 = (WFC::Region2i *)jarg1; 
+  arg2 = (WFC::Vector2i *)jarg2;
+  if (!arg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "WFC::Vector2i const & type is null", 0);
+    return ;
+  } 
+  if (arg1) (arg1)->MinInclusive = *arg2;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Region2i_MinInclusive_get(void * jarg1) {
+  void * jresult ;
+  WFC::Region2i *arg1 = (WFC::Region2i *) 0 ;
+  WFC::Vector2i *result = 0 ;
+  
+  arg1 = (WFC::Region2i *)jarg1; 
+  result = (WFC::Vector2i *) & ((arg1)->MinInclusive);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_Region2i_MaxExclusive_set(void * jarg1, void * jarg2) {
+  WFC::Region2i *arg1 = (WFC::Region2i *) 0 ;
+  WFC::Vector2i *arg2 = 0 ;
+  
+  arg1 = (WFC::Region2i *)jarg1; 
+  arg2 = (WFC::Vector2i *)jarg2;
+  if (!arg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "WFC::Vector2i const & type is null", 0);
+    return ;
+  } 
+  if (arg1) (arg1)->MaxExclusive = *arg2;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Region2i_MaxExclusive_get(void * jarg1) {
+  void * jresult ;
+  WFC::Region2i *arg1 = (WFC::Region2i *) 0 ;
+  WFC::Vector2i *result = 0 ;
+  
+  arg1 = (WFC::Region2i *)jarg1; 
+  result = (WFC::Vector2i *) & ((arg1)->MaxExclusive);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_Region2i__SWIG_0(void * jarg1) {
+  void * jresult ;
+  WFC::Vector2i *arg1 = 0 ;
+  WFC::Region2i *result = 0 ;
+  
+  arg1 = (WFC::Vector2i *)jarg1;
+  if (!arg1) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "WFC::Vector2i const & type is null", 0);
+    return 0;
+  } 
+  result = (WFC::Region2i *)new WFC::Region2i((WFC::Vector2i const &)*arg1);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_Region2i__SWIG_1(void * jarg1, void * jarg2) {
+  void * jresult ;
+  WFC::Vector2i *arg1 = 0 ;
+  WFC::Vector2i *arg2 = 0 ;
+  WFC::Region2i *result = 0 ;
+  
+  arg1 = (WFC::Vector2i *)jarg1;
+  if (!arg1) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "WFC::Vector2i const & type is null", 0);
+    return 0;
+  } 
+  arg2 = (WFC::Vector2i *)jarg2;
+  if (!arg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "WFC::Vector2i const & type is null", 0);
+    return 0;
+  } 
+  result = (WFC::Region2i *)new WFC::Region2i((WFC::Vector2i const &)*arg1,(WFC::Vector2i const &)*arg2);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_Region2i_Contains(void * jarg1, void * jarg2) {
+  unsigned int jresult ;
+  WFC::Region2i *arg1 = (WFC::Region2i *) 0 ;
+  WFC::Vector2i *arg2 = 0 ;
+  bool result;
+  
+  arg1 = (WFC::Region2i *)jarg1; 
+  arg2 = (WFC::Vector2i *)jarg2;
+  if (!arg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "WFC::Vector2i const & type is null", 0);
+    return 0;
+  } 
+  result = (bool)((WFC::Region2i const *)arg1)->Contains((WFC::Vector2i const &)*arg2);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Region2i_GetSize(void * jarg1) {
+  void * jresult ;
+  WFC::Region2i *arg1 = (WFC::Region2i *) 0 ;
+  WFC::Vector2i result;
+  
+  arg1 = (WFC::Region2i *)jarg1; 
+  result = ((WFC::Region2i const *)arg1)->GetSize();
+  jresult = new WFC::Vector2i((const WFC::Vector2i &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_delete_Region2i(void * jarg1) {
+  WFC::Region2i *arg1 = (WFC::Region2i *) 0 ;
+  
+  arg1 = (WFC::Region2i *)jarg1; 
+  delete arg1;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Vector3i_Zero() {
+  void * jresult ;
+  WFC::Vector3i result;
+  
+  result = WFC::Vector3i::Zero();
+  jresult = new WFC::Vector3i((const WFC::Vector3i &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_Vector3i_x_set(void * jarg1, int jarg2) {
+  WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
+  int arg2 ;
+  
+  arg1 = (WFC::Vector3i *)jarg1; 
+  arg2 = (int)jarg2; 
+  if (arg1) (arg1)->x = arg2;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_Vector3i_x_get(void * jarg1) {
+  int jresult ;
+  WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
+  int result;
+  
+  arg1 = (WFC::Vector3i *)jarg1; 
+  result = (int) ((arg1)->x);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_Vector3i_y_set(void * jarg1, int jarg2) {
+  WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
+  int arg2 ;
+  
+  arg1 = (WFC::Vector3i *)jarg1; 
+  arg2 = (int)jarg2; 
+  if (arg1) (arg1)->y = arg2;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_Vector3i_y_get(void * jarg1) {
+  int jresult ;
+  WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
+  int result;
+  
+  arg1 = (WFC::Vector3i *)jarg1; 
+  result = (int) ((arg1)->y);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_Vector3i_z_set(void * jarg1, int jarg2) {
+  WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
+  int arg2 ;
+  
+  arg1 = (WFC::Vector3i *)jarg1; 
+  arg2 = (int)jarg2; 
+  if (arg1) (arg1)->z = arg2;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_Vector3i_z_get(void * jarg1) {
+  int jresult ;
+  WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
+  int result;
+  
+  arg1 = (WFC::Vector3i *)jarg1; 
+  result = (int) ((arg1)->z);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_Vector3i__SWIG_0() {
+  void * jresult ;
+  WFC::Vector3i *result = 0 ;
+  
+  result = (WFC::Vector3i *)new WFC::Vector3i();
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_Vector3i__SWIG_1(int jarg1, int jarg2, int jarg3) {
+  void * jresult ;
+  int arg1 ;
+  int arg2 ;
+  int arg3 ;
+  WFC::Vector3i *result = 0 ;
+  
+  arg1 = (int)jarg1; 
+  arg2 = (int)jarg2; 
+  arg3 = (int)jarg3; 
+  result = (WFC::Vector3i *)new WFC::Vector3i(arg1,arg2,arg3);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Vector3i_LessX(void * jarg1) {
+  void * jresult ;
+  WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
+  WFC::Vector3i result;
+  
+  arg1 = (WFC::Vector3i *)jarg1; 
+  result = ((WFC::Vector3i const *)arg1)->LessX();
+  jresult = new WFC::Vector3i((const WFC::Vector3i &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Vector3i_MoreX(void * jarg1) {
+  void * jresult ;
+  WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
+  WFC::Vector3i result;
+  
+  arg1 = (WFC::Vector3i *)jarg1; 
+  result = ((WFC::Vector3i const *)arg1)->MoreX();
+  jresult = new WFC::Vector3i((const WFC::Vector3i &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Vector3i_LessY(void * jarg1) {
+  void * jresult ;
+  WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
+  WFC::Vector3i result;
+  
+  arg1 = (WFC::Vector3i *)jarg1; 
+  result = ((WFC::Vector3i const *)arg1)->LessY();
+  jresult = new WFC::Vector3i((const WFC::Vector3i &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Vector3i_MoreY(void * jarg1) {
+  void * jresult ;
+  WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
+  WFC::Vector3i result;
+  
+  arg1 = (WFC::Vector3i *)jarg1; 
+  result = ((WFC::Vector3i const *)arg1)->MoreY();
+  jresult = new WFC::Vector3i((const WFC::Vector3i &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Vector3i_LessZ(void * jarg1) {
+  void * jresult ;
+  WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
+  WFC::Vector3i result;
+  
+  arg1 = (WFC::Vector3i *)jarg1; 
+  result = ((WFC::Vector3i const *)arg1)->LessZ();
+  jresult = new WFC::Vector3i((const WFC::Vector3i &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Vector3i_MoreZ(void * jarg1) {
+  void * jresult ;
+  WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
+  WFC::Vector3i result;
+  
+  arg1 = (WFC::Vector3i *)jarg1; 
+  result = ((WFC::Vector3i const *)arg1)->MoreZ();
+  jresult = new WFC::Vector3i((const WFC::Vector3i &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_Vector3i_GetHashCode(void * jarg1) {
+  int jresult ;
+  WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
+  int result;
+  
+  arg1 = (WFC::Vector3i *)jarg1; 
+  result = (int)((WFC::Vector3i const *)arg1)->GetHashCode();
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_delete_Vector3i(void * jarg1) {
+  WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
+  
+  arg1 = (WFC::Vector3i *)jarg1; 
+  delete arg1;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_Region3i_MinInclusive_set(void * jarg1, void * jarg2) {
+  WFC::Region3i *arg1 = (WFC::Region3i *) 0 ;
+  WFC::Vector3i *arg2 = 0 ;
+  
+  arg1 = (WFC::Region3i *)jarg1; 
+  arg2 = (WFC::Vector3i *)jarg2;
+  if (!arg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "WFC::Vector3i const & type is null", 0);
+    return ;
+  } 
+  if (arg1) (arg1)->MinInclusive = *arg2;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Region3i_MinInclusive_get(void * jarg1) {
+  void * jresult ;
+  WFC::Region3i *arg1 = (WFC::Region3i *) 0 ;
+  WFC::Vector3i *result = 0 ;
+  
+  arg1 = (WFC::Region3i *)jarg1; 
+  result = (WFC::Vector3i *) & ((arg1)->MinInclusive);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_Region3i_MaxExclusive_set(void * jarg1, void * jarg2) {
+  WFC::Region3i *arg1 = (WFC::Region3i *) 0 ;
+  WFC::Vector3i *arg2 = 0 ;
+  
+  arg1 = (WFC::Region3i *)jarg1; 
+  arg2 = (WFC::Vector3i *)jarg2;
+  if (!arg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "WFC::Vector3i const & type is null", 0);
+    return ;
+  } 
+  if (arg1) (arg1)->MaxExclusive = *arg2;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Region3i_MaxExclusive_get(void * jarg1) {
+  void * jresult ;
+  WFC::Region3i *arg1 = (WFC::Region3i *) 0 ;
+  WFC::Vector3i *result = 0 ;
+  
+  arg1 = (WFC::Region3i *)jarg1; 
+  result = (WFC::Vector3i *) & ((arg1)->MaxExclusive);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_Region3i__SWIG_0(void * jarg1) {
+  void * jresult ;
+  WFC::Vector3i *arg1 = 0 ;
+  WFC::Region3i *result = 0 ;
+  
+  arg1 = (WFC::Vector3i *)jarg1;
+  if (!arg1) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "WFC::Vector3i const & type is null", 0);
+    return 0;
+  } 
+  result = (WFC::Region3i *)new WFC::Region3i((WFC::Vector3i const &)*arg1);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_Region3i__SWIG_1(void * jarg1, void * jarg2) {
+  void * jresult ;
+  WFC::Vector3i *arg1 = 0 ;
+  WFC::Vector3i *arg2 = 0 ;
+  WFC::Region3i *result = 0 ;
+  
+  arg1 = (WFC::Vector3i *)jarg1;
+  if (!arg1) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "WFC::Vector3i const & type is null", 0);
+    return 0;
+  } 
+  arg2 = (WFC::Vector3i *)jarg2;
+  if (!arg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "WFC::Vector3i const & type is null", 0);
+    return 0;
+  } 
+  result = (WFC::Region3i *)new WFC::Region3i((WFC::Vector3i const &)*arg1,(WFC::Vector3i const &)*arg2);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_Region3i_Contains(void * jarg1, void * jarg2) {
+  unsigned int jresult ;
+  WFC::Region3i *arg1 = (WFC::Region3i *) 0 ;
+  WFC::Vector3i *arg2 = 0 ;
+  bool result;
+  
+  arg1 = (WFC::Region3i *)jarg1; 
+  arg2 = (WFC::Vector3i *)jarg2;
+  if (!arg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "WFC::Vector3i const & type is null", 0);
+    return 0;
+  } 
+  result = (bool)((WFC::Region3i const *)arg1)->Contains((WFC::Vector3i const &)*arg2);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Region3i_GetSize(void * jarg1) {
+  void * jresult ;
+  WFC::Region3i *arg1 = (WFC::Region3i *) 0 ;
+  WFC::Vector3i result;
+  
+  arg1 = (WFC::Region3i *)jarg1; 
+  result = ((WFC::Region3i const *)arg1)->GetSize();
+  jresult = new WFC::Vector3i((const WFC::Vector3i &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_delete_Region3i(void * jarg1) {
+  WFC::Region3i *arg1 = (WFC::Region3i *) 0 ;
+  
+  arg1 = (WFC::Region3i *)jarg1; 
+  delete arg1;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_IsFirstMin(int jarg1) {
+  unsigned int jresult ;
+  WFC::Tiled3D::FacePoints arg1 ;
+  bool result;
+  
+  arg1 = (WFC::Tiled3D::FacePoints)jarg1; 
+  result = (bool)WFC::Tiled3D::IsFirstMin(arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_IsSecondMin(int jarg1) {
+  unsigned int jresult ;
+  WFC::Tiled3D::FacePoints arg1 ;
+  bool result;
+  
+  arg1 = (WFC::Tiled3D::FacePoints)jarg1; 
+  result = (bool)WFC::Tiled3D::IsSecondMin(arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_MakeFacePoint(unsigned int jarg1, unsigned int jarg2) {
+  int jresult ;
+  bool arg1 ;
+  bool arg2 ;
+  WFC::Tiled3D::FacePoints result;
+  
+  arg1 = jarg1 ? true : false; 
+  arg2 = jarg2 ? true : false; 
+  result = (WFC::Tiled3D::FacePoints)WFC::Tiled3D::MakeFacePoint(arg1,arg2);
+  jresult = (int)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_IsMin(int jarg1) {
+  unsigned int jresult ;
+  WFC::Tiled3D::Directions3D arg1 ;
+  bool result;
+  
+  arg1 = (WFC::Tiled3D::Directions3D)jarg1; 
+  result = (bool)WFC::Tiled3D::IsMin(arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_IsMax(int jarg1) {
+  unsigned int jresult ;
+  WFC::Tiled3D::Directions3D arg1 ;
+  bool result;
+  
+  arg1 = (WFC::Tiled3D::Directions3D)jarg1; 
+  result = (bool)WFC::Tiled3D::IsMax(arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned char SWIGSTDCALL CSharp_GetAxisIndex(int jarg1) {
+  unsigned char jresult ;
+  WFC::Tiled3D::Directions3D arg1 ;
+  uint_fast8_t result;
+  
+  arg1 = (WFC::Tiled3D::Directions3D)jarg1; 
+  result = (uint_fast8_t)WFC::Tiled3D::GetAxisIndex(arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_GetOpposite(int jarg1) {
+  int jresult ;
+  WFC::Tiled3D::Directions3D arg1 ;
+  WFC::Tiled3D::Directions3D result;
+  
+  arg1 = (WFC::Tiled3D::Directions3D)jarg1; 
+  result = (WFC::Tiled3D::Directions3D)WFC::Tiled3D::GetOpposite(arg1);
+  jresult = (int)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_FacePermutation_Points_set(void * jarg1, void * jarg2) {
+  WFC::Tiled3D::FacePermutation *arg1 = (WFC::Tiled3D::FacePermutation *) 0 ;
+  WFC::Tiled3D::PointID *arg2 ;
+  
+  arg1 = (WFC::Tiled3D::FacePermutation *)jarg1; 
+  arg2 = (WFC::Tiled3D::PointID *)jarg2; 
+  {
+    size_t ii;
+    WFC::Tiled3D::PointID *b = (WFC::Tiled3D::PointID *) arg1->Points;
+    for (ii = 0; ii < (size_t)4; ii++) b[ii] = *((WFC::Tiled3D::PointID *) arg2 + ii);
+  }
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_FacePermutation_Points_get(void * jarg1) {
+  void * jresult ;
+  WFC::Tiled3D::FacePermutation *arg1 = (WFC::Tiled3D::FacePermutation *) 0 ;
+  WFC::Tiled3D::PointID *result = 0 ;
+  
+  arg1 = (WFC::Tiled3D::FacePermutation *)jarg1; 
+  result = (WFC::Tiled3D::PointID *)(WFC::Tiled3D::PointID *) ((arg1)->Points);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_FacePermutation_Side_set(void * jarg1, int jarg2) {
+  WFC::Tiled3D::FacePermutation *arg1 = (WFC::Tiled3D::FacePermutation *) 0 ;
+  WFC::Tiled3D::Directions3D arg2 ;
+  
+  arg1 = (WFC::Tiled3D::FacePermutation *)jarg1; 
+  arg2 = (WFC::Tiled3D::Directions3D)jarg2; 
+  if (arg1) (arg1)->Side = arg2;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_FacePermutation_Side_get(void * jarg1) {
+  int jresult ;
+  WFC::Tiled3D::FacePermutation *arg1 = (WFC::Tiled3D::FacePermutation *) 0 ;
+  WFC::Tiled3D::Directions3D result;
+  
+  arg1 = (WFC::Tiled3D::FacePermutation *)jarg1; 
+  result = (WFC::Tiled3D::Directions3D) ((arg1)->Side);
+  jresult = (int)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_FacePermutation() {
+  void * jresult ;
+  WFC::Tiled3D::FacePermutation *result = 0 ;
+  
+  result = (WFC::Tiled3D::FacePermutation *)new WFC::Tiled3D::FacePermutation();
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_delete_FacePermutation(void * jarg1) {
+  WFC::Tiled3D::FacePermutation *arg1 = (WFC::Tiled3D::FacePermutation *) 0 ;
+  
+  arg1 = (WFC::Tiled3D::FacePermutation *)jarg1; 
+  delete arg1;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_CubePermutation_Faces_set(void * jarg1, void * jarg2) {
+  WFC::Tiled3D::CubePermutation *arg1 = (WFC::Tiled3D::CubePermutation *) 0 ;
+  WFC::Tiled3D::FacePermutation *arg2 ;
+  
+  arg1 = (WFC::Tiled3D::CubePermutation *)jarg1; 
+  arg2 = (WFC::Tiled3D::FacePermutation *)jarg2; 
+  {
+    size_t ii;
+    WFC::Tiled3D::FacePermutation *b = (WFC::Tiled3D::FacePermutation *) arg1->Faces;
+    for (ii = 0; ii < (size_t)6; ii++) b[ii] = *((WFC::Tiled3D::FacePermutation *) arg2 + ii);
+  }
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_CubePermutation_Faces_get(void * jarg1) {
+  void * jresult ;
+  WFC::Tiled3D::CubePermutation *arg1 = (WFC::Tiled3D::CubePermutation *) 0 ;
+  WFC::Tiled3D::FacePermutation *result = 0 ;
+  
+  arg1 = (WFC::Tiled3D::CubePermutation *)jarg1; 
+  result = (WFC::Tiled3D::FacePermutation *)(WFC::Tiled3D::FacePermutation *) ((arg1)->Faces);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned char SWIGSTDCALL CSharp_CubePermutation_GetFace(void * jarg1, int jarg2) {
+  unsigned char jresult ;
+  WFC::Tiled3D::CubePermutation *arg1 = (WFC::Tiled3D::CubePermutation *) 0 ;
+  WFC::Tiled3D::Directions3D arg2 ;
+  uint_fast8_t result;
+  
+  arg1 = (WFC::Tiled3D::CubePermutation *)jarg1; 
+  arg2 = (WFC::Tiled3D::Directions3D)jarg2; 
+  result = (uint_fast8_t)((WFC::Tiled3D::CubePermutation const *)arg1)->GetFace(arg2);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_CubePermutation() {
+  void * jresult ;
+  WFC::Tiled3D::CubePermutation *result = 0 ;
+  
+  result = (WFC::Tiled3D::CubePermutation *)new WFC::Tiled3D::CubePermutation();
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_delete_CubePermutation(void * jarg1) {
+  WFC::Tiled3D::CubePermutation *arg1 = (WFC::Tiled3D::CubePermutation *) 0 ;
+  
+  arg1 = (WFC::Tiled3D::CubePermutation *)jarg1; 
+  delete arg1;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_Transform3D_Invert_set(void * jarg1, unsigned int jarg2) {
+  WFC::Tiled3D::Transform3D *arg1 = (WFC::Tiled3D::Transform3D *) 0 ;
+  bool arg2 ;
+  
+  arg1 = (WFC::Tiled3D::Transform3D *)jarg1; 
+  arg2 = jarg2 ? true : false; 
+  if (arg1) (arg1)->Invert = arg2;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_Transform3D_Invert_get(void * jarg1) {
+  unsigned int jresult ;
+  WFC::Tiled3D::Transform3D *arg1 = (WFC::Tiled3D::Transform3D *) 0 ;
+  bool result;
+  
+  arg1 = (WFC::Tiled3D::Transform3D *)jarg1; 
+  result = (bool) ((arg1)->Invert);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_Transform3D_Rot_set(void * jarg1, int jarg2) {
+  WFC::Tiled3D::Transform3D *arg1 = (WFC::Tiled3D::Transform3D *) 0 ;
+  WFC::Tiled3D::Rotations3D arg2 ;
+  
+  arg1 = (WFC::Tiled3D::Transform3D *)jarg1; 
+  arg2 = (WFC::Tiled3D::Rotations3D)jarg2; 
+  if (arg1) (arg1)->Rot = arg2;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_Transform3D_Rot_get(void * jarg1) {
+  int jresult ;
+  WFC::Tiled3D::Transform3D *arg1 = (WFC::Tiled3D::Transform3D *) 0 ;
+  WFC::Tiled3D::Rotations3D result;
+  
+  arg1 = (WFC::Tiled3D::Transform3D *)jarg1; 
+  result = (WFC::Tiled3D::Rotations3D) ((arg1)->Rot);
+  jresult = (int)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Transform3D_ApplyToPos__SWIG_0(void * jarg1, void * jarg2, void * jarg3) {
+  void * jresult ;
+  WFC::Tiled3D::Transform3D *arg1 = (WFC::Tiled3D::Transform3D *) 0 ;
+  WFC::Vector3i arg2 ;
+  WFC::Vector3i arg3 ;
+  WFC::Vector3i *argp2 ;
+  WFC::Vector3i *argp3 ;
+  WFC::Vector3i result;
+  
+  arg1 = (WFC::Tiled3D::Transform3D *)jarg1; 
+  argp2 = (WFC::Vector3i *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null WFC::Vector3i", 0);
+    return 0;
+  }
+  arg2 = *argp2; 
+  argp3 = (WFC::Vector3i *)jarg3; 
+  if (!argp3) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null WFC::Vector3i", 0);
+    return 0;
+  }
+  arg3 = *argp3; 
+  result = ((WFC::Tiled3D::Transform3D const *)arg1)->ApplyToPos(arg2,arg3);
+  jresult = new WFC::Vector3i((const WFC::Vector3i &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Transform3D_ApplyToPos__SWIG_1(void * jarg1, void * jarg2) {
+  void * jresult ;
+  WFC::Tiled3D::Transform3D *arg1 = (WFC::Tiled3D::Transform3D *) 0 ;
+  WFC::Vector3i arg2 ;
+  WFC::Vector3i *argp2 ;
+  WFC::Vector3i result;
+  
+  arg1 = (WFC::Tiled3D::Transform3D *)jarg1; 
+  argp2 = (WFC::Vector3i *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null WFC::Vector3i", 0);
+    return 0;
+  }
+  arg2 = *argp2; 
+  result = ((WFC::Tiled3D::Transform3D const *)arg1)->ApplyToPos(arg2);
+  jresult = new WFC::Vector3i((const WFC::Vector3i &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_Transform3D_ApplyToSide(void * jarg1, int jarg2) {
+  int jresult ;
+  WFC::Tiled3D::Transform3D *arg1 = (WFC::Tiled3D::Transform3D *) 0 ;
+  WFC::Tiled3D::Directions3D arg2 ;
+  WFC::Tiled3D::Directions3D result;
+  
+  arg1 = (WFC::Tiled3D::Transform3D *)jarg1; 
+  arg2 = (WFC::Tiled3D::Directions3D)jarg2; 
+  result = (WFC::Tiled3D::Directions3D)((WFC::Tiled3D::Transform3D const *)arg1)->ApplyToSide(arg2);
+  jresult = (int)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Transform3D_ApplyToFace(void * jarg1, void * jarg2) {
+  void * jresult ;
+  WFC::Tiled3D::Transform3D *arg1 = (WFC::Tiled3D::Transform3D *) 0 ;
+  WFC::Tiled3D::FacePermutation arg2 ;
+  WFC::Tiled3D::FacePermutation *argp2 ;
+  WFC::Tiled3D::FacePermutation result;
+  
+  arg1 = (WFC::Tiled3D::Transform3D *)jarg1; 
+  argp2 = (WFC::Tiled3D::FacePermutation *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null WFC::Tiled3D::FacePermutation", 0);
+    return 0;
+  }
+  arg2 = *argp2; 
+  result = ((WFC::Tiled3D::Transform3D const *)arg1)->ApplyToFace(arg2);
+  jresult = new WFC::Tiled3D::FacePermutation((const WFC::Tiled3D::FacePermutation &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Transform3D_ApplyToCube(void * jarg1, void * jarg2) {
+  void * jresult ;
+  WFC::Tiled3D::Transform3D *arg1 = (WFC::Tiled3D::Transform3D *) 0 ;
+  WFC::Tiled3D::CubePermutation arg2 ;
+  WFC::Tiled3D::CubePermutation *argp2 ;
+  WFC::Tiled3D::CubePermutation result;
+  
+  arg1 = (WFC::Tiled3D::Transform3D *)jarg1; 
+  argp2 = (WFC::Tiled3D::CubePermutation *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null WFC::Tiled3D::CubePermutation", 0);
+    return 0;
+  }
+  arg2 = *argp2; 
+  result = ((WFC::Tiled3D::Transform3D const *)arg1)->ApplyToCube(arg2);
+  jresult = new WFC::Tiled3D::CubePermutation((const WFC::Tiled3D::CubePermutation &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_Transform3D() {
+  void * jresult ;
+  WFC::Tiled3D::Transform3D *result = 0 ;
+  
+  result = (WFC::Tiled3D::Transform3D *)new WFC::Tiled3D::Transform3D();
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_delete_Transform3D(void * jarg1) {
+  WFC::Tiled3D::Transform3D *arg1 = (WFC::Tiled3D::Transform3D *) 0 ;
+  
+  arg1 = (WFC::Tiled3D::Transform3D *)jarg1; 
+  delete arg1;
+}
+
 
 SWIGEXPORT void * SWIGSTDCALL CSharp_new_eFlagsList__SWIG_0() {
   void * jresult ;

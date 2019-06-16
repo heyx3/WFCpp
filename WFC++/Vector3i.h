@@ -94,16 +94,7 @@ namespace WFC
 		}
 		Vector3i GetSize() const { return MaxExclusive - MinInclusive; }
 
-		auto begin() const
-		{
-			return const_iterator(*this, MinInclusive);
-		}
-		auto end() const
-		{
-			return const_iterator(*this, Vector3i(MinInclusive.x, MinInclusive.y, MaxExclusive.z));
-		}
-
-
+        #pragma region const_iterator
 		//An std-style iterator over the region.
 		struct WFC_API const_iterator
 		{
@@ -146,5 +137,15 @@ namespace WFC
 				}
 			}
 		};
+        #pragma endregion
+
+		Region3i::const_iterator begin() const
+		{
+			return const_iterator(*this, MinInclusive);
+		}
+		Region3i::const_iterator end() const
+		{
+			return const_iterator(*this, Vector3i(MinInclusive.x, MinInclusive.y, MaxExclusive.z));
+		}
 	};
 }

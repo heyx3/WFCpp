@@ -36,7 +36,7 @@ namespace WFC
 
     //A Set of transformations.
     using TransformationFlags =
-        EnumFlags<Transformations, uint_fast8_t, (uint_fast8_t)Transformations::Count>;
+        EnumFlags<Transformations, uint_fast8_t, Transformations::Count>;
 
     WFC_API Transformations Invert(Transformations t);
     WFC_API bool WillSwapAxes(Transformations t);
@@ -126,16 +126,7 @@ namespace WFC
 		}
 		Vector2i GetSize() const { return MaxExclusive - MinInclusive; }
 
-		auto begin() const
-		{
-			return const_iterator(*this, MinInclusive);
-		}
-		auto end() const
-		{
-			return const_iterator(*this, Vector2i(MinInclusive.x, MaxExclusive.y));
-		}
-
-
+        #pragma region const_iterator    
 		//An std-style iterator over the region.
 		struct WFC_API const_iterator
 		{
@@ -172,5 +163,15 @@ namespace WFC
 				}
 			}
 		};
+        #pragma endregion
+
+		Region2i::const_iterator begin() const
+		{
+			return const_iterator(*this, MinInclusive);
+		}
+		Region2i::const_iterator end() const
+		{
+			return const_iterator(*this, Vector2i(MinInclusive.x, MaxExclusive.y));
+		}
 	};
 }
