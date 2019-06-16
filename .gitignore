@@ -100,3 +100,6 @@ WFC++.VC.VC.opendb
 # Unity stuff
 WFCunity/Library
 WFCunity/Temp
+WFCunity/obj
+WFCunity/*.csproj
+WFCunity/*.sln

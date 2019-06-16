@@ -98,14 +98,25 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <PostBuildEvent>
-      <Command>if exist "$(TargetDir)include" del /q "$(TargetDir)include"
+      <Command>REM Clear "include" directory
+if exist "$(TargetDir)include" del /q "$(TargetDir)include"
 mkdir "$(TargetDir)include"
 
+REM Move headers to "include" directory
 xcopy "$(ProjectDir)WFC++\*.h" "$(TargetDir)include" /sy
-xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
+xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy
+
+REM Clear Unity C# directory
+set UNITY_WFC_DIR=$(SolutionDir)WFCunity\Assets\WFC_DLL
+del /q "%UNITY_WFC_DIR%"
+
+REM Move C# scripts and DLL to Unity C# directory
+xcopy "$(TargetDir)..\CSharp_include" "%UNITY_WFC_DIR%\" /sy
+xcopy "$(TargetDir)*.dll" "%UNITY_WFC_DIR%\" /sy
+xcopy "$(TargetDir)*.pdb" "%UNITY_WFC_DIR%\" /sy</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copy headers to build folder</Message>
+      <Message>Copy headers to build folder and SWIG C# to Unity folder</Message>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>REM Make sure Swig exists
@@ -141,14 +152,25 @@ swig -c++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.c
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <PostBuildEvent>
-      <Command>if exist "$(TargetDir)include" del /q "$(TargetDir)include"
+      <Command>REM Clear "include" directory
+if exist "$(TargetDir)include" del /q "$(TargetDir)include"
 mkdir "$(TargetDir)include"
 
+REM Move headers to "include" directory
 xcopy "$(ProjectDir)WFC++\*.h" "$(TargetDir)include" /sy
-xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
+xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy
+
+REM Clear Unity C# directory
+set UNITY_WFC_DIR=$(SolutionDir)WFCunity\Assets\WFC_DLL
+del /q "%UNITY_WFC_DIR%"
+
+REM Move C# scripts and DLL to Unity C# directory
+xcopy "$(TargetDir)..\CSharp_include" "%UNITY_WFC_DIR%\" /sy
+xcopy "$(TargetDir)*.dll" "%UNITY_WFC_DIR%\" /sy
+xcopy "$(TargetDir)*.pdb" "%UNITY_WFC_DIR%\" /sy</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copy headers to build folder</Message>
+      <Message>Copy headers to build folder and SWIG C# to Unity folder</Message>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>REM Make sure Swig exists
@@ -190,14 +212,25 @@ swig -c++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.c
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>if exist "$(TargetDir)include" del /q "$(TargetDir)include"
+      <Command>REM Clear "include" directory
+if exist "$(TargetDir)include" del /q "$(TargetDir)include"
 mkdir "$(TargetDir)include"
 
+REM Move headers to "include" directory
 xcopy "$(ProjectDir)WFC++\*.h" "$(TargetDir)include" /sy
-xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
+xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy
+
+REM Clear Unity C# directory
+set UNITY_WFC_DIR=$(SolutionDir)WFCunity\Assets\WFC_DLL
+del /q "%UNITY_WFC_DIR%"
+
+REM Move C# scripts and DLL to Unity C# directory
+xcopy "$(TargetDir)..\CSharp_include" "%UNITY_WFC_DIR%\" /sy
+xcopy "$(TargetDir)*.dll" "%UNITY_WFC_DIR%\" /sy
+xcopy "$(TargetDir)*.pdb" "%UNITY_WFC_DIR%\" /sy</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copy headers to build folder</Message>
+      <Message>Copy headers to build folder and SWIG C# to Unity folder</Message>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>REM Make sure Swig exists
@@ -239,14 +272,25 @@ swig -c++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.c
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>if exist "$(TargetDir)include" del /q "$(TargetDir)include"
+      <Command>REM Clear "include" directory
+if exist "$(TargetDir)include" del /q "$(TargetDir)include"
 mkdir "$(TargetDir)include"
 
+REM Move headers to "include" directory
 xcopy "$(ProjectDir)WFC++\*.h" "$(TargetDir)include" /sy
-xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
+xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy
+
+REM Clear Unity C# directory
+set UNITY_WFC_DIR=$(SolutionDir)WFCunity\Assets\WFC_DLL
+del /q "%UNITY_WFC_DIR%"
+
+REM Move C# scripts and DLL to Unity C# directory
+xcopy "$(TargetDir)..\CSharp_include" "%UNITY_WFC_DIR%\" /sy
+xcopy "$(TargetDir)*.dll" "%UNITY_WFC_DIR%\" /sy
+xcopy "$(TargetDir)*.pdb" "%UNITY_WFC_DIR%\" /sy</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copy headers to build folder</Message>
+      <Message>Copy headers to build folder and SWIG C# to Unity folder</Message>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>REM Make sure Swig exists
