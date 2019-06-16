@@ -62,10 +62,11 @@ namespace WFC
         const T& GetBack() const { return vec[vec.size() - 1]; }
 
         //Iterators for ranged-for loops.
-        auto begin() const { return vec.begin(); }
-        auto begin() { return vec.begin(); }
-        auto end() const { return vec.end(); }
-        auto end() { return vec.end(); }
+        //We can't use "auto" for the return type here because it breaks SWIG.
+        typename std::vector<T>::const_iterator begin() const { return vec.begin(); }
+        typename std::vector<T>::iterator       begin()       { return vec.begin(); }
+        typename std::vector<T>::const_iterator end()   const { return vec.end(); }
+        typename std::vector<T>::iterator       end()         { return vec.end(); }
 
     private:
 

@@ -107,6 +107,24 @@ xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
     <PostBuildEvent>
       <Message>Copy headers to build folder</Message>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>REM Make sure Swig exists
+swig -help &gt;nul 2&gt;&amp;1 &amp;&amp; (
+    REM everything's fine
+) || (
+    echo ERROR: Couldn't find SWIG! Make sure it's in your PATH.
+    swig -help
+    exit 1
+)
+
+REM Clear the CSharp output folder, and run SWIG to output there and overwrite the C++ file already in this project
+set CS_OUT_PATH=$(OutputPath)CSharp_include
+if exist %CS_OUT_PATH% del /Q %CS_OUT_PATH% else mkdir %CS_OUT_PATH%
+swig -c++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp" "$(ProjectDir)WFC++\SWIG\SWIG_build.i"</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Run SWIG to generate C exports and C# imports</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -127,6 +145,24 @@ xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
     <PostBuildEvent>
       <Message>Copy headers to build folder</Message>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>REM Make sure Swig exists
+swig -help &gt;nul 2&gt;&amp;1 &amp;&amp; (
+    REM everything's fine
+) || (
+    echo ERROR: Couldn't find SWIG! Make sure it's in your PATH.
+    swig -help
+    exit 1
+)
+
+REM Clear the CSharp output folder, and run SWIG to output there and overwrite the C++ file already in this project
+set CS_OUT_PATH=$(OutputPath)CSharp_include
+if exist %CS_OUT_PATH% del /Q %CS_OUT_PATH% else mkdir %CS_OUT_PATH%
+swig -c++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp" "$(ProjectDir)WFC++\SWIG\SWIG_build.i"</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Run SWIG to generate C exports and C# imports</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -153,6 +189,24 @@ xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
     <PostBuildEvent>
       <Message>Copy headers to build folder</Message>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>REM Make sure Swig exists
+swig -help &gt;nul 2&gt;&amp;1 &amp;&amp; (
+    REM everything's fine
+) || (
+    echo ERROR: Couldn't find SWIG! Make sure it's in your PATH.
+    swig -help
+    exit 1
+)
+
+REM Clear the CSharp output folder, and run SWIG to output there and overwrite the C++ file already in this project
+set CS_OUT_PATH=$(OutputPath)CSharp_include
+if exist %CS_OUT_PATH% del /Q %CS_OUT_PATH% else mkdir %CS_OUT_PATH%
+swig -c++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp" "$(ProjectDir)WFC++\SWIG\SWIG_build.i"</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Run SWIG to generate C exports and C# imports</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -179,6 +233,24 @@ xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
     <PostBuildEvent>
       <Message>Copy headers to build folder</Message>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>REM Make sure Swig exists
+swig -help &gt;nul 2&gt;&amp;1 &amp;&amp; (
+    REM everything's fine
+) || (
+    echo ERROR: Couldn't find SWIG! Make sure it's in your PATH.
+    swig -help
+    exit 1
+)
+
+REM Clear the CSharp output folder, and run SWIG to output there and overwrite the C++ file already in this project
+set CS_OUT_PATH=$(OutputPath)CSharp_include
+if exist %CS_OUT_PATH% del /Q %CS_OUT_PATH% else mkdir %CS_OUT_PATH%
+swig -c++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp" "$(ProjectDir)WFC++\SWIG\SWIG_build.i"</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Run SWIG to generate C exports and C# imports</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="WFC++\Array2D.hpp" />
@@ -206,12 +278,38 @@ xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
     <ClCompile Include="WFC++\Simple\InputData.cpp" />
     <ClCompile Include="WFC++\Simple\Pattern.cpp" />
     <ClCompile Include="WFC++\Simple\State.cpp" />
+    <ClCompile Include="WFC++\SWIG\wfc_wrap.cpp" />
     <ClCompile Include="WFC++\Tiled3D\Transform3D.cpp" />
     <ClCompile Include="WFC++\Tiled\InputData.cpp" />
     <ClCompile Include="WFC++\Tiled\State.cpp" />
     <ClCompile Include="WFC++\Tiled\TilePermutator.cpp" />
     <ClCompile Include="WFC++\Vector2i.cpp" />
     <ClCompile Include="WFC++\Vector3i.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="WFC++\SWIG\SWIG_build.i">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DeploymentContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">echo TEST</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)WFC++;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">echo TEST</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)WFC++;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">echo TEST</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)WFC++;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">echo TEST</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)WFC++;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp;%(Outputs)</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

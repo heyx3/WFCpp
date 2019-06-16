@@ -26,10 +26,11 @@ namespace WFC
         void Clear() { set.clear(); }
 
         //Iterators for ranged-for loops.
-        auto begin() const { return set.begin(); }
-        auto begin() { return set.begin(); }
-        auto end() const { return set.end(); }
-        auto end() { return set.end(); }
+        //We can't use "auto" for the return type here because it breaks SWIG.
+        typename std::unordered_set<T, Hasher>::const_iterator begin() const { return set.begin(); }
+        typename std::unordered_set<T, Hasher>::iterator       begin()       { return set.begin(); }
+        typename std::unordered_set<T, Hasher>::const_iterator end()   const { return set.end(); }
+        typename std::unordered_set<T, Hasher>::iterator       end()         { return set.end(); }
 
 
     private:

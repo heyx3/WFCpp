@@ -58,10 +58,11 @@ namespace WFC
         }
 
         //Iterators for ranged-for loops.
-        auto begin() const { return dict.begin(); }
-        auto begin() { return dict.begin(); }
-        auto end() const { return dict.end(); }
-        auto end() { return dict.end(); }
+        //We can't use "auto" for the return type here because it breaks SWIG.
+        typename std::unordered_map<TKey, TValue, Hasher>::const_iterator begin() const { return dict.begin(); }
+        typename std::unordered_map<TKey, TValue, Hasher>::iterator       begin()       { return dict.begin(); }
+        typename std::unordered_map<TKey, TValue, Hasher>::const_iterator end()   const { return dict.end(); }
+        typename std::unordered_map<TKey, TValue, Hasher>::iterator       end()         { return dict.end(); }
 
 	private:
 
