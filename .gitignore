@@ -96,3 +96,7 @@ WFC++.VC.VC.opendb
 
 # Other/test files
 **/*.pgm
+
+# Unity stuff
+WFCunity/Library
+WFCunity/Temp
