@@ -52,11 +52,9 @@ namespace WFC
         }
 
 
-        //A single item in a tilemap.
+        //A single item in a tileset.
         struct WFC_API Tile
         {
-        public:
-
             //Any transformations that would not change this tile at all.
             TransformationFlags Symmetries;
 
@@ -71,13 +69,17 @@ namespace WFC
             //    to be given a weight under the default.
             uint32_t Weight = 100;
 
+
+            //TODO: Remove this stuff that is replaced by TilePermutator.
+
             //If this tile is a permutation of another one, these fields describe the relationship.
             TileID ParentID = TileID_INVALID;
             Transformations ParentToMeTransform = Transformations::None;
 
-
             bool IsChild() const { return ParentID != TileID_INVALID; }
 
+
+            //TODO: Remove this stuff, which almost certainly isn't used.
             EdgeID MinX() const { return Edges[EdgeDirs::MinX]; }
             EdgeID MaxX() const { return Edges[EdgeDirs::MaxX]; }
             EdgeID MinY() const { return Edges[EdgeDirs::MinY]; }
