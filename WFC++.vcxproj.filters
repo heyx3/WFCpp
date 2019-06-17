@@ -111,6 +111,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="WFC++\SWIG\SWIG_build.i" />
+    <CustomBuild Include="WFC++\SWIG\SWIG_build.i">
+      <Filter>SWIG</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

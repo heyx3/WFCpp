@@ -307,7 +307,7 @@ SWIGEXPORT void SWIGSTDCALL SWIGRegisterStringCallback_wfc(SWIG_CSharpStringHelp
 extern "C" {
 #endif
 
-SWIGEXPORT int SWIGSTDCALL CSharp_Invert(int jarg1) {
+SWIGEXPORT int SWIGSTDCALL CSharp_WFC_CSfLowLevel_Invert___(int jarg1) {
   int jresult ;
   WFC::Transformations arg1 ;
   WFC::Transformations result;
@@ -319,7 +319,7 @@ SWIGEXPORT int SWIGSTDCALL CSharp_Invert(int jarg1) {
 }
 
 
-SWIGEXPORT unsigned int SWIGSTDCALL CSharp_WillSwapAxes(int jarg1) {
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_WFC_CSfLowLevel_WillSwapAxes___(int jarg1) {
   unsigned int jresult ;
   WFC::Transformations arg1 ;
   bool result;
@@ -331,7 +331,7 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_WillSwapAxes(int jarg1) {
 }
 
 
-SWIGEXPORT char * SWIGSTDCALL CSharp_ToString(int jarg1) {
+SWIGEXPORT char * SWIGSTDCALL CSharp_WFC_CSfLowLevel_ToString___(int jarg1) {
   char * jresult ;
   WFC::Transformations arg1 ;
   char *result = 0 ;
@@ -343,7 +343,7 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_ToString(int jarg1) {
 }
 
 
-SWIGEXPORT unsigned int SWIGSTDCALL CSharp_IsReflection(int jarg1) {
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_WFC_CSfLowLevel_IsReflection___(int jarg1) {
   unsigned int jresult ;
   WFC::Transformations arg1 ;
   bool result;
@@ -355,7 +355,7 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_IsReflection(int jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_Vector2i_x_set(void * jarg1, int jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector2i_x_set___(void * jarg1, int jarg2) {
   WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
   int arg2 ;
   
@@ -365,7 +365,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_Vector2i_x_set(void * jarg1, int jarg2) {
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_Vector2i_x_get(void * jarg1) {
+SWIGEXPORT int SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector2i_x_get___(void * jarg1) {
   int jresult ;
   WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
   int result;
@@ -377,7 +377,7 @@ SWIGEXPORT int SWIGSTDCALL CSharp_Vector2i_x_get(void * jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_Vector2i_y_set(void * jarg1, int jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector2i_y_set___(void * jarg1, int jarg2) {
   WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
   int arg2 ;
   
@@ -387,7 +387,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_Vector2i_y_set(void * jarg1, int jarg2) {
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_Vector2i_y_get(void * jarg1) {
+SWIGEXPORT int SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector2i_y_get___(void * jarg1) {
   int jresult ;
   WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
   int result;
@@ -399,7 +399,7 @@ SWIGEXPORT int SWIGSTDCALL CSharp_Vector2i_y_get(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_Vector2i__SWIG_0() {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_Vector2i__SWIG_0___() {
   void * jresult ;
   WFC::Vector2i *result = 0 ;
   
@@ -409,7 +409,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_Vector2i__SWIG_0() {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_Vector2i__SWIG_1(int jarg1, int jarg2) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_Vector2i__SWIG_1___(int jarg1, int jarg2) {
   void * jresult ;
   int arg1 ;
   int arg2 ;
@@ -423,7 +423,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_Vector2i__SWIG_1(int jarg1, int jarg2) 
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_Vector2i_LessX(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector2i_LessX___(void * jarg1) {
   void * jresult ;
   WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
   WFC::Vector2i result;
@@ -435,7 +435,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Vector2i_LessX(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_Vector2i_MoreX(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector2i_MoreX___(void * jarg1) {
   void * jresult ;
   WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
   WFC::Vector2i result;
@@ -447,7 +447,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Vector2i_MoreX(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_Vector2i_LessY(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector2i_LessY___(void * jarg1) {
   void * jresult ;
   WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
   WFC::Vector2i result;
@@ -459,7 +459,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Vector2i_LessY(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_Vector2i_MoreY(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector2i_MoreY___(void * jarg1) {
   void * jresult ;
   WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
   WFC::Vector2i result;
@@ -471,7 +471,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Vector2i_MoreY(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_Vector2i_Transform(void * jarg1, int jarg2, void * jarg3) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector2i_Transform___(void * jarg1, int jarg2, void * jarg3) {
   void * jresult ;
   WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
   WFC::Transformations arg2 ;
@@ -493,7 +493,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Vector2i_Transform(void * jarg1, int jarg2,
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_Vector2i_GetHashcode(void * jarg1) {
+SWIGEXPORT int SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector2i_GetHashcode___(void * jarg1) {
   int jresult ;
   WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
   int result;
@@ -505,7 +505,7 @@ SWIGEXPORT int SWIGSTDCALL CSharp_Vector2i_GetHashcode(void * jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_delete_Vector2i(void * jarg1) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_delete_Vector2i___(void * jarg1) {
   WFC::Vector2i *arg1 = (WFC::Vector2i *) 0 ;
   
   arg1 = (WFC::Vector2i *)jarg1; 
@@ -513,7 +513,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_delete_Vector2i(void * jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_Region2i_MinInclusive_set(void * jarg1, void * jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_Region2i_MinInclusive_set___(void * jarg1, void * jarg2) {
   WFC::Region2i *arg1 = (WFC::Region2i *) 0 ;
   WFC::Vector2i *arg2 = 0 ;
   
@@ -527,7 +527,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_Region2i_MinInclusive_set(void * jarg1, void 
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_Region2i_MinInclusive_get(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_Region2i_MinInclusive_get___(void * jarg1) {
   void * jresult ;
   WFC::Region2i *arg1 = (WFC::Region2i *) 0 ;
   WFC::Vector2i *result = 0 ;
@@ -539,7 +539,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Region2i_MinInclusive_get(void * jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_Region2i_MaxExclusive_set(void * jarg1, void * jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_Region2i_MaxExclusive_set___(void * jarg1, void * jarg2) {
   WFC::Region2i *arg1 = (WFC::Region2i *) 0 ;
   WFC::Vector2i *arg2 = 0 ;
   
@@ -553,7 +553,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_Region2i_MaxExclusive_set(void * jarg1, void 
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_Region2i_MaxExclusive_get(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_Region2i_MaxExclusive_get___(void * jarg1) {
   void * jresult ;
   WFC::Region2i *arg1 = (WFC::Region2i *) 0 ;
   WFC::Vector2i *result = 0 ;
@@ -565,7 +565,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Region2i_MaxExclusive_get(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_Region2i__SWIG_0(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_Region2i__SWIG_0___(void * jarg1) {
   void * jresult ;
   WFC::Vector2i *arg1 = 0 ;
   WFC::Region2i *result = 0 ;
@@ -581,7 +581,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_Region2i__SWIG_0(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_Region2i__SWIG_1(void * jarg1, void * jarg2) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_Region2i__SWIG_1___(void * jarg1, void * jarg2) {
   void * jresult ;
   WFC::Vector2i *arg1 = 0 ;
   WFC::Vector2i *arg2 = 0 ;
@@ -603,7 +603,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_Region2i__SWIG_1(void * jarg1, void * j
 }
 
 
-SWIGEXPORT unsigned int SWIGSTDCALL CSharp_Region2i_Contains(void * jarg1, void * jarg2) {
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_WFC_CSfLowLevel_Region2i_Contains___(void * jarg1, void * jarg2) {
   unsigned int jresult ;
   WFC::Region2i *arg1 = (WFC::Region2i *) 0 ;
   WFC::Vector2i *arg2 = 0 ;
@@ -621,7 +621,7 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_Region2i_Contains(void * jarg1, void 
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_Region2i_GetSize(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_Region2i_GetSize___(void * jarg1) {
   void * jresult ;
   WFC::Region2i *arg1 = (WFC::Region2i *) 0 ;
   WFC::Vector2i result;
@@ -633,7 +633,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Region2i_GetSize(void * jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_delete_Region2i(void * jarg1) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_delete_Region2i___(void * jarg1) {
   WFC::Region2i *arg1 = (WFC::Region2i *) 0 ;
   
   arg1 = (WFC::Region2i *)jarg1; 
@@ -641,7 +641,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_delete_Region2i(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_Vector3i_Zero() {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector3i_Zero___() {
   void * jresult ;
   WFC::Vector3i result;
   
@@ -651,7 +651,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Vector3i_Zero() {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_Vector3i_x_set(void * jarg1, int jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector3i_x_set___(void * jarg1, int jarg2) {
   WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
   int arg2 ;
   
@@ -661,7 +661,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_Vector3i_x_set(void * jarg1, int jarg2) {
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_Vector3i_x_get(void * jarg1) {
+SWIGEXPORT int SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector3i_x_get___(void * jarg1) {
   int jresult ;
   WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
   int result;
@@ -673,7 +673,7 @@ SWIGEXPORT int SWIGSTDCALL CSharp_Vector3i_x_get(void * jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_Vector3i_y_set(void * jarg1, int jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector3i_y_set___(void * jarg1, int jarg2) {
   WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
   int arg2 ;
   
@@ -683,7 +683,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_Vector3i_y_set(void * jarg1, int jarg2) {
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_Vector3i_y_get(void * jarg1) {
+SWIGEXPORT int SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector3i_y_get___(void * jarg1) {
   int jresult ;
   WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
   int result;
@@ -695,7 +695,7 @@ SWIGEXPORT int SWIGSTDCALL CSharp_Vector3i_y_get(void * jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_Vector3i_z_set(void * jarg1, int jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector3i_z_set___(void * jarg1, int jarg2) {
   WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
   int arg2 ;
   
@@ -705,7 +705,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_Vector3i_z_set(void * jarg1, int jarg2) {
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_Vector3i_z_get(void * jarg1) {
+SWIGEXPORT int SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector3i_z_get___(void * jarg1) {
   int jresult ;
   WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
   int result;
@@ -717,7 +717,7 @@ SWIGEXPORT int SWIGSTDCALL CSharp_Vector3i_z_get(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_Vector3i__SWIG_0() {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_Vector3i__SWIG_0___() {
   void * jresult ;
   WFC::Vector3i *result = 0 ;
   
@@ -727,7 +727,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_Vector3i__SWIG_0() {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_Vector3i__SWIG_1(int jarg1, int jarg2, int jarg3) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_Vector3i__SWIG_1___(int jarg1, int jarg2, int jarg3) {
   void * jresult ;
   int arg1 ;
   int arg2 ;
@@ -743,7 +743,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_Vector3i__SWIG_1(int jarg1, int jarg2, 
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_Vector3i_LessX(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector3i_LessX___(void * jarg1) {
   void * jresult ;
   WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
   WFC::Vector3i result;
@@ -755,7 +755,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Vector3i_LessX(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_Vector3i_MoreX(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector3i_MoreX___(void * jarg1) {
   void * jresult ;
   WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
   WFC::Vector3i result;
@@ -767,7 +767,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Vector3i_MoreX(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_Vector3i_LessY(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector3i_LessY___(void * jarg1) {
   void * jresult ;
   WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
   WFC::Vector3i result;
@@ -779,7 +779,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Vector3i_LessY(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_Vector3i_MoreY(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector3i_MoreY___(void * jarg1) {
   void * jresult ;
   WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
   WFC::Vector3i result;
@@ -791,7 +791,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Vector3i_MoreY(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_Vector3i_LessZ(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector3i_LessZ___(void * jarg1) {
   void * jresult ;
   WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
   WFC::Vector3i result;
@@ -803,7 +803,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Vector3i_LessZ(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_Vector3i_MoreZ(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector3i_MoreZ___(void * jarg1) {
   void * jresult ;
   WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
   WFC::Vector3i result;
@@ -815,7 +815,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Vector3i_MoreZ(void * jarg1) {
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_Vector3i_GetHashcode(void * jarg1) {
+SWIGEXPORT int SWIGSTDCALL CSharp_WFC_CSfLowLevel_Vector3i_GetHashcode___(void * jarg1) {
   int jresult ;
   WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
   int result;
@@ -827,7 +827,7 @@ SWIGEXPORT int SWIGSTDCALL CSharp_Vector3i_GetHashcode(void * jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_delete_Vector3i(void * jarg1) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_delete_Vector3i___(void * jarg1) {
   WFC::Vector3i *arg1 = (WFC::Vector3i *) 0 ;
   
   arg1 = (WFC::Vector3i *)jarg1; 
@@ -835,7 +835,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_delete_Vector3i(void * jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_Region3i_MinInclusive_set(void * jarg1, void * jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_Region3i_MinInclusive_set___(void * jarg1, void * jarg2) {
   WFC::Region3i *arg1 = (WFC::Region3i *) 0 ;
   WFC::Vector3i *arg2 = 0 ;
   
@@ -849,7 +849,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_Region3i_MinInclusive_set(void * jarg1, void 
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_Region3i_MinInclusive_get(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_Region3i_MinInclusive_get___(void * jarg1) {
   void * jresult ;
   WFC::Region3i *arg1 = (WFC::Region3i *) 0 ;
   WFC::Vector3i *result = 0 ;
@@ -861,7 +861,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Region3i_MinInclusive_get(void * jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_Region3i_MaxExclusive_set(void * jarg1, void * jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_Region3i_MaxExclusive_set___(void * jarg1, void * jarg2) {
   WFC::Region3i *arg1 = (WFC::Region3i *) 0 ;
   WFC::Vector3i *arg2 = 0 ;
   
@@ -875,7 +875,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_Region3i_MaxExclusive_set(void * jarg1, void 
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_Region3i_MaxExclusive_get(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_Region3i_MaxExclusive_get___(void * jarg1) {
   void * jresult ;
   WFC::Region3i *arg1 = (WFC::Region3i *) 0 ;
   WFC::Vector3i *result = 0 ;
@@ -887,7 +887,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Region3i_MaxExclusive_get(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_Region3i__SWIG_0(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_Region3i__SWIG_0___(void * jarg1) {
   void * jresult ;
   WFC::Vector3i *arg1 = 0 ;
   WFC::Region3i *result = 0 ;
@@ -903,7 +903,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_Region3i__SWIG_0(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_Region3i__SWIG_1(void * jarg1, void * jarg2) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_Region3i__SWIG_1___(void * jarg1, void * jarg2) {
   void * jresult ;
   WFC::Vector3i *arg1 = 0 ;
   WFC::Vector3i *arg2 = 0 ;
@@ -925,7 +925,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_Region3i__SWIG_1(void * jarg1, void * j
 }
 
 
-SWIGEXPORT unsigned int SWIGSTDCALL CSharp_Region3i_Contains(void * jarg1, void * jarg2) {
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_WFC_CSfLowLevel_Region3i_Contains___(void * jarg1, void * jarg2) {
   unsigned int jresult ;
   WFC::Region3i *arg1 = (WFC::Region3i *) 0 ;
   WFC::Vector3i *arg2 = 0 ;
@@ -943,7 +943,7 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_Region3i_Contains(void * jarg1, void 
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_Region3i_GetSize(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_Region3i_GetSize___(void * jarg1) {
   void * jresult ;
   WFC::Region3i *arg1 = (WFC::Region3i *) 0 ;
   WFC::Vector3i result;
@@ -955,7 +955,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Region3i_GetSize(void * jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_delete_Region3i(void * jarg1) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_delete_Region3i___(void * jarg1) {
   WFC::Region3i *arg1 = (WFC::Region3i *) 0 ;
   
   arg1 = (WFC::Region3i *)jarg1; 
@@ -963,7 +963,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_delete_Region3i(void * jarg1) {
 }
 
 
-SWIGEXPORT unsigned int SWIGSTDCALL CSharp_IsFirstMin(int jarg1) {
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_WFC_CSfLowLevel_IsFirstMin___(int jarg1) {
   unsigned int jresult ;
   WFC::Tiled3D::FacePoints arg1 ;
   bool result;
@@ -975,7 +975,7 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_IsFirstMin(int jarg1) {
 }
 
 
-SWIGEXPORT unsigned int SWIGSTDCALL CSharp_IsSecondMin(int jarg1) {
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_WFC_CSfLowLevel_IsSecondMin___(int jarg1) {
   unsigned int jresult ;
   WFC::Tiled3D::FacePoints arg1 ;
   bool result;
@@ -987,7 +987,7 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_IsSecondMin(int jarg1) {
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_MakeFacePoint(unsigned int jarg1, unsigned int jarg2) {
+SWIGEXPORT int SWIGSTDCALL CSharp_WFC_CSfLowLevel_MakeFacePoint___(unsigned int jarg1, unsigned int jarg2) {
   int jresult ;
   bool arg1 ;
   bool arg2 ;
@@ -1001,7 +1001,7 @@ SWIGEXPORT int SWIGSTDCALL CSharp_MakeFacePoint(unsigned int jarg1, unsigned int
 }
 
 
-SWIGEXPORT unsigned int SWIGSTDCALL CSharp_IsMin(int jarg1) {
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_WFC_CSfLowLevel_IsMin___(int jarg1) {
   unsigned int jresult ;
   WFC::Tiled3D::Directions3D arg1 ;
   bool result;
@@ -1013,7 +1013,7 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_IsMin(int jarg1) {
 }
 
 
-SWIGEXPORT unsigned int SWIGSTDCALL CSharp_IsMax(int jarg1) {
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_WFC_CSfLowLevel_IsMax___(int jarg1) {
   unsigned int jresult ;
   WFC::Tiled3D::Directions3D arg1 ;
   bool result;
@@ -1025,7 +1025,7 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_IsMax(int jarg1) {
 }
 
 
-SWIGEXPORT unsigned char SWIGSTDCALL CSharp_GetAxisIndex(int jarg1) {
+SWIGEXPORT unsigned char SWIGSTDCALL CSharp_WFC_CSfLowLevel_GetAxisIndex___(int jarg1) {
   unsigned char jresult ;
   WFC::Tiled3D::Directions3D arg1 ;
   uint_fast8_t result;
@@ -1037,7 +1037,7 @@ SWIGEXPORT unsigned char SWIGSTDCALL CSharp_GetAxisIndex(int jarg1) {
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_GetOpposite(int jarg1) {
+SWIGEXPORT int SWIGSTDCALL CSharp_WFC_CSfLowLevel_GetOpposite___(int jarg1) {
   int jresult ;
   WFC::Tiled3D::Directions3D arg1 ;
   WFC::Tiled3D::Directions3D result;
@@ -1049,7 +1049,7 @@ SWIGEXPORT int SWIGSTDCALL CSharp_GetOpposite(int jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_FacePermutation_Points_set(void * jarg1, void * jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_FacePermutation_Points_set___(void * jarg1, void * jarg2) {
   WFC::Tiled3D::FacePermutation *arg1 = (WFC::Tiled3D::FacePermutation *) 0 ;
   WFC::Tiled3D::PointID *arg2 ;
   
@@ -1063,7 +1063,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_FacePermutation_Points_set(void * jarg1, void
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_FacePermutation_Points_get(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_FacePermutation_Points_get___(void * jarg1) {
   void * jresult ;
   WFC::Tiled3D::FacePermutation *arg1 = (WFC::Tiled3D::FacePermutation *) 0 ;
   WFC::Tiled3D::PointID *result = 0 ;
@@ -1075,7 +1075,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_FacePermutation_Points_get(void * jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_FacePermutation_Side_set(void * jarg1, int jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_FacePermutation_Side_set___(void * jarg1, int jarg2) {
   WFC::Tiled3D::FacePermutation *arg1 = (WFC::Tiled3D::FacePermutation *) 0 ;
   WFC::Tiled3D::Directions3D arg2 ;
   
@@ -1085,7 +1085,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_FacePermutation_Side_set(void * jarg1, int ja
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_FacePermutation_Side_get(void * jarg1) {
+SWIGEXPORT int SWIGSTDCALL CSharp_WFC_CSfLowLevel_FacePermutation_Side_get___(void * jarg1) {
   int jresult ;
   WFC::Tiled3D::FacePermutation *arg1 = (WFC::Tiled3D::FacePermutation *) 0 ;
   WFC::Tiled3D::Directions3D result;
@@ -1097,7 +1097,7 @@ SWIGEXPORT int SWIGSTDCALL CSharp_FacePermutation_Side_get(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_FacePermutation() {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_FacePermutation___() {
   void * jresult ;
   WFC::Tiled3D::FacePermutation *result = 0 ;
   
@@ -1107,7 +1107,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_FacePermutation() {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_delete_FacePermutation(void * jarg1) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_delete_FacePermutation___(void * jarg1) {
   WFC::Tiled3D::FacePermutation *arg1 = (WFC::Tiled3D::FacePermutation *) 0 ;
   
   arg1 = (WFC::Tiled3D::FacePermutation *)jarg1; 
@@ -1115,7 +1115,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_delete_FacePermutation(void * jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_CubePermutation_Faces_set(void * jarg1, void * jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_CubePermutation_Faces_set___(void * jarg1, void * jarg2) {
   WFC::Tiled3D::CubePermutation *arg1 = (WFC::Tiled3D::CubePermutation *) 0 ;
   WFC::Tiled3D::FacePermutation *arg2 ;
   
@@ -1129,7 +1129,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_CubePermutation_Faces_set(void * jarg1, void 
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_CubePermutation_Faces_get(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_CubePermutation_Faces_get___(void * jarg1) {
   void * jresult ;
   WFC::Tiled3D::CubePermutation *arg1 = (WFC::Tiled3D::CubePermutation *) 0 ;
   WFC::Tiled3D::FacePermutation *result = 0 ;
@@ -1141,7 +1141,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_CubePermutation_Faces_get(void * jarg1) {
 }
 
 
-SWIGEXPORT unsigned char SWIGSTDCALL CSharp_CubePermutation_GetFace(void * jarg1, int jarg2) {
+SWIGEXPORT unsigned char SWIGSTDCALL CSharp_WFC_CSfLowLevel_CubePermutation_GetFace___(void * jarg1, int jarg2) {
   unsigned char jresult ;
   WFC::Tiled3D::CubePermutation *arg1 = (WFC::Tiled3D::CubePermutation *) 0 ;
   WFC::Tiled3D::Directions3D arg2 ;
@@ -1155,7 +1155,7 @@ SWIGEXPORT unsigned char SWIGSTDCALL CSharp_CubePermutation_GetFace(void * jarg1
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_CubePermutation() {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_CubePermutation___() {
   void * jresult ;
   WFC::Tiled3D::CubePermutation *result = 0 ;
   
@@ -1165,7 +1165,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_CubePermutation() {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_delete_CubePermutation(void * jarg1) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_delete_CubePermutation___(void * jarg1) {
   WFC::Tiled3D::CubePermutation *arg1 = (WFC::Tiled3D::CubePermutation *) 0 ;
   
   arg1 = (WFC::Tiled3D::CubePermutation *)jarg1; 
@@ -1173,7 +1173,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_delete_CubePermutation(void * jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_Transform3D_Invert_set(void * jarg1, unsigned int jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_Transform3D_Invert_set___(void * jarg1, unsigned int jarg2) {
   WFC::Tiled3D::Transform3D *arg1 = (WFC::Tiled3D::Transform3D *) 0 ;
   bool arg2 ;
   
@@ -1183,7 +1183,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_Transform3D_Invert_set(void * jarg1, unsigned
 }
 
 
-SWIGEXPORT unsigned int SWIGSTDCALL CSharp_Transform3D_Invert_get(void * jarg1) {
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_WFC_CSfLowLevel_Transform3D_Invert_get___(void * jarg1) {
   unsigned int jresult ;
   WFC::Tiled3D::Transform3D *arg1 = (WFC::Tiled3D::Transform3D *) 0 ;
   bool result;
@@ -1195,7 +1195,7 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_Transform3D_Invert_get(void * jarg1) 
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_Transform3D_Rot_set(void * jarg1, int jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_Transform3D_Rot_set___(void * jarg1, int jarg2) {
   WFC::Tiled3D::Transform3D *arg1 = (WFC::Tiled3D::Transform3D *) 0 ;
   WFC::Tiled3D::Rotations3D arg2 ;
   
@@ -1205,7 +1205,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_Transform3D_Rot_set(void * jarg1, int jarg2) 
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_Transform3D_Rot_get(void * jarg1) {
+SWIGEXPORT int SWIGSTDCALL CSharp_WFC_CSfLowLevel_Transform3D_Rot_get___(void * jarg1) {
   int jresult ;
   WFC::Tiled3D::Transform3D *arg1 = (WFC::Tiled3D::Transform3D *) 0 ;
   WFC::Tiled3D::Rotations3D result;
@@ -1217,7 +1217,7 @@ SWIGEXPORT int SWIGSTDCALL CSharp_Transform3D_Rot_get(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_Transform3D_ApplyToPos__SWIG_0(void * jarg1, void * jarg2, void * jarg3) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_Transform3D_ApplyToPos__SWIG_0___(void * jarg1, void * jarg2, void * jarg3) {
   void * jresult ;
   WFC::Tiled3D::Transform3D *arg1 = (WFC::Tiled3D::Transform3D *) 0 ;
   WFC::Vector3i arg2 ;
@@ -1245,7 +1245,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Transform3D_ApplyToPos__SWIG_0(void * jarg1
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_Transform3D_ApplyToPos__SWIG_1(void * jarg1, void * jarg2) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_Transform3D_ApplyToPos__SWIG_1___(void * jarg1, void * jarg2) {
   void * jresult ;
   WFC::Tiled3D::Transform3D *arg1 = (WFC::Tiled3D::Transform3D *) 0 ;
   WFC::Vector3i arg2 ;
@@ -1265,7 +1265,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Transform3D_ApplyToPos__SWIG_1(void * jarg1
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_Transform3D_ApplyToSide(void * jarg1, int jarg2) {
+SWIGEXPORT int SWIGSTDCALL CSharp_WFC_CSfLowLevel_Transform3D_ApplyToSide___(void * jarg1, int jarg2) {
   int jresult ;
   WFC::Tiled3D::Transform3D *arg1 = (WFC::Tiled3D::Transform3D *) 0 ;
   WFC::Tiled3D::Directions3D arg2 ;
@@ -1279,7 +1279,7 @@ SWIGEXPORT int SWIGSTDCALL CSharp_Transform3D_ApplyToSide(void * jarg1, int jarg
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_Transform3D_ApplyToFace(void * jarg1, void * jarg2) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_Transform3D_ApplyToFace___(void * jarg1, void * jarg2) {
   void * jresult ;
   WFC::Tiled3D::Transform3D *arg1 = (WFC::Tiled3D::Transform3D *) 0 ;
   WFC::Tiled3D::FacePermutation arg2 ;
@@ -1299,7 +1299,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Transform3D_ApplyToFace(void * jarg1, void 
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_Transform3D_ApplyToCube(void * jarg1, void * jarg2) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_Transform3D_ApplyToCube___(void * jarg1, void * jarg2) {
   void * jresult ;
   WFC::Tiled3D::Transform3D *arg1 = (WFC::Tiled3D::Transform3D *) 0 ;
   WFC::Tiled3D::CubePermutation arg2 ;
@@ -1319,7 +1319,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Transform3D_ApplyToCube(void * jarg1, void 
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_Transform3D() {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_Transform3D___() {
   void * jresult ;
   WFC::Tiled3D::Transform3D *result = 0 ;
   
@@ -1329,7 +1329,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_Transform3D() {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_delete_Transform3D(void * jarg1) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_delete_Transform3D___(void * jarg1) {
   WFC::Tiled3D::Transform3D *arg1 = (WFC::Tiled3D::Transform3D *) 0 ;
   
   arg1 = (WFC::Tiled3D::Transform3D *)jarg1; 
@@ -1337,7 +1337,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_delete_Transform3D(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_eFlagsList__SWIG_0() {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_eFlagsList__SWIG_0___() {
   void * jresult ;
   WFC::List< unsigned short > *result = 0 ;
   
@@ -1347,7 +1347,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_eFlagsList__SWIG_0() {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_eFlagsList__SWIG_1(unsigned short jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_eFlagsList__SWIG_1___(unsigned short jarg1) {
   void * jresult ;
   unsigned short *arg1 = 0 ;
   unsigned short temp1 ;
@@ -1361,7 +1361,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_eFlagsList__SWIG_1(unsigned short jarg1
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_eFlagsList__SWIG_2(unsigned short jarg1, unsigned short jarg2) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_eFlagsList__SWIG_2___(unsigned short jarg1, unsigned short jarg2) {
   void * jresult ;
   unsigned short *arg1 = 0 ;
   unsigned short *arg2 = 0 ;
@@ -1379,7 +1379,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_eFlagsList__SWIG_2(unsigned short jarg1
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_eFlagsList__SWIG_3(unsigned short jarg1, unsigned short jarg2, unsigned short jarg3) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_eFlagsList__SWIG_3___(unsigned short jarg1, unsigned short jarg2, unsigned short jarg3) {
   void * jresult ;
   unsigned short *arg1 = 0 ;
   unsigned short *arg2 = 0 ;
@@ -1401,7 +1401,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_eFlagsList__SWIG_3(unsigned short jarg1
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_eFlagsList__SWIG_4(unsigned short jarg1, unsigned short jarg2, unsigned short jarg3, unsigned short jarg4) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_eFlagsList__SWIG_4___(unsigned short jarg1, unsigned short jarg2, unsigned short jarg3, unsigned short jarg4) {
   void * jresult ;
   unsigned short *arg1 = 0 ;
   unsigned short *arg2 = 0 ;
@@ -1427,7 +1427,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_eFlagsList__SWIG_4(unsigned short jarg1
 }
 
 
-SWIGEXPORT unsigned long SWIGSTDCALL CSharp_eFlagsList_GetSize(void * jarg1) {
+SWIGEXPORT unsigned long SWIGSTDCALL CSharp_WFC_CSfLowLevel_eFlagsList_GetSize___(void * jarg1) {
   unsigned long jresult ;
   WFC::List< unsigned short > *arg1 = (WFC::List< unsigned short > *) 0 ;
   size_t result;
@@ -1439,7 +1439,7 @@ SWIGEXPORT unsigned long SWIGSTDCALL CSharp_eFlagsList_GetSize(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_eFlagsList_GetData__SWIG_0(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_eFlagsList_GetData__SWIG_0___(void * jarg1) {
   void * jresult ;
   WFC::List< unsigned short > *arg1 = (WFC::List< unsigned short > *) 0 ;
   unsigned short *result = 0 ;
@@ -1451,7 +1451,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_eFlagsList_GetData__SWIG_0(void * jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_eFlagsList_Resize(void * jarg1, unsigned long jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_eFlagsList_Resize___(void * jarg1, unsigned long jarg2) {
   WFC::List< unsigned short > *arg1 = (WFC::List< unsigned short > *) 0 ;
   size_t arg2 ;
   
@@ -1461,7 +1461,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_eFlagsList_Resize(void * jarg1, unsigned long
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_eFlagsList_Reserve(void * jarg1, unsigned long jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_eFlagsList_Reserve___(void * jarg1, unsigned long jarg2) {
   WFC::List< unsigned short > *arg1 = (WFC::List< unsigned short > *) 0 ;
   size_t arg2 ;
   
@@ -1471,7 +1471,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_eFlagsList_Reserve(void * jarg1, unsigned lon
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_eFlagsList_PushBack(void * jarg1, unsigned short jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_eFlagsList_PushBack___(void * jarg1, unsigned short jarg2) {
   WFC::List< unsigned short > *arg1 = (WFC::List< unsigned short > *) 0 ;
   unsigned short *arg2 = 0 ;
   unsigned short temp2 ;
@@ -1483,7 +1483,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_eFlagsList_PushBack(void * jarg1, unsigned sh
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_eFlagsList_PushFront(void * jarg1, unsigned short jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_eFlagsList_PushFront___(void * jarg1, unsigned short jarg2) {
   WFC::List< unsigned short > *arg1 = (WFC::List< unsigned short > *) 0 ;
   unsigned short *arg2 = 0 ;
   unsigned short temp2 ;
@@ -1495,7 +1495,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_eFlagsList_PushFront(void * jarg1, unsigned s
 }
 
 
-SWIGEXPORT unsigned short SWIGSTDCALL CSharp_eFlagsList_PopBack(void * jarg1) {
+SWIGEXPORT unsigned short SWIGSTDCALL CSharp_WFC_CSfLowLevel_eFlagsList_PopBack___(void * jarg1) {
   unsigned short jresult ;
   WFC::List< unsigned short > *arg1 = (WFC::List< unsigned short > *) 0 ;
   unsigned short result;
@@ -1507,7 +1507,7 @@ SWIGEXPORT unsigned short SWIGSTDCALL CSharp_eFlagsList_PopBack(void * jarg1) {
 }
 
 
-SWIGEXPORT unsigned short SWIGSTDCALL CSharp_eFlagsList_PopFront(void * jarg1) {
+SWIGEXPORT unsigned short SWIGSTDCALL CSharp_WFC_CSfLowLevel_eFlagsList_PopFront___(void * jarg1) {
   unsigned short jresult ;
   WFC::List< unsigned short > *arg1 = (WFC::List< unsigned short > *) 0 ;
   unsigned short result;
@@ -1519,7 +1519,7 @@ SWIGEXPORT unsigned short SWIGSTDCALL CSharp_eFlagsList_PopFront(void * jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_eFlagsList_RemoveAt(void * jarg1, unsigned long jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_eFlagsList_RemoveAt___(void * jarg1, unsigned long jarg2) {
   WFC::List< unsigned short > *arg1 = (WFC::List< unsigned short > *) 0 ;
   size_t arg2 ;
   
@@ -1529,7 +1529,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_eFlagsList_RemoveAt(void * jarg1, unsigned lo
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_eFlagsList_Insert__SWIG_0(void * jarg1, unsigned long jarg2, unsigned short jarg3) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_eFlagsList_Insert__SWIG_0___(void * jarg1, unsigned long jarg2, unsigned short jarg3) {
   WFC::List< unsigned short > *arg1 = (WFC::List< unsigned short > *) 0 ;
   size_t arg2 ;
   unsigned short *arg3 = 0 ;
@@ -1543,7 +1543,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_eFlagsList_Insert__SWIG_0(void * jarg1, unsig
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_eFlagsList_Insert__SWIG_1(void * jarg1, unsigned long jarg2, void * jarg3) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_eFlagsList_Insert__SWIG_1___(void * jarg1, unsigned long jarg2, void * jarg3) {
   WFC::List< unsigned short > *arg1 = (WFC::List< unsigned short > *) 0 ;
   size_t arg2 ;
   WFC::List< unsigned short > *arg3 = 0 ;
@@ -1559,7 +1559,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_eFlagsList_Insert__SWIG_1(void * jarg1, unsig
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_eFlagsList_Clear(void * jarg1) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_eFlagsList_Clear___(void * jarg1) {
   WFC::List< unsigned short > *arg1 = (WFC::List< unsigned short > *) 0 ;
   
   arg1 = (WFC::List< unsigned short > *)jarg1; 
@@ -1567,7 +1567,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_eFlagsList_Clear(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_eFlagsList_GetBack__SWIG_0(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_eFlagsList_GetBack__SWIG_0___(void * jarg1) {
   void * jresult ;
   WFC::List< unsigned short > *arg1 = (WFC::List< unsigned short > *) 0 ;
   unsigned short *result = 0 ;
@@ -1579,7 +1579,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_eFlagsList_GetBack__SWIG_0(void * jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_delete_eFlagsList(void * jarg1) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_delete_eFlagsList___(void * jarg1) {
   WFC::List< unsigned short > *arg1 = (WFC::List< unsigned short > *) 0 ;
   
   arg1 = (WFC::List< unsigned short > *)jarg1; 
@@ -1587,7 +1587,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_delete_eFlagsList(void * jarg1) {
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_eFlags_ToMask(unsigned short jarg1) {
+SWIGEXPORT int SWIGSTDCALL CSharp_WFC_CSfLowLevel_eFlags_ToMask___(unsigned short jarg1) {
   int jresult ;
   unsigned short arg1 ;
   int result;
@@ -1599,7 +1599,7 @@ SWIGEXPORT int SWIGSTDCALL CSharp_eFlags_ToMask(unsigned short jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_eFlags_All() {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_eFlags_All___() {
   void * jresult ;
   WFC::EnumFlags< unsigned short,int,55 >::This_t result;
   
@@ -1609,7 +1609,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_eFlags_All() {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_eFlags_BitMask_set(void * jarg1, int jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_eFlags_BitMask_set___(void * jarg1, int jarg2) {
   WFC::EnumFlags< unsigned short,int,55 > *arg1 = (WFC::EnumFlags< unsigned short,int,55 > *) 0 ;
   int arg2 ;
   
@@ -1619,7 +1619,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_eFlags_BitMask_set(void * jarg1, int jarg2) {
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_eFlags_BitMask_get(void * jarg1) {
+SWIGEXPORT int SWIGSTDCALL CSharp_WFC_CSfLowLevel_eFlags_BitMask_get___(void * jarg1) {
   int jresult ;
   WFC::EnumFlags< unsigned short,int,55 > *arg1 = (WFC::EnumFlags< unsigned short,int,55 > *) 0 ;
   int result;
@@ -1631,7 +1631,7 @@ SWIGEXPORT int SWIGSTDCALL CSharp_eFlags_BitMask_get(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_eFlags__SWIG_0(int jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_eFlags__SWIG_0___(int jarg1) {
   void * jresult ;
   int arg1 ;
   WFC::EnumFlags< unsigned short,int,55 > *result = 0 ;
@@ -1643,7 +1643,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_eFlags__SWIG_0(int jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_eFlags__SWIG_1() {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_eFlags__SWIG_1___() {
   void * jresult ;
   WFC::EnumFlags< unsigned short,int,55 > *result = 0 ;
   
@@ -1653,7 +1653,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_eFlags__SWIG_1() {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_eFlags__SWIG_2(unsigned short jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_eFlags__SWIG_2___(unsigned short jarg1) {
   void * jresult ;
   unsigned short arg1 ;
   WFC::EnumFlags< unsigned short,int,55 > *result = 0 ;
@@ -1665,7 +1665,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_eFlags__SWIG_2(unsigned short jarg1) {
 }
 
 
-SWIGEXPORT unsigned int SWIGSTDCALL CSharp_eFlags_Contains(void * jarg1, unsigned short jarg2) {
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_WFC_CSfLowLevel_eFlags_Contains___(void * jarg1, unsigned short jarg2) {
   unsigned int jresult ;
   WFC::EnumFlags< unsigned short,int,55 > *arg1 = (WFC::EnumFlags< unsigned short,int,55 > *) 0 ;
   unsigned short arg2 ;
@@ -1679,7 +1679,7 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_eFlags_Contains(void * jarg1, unsigne
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_eFlags_Enumerate(void * jarg1, void * jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_eFlags_Enumerate___(void * jarg1, void * jarg2) {
   WFC::EnumFlags< unsigned short,int,55 > *arg1 = (WFC::EnumFlags< unsigned short,int,55 > *) 0 ;
   WFC::List< unsigned short > *arg2 = 0 ;
   
@@ -1693,7 +1693,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_eFlags_Enumerate(void * jarg1, void * jarg2) 
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_delete_eFlags(void * jarg1) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_delete_eFlags___(void * jarg1) {
   WFC::EnumFlags< unsigned short,int,55 > *arg1 = (WFC::EnumFlags< unsigned short,int,55 > *) 0 ;
   
   arg1 = (WFC::EnumFlags< unsigned short,int,55 > *)jarg1; 
@@ -1701,7 +1701,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_delete_eFlags(void * jarg1) {
 }
 
 
-SWIGEXPORT unsigned long SWIGSTDCALL CSharp_dictIntDouble_GetSize(void * jarg1) {
+SWIGEXPORT unsigned long SWIGSTDCALL CSharp_WFC_CSfLowLevel_dictIntDouble_GetSize___(void * jarg1) {
   unsigned long jresult ;
   WFC::Dictionary< int,double,std::hash< int > > *arg1 = (WFC::Dictionary< int,double,std::hash< int > > *) 0 ;
   size_t result;
@@ -1713,7 +1713,7 @@ SWIGEXPORT unsigned long SWIGSTDCALL CSharp_dictIntDouble_GetSize(void * jarg1) 
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_dictIntDouble_Reserve(void * jarg1, unsigned long jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_dictIntDouble_Reserve___(void * jarg1, unsigned long jarg2) {
   WFC::Dictionary< int,double,std::hash< int > > *arg1 = (WFC::Dictionary< int,double,std::hash< int > > *) 0 ;
   size_t arg2 ;
   
@@ -1723,7 +1723,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_dictIntDouble_Reserve(void * jarg1, unsigned 
 }
 
 
-SWIGEXPORT unsigned int SWIGSTDCALL CSharp_dictIntDouble_Contains(void * jarg1, int jarg2) {
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_WFC_CSfLowLevel_dictIntDouble_Contains___(void * jarg1, int jarg2) {
   unsigned int jresult ;
   WFC::Dictionary< int,double,std::hash< int > > *arg1 = (WFC::Dictionary< int,double,std::hash< int > > *) 0 ;
   int *arg2 = 0 ;
@@ -1739,7 +1739,7 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_dictIntDouble_Contains(void * jarg1, 
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_dictIntDouble_Clear(void * jarg1) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_dictIntDouble_Clear___(void * jarg1) {
   WFC::Dictionary< int,double,std::hash< int > > *arg1 = (WFC::Dictionary< int,double,std::hash< int > > *) 0 ;
   
   arg1 = (WFC::Dictionary< int,double,std::hash< int > > *)jarg1; 
@@ -1747,7 +1747,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_dictIntDouble_Clear(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_dictIntDouble_TryGet__SWIG_0(void * jarg1, int jarg2) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_dictIntDouble_TryGet__SWIG_0___(void * jarg1, int jarg2) {
   void * jresult ;
   WFC::Dictionary< int,double,std::hash< int > > *arg1 = (WFC::Dictionary< int,double,std::hash< int > > *) 0 ;
   int *arg2 = 0 ;
@@ -1763,7 +1763,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_dictIntDouble_TryGet__SWIG_0(void * jarg1, 
 }
 
 
-SWIGEXPORT double SWIGSTDCALL CSharp_dictIntDouble_Get__SWIG_0(void * jarg1, int jarg2, double jarg3) {
+SWIGEXPORT double SWIGSTDCALL CSharp_WFC_CSfLowLevel_dictIntDouble_Get__SWIG_0___(void * jarg1, int jarg2, double jarg3) {
   double jresult ;
   WFC::Dictionary< int,double,std::hash< int > > *arg1 = (WFC::Dictionary< int,double,std::hash< int > > *) 0 ;
   int *arg2 = 0 ;
@@ -1783,7 +1783,7 @@ SWIGEXPORT double SWIGSTDCALL CSharp_dictIntDouble_Get__SWIG_0(void * jarg1, int
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_dictIntDouble() {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_dictIntDouble___() {
   void * jresult ;
   WFC::Dictionary< int,double,std::hash< int > > *result = 0 ;
   
@@ -1793,7 +1793,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_dictIntDouble() {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_delete_dictIntDouble(void * jarg1) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_delete_dictIntDouble___(void * jarg1) {
   WFC::Dictionary< int,double,std::hash< int > > *arg1 = (WFC::Dictionary< int,double,std::hash< int > > *) 0 ;
   
   arg1 = (WFC::Dictionary< int,double,std::hash< int > > *)jarg1; 
@@ -1801,7 +1801,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_delete_dictIntDouble(void * jarg1) {
 }
 
 
-SWIGEXPORT unsigned long SWIGSTDCALL CSharp_setOfUInts_GetSize(void * jarg1) {
+SWIGEXPORT unsigned long SWIGSTDCALL CSharp_WFC_CSfLowLevel_setOfUInts_GetSize___(void * jarg1) {
   unsigned long jresult ;
   WFC::Set< unsigned int,std::hash< unsigned int > > *arg1 = (WFC::Set< unsigned int,std::hash< unsigned int > > *) 0 ;
   size_t result;
@@ -1813,7 +1813,7 @@ SWIGEXPORT unsigned long SWIGSTDCALL CSharp_setOfUInts_GetSize(void * jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_setOfUInts_Reserve(void * jarg1, unsigned long jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_setOfUInts_Reserve___(void * jarg1, unsigned long jarg2) {
   WFC::Set< unsigned int,std::hash< unsigned int > > *arg1 = (WFC::Set< unsigned int,std::hash< unsigned int > > *) 0 ;
   size_t arg2 ;
   
@@ -1823,7 +1823,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_setOfUInts_Reserve(void * jarg1, unsigned lon
 }
 
 
-SWIGEXPORT unsigned int SWIGSTDCALL CSharp_setOfUInts_Add__SWIG_0(void * jarg1, unsigned int jarg2) {
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_WFC_CSfLowLevel_setOfUInts_Add__SWIG_0___(void * jarg1, unsigned int jarg2) {
   unsigned int jresult ;
   WFC::Set< unsigned int,std::hash< unsigned int > > *arg1 = (WFC::Set< unsigned int,std::hash< unsigned int > > *) 0 ;
   unsigned int *arg2 = 0 ;
@@ -1839,7 +1839,7 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_setOfUInts_Add__SWIG_0(void * jarg1, 
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_setOfUInts_Add__SWIG_1(void * jarg1, void * jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_setOfUInts_Add__SWIG_1___(void * jarg1, void * jarg2) {
   WFC::Set< unsigned int,std::hash< unsigned int > > *arg1 = (WFC::Set< unsigned int,std::hash< unsigned int > > *) 0 ;
   WFC::Set< unsigned int,std::hash< unsigned int > > *arg2 = 0 ;
   
@@ -1853,7 +1853,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_setOfUInts_Add__SWIG_1(void * jarg1, void * j
 }
 
 
-SWIGEXPORT unsigned int SWIGSTDCALL CSharp_setOfUInts_Erase__SWIG_0(void * jarg1, unsigned int jarg2) {
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_WFC_CSfLowLevel_setOfUInts_Erase__SWIG_0___(void * jarg1, unsigned int jarg2) {
   unsigned int jresult ;
   WFC::Set< unsigned int,std::hash< unsigned int > > *arg1 = (WFC::Set< unsigned int,std::hash< unsigned int > > *) 0 ;
   unsigned int *arg2 = 0 ;
@@ -1869,7 +1869,7 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_setOfUInts_Erase__SWIG_0(void * jarg1
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_setOfUInts_Erase__SWIG_1(void * jarg1, void * jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_setOfUInts_Erase__SWIG_1___(void * jarg1, void * jarg2) {
   WFC::Set< unsigned int,std::hash< unsigned int > > *arg1 = (WFC::Set< unsigned int,std::hash< unsigned int > > *) 0 ;
   WFC::Set< unsigned int,std::hash< unsigned int > > *arg2 = 0 ;
   
@@ -1883,7 +1883,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_setOfUInts_Erase__SWIG_1(void * jarg1, void *
 }
 
 
-SWIGEXPORT unsigned int SWIGSTDCALL CSharp_setOfUInts_Contains(void * jarg1, unsigned int jarg2) {
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_WFC_CSfLowLevel_setOfUInts_Contains___(void * jarg1, unsigned int jarg2) {
   unsigned int jresult ;
   WFC::Set< unsigned int,std::hash< unsigned int > > *arg1 = (WFC::Set< unsigned int,std::hash< unsigned int > > *) 0 ;
   unsigned int *arg2 = 0 ;
@@ -1899,7 +1899,7 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_setOfUInts_Contains(void * jarg1, uns
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_setOfUInts_Clear(void * jarg1) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_setOfUInts_Clear___(void * jarg1) {
   WFC::Set< unsigned int,std::hash< unsigned int > > *arg1 = (WFC::Set< unsigned int,std::hash< unsigned int > > *) 0 ;
   
   arg1 = (WFC::Set< unsigned int,std::hash< unsigned int > > *)jarg1; 
@@ -1907,7 +1907,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_setOfUInts_Clear(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_setOfUInts() {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_setOfUInts___() {
   void * jresult ;
   WFC::Set< unsigned int,std::hash< unsigned int > > *result = 0 ;
   
@@ -1917,7 +1917,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_setOfUInts() {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_delete_setOfUInts(void * jarg1) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_delete_setOfUInts___(void * jarg1) {
   WFC::Set< unsigned int,std::hash< unsigned int > > *arg1 = (WFC::Set< unsigned int,std::hash< unsigned int > > *) 0 ;
   
   arg1 = (WFC::Set< unsigned int,std::hash< unsigned int > > *)jarg1; 
@@ -1925,7 +1925,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_delete_setOfUInts(void * jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_algoState_HasValue_set(void * jarg1, unsigned int jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_algoState_HasValue_set___(void * jarg1, unsigned int jarg2) {
   WFC::Nullable< bool > *arg1 = (WFC::Nullable< bool > *) 0 ;
   bool arg2 ;
   
@@ -1935,7 +1935,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_algoState_HasValue_set(void * jarg1, unsigned
 }
 
 
-SWIGEXPORT unsigned int SWIGSTDCALL CSharp_algoState_HasValue_get(void * jarg1) {
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_WFC_CSfLowLevel_algoState_HasValue_get___(void * jarg1) {
   unsigned int jresult ;
   WFC::Nullable< bool > *arg1 = (WFC::Nullable< bool > *) 0 ;
   bool result;
@@ -1947,7 +1947,7 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_algoState_HasValue_get(void * jarg1) 
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_algoState_Value_set(void * jarg1, unsigned int jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_algoState_Value_set___(void * jarg1, unsigned int jarg2) {
   WFC::Nullable< bool > *arg1 = (WFC::Nullable< bool > *) 0 ;
   bool arg2 ;
   
@@ -1957,7 +1957,7 @@ SWIGEXPORT void SWIGSTDCALL CSharp_algoState_Value_set(void * jarg1, unsigned in
 }
 
 
-SWIGEXPORT unsigned int SWIGSTDCALL CSharp_algoState_Value_get(void * jarg1) {
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_WFC_CSfLowLevel_algoState_Value_get___(void * jarg1) {
   unsigned int jresult ;
   WFC::Nullable< bool > *arg1 = (WFC::Nullable< bool > *) 0 ;
   bool result;
@@ -1969,7 +1969,7 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_algoState_Value_get(void * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_algoState__SWIG_0() {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_algoState__SWIG_0___() {
   void * jresult ;
   WFC::Nullable< bool > *result = 0 ;
   
@@ -1979,7 +1979,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_algoState__SWIG_0() {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_algoState__SWIG_1(unsigned int jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_algoState__SWIG_1___(unsigned int jarg1) {
   void * jresult ;
   bool *arg1 = 0 ;
   bool temp1 ;
@@ -1993,7 +1993,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_algoState__SWIG_1(unsigned int jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_algoState__SWIG_2(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_WFC_CSfLowLevel_new_algoState__SWIG_2___(void * jarg1) {
   void * jresult ;
   WFC::Nullable< bool > *arg1 = 0 ;
   WFC::Nullable< bool > *result = 0 ;
@@ -2009,7 +2009,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_algoState__SWIG_2(void * jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_delete_algoState(void * jarg1) {
+SWIGEXPORT void SWIGSTDCALL CSharp_WFC_CSfLowLevel_delete_algoState___(void * jarg1) {
   WFC::Nullable< bool > *arg1 = (WFC::Nullable< bool > *) 0 ;
   
   arg1 = (WFC::Nullable< bool > *)jarg1; 

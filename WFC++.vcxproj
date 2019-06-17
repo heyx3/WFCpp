@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{38A88B72-ACE0-400E-AC82-677C89622B69}</ProjectGuid>
     <RootNamespace>WFC</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -190,7 +190,7 @@ if exist %CS_OUT_PATH% (
 ) else (
     mkdir "%CS_OUT_PATH%"
 )
-swig -c++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp" "$(ProjectDir)WFC++\SWIG\SWIG_build.i"</Command>
+swig -c++ -namespace WFC_CS.LowLevel -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp" "$(ProjectDir)WFC++\SWIG\SWIG_build.i"</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Run SWIG to generate C exports and C# imports</Message>
