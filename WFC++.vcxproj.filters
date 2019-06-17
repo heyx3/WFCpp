@@ -57,6 +57,12 @@
     <ClInclude Include="WFC++\Tiled3D\Transform3D.h">
       <Filter>Generator Classes\Tiled3D</Filter>
     </ClInclude>
+    <ClInclude Include="WFC++\Tiled3D\InputData.h">
+      <Filter>Generator Classes\Tiled3D</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\Tiled3D\Tile.hpp">
+      <Filter>Generator Classes\Tiled3D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Helper Classes">
@@ -108,6 +114,9 @@
     </ClCompile>
     <ClCompile Include="WFC++\SWIG\wfc_wrap.cpp">
       <Filter>SWIG</Filter>
+    </ClCompile>
+    <ClCompile Include="WFC++\Tiled3D\InputData.cpp">
+      <Filter>Generator Classes\Tiled3D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
