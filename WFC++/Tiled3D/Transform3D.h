@@ -56,6 +56,22 @@ namespace WFC
         inline bool WFC_API IsMax(Directions3D dir) { return (uint_fast8_t)dir % 2 == 1; }
         inline uint_fast8_t GetAxisIndex(Directions3D dir) { return (uint_fast8_t)dir / 2; }
         inline Directions3D WFC_API GetOpposite(Directions3D dir) { return (Directions3D)(IsMin(dir) ? (dir + 1) : (dir - 1)); }
+        inline Vector3i GetFaceDirection(Directions3D dir)
+        {
+            switch (dir)
+            {
+                default: assert(false);
+
+                case Directions3D::MinX: return Vector3i(-1, 0, 0);
+                case Directions3D::MaxX: return Vector3i(1, 0, 0);
+
+                case Directions3D::MinY: return Vector3i(0, -1, 0);
+                case Directions3D::MaxY: return Vector3i(0, 1, 0);
+
+                case Directions3D::MinZ: return Vector3i(0, 0, -1);
+                case Directions3D::MaxZ: return Vector3i(0, 0, 1);
+            }
+        }
 
 
 

@@ -324,6 +324,7 @@ swig -c++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.c
     <ClInclude Include="WFC++\HelperClasses.h" />
     <ClInclude Include="WFC++\List.hpp" />
     <ClInclude Include="WFC++\Tiled3D\InputData.h" />
+    <ClInclude Include="WFC++\Tiled3D\State.h" />
     <ClInclude Include="WFC++\Tiled3D\Tile.hpp" />
     <ClInclude Include="WFC++\Tiled3D\Transform3D.h" />
     <ClInclude Include="WFC++\WFCMath.h" />
@@ -346,6 +347,7 @@ swig -c++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.c
     <ClCompile Include="WFC++\Simple\State.cpp" />
     <ClCompile Include="WFC++\SWIG\wfc_wrap.cpp" />
     <ClCompile Include="WFC++\Tiled3D\InputData.cpp" />
+    <ClCompile Include="WFC++\Tiled3D\State.cpp" />
     <ClCompile Include="WFC++\Tiled3D\Transform3D.cpp" />
     <ClCompile Include="WFC++\Tiled\InputData.cpp" />
     <ClCompile Include="WFC++\Tiled\State.cpp" />

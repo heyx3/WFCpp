@@ -15,11 +15,14 @@ namespace WFC
         //A single item in a tileset.
         struct WFC_API Tile
         {
-            //All the transformations that would leave this tile unchanged.
-            List<Transform3D> Symmetries;
-
             //The faces of this tile, indexed by the Directions3D enum.
             FacePermutation Faces[6];
+
+            //The "weight" of this tile.
+            //"Heavier" tiles are more likely to be chosen.
+            //The default weight is chosen by convention to be 100
+            //    so that there's plenty of room to be given a weight under the default.
+            uint32_t Weight = 100;
         };
     }
 }
