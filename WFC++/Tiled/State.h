@@ -57,16 +57,16 @@ namespace WFC
             //Applies wrapping to each axis if applicable.
 		    inline Vector2i Filter(const Vector2i& pos) const
 		    {
-                return Vector2i(PeriodicX ? Wrap(pos.x, Output.GetWidth()) : pos.x,
-                                PeriodicY ? Wrap(pos.y, Output.GetHeight()) : pos.y);
+                return Vector2i(PeriodicX ? WFC::Math::PositiveModulo(pos.x, Output.GetWidth()) : pos.x,
+                                PeriodicY ? WFC::Math::PositiveModulo(pos.y, Output.GetHeight()) : pos.y);
 		    }
             //Gets whether the given tile position is a valid output position
             //    (after taking wrapping into account).
             inline bool IsValidPos(Vector2i tilePos) const
             {
+                //TODO: This is wrong, isn't it?
                 return (PeriodicX | ((tilePos.x >= 0) & (tilePos.y >= 0))) &
-                    (PeriodicY | ((tilePos.x < Output.GetWidth()) &
-                    (tilePos.y < Output.GetHeight())));
+                       (PeriodicY | ((tilePos.x < Output.GetWidth()) & (tilePos.y < Output.GetHeight())));
             }
 
             //Gets the output tile at the given position (after taking wrapping into account).
@@ -105,13 +105,6 @@ namespace WFC
 
 	    private:
 
-		    static inline int Wrap(int val, int maxExclusive)
-		    {
-			    //http://stackoverflow.com/questions/3417183/modulo-of-negative-numbers
-			    val %= maxExclusive;
-			    return (val < 0) ? (val + maxExclusive) : val;
-		    }
-
 
             TileIDSet allTileIDs, tempTileIdSet;
             PRNG rng;
@@ -127,7 +120,7 @@ namespace WFC
 		    void GetBestTiles(List<Vector2i>& outValues) const;
 
 		    //If the given output tile is unset,
-		    //    this function recalculates that space's "ValuePossibilities" field.
+		    //    this function recalculates that space's "PossibleTiles" field.
 		    void RecalculateTileChances(Vector2i tilePos);
 	    };
     }

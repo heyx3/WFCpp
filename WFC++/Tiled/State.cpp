@@ -3,20 +3,8 @@
 #include <algorithm>
 
 using namespace WFC;
+using namespace WFC::Math;
 using namespace WFC::Tiled;
-
-
-namespace
-{
-    template<typename T>
-    T Min(T a, T b) { return (a < b) ? a : b; }
-
-    template<typename T>
-    T Max(T a, T b) { return (a > b) ? a : b; }
-
-    template<typename T>
-    T Clamp(T x, T min, T max) { return Min(max, Max(min, x)); }
-}
 
 
 void State::Reset(Vector2i newOutputSize)
@@ -31,6 +19,7 @@ void State::Reset(Vector2i newOutputSize)
     for (Vector2i pos : Region2i(Output.GetDimensions()))
     {
         auto& oTile = Output[pos];
+        oTile.Value = Nullable<TileID>();
         oTile.PossibleTiles = allTileIDs;
     }
 }
@@ -75,7 +64,7 @@ Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_fail
 		}
 	}
 
-	//Pick one of the low-entropy tiles at random and set its value.
+	//Pick one of the low-entropy tiles at random ato have its value set.
     //The correct way to do this is with std::uniform_int_distribution,
     //    but that incurs a LOT of overhead.
     //In practice, the non-uniform distribution from the simpler "rng() % count" is unnoticeable.
@@ -83,7 +72,7 @@ Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_fail
     auto chosenTilePos = lowestEntropyTilePoses[chosenTileI];
 	auto& chosenTile = Output[chosenTilePos];
 
-	//Pick a tile based on their weights.
+	//Pick a tile randomly, but based on their weights.
     TileID chosenTileID;
 	//If there's only one possible tile, this is easy.
 	if (chosenTile.PossibleTiles.GetSize() == 1)
@@ -94,7 +83,7 @@ Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_fail
 	//Otherwise, make a weighted random choice.
 	else
 	{
-		//Get a list of values and corresponding weights.
+        //Get a list of the values and of their corresonding weights.
         List<TileID> optionValues;
         List<uint32_t> optionWeights;
         for (TileID tileOptionID : chosenTile.PossibleTiles)
@@ -125,7 +114,7 @@ void State::SetTile(Vector2i tilePos, TileID value, bool permanent)
     outTile.Value = value;
     outTile.IsDeletable = !permanent;
 
-	//Adjacent tiles need to be updated.
+    //Update adjacent tiles.
     if (PeriodicX | (tilePos.x > 0))
         RecalculateTileChances(Filter(tilePos.LessX()));
     if (PeriodicY | (tilePos.y > 0))
@@ -204,7 +193,7 @@ void State::GetBestTiles(List<Vector2i>& outValues) const
 {
 	//Find the output spaces with the smallest "entropy",
 	//    where "entropy" is the sum of all the different tiles the pixel could still become.
-	//    (i.e. the sum of the values in its "ColorFrequency" dictionary).
+	//    (i.e. the sum of the values in its "PossibleTiles" dictionary).
 
     //TODO: Track the min-entropy tiles every time "RecalculateTileChances()" is called, instead of recalculating from scratch here.
 
@@ -214,7 +203,7 @@ void State::GetBestTiles(List<Vector2i>& outValues) const
 		auto& outTile = Output[outputPos];
 		if (!outTile.IsSet())
 		{
-            //TODO: If a tile has a higher weight, it's more certain to happen. So scale each possible tile's entropy contribution inversely to its weight. This would imply making the entropy a float, but floating-point error is a problem here. So have InputData cache the max entropy and do "tiles.Sum(tile => maxEntropy + 1 - tile.Weight)".
+            //TODO: If a tile has a higher weight, it's more certain to happen. So scale each possible tile's entropy contribution inversely to its weight. This would imply making the entropy a float, but floating-point error is a problem here. So avoid floats by having InputData cache the max weight and do "PossibleTiles.Sum(tile => maxWeight + 1 - tile.Weight)".
             size_t thisEntropy = outTile.PossibleTiles.GetSize();
 
 			//If it's less than the current minimum, then we've found a new minimum.
@@ -268,7 +257,7 @@ void State::RecalculateTileChances(Vector2i tilePos)
                                                              edge);
 
         //Remove tiles that don't exist in this set.
-        tempTileIdSet = tile.PossibleTiles;
+        tempTileIdSet = tile.PossibleTiles; //Making a copy
         for (TileID tileOptionID : tempTileIdSet)
             if (!neighborMatches.Contains(tileOptionID))
                 tile.PossibleTiles.Erase(tileOptionID);

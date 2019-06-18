@@ -55,9 +55,6 @@ namespace WFC
         //A single item in a tileset.
         struct WFC_API Tile
         {
-            //Any transformations that would not change this tile at all.
-            TransformationFlags Symmetries;
-
             //The ID's for each edge.
             //Used to determine whether this tile can fit alongside another one.
             EdgeID Edges[4];
@@ -70,7 +67,10 @@ namespace WFC
             uint32_t Weight = 100;
 
 
-            //TODO: Remove this stuff that is replaced by TilePermutator.
+            //TODO: Remove the below stuff, which is replaced by TilePermutator.
+
+            //Any transformations that would not change this tile at all.
+            TransformationFlags Symmetries;
 
             //If this tile is a permutation of another one, these fields describe the relationship.
             TileID ParentID = TileID_INVALID;
@@ -79,7 +79,8 @@ namespace WFC
             bool IsChild() const { return ParentID != TileID_INVALID; }
 
 
-            //TODO: Remove this stuff, which almost certainly isn't used.
+            //TODO: Remove the below stuff, which I'm pretty certain isn't used.
+
             EdgeID MinX() const { return Edges[EdgeDirs::MinX]; }
             EdgeID MaxX() const { return Edges[EdgeDirs::MaxX]; }
             EdgeID MinY() const { return Edges[EdgeDirs::MinY]; }
