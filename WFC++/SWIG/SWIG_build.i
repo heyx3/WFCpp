@@ -1,7 +1,7 @@
 %module wfc
 %{
     #include "../HelperClasses.h"
-	#include "../Tiled3D/Transform3D.h"
+	#include "../Tiled3D/State.h"
 %}
 
 %naturalvar;
@@ -50,13 +50,41 @@
 %include "../Array2D.hpp"
 %include "../Array3D.hpp"
 
+
 //Bring in Tiled3D.
 %include "../Tiled3D/Transform3D.h"
+%include "../Tiled3D/Tile.hpp"
+%include "../Tiled3D/InputData.h"
+%include "../Tiled3D/State.h"
 
-//Generate specific versions of the above templates.
-//For now, just make some up for debugging.
-%template(eFlagsList) WFC::List<unsigned short>;
-%template(eFlags) WFC::EnumFlags<unsigned short, int, 55>;
-%template(dictIntDouble) WFC::Dictionary<int, double, std::hash<int>>;
-%template(setOfUInts) WFC::Set<unsigned int, std::hash<unsigned int>>;
-%template(algoState) WFC::Nullable<bool>;
+//Generate specific types from templates.
+%typemap (cscode) WFC::Nullable<bool> %{
+	public bool? ToStruct(bool disposeMe = false) {
+		bool? result = null;
+		if (HasValue)
+			result = value;
+
+		if (disposeMe)
+			Dispose();
+
+		return result;
+	}
+%}
+%typemap (cscode) WFC::Nullable<WFC::Tiled3D::TileID> %{
+	public uint? ToStruct(bool disposeMe = false) {
+		uint? result = null;
+		if (HasValue)
+			result = value;
+
+		if (disposeMe)
+			Dispose();
+
+		return result;
+	}
+%}
+%template (MaybeBool) WFC::Nullable<bool>;
+%template (MaybeTile) WFC::Nullable<WFC::Tiled3D::TileID>;
+%template(TileList) WFC::List<WFC::Tiled3D::Tile>;
+%template(TileIDSet) WFC::Set<WFC::Tiled3D::TileID, std::hash<WFC::Tiled3D::TileID>>;
+%template(OutputArray3D) WFC::Array3D<WFC::Tiled3D::State::OutputTile>;
+%template (Vec3iList) WFC::List<WFC::Vector3i>;
