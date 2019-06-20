@@ -66,6 +66,9 @@
     <ClInclude Include="WFC++\Tiled3D\State.h">
       <Filter>Generator Classes\Tiled3D</Filter>
     </ClInclude>
+    <ClInclude Include="WFC++\Tiled3D\TilePermutator.h">
+      <Filter>Generator Classes\Tiled3D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Helper Classes">
@@ -122,6 +125,9 @@
       <Filter>Generator Classes\Tiled3D</Filter>
     </ClCompile>
     <ClCompile Include="WFC++\Tiled3D\State.cpp">
+      <Filter>Generator Classes\Tiled3D</Filter>
+    </ClCompile>
+    <ClCompile Include="WFC++\Tiled3D\TilePermutator.cpp">
       <Filter>Generator Classes\Tiled3D</Filter>
     </ClCompile>
   </ItemGroup>

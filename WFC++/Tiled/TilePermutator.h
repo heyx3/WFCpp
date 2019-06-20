@@ -3,7 +3,6 @@
 #include "../HelperClasses.h"
 #include "Tile.hpp"
 
-
 namespace WFC
 {
     namespace Tiled
@@ -50,9 +49,6 @@ namespace WFC
             inline const List<Tile>& GetTiles() const { return tiles; }
             //Looks up the tile in the tile list.
             inline const Tile& GetTile(TileID id) const { return tiles[id]; }
-
-            //Looks up the tile in the tile list.
-            inline Tile& GetTile(TileID id) { return tiles[id]; }
 
             //Gets whether the given tile is one of the originals that permutations were made from.
             inline bool IsTileRoot(TileID tile) const { return GetTileRoot(tile) == tile; }
