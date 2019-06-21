@@ -64,7 +64,7 @@
 	public bool? ToStruct(bool disposeMe = false) {
 		bool? result = null;
 		if (HasValue)
-			result = value;
+			result = Value;
 
 		if (disposeMe)
 			Dispose();
@@ -76,7 +76,7 @@
 	public uint? ToStruct(bool disposeMe = false) {
 		uint? result = null;
 		if (HasValue)
-			result = value;
+			result = Value;
 
 		if (disposeMe)
 			Dispose();
