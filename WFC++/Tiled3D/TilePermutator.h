@@ -15,7 +15,8 @@ namespace WFC
 
             TilePermutator();
             TilePermutator(const List<Tile>& originalTiles,
-                           List<Transform3D>& permutations);
+                           const List<List<Transform3D>>& tileSymmetries,
+                           const List<Transform3D>& permutations);
 
             //Gets the number of original tiles that permutations were made from.
             inline const size_t GetNOriginalTiles() const { return nOriginalTiles; }

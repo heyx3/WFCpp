@@ -24,7 +24,7 @@ InputData::InputData(const List<Tile>& _tiles)
         const auto& tile = tiles[tileID];
         for (uint_fast8_t faceI = 0; faceI < 6; ++faceI)
         {
-            auto key = tile.Faces[faceI];
+            auto key = tile.Data.Faces[faceI];
             matchingFaces[key].Add(tileID);
         }
     }

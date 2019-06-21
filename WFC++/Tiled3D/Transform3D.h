@@ -159,9 +159,9 @@ namespace WFC
         struct WFC_API Transform3D
         {
             //If true, this transform flips the cube along every axis before rotating.
-            bool Invert;
+            bool Invert = false;
             //The rotation that is applied (AFTER the inversion, if applicable).
-            Rotations3D Rot;
+            Rotations3D Rot = Rotations3D::None;
 
 
             //Applies this transformation to the given 3D position.
@@ -175,6 +175,16 @@ namespace WFC
             FacePermutation ApplyToFace(FacePermutation currentFace) const;
             //Gets the new permutated cube after this transformation.
             CubePermutation ApplyToCube(CubePermutation currentCube) const;
+
         };
+
+        inline bool operator==(Transform3D t1, Transform3D t2)
+        {
+            return (t1.Invert == t2.Invert) & (t1.Rot == t2.Rot);
+        }
+        inline bool operator!=(Transform3D t1, Transform3D t2)
+        {
+            return !operator==(t1, t2);
+        }
     }
 }

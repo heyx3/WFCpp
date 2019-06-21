@@ -297,7 +297,7 @@ void State::RecalculateTileChances(Vector3i tilePos)
 
         //Get all tiles that fit the neighbor tile at this edge.
         auto oppositeSide = GetOpposite(side);
-        const auto& neighborMatches = Input.GetTilesWithFace(neighborTile.Faces[oppositeSide]);
+        const auto& neighborMatches = Input.GetTilesWithFace(neighborTile.Data.Faces[oppositeSide]);
 
         //Remove tiles that don't exist in this set.
         tempTileIDSet = tile.PossibleTiles; //Making a copy

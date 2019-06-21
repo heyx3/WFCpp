@@ -15,8 +15,8 @@ namespace WFC
         //A single item in a tileset.
         struct WFC_API Tile
         {
-            //The faces of this tile, indexed by the Directions3D enum.
-            FacePermutation Faces[6];
+            //Information about the faces of this tile.
+            CubePermutation Data;
 
             //The "weight" of this tile.
             //"Heavier" tiles are more likely to be chosen.

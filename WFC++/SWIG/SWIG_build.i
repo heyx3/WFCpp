@@ -2,6 +2,7 @@
 %{
     #include "../HelperClasses.h"
 	#include "../Tiled3D/State.h"
+	#include "../Tiled3D/TilePermutator.h"
 %}
 
 %naturalvar;
@@ -55,6 +56,7 @@
 %include "../Tiled3D/Transform3D.h"
 %include "../Tiled3D/Tile.hpp"
 %include "../Tiled3D/InputData.h"
+%include "../Tiled3D/TilePermutator.h"
 %include "../Tiled3D/State.h"
 
 //Generate specific types from templates.
@@ -85,6 +87,9 @@
 %template (MaybeBool) WFC::Nullable<bool>;
 %template (MaybeTile) WFC::Nullable<WFC::Tiled3D::TileID>;
 %template(TileList) WFC::List<WFC::Tiled3D::Tile>;
+%template(TileIDList) WFC::List<WFC::Tiled3D::TileID>;
+%template(Transform3DList) WFC::List<WFC::Tiled3D::Transform3D>;
+%template(TileSymmetryList) WFC::List<WFC::List<WFC::Tiled3D::Transform3D>>;
 %template(TileIDSet) WFC::Set<WFC::Tiled3D::TileID, std::hash<WFC::Tiled3D::TileID>>;
 %template(OutputArray3D) WFC::Array3D<WFC::Tiled3D::State::OutputTile>;
 %template (Vec3iList) WFC::List<WFC::Vector3i>;
