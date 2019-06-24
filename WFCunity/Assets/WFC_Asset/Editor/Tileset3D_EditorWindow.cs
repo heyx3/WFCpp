@@ -16,12 +16,7 @@ namespace WFC_CS.Editor
 		}
 
 
-		private Tileset3D tilesetCopy = null;
-		private Tileset3D tilesetOriginal = null;
-
-		private Tileset3D_TileEditor pane_tileEditor = new Tileset3D_TileEditor();
-
-		private bool hasUnsavedChanges = false;
+		private Tileset3D_Header editorPane;
 
 
 		private void Awake()
@@ -29,81 +24,23 @@ namespace WFC_CS.Editor
 			//If a Tileset3D is already selected, load that one automatically.
 			Debug.Log("Awake"); //Make sure this doesn't happen unexpectedly!
 			var selectedTilesets = Selection.GetFiltered<Tileset3D>(SelectionMode.Assets);
-			if (selectedTilesets.Length == 1)
-				Reset(selectedTilesets[0]);
+			var tileset = (selectedTilesets.Length == 1) ? selectedTilesets[0] : null;
 
 			//We're always working with copies of the original asset,
 			//    so no harm in throwing exceptions.
 			Assert.raiseExceptions = true;
+
+			//Set up the UI panels.
+			editorPane = new Tileset3D_Header(tileset);
 		}
 		private void OnDestroy()
 		{
-			//Handle unsaved changes.
-			var whatToDo = pane_tileEditor.ConfirmClosing(false);
-			switch (whatToDo)
-			{
-				case ConfirmClosingDialog.Results.Save:
-					pane_tileEditor.SaveChanges();
-					SaveChanges();
-					break;
-
-				case ConfirmClosingDialog.Results.DontSave:
-					Reset();
-					break;
-
-				default: throw new NotImplementedException(whatToDo.ToString());
-			}
+			editorPane.TryToClose(false);
 		}
 
 		private void OnGUI()
 		{
-			//TODO: Implement.
-		}
-
-
-		public void SaveChanges()
-		{
-			pane_tileEditor.SaveChanges();
-
-			Assert.IsNotNull(tilesetCopy);
-			EditorUtility.CopySerialized(tilesetCopy, tilesetOriginal);
-
-			hasUnsavedChanges = false;
-		}
-		public void RevertChanges()
-		{
-			if (tilesetCopy != null)
-				Destroy(tilesetCopy);
-			tilesetCopy = Instantiate(tilesetOriginal);
-			
-			pane_tileEditor.Reset(tilesetCopy, pane_tileEditor.SelectedIndex);
-			
-			hasUnsavedChanges = false;
-		}
-
-		public ConfirmClosingDialog.Results ConfirmClosing(bool canCancel)
-		{
-			if (hasUnsavedChanges)
-				return ConfirmClosingDialog.Show(canCancel);
-			else
-				return ConfirmClosingDialog.Results.DontSave;
-		}
-
-		public void Reset(Tileset3D asset = null)
-		{
-			tilesetOriginal = asset;
-
-			//Set up the copy.
-
-			if (tilesetCopy != null)
-				Destroy(tilesetCopy);
-
-			if (tilesetOriginal == null)
-				tilesetCopy = null;
-			else
-				tilesetCopy = Instantiate(tilesetOriginal);
-			
-			pane_tileEditor.Reset(tilesetCopy);
+			editorPane.DoGUILayout();
 		}
 	}
 }

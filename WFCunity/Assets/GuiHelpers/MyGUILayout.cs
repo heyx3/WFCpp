@@ -55,12 +55,17 @@ public static class MyGUILayout
 
 		return value;
 	}
-
-	public static void DrawTexture(Texture tex, ScaleMode scaleMode = ScaleMode.StretchToFill,
+	
+	public static void DrawTexture(Texture tex,
+								   ScaleMode scaleMode = ScaleMode.StretchToFill,
 								   bool alphaBlend = false,
-								   float minLength = 128, float maxLength = 256,
+								   float minLength = 0,
+								   float maxLength = float.PositiveInfinity,
+								   Color? color = null,
 								   float scale = 1.0f, Vector2? scale2D = null)
 	{
+		if (!color.HasValue)
+			color = Color.white;
 		if (!scale2D.HasValue)
 			scale2D = Vector2.one;
 
@@ -70,7 +75,27 @@ public static class MyGUILayout
 		size.y = Mathf.Clamp(size.y, minLength, maxLength);
 
 		var tRect = GUILayoutUtility.GetRect(size.x, size.y);
-		GUI.DrawTexture(tRect, tex, scaleMode, alphaBlend);
+		GUI.DrawTexture(tRect, tex, scaleMode, alphaBlend, 0, color.Value, 0, 0);
+	}
+	public static void DrawTexture(Texture tex,
+								   float width = float.NaN, float height = float.NaN,
+								   ScaleMode scaleMode = ScaleMode.StretchToFill,
+								   bool alphaBlend = false,
+								   Color? color = null)
+	{
+		if (!color.HasValue)
+			color = Color.white;
+		
+		//Set width/height settings.
+		var settings = new List<GUILayoutOption>() { GUILayout.ExpandWidth(float.IsNaN(width)),
+													 GUILayout.ExpandHeight(float.IsNaN(height)) };
+		if (!float.IsNaN(width))
+			settings.Add(GUILayout.Width(width));
+		if (!float.IsNaN(height))
+			settings.Add(GUILayout.Height(height));
+
+		var tRect = GUILayoutUtility.GetRect(new GUIContent(""), GUI.skin.label, settings.ToArray());
+		GUI.DrawTexture(tRect, tex, scaleMode, alphaBlend, 0, color.Value, 0, 0);
 	}
 
 

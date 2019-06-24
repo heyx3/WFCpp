@@ -10,7 +10,7 @@ namespace WFC_CS.Editor
 	/// <summary>
 	/// 
 	/// </summary>
-	public static class TilesetEditorGUI
+	public static class TilesetGUI
 	{
 		public static GUIStyle Style_Label_Title
 		{
@@ -24,16 +24,28 @@ namespace WFC_CS.Editor
 				return style_label_title;
 			}
 		}
-		public static GUIStyle Style_Label_Button
+		public static GUIStyle Style_Label_Normal
 		{
 			get
 			{
-				if (style_label_button == null)
+				if (style_label_normal == null)
 				{
-					style_label_button = new GUIStyle(GUI.skin.button);
-					style_label_button.fontSize = 12;
+					style_label_normal = new GUIStyle(GUI.skin.label);
 				}
-				return style_label_button;
+				return style_label_normal;
+			}
+		}
+
+		public static GUIStyle Style_Button_Normal
+		{
+			get
+			{
+				if (style_button_normal == null)
+				{
+					style_button_normal = new GUIStyle(GUI.skin.button);
+					style_button_normal.fontSize = 12;
+				}
+				return style_button_normal;
 			}
 		}
 		public static GUIStyle Style_Button_Tab
@@ -113,18 +125,84 @@ namespace WFC_CS.Editor
 				return style_button_red;
 			}
 		}
-		//TODO: Finish. Test params.
+		public static GUIStyle Style_Button_BigText
+		{
+			get
+			{
+				if (style_button_bigText == null)
+				{
+					style_button_bigText = new GUIStyle(GUI.skin.button);
+					style_button_bigText.fontSize = 24;
+				}
+				return style_button_bigText;
+			}
+		}
+
+		public static GUIStyle Style_Textbox
+		{
+			get
+			{
+				if (style_textbox == null)
+				{
+					style_textbox = new GUIStyle(GUI.skin.textField);
+				}
+				return style_textbox;
+			}
+		}
+		public static GUIStyle Style_Checkbox
+		{
+			get
+			{
+				if (style_checkbox == null)
+				{
+					style_checkbox = new GUIStyle(GUI.skin.toggle);
+				}
+				return style_checkbox;
+			}
+		}
+		public static GUIStyle Style_Rect
+		{
+			get
+			{
+				if (style_rect == null)
+				{
+					style_rect = new GUIStyle(GUI.skin.box);
+					style_rect.normal.background = Tex_WhitePixel;
+					style_rect.hover.background = Tex_WhitePixel;
+					style_rect.active.background = Tex_WhitePixel;
+				}
+				return style_rect;
+			}
+		}
+		
+		public static Texture2D Tex_WhitePixel
+		{
+			get
+			{
+				if (tex_pixel_white == null)
+				{
+					tex_pixel_white = new Texture2D(1, 1);
+					tex_pixel_white.SetPixel(0, 0, Color.white);
+					tex_pixel_white.Apply();
+				}
+				return tex_pixel_white;
+			}
+		}
+
 
 		private static GUIStyle style_label_title,
-								style_label_button,
+								style_label_normal,
+								style_button_normal,
 								style_button_tab,
 								style_button_green,
 							    style_button_red,
 								style_button_bigText,
 								style_textbox,
-								style_checkbox;
+								style_checkbox,
+								style_rect;
 		private static Texture2D tex_pixel_green, tex_pixel_greenSelected, tex_pixel_greenHover,
-								 tex_pixel_red, tex_pixel_redSelected, tex_pixel_redHover;
+								 tex_pixel_red, tex_pixel_redSelected, tex_pixel_redHover,
+								 tex_pixel_white;
 
 		private static Color SwapRG(Color rgba) { return new Color(rgba.g, rgba.r, rgba.b, rgba.a); }
 	}

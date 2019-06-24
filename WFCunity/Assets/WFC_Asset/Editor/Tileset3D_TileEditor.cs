@@ -7,66 +7,65 @@ using UnityEditor;
 namespace WFC_CS.Editor
 {
 	/// <summary>
-	/// A piece of the tileset editor window that edits a specific tile.
+	/// The data structure that Tileset3D_TileEditor is editing.
 	/// </summary>
-	public class Tileset3D_TileEditor
+	public class TileEditor_Data
 	{
-		public bool HasUnsavedChanges = false;
+		public Tileset3D Tileset { get; private set; }
+		public int TileIndex { get; private set; }
 
 		public Tileset3D.Tile TileCopy { get; private set; }
 
-		public Tileset3D Tileset { get; private set; }
-		public int SelectedIndex { get; private set; }
+		public TileEditor_Data()
+		{
+			Tileset = null;
+			TileIndex = -1;
+			TileCopy = new Tileset3D.Tile();
+		}
+		public TileEditor_Data(Tileset3D tileset, int tileIndex = 0)
+		{
+			Tileset = tileset;
+			TileIndex = tileIndex;
+			TileCopy = new Tileset3D.Tile(Tileset.Tiles[TileIndex]);
+		}
+	}
 
+
+	/// <summary>
+	/// A piece of the tileset editor window that edits a specific tile.
+	/// </summary>
+	public class Tileset3D_TileEditor : Tileset3DEditorPiece
+	{
 		public event Action OnDeleteButton;
 
+		public TileEditor_Data Data { get; private set; } //TODO: Remove data structure; use fields individually.
 
-		public void SaveChanges()
+		protected override string Description =>
+			"tile " + ((Data.TileCopy == null || Data.TileCopy.Prefab == null) ? "" : Data.TileCopy.Prefab.name);
+
+
+		public Tileset3D_TileEditor()
 		{
-			Tileset.Tiles[SelectedIndex] = TileCopy;
-			TileCopy = new Tileset3D.Tile(TileCopy);
-
-			HasUnsavedChanges = false;
+			Data = new TileEditor_Data();
 		}
-		public void RevertChanges()
+		public Tileset3D_TileEditor(Tileset3D tileset, int tileIndex = 0)
 		{
-			TileCopy = new Tileset3D.Tile(Tileset.Tiles[SelectedIndex]);
-
-			HasUnsavedChanges = false;
-		}
-
-		/// <summary>
-		/// If there are unsaved changes, asks the user to save them.
-		/// </summary>
-		/// <param name="canCancel">
-		/// If true, the user can choose to cancel the action that caused this dialog.
-		/// </param>
-		public ConfirmClosingDialog.Results ConfirmClosing(bool canCancel)
-		{
-			if (HasUnsavedChanges)
-				return ConfirmClosingDialog.Show(canCancel);
-			else
-				return ConfirmClosingDialog.Results.DontSave;
+			Data = new TileEditor_Data(tileset, tileIndex);
 		}
 
-		public void Reset(Tileset3D tileset = null, int tileIndex = -1)
+
+		public override void SaveChanges()
 		{
-			HasUnsavedChanges = false;
+			Data.Tileset.Tiles[Data.TileIndex] = Data.TileCopy;
 
-			//If a tile index wasn't given, try to select the first element from the tileset.
-			if (tileset != null && tileIndex < 0)
-				tileIndex = tileset.Tiles.Count - 1;
-
-			Tileset = tileset;
-			SelectedIndex = tileIndex;
-
-			bool clearScreen = (tileset == null || tileIndex < 0);
-			if (clearScreen)
-				TileCopy = null;
-			else
-				TileCopy = new Tileset3D.Tile(tileset.Tiles[tileIndex]);
+			base.SaveChanges();
 		}
+		public override void RevertChanges()
+		{
+			base.RevertChanges();
 
+			Data = new TileEditor_Data(Data.Tileset, Data.TileIndex);
+		}
 
 		public void DoGUILayout()
 		{

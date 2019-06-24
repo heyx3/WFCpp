@@ -40,6 +40,21 @@ public class GUIBlock : IDisposable
 		return new GUIBlock(() => GUI.enabled = old);
 	}
 
+	public static GUIBlock Layout_Horizontal(params GUILayoutOption[] options)
+	{
+		GUILayout.BeginHorizontal(options);
+		return new GUIBlock(GUILayout.EndHorizontal);
+	}
+	public static GUIBlock Layout_Vertical(params GUILayoutOption[] options)
+	{
+		GUILayout.BeginVertical(options);
+		return new GUIBlock(GUILayout.EndVertical);
+	}
+	public static GUIBlock Layout_Scroll(ref Vector2 pos, params GUILayoutOption[] options)
+	{
+		pos = GUILayout.BeginScrollView(pos, options);
+		return new GUIBlock(() => GUILayout.EndScrollView());
+	}
 	public static GUIBlock Layout_Tab(float spaceBefore = -1, float spaceAfter = 0)
 	{
 		GUILayout.BeginHorizontal();
@@ -64,12 +79,24 @@ public class GUIBlock : IDisposable
 		});
 	}
 
+
 	#if UNITY_EDITOR
 	public static GUIBlock EditorLabelWidth(float newWidth)
 	{
 		var old = EditorGUIUtility.labelWidth;
 		EditorGUIUtility.labelWidth = newWidth;
 		return new GUIBlock(() => EditorGUIUtility.labelWidth = old);
+	}
+
+	public static GUIBlock Layout_Foldout(ref bool isOpen, string label,
+									      float tabSize = 20, float tabEndSize = 0)
+	{
+		isOpen = EditorGUILayout.Foldout(isOpen, label);
+
+		if (isOpen)
+			return Layout_Tab(tabSize, tabEndSize);
+		else
+			return new GUIBlock(() => { });
 	}
 
 	public static GUIBlock ChangeCheck(Action onChanged)
@@ -82,17 +109,6 @@ public class GUIBlock : IDisposable
 		});
 	}
 	#endif
-	
-	public static GUIBlock Layout_Horizontal(params GUILayoutOption[] options)
-	{
-		GUILayout.BeginHorizontal(options);
-		return new GUIBlock(GUILayout.EndHorizontal);
-	}
-	public static GUIBlock Layout_Vertical(params GUILayoutOption[] options)
-	{
-		GUILayout.BeginVertical(options);
-		return new GUIBlock(GUILayout.EndVertical);
-	}
 
 
 	private Action onFinished;
