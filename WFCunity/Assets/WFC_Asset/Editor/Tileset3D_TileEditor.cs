@@ -7,56 +7,42 @@ using UnityEditor;
 namespace WFC_CS.Editor
 {
 	/// <summary>
-	/// The data structure that Tileset3D_TileEditor is editing.
+	/// A piece of the tileset editor window that edits a specific tile.
 	/// </summary>
-	public class TileEditor_Data
+	public class Tileset3D_TileEditor : Tileset3DEditorPiece
 	{
 		public Tileset3D Tileset { get; private set; }
 		public int TileIndex { get; private set; }
 
 		public Tileset3D.Tile TileCopy { get; private set; }
 
-		public TileEditor_Data()
-		{
-			Tileset = null;
-			TileIndex = -1;
-			TileCopy = new Tileset3D.Tile();
-		}
-		public TileEditor_Data(Tileset3D tileset, int tileIndex = 0)
-		{
-			Tileset = tileset;
-			TileIndex = tileIndex;
-			TileCopy = new Tileset3D.Tile(Tileset.Tiles[TileIndex]);
-		}
-	}
+		private EditorWindowScene tileScene = new EditorWindowScene();
 
 
-	/// <summary>
-	/// A piece of the tileset editor window that edits a specific tile.
-	/// </summary>
-	public class Tileset3D_TileEditor : Tileset3DEditorPiece
-	{
-		public event Action OnDeleteButton;
-
-		public TileEditor_Data Data { get; private set; } //TODO: Remove data structure; use fields individually.
-
-		protected override string Description =>
-			"tile " + ((Data.TileCopy == null || Data.TileCopy.Prefab == null) ? "" : Data.TileCopy.Prefab.name);
-
-
-		public Tileset3D_TileEditor()
-		{
-			Data = new TileEditor_Data();
-		}
+		public Tileset3D_TileEditor() { }
 		public Tileset3D_TileEditor(Tileset3D tileset, int tileIndex = 0)
 		{
-			Data = new TileEditor_Data(tileset, tileIndex);
+			Reset(tileset, tileIndex);
 		}
 
+		public void Reset(Tileset3D newTileset, int newTileIndex = 0)
+		{
+			Tileset = newTileset;
+			TileIndex = newTileIndex;
+			TileCopy = new Tileset3D.Tile(Tileset.Tiles[TileIndex]);
+		}
+		public override void Dispose()
+		{
+			base.Dispose();
+			tileScene.Dispose();
+		}
+
+		protected override string Description =>
+			"tile " + ((TileCopy == null || TileCopy.Prefab == null) ? "" : TileCopy.Prefab.name);
 
 		public override void SaveChanges()
 		{
-			Data.Tileset.Tiles[Data.TileIndex] = Data.TileCopy;
+			Tileset.Tiles[TileIndex] = TileCopy;
 
 			base.SaveChanges();
 		}
@@ -64,12 +50,14 @@ namespace WFC_CS.Editor
 		{
 			base.RevertChanges();
 
-			Data = new TileEditor_Data(Data.Tileset, Data.TileIndex);
+			TileCopy = new Tileset3D.Tile(Tileset.Tiles[TileIndex]);
 		}
 
-		public void DoGUILayout()
+		public override void DoGUILayout()
 		{
-			//TODO: Implement.
+			
+
+			base.DoGUILayout();
 		}
 	}
 }

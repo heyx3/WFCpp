@@ -7,15 +7,33 @@ using System.Threading.Tasks;
 namespace WFC_CS.Editor
 {
 	/// <summary>
-	/// An editor for a specific part of the tileset data structure.
-	/// Provides functionality for applying/reverting changes.
-	/// Also has child instances for editing sub-pieces of the data.
+	/// A node in the "tree" of editor panes for the tileset editor.
+	/// Provides functionality for tracking changes and saving/reverting them.
 	/// </summary>
-	public abstract class Tileset3DEditorPiece
+	public abstract class Tileset3DEditorPiece : IDisposable
 	{
 		public bool HasUnsavedChanges { get; protected set; } = false;
+		public bool HasUnsavedChanges_Recursive
+		{
+			get
+			{
+				return HasUnsavedChanges || AllChildren.Any(c => c.HasUnsavedChanges);
+			}
+		}
 
 		public List<Tileset3DEditorPiece> Children { get; protected set; } = new List<Tileset3DEditorPiece>();
+		public IEnumerable<Tileset3DEditorPiece> AllChildren
+		{
+			get
+			{
+				foreach (var child in Children)
+				{
+					yield return child;
+					foreach (var deepChild in child.AllChildren)
+						yield return deepChild;
+				}
+			}
+		}
 
 
 		/// <summary>
@@ -47,13 +65,13 @@ namespace WFC_CS.Editor
 		/// <summary>
 		/// If there are any unsaved changes, asks the user and then potentially saves them.
 		/// </summary>
-		public ConfirmClosingDialog.Results TryToClose(bool canCancel)
+		public ConfirmClosingDialog.Results ConfirmClosing(bool canCancel)
 		{
 			//First ask all children to close.
 			//If any of them want to cancel, we will cancel.
 			foreach (var child in Children)
 			{
-				var childResult = child.TryToClose(canCancel);
+				var childResult = child.ConfirmClosing(canCancel);
 				if (childResult == ConfirmClosingDialog.Results.Cancel)
 					return ConfirmClosingDialog.Results.Cancel;
 			}
@@ -81,11 +99,49 @@ namespace WFC_CS.Editor
 			return result;
 		}
 
+		/// <summary>
+		/// Default behavior: calls Dispose() on each child.
+		/// </summary>
+		public virtual void Dispose()
+		{
+			foreach (var child in Children)
+				child.Dispose();
+		}
+
+		/// <summary>
+		/// Does the GUI for this part of the editor.
+		/// Default behavior: calls DoGUILayout on each child.
+		/// </summary>
+		public virtual void DoGUILayout()
+		{
+			foreach (var child in Children)
+				child.DoGUILayout();
+		}
+
 
 		/// <summary>
 		/// Used in the TryToClose() method. For example, a value of "tile 'MyTile'"
 		///     results in the message "Do you want to save your changes to tile 'MyTile'?"
 		/// </summary>
 		protected abstract string Description { get; }
+		
+		/// <summary>
+		/// Creates a GUIBlock that automatically updates HasUnsavedChanges
+		///     if any changes are detected.
+		/// </summary>
+		/// <param name="doOnChanged">
+		/// Extra code to run if changes are detected.
+		/// </param>
+		protected GUIBlock TrackChanges(Action doOnChanged = null)
+		{
+			if (doOnChanged == null)
+				doOnChanged = () => { };
+
+			return GUIBlock.ChangeCheck(() =>
+			{
+				HasUnsavedChanges = true;
+				doOnChanged();
+			});
+		}
 	}
 }

@@ -7,6 +7,9 @@ using UnityEditor;
 
 namespace WFC_CS.Editor
 {
+	/// <summary>
+	/// The root of the tileset editor pane tree.
+	/// </summary>
 	public class Tileset3D_Header : Tileset3DEditorPiece
 	{
 		private Tileset3D tilesetCopy;
@@ -16,6 +19,9 @@ namespace WFC_CS.Editor
 
 		protected override string Description => "the tileset";
 
+		/// <summary>
+		/// The child pane for editing a specific tile.
+		/// </summary>
 		private Tileset3D_TileEditor pane_tile
 		{
 			get { return (Tileset3D_TileEditor)Children[0]; }
@@ -27,6 +33,7 @@ namespace WFC_CS.Editor
 		public Tileset3D_Header(Tileset3D original)
 		{
 			tilesetOriginal = original;
+
 			Children.Add(new Tileset3D_TileEditor(tilesetCopy));
 		}
 
@@ -42,7 +49,7 @@ namespace WFC_CS.Editor
 			tilesetCopy = UnityEngine.Object.Instantiate(tilesetOriginal);
 		}
 		
-		public void DoGUILayout()
+		public override void DoGUILayout()
 		{
 			using (GUIBlock.Layout_Horizontal())
 			{
@@ -56,37 +63,85 @@ namespace WFC_CS.Editor
 				MyGUILayout.DrawTexture(TilesetGUI.Tex_WhitePixel,
 										width: 10, color: Color.black);
 
-				//TODO: The "New", "Save", "Revert", and "Load" buttons.
-
-				//The tile selector.
-				using (GUIBlock.Layout_Scroll(ref tileSelectionScrollPos))
+				//The "New", "Save", "Revert", and "Load" buttons.
+				using (GUIBlock.Layout_Vertical())
 				{
-					for (int tileI = 0; tileI < tilesetCopy.Tiles.Count; ++tileI)
+					//Buttons that are always available:
+					if (GUILayout.Button("New", TilesetGUI.Style_Button_Normal))
 					{
-						string name = tilesetCopy.Tiles[tileI].Prefab.name;
-						using (GUIBlock.Enabled(pane_tile.Data.TileIndex != tileI))
+						//TODO: Implement.
+					}
+					if (GUILayout.Button("Load", TilesetGUI.Style_Button_Normal))
+					{
+						//TODO: Implement.
+					}
+					
+					//Buttons that are only available if there are unsaved changes.
+					using (GUIBlock.Enabled(HasUnsavedChanges_Recursive))
+					{
+						if (GUILayout.Button("Save", TilesetGUI.Style_Button_Normal))
 						{
-							if (GUILayout.Button(name, TilesetGUI.Style_Button_Normal) &&
-								pane_tile.TryToClose(true) != ConfirmClosingDialog.Results.Cancel)
-							{
-								pane_tile = new Tileset3D_TileEditor(tilesetCopy, tileI);
-							}
+							SaveChanges();
+						}
+						if (GUILayout.Button("Revert", TilesetGUI.Style_Button_Normal))
+						{
+							RevertChanges();
 						}
 					}
-				}
-				if (GUILayout.Button("+", TilesetGUI.Style_Button_BigText) &&
-					pane_tile.TryToClose(true) != ConfirmClosingDialog.Results.Cancel)
-				{
-					tilesetCopy.Tiles.Add(new Tileset3D.Tile());
-					pane_tile = new Tileset3D_TileEditor(tilesetCopy,
-														 tilesetCopy.Tiles.Count - 1);
 				}
 				
 				MyGUILayout.DrawTexture(TilesetGUI.Tex_WhitePixel,
 										width: 10, color: Color.black);
 
-				//TODO: Edit fields like "Bounds".
+				//The tile selector.
+				if (tilesetCopy == null)
+				{
+					GUILayout.FlexibleSpace();
+				}
+				else
+				{
+					using (GUIBlock.Layout_Scroll(ref tileSelectionScrollPos))
+					{
+						for (int tileI = 0; tileI < tilesetCopy.Tiles.Count; ++tileI)
+						{
+							string name = tilesetCopy.Tiles[tileI].Prefab.name;
+							using (GUIBlock.Enabled(pane_tile.TileIndex != tileI))
+							{
+								if (GUILayout.Button(name, TilesetGUI.Style_Button_Normal) &&
+									pane_tile.ConfirmClosing(true) != ConfirmClosingDialog.Results.Cancel)
+								{
+									pane_tile.Reset(tilesetCopy, tileI);
+								}
+							}
+						}
+					}
+					if (GUILayout.Button("+", TilesetGUI.Style_Button_BigText) &&
+						pane_tile.ConfirmClosing(true) != ConfirmClosingDialog.Results.Cancel)
+					{
+						HasUnsavedChanges = true;
+
+						tilesetCopy.Tiles.Add(new Tileset3D.Tile());
+						pane_tile.Reset(tilesetCopy, tilesetCopy.Tiles.Count - 1);
+					}
+				}
+				
+				MyGUILayout.DrawTexture(TilesetGUI.Tex_WhitePixel,
+										width: 10, color: Color.black);
+
+				if (tilesetCopy == null)
+				{
+					GUILayout.FlexibleSpace();
+				}
+				else using (TrackChanges())
+				{
+					//TODO: GUIStyle?
+					tilesetCopy.TileBounds = EditorGUILayout.BoundsField("Bounds",
+																		 tilesetCopy.TileBounds);
+				}
 			}
+
+			//Do child GUI underneath.
+			base.DoGUILayout();
 		}
 	}
 }

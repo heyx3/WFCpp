@@ -22,7 +22,6 @@ namespace WFC_CS.Editor
 		private void Awake()
 		{
 			//If a Tileset3D is already selected, load that one automatically.
-			Debug.Log("Awake"); //Make sure this doesn't happen unexpectedly!
 			var selectedTilesets = Selection.GetFiltered<Tileset3D>(SelectionMode.Assets);
 			var tileset = (selectedTilesets.Length == 1) ? selectedTilesets[0] : null;
 
@@ -31,11 +30,14 @@ namespace WFC_CS.Editor
 			Assert.raiseExceptions = true;
 
 			//Set up the UI panels.
-			editorPane = new Tileset3D_Header(tileset);
+			editorPane = (tileset == null) ?
+						     new Tileset3D_Header() :
+							 new Tileset3D_Header(tileset);
 		}
 		private void OnDestroy()
 		{
-			editorPane.TryToClose(false);
+			editorPane.ConfirmClosing(false);
+			editorPane.Dispose();
 		}
 
 		private void OnGUI()
