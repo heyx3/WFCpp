@@ -21,6 +21,9 @@ namespace WFC_CS.Editor
 
 		private void Awake()
 		{
+			titleContent = new GUIContent("Tileset3D");
+			//TODO: Set minSize.
+
 			//If a Tileset3D is already selected, load that one automatically.
 			var selectedTilesets = Selection.GetFiltered<Tileset3D>(SelectionMode.Assets);
 			var tileset = (selectedTilesets.Length == 1) ? selectedTilesets[0] : null;
@@ -42,7 +45,8 @@ namespace WFC_CS.Editor
 
 		private void OnGUI()
 		{
-			editorPane.DoGUILayout();
+			if (editorPane != null) //OnGUI gets called before Awake??
+				editorPane.DoGUILayout();
 		}
 	}
 }

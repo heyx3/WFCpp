@@ -40,6 +40,15 @@ public class GUIBlock : IDisposable
 		return new GUIBlock(() => GUI.enabled = old);
 	}
 
+	public static GUIBlock Layout_Area(Rect area, GUIContent content = null)
+	{
+		if (content != null)
+			GUILayout.BeginArea(area, content);
+		else
+			GUILayout.BeginArea(area);
+
+		return new GUIBlock(() => GUILayout.EndArea());
+	}
 	public static GUIBlock Layout_Horizontal(params GUILayoutOption[] options)
 	{
 		GUILayout.BeginHorizontal(options);
