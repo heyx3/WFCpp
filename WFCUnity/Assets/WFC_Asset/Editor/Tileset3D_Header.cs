@@ -84,7 +84,6 @@ namespace WFC_CS.Editor
 							var newTileset = ScriptableObject.CreateInstance<Tileset3D>();
 							newTileset.name = Path.GetFileNameWithoutExtension(savePath);
 
-							//TODO: How to overwrite?
 							AssetDatabase.CreateAsset(newTileset, savePath);
 
 							Reset(newTileset);
@@ -175,6 +174,8 @@ namespace WFC_CS.Editor
 					//TODO: GUIStyle?
 					tilesetCopy.TileBounds = EditorGUILayout.BoundsField("Bounds",
 																		 tilesetCopy.TileBounds);
+					tilesetCopy.TileBounds.size = Vector3.Max(tilesetCopy.TileBounds.size,
+															  Vector3.one * 0.00001f);
 				}
 			}
 

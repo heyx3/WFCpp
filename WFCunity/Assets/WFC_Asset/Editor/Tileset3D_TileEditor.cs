@@ -11,18 +11,15 @@ namespace WFC_CS.Editor
 	/// </summary>
 	public class Tileset3D_TileEditor : Tileset3DEditorPiece
 	{
-		//TODO: Camera and unit cubes have to be in a real scene, not the preview scene. Why is this?
-
-
 		public Tileset3D Tileset { get; private set; }
 		public int TileIndex { get; private set; }
 
 		public Tileset3D.Tile TileCopy { get; private set; }
 
-		public bool VisualizeBounds = false,
-					VisualizeAxes = false;
+		public bool VisualizeBounds = true,
+					VisualizeAxes = true;
 
-		public int NewPreviewSize = 256;
+		public int NewPreviewSize = 512;
 		private int currentPreviewSize;
 		private float previewScale { get { return (float)NewPreviewSize / currentPreviewSize; } }
 
@@ -42,12 +39,12 @@ namespace WFC_CS.Editor
 		public void Reset(Tileset3D newTileset, int newTileIndex = 0)
 		{
 			currentPreviewSize = NewPreviewSize;
-
+			
 			tileScene.ClearScene();
 			tileScene.SetCameraRes(new Vector2Int(currentPreviewSize, currentPreviewSize));
 			tileScene.Cam.fieldOfView = 80;
 			tileScene.Cam.nearClipPlane = 0.01f;
-			tileScene.Cam.farClipPlane = 10;
+			tileScene.Cam.farClipPlane = 100;
 
 			Tileset = newTileset;
 			TileIndex = newTileIndex;
@@ -140,10 +137,25 @@ namespace WFC_CS.Editor
 		
 		private void DoGUITilePreview()
 		{
+			var sliderLayout = new GUILayoutOption[] {
+				GUILayout.MinWidth(200),
+				GUILayout.ExpandWidth(true)
+			};
+			var sliderLabelLayout = new GUILayoutOption[] {
+				GUILayout.ExpandWidth(false)
+			};
+
 			//Do the slider for texture size.
-			int desiredPreviewSize = Mathf.RoundToInt(GUILayout.HorizontalSlider(
-				NewPreviewSize, 256, 1024,
-				TilesetGUI.Style_SliderBar, TilesetGUI.Style_SliderThumb));
+			int desiredPreviewSize;
+			using (GUIBlock.Layout_Horizontal())
+			{
+				GUILayout.Label("Preview Scale", TilesetGUI.Style_Label_Normal,
+								sliderLabelLayout);
+				desiredPreviewSize = Mathf.RoundToInt(GUILayout.HorizontalSlider(
+			        NewPreviewSize, 256, 1024,
+					TilesetGUI.Style_SliderBar, TilesetGUI.Style_SliderThumb,
+					sliderLayout));
+			}
 			bool changedThisFrame = (desiredPreviewSize != NewPreviewSize),
 				 wasChanging = (NewPreviewSize != currentPreviewSize);
 
@@ -157,22 +169,83 @@ namespace WFC_CS.Editor
 			}
 			NewPreviewSize = desiredPreviewSize;
 
-			//Draw the scene as a box.
-			var camTex = tileScene.Cam.targetTexture;
-			GUILayout.Box(camTex,
-						  GUILayout.Width(camTex.width * previewScale),
-						  GUILayout.Height(camTex.height * previewScale));
+			//Sliders for camera control.
+			//TODO: Any way to control the camera with mouse dragging? Or at least arrow keys?
+			var camTr = tileScene.Cam.transform;
+			var currentAngles = camTr.eulerAngles;
+			float currentZoom = (camTr.position - Tileset.TileBounds.center).magnitude /
+								Tileset.TileBounds.GetBoundingRadius();
+			var newAngles = new Vector3();
+			float newZoom = 0;
+			bool camAngleChanged = false;
+			using (GUIBlock.ChangeCheck(() => camAngleChanged = true))
+			{
+				using (GUIBlock.Layout_Horizontal())
+				{
+					GUILayout.Label("Yaw", TilesetGUI.Style_Label_Normal, sliderLabelLayout);
+					newAngles.y = GUILayout.HorizontalSlider(currentAngles.y, -720, 720,
+															 TilesetGUI.Style_SliderBar,
+															 TilesetGUI.Style_SliderThumb,
+															 sliderLayout);
+				}
+				using (GUIBlock.Layout_Horizontal())
+				{
+					GUILayout.Label("Pitch", TilesetGUI.Style_Label_Normal, sliderLabelLayout);
 
+					//The correct range for pitch is from 270.0001 to 89.9999, wrapping around to 0 at 360.
+					//We have to do some extra work to make this into a sane slider.
+					if (currentAngles.x < 270)
+						currentAngles.x += 360;
+					newAngles.x = GUILayout.HorizontalSlider(currentAngles.x, 270.1f, 360 + 89.9f,
+															 TilesetGUI.Style_SliderBar,
+															 TilesetGUI.Style_SliderThumb,
+															 sliderLayout);
+					if (newAngles.x > 360)
+						newAngles.x -= 360;
+				}
+				using (GUIBlock.Layout_Horizontal())
+				{
+					GUILayout.Label("Zoom", TilesetGUI.Style_Label_Normal, sliderLabelLayout);
+					newZoom = GUILayout.HorizontalSlider(currentZoom, 0.001f, 5,
+														 TilesetGUI.Style_SliderBar,
+														 TilesetGUI.Style_SliderThumb,
+														 sliderLayout);
+				}
+			}
+			//Re-center the rotation values if they're not currently being manipulated.
+			if (!camAngleChanged)
+			{
+				if (newAngles.x < 0)
+					newAngles.x += 360;
+				if (newAngles.x >= 360)
+					newAngles.x -= 360;
+			}
+			//Update the camera with the new settings.
+			camTr.position = Tileset.TileBounds.center +
+							 (Quaternion.Euler(newAngles) *
+							    new Vector3(0, 0, newZoom * Tileset.TileBounds.GetBoundingRadius()));
+			camTr.forward = (Tileset.TileBounds.center - camTr.position).normalized;
+
+			//Visualization features.
 			using (GUIBlock.Layout_Horizontal())
 			{
-				VisualizeBounds = EditorGUILayout.Toggle("Show Bounds", VisualizeBounds,
-														 TilesetGUI.Style_Checkbox);
+				VisualizeBounds = GUILayout.Toggle(VisualizeBounds, "Show Bounds",
+												   TilesetGUI.Style_Checkbox);
+
+				GUILayout.Space(50);
+
+				VisualizeAxes = GUILayout.Toggle(VisualizeAxes, "Show Axes",
+												 TilesetGUI.Style_Checkbox);
 
 				GUILayout.FlexibleSpace();
-
-				VisualizeAxes = EditorGUILayout.Toggle("Show Axes", VisualizeAxes,
-													   TilesetGUI.Style_Checkbox);
 			}
+
+			//Draw the scene.
+			var camTex = tileScene.Cam.targetTexture;
+			var camRect = GUILayoutUtility.GetAspectRect(camTex.width / (float)camTex.height,
+													     GUILayout.MaxWidth(camTex.width * previewScale),
+													     GUILayout.MaxHeight(camTex.height * previewScale));
+			GUI.DrawTexture(camRect, tileScene.Cam.targetTexture);
 		}
 
 
@@ -231,7 +304,7 @@ namespace WFC_CS.Editor
 		private void UpdateVizObjects()
 		{
 			//Update the bounds visualization.
-			tileSceneBoundsViz.position = -(0.5f * Vector3.one) +
+			tileSceneBoundsViz.position = -(0.5f * Tileset.TileBounds.size) +
 										  Tileset.TileBounds.center;
 			tileSceneBoundsViz.rotation = Quaternion.identity;
 			tileSceneBoundsViz.localScale = Tileset.TileBounds.size;
@@ -244,9 +317,8 @@ namespace WFC_CS.Editor
 				var tr = tileSceneAxesViz[i];
 				Vector3 pos = Vector3.zero,
 						scale = Tileset.TileBounds.size * axisPerpendicularScale;
-
-				pos[i] = Tileset.TileBounds.extents[i];
-				scale[i] = Tileset.TileBounds.size[i];
+				
+				scale[i] = Mathf.Max(1, Tileset.TileBounds.max[i]);
 
 				tr.position = pos;
 				tr.localScale = scale;

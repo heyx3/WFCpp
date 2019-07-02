@@ -78,6 +78,11 @@ namespace WFC_CS
 			return str;
 		}
 
+		public static float GetBoundingRadius(this Bounds b)
+		{
+			return b.extents.magnitude;
+		}
+
 	#if UNITY_EDITOR
 
 	#endif

@@ -14,6 +14,21 @@ namespace WFC_CS.Editor
 		{
 			GetWindow<Tileset3D_EditorWindow>().Show();
 		}
+		[UnityEditor.Callbacks.DidReloadScripts]
+		public static void CloseWindows()
+		{
+			//Close all open windows, because hot reloading breaks everything.
+
+			var windows = Resources.FindObjectsOfTypeAll<Tileset3D_EditorWindow>();
+			if (windows.Length < 1)
+				return;
+			 
+			Debug.LogWarning("Closing all Tileset3D editor windows due to recompilation." +
+							 " Any unsaved work is already lost. There are expected to be " +
+							 windows.Length + " exceptions directly below this message.");
+			foreach (var window in windows)
+				window.Close();
+		}
 
 
 		private Tileset3D_Header editorPane;

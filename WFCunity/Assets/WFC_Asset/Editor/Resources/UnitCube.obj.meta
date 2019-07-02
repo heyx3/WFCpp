@@ -4,11 +4,17 @@ ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
     100000: //RootNode
+    100002: default
     400000: //RootNode
+    400002: default
     2100000: Material
+    2100002: defaultMat
     2300000: //RootNode
+    2300002: default
     3300000: //RootNode
+    3300002: default
     4300000: Cube
+    4300002: default
     7400000: Default Take
     9500000: //RootNode
   externalObjects: {}

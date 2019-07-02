@@ -9,6 +9,8 @@ using UnityEditor.SceneManagement;
 
 namespace WFC_CS.Editor
 {
+	//TODO: Delete and use PreviewRenderUtility instead.
+
 	/// <summary>
 	/// A scene meant to be used in an editor window,
 	///     and handled separately from all the real game scenes.
@@ -40,6 +42,7 @@ namespace WFC_CS.Editor
 				return obj;
 			};
 			Cam = createEmpty("Camera").AddComponent<Camera>();
+			Cam.scene = TheScene;
 			Container = createEmpty("Container").transform;
 
 			SetCameraRes(new Vector2Int(256, 256));
@@ -110,10 +113,7 @@ namespace WFC_CS.Editor
 		public void CenterCameraOn(Bounds b, float distanceScale = 2.5f)
 		{
 			//Get the bounding sphere radius for this box.
-			Vector3 bSize = b.size;
-			float boundsRadius = Mathf.Sqrt((bSize.x * bSize.x) +
-											(bSize.y * bSize.y) +
-											(bSize.z * bSize.z));
+			float boundsRadius = b.GetBoundingRadius();
 
 			//Push the camera forward or backward to be at that radius.
 			Vector3 camPosDir = (Cam.transform.position - b.center).normalized;
