@@ -22,7 +22,7 @@ namespace WFC_CS.Editor
 		private void Awake()
 		{
 			titleContent = new GUIContent("Tileset3D");
-			//TODO: Set minSize.
+			minSize = new Vector2(710, 600);
 
 			//If a Tileset3D is already selected, load that one automatically.
 			var selectedTilesets = Selection.GetFiltered<Tileset3D>(SelectionMode.Assets);
@@ -36,6 +36,7 @@ namespace WFC_CS.Editor
 			editorPane = (tileset == null) ?
 						     new Tileset3D_Header() :
 							 new Tileset3D_Header(tileset);
+			editorPane.OwnerWindow = this;
 		}
 		private void OnDestroy()
 		{

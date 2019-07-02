@@ -11,6 +11,9 @@ namespace WFC_CS.Editor
 	/// </summary>
 	public class Tileset3D_TileEditor : Tileset3DEditorPiece
 	{
+		//TODO: Camera and unit cubes have to be in a real scene, not the preview scene. Why is this?
+
+
 		public Tileset3D Tileset { get; private set; }
 		public int TileIndex { get; private set; }
 
@@ -18,6 +21,10 @@ namespace WFC_CS.Editor
 
 		public bool VisualizeBounds = false,
 					VisualizeAxes = false;
+
+		public int NewPreviewSize = 256;
+		private int currentPreviewSize;
+		private float previewScale { get { return (float)NewPreviewSize / currentPreviewSize; } }
 
 
 		private EditorWindowScene tileScene = new EditorWindowScene();
@@ -34,7 +41,13 @@ namespace WFC_CS.Editor
 
 		public void Reset(Tileset3D newTileset, int newTileIndex = 0)
 		{
+			currentPreviewSize = NewPreviewSize;
+
 			tileScene.ClearScene();
+			tileScene.SetCameraRes(new Vector2Int(currentPreviewSize, currentPreviewSize));
+			tileScene.Cam.fieldOfView = 80;
+			tileScene.Cam.nearClipPlane = 0.01f;
+			tileScene.Cam.farClipPlane = 10;
 
 			Tileset = newTileset;
 			TileIndex = newTileIndex;
@@ -50,17 +63,13 @@ namespace WFC_CS.Editor
 			tileScene.CenterCameraOn(Tileset.TileBounds);
 
 			//Set up the "bounds" visualization object.
-			tileSceneBoundsViz = CreateUnitCube(Color.white.ChangeA(0.25f), VisualizeBounds,
+			tileSceneBoundsViz = CreateUnitCube(VisualizeBounds, "BoundsViz",
 												"Bounds Visualization");
 
 			//Set up the axis visualizations.
-			const float axisAlphas = 0.75f;
-			tileSceneAxesViz[0] = CreateUnitCube(Color.red.ChangeA(axisAlphas),
-												 VisualizeAxes, "X Axis");
-			tileSceneAxesViz[1] = CreateUnitCube(Color.green.ChangeA(axisAlphas),
-												 VisualizeAxes, "Y Axis");
-			tileSceneAxesViz[2] = CreateUnitCube(Color.blue.ChangeA(axisAlphas),
-												 VisualizeAxes, "Z Axis");
+			tileSceneAxesViz[0] = CreateUnitCube(VisualizeAxes, "XAxisViz", "X Axis");
+			tileSceneAxesViz[1] = CreateUnitCube(VisualizeAxes, "YAxisViz", "Y Axis");
+			tileSceneAxesViz[2] = CreateUnitCube(VisualizeAxes, "ZAxisViz", "Z Axis");
 
 			//Run an update frame to initialize everything.
 			UpdatePrefab();
@@ -96,41 +105,74 @@ namespace WFC_CS.Editor
 		{
 			if (Tileset == null || TileCopy == null)
 			{
-				GUILayout.Label("No tile selected", TilesetGUI.Style_Label_Title);
+				GUILayout.FlexibleSpace();
+				using (GUIBlock.Layout_Horizontal())
+				{
+					GUILayout.FlexibleSpace();
+					GUILayout.Label("No tile selected", TilesetGUI.Style_Label_Title);
+					GUILayout.FlexibleSpace();
+				}
+				GUILayout.FlexibleSpace();
 				return;
 			}
 
-			//Draw the tile preview.
-			var rect = GUILayoutUtility.GetRect(tileScene.Cam.targetTexture.width,
-												tileScene.Cam.targetTexture.height);
-			GUI.DrawTexture(rect, tileScene.Cam.targetTexture);
-
-			//Now overlay some GUI stuff on that preview.
-			using (GUIBlock.Layout_Area(rect))
+			//Do the tile preview on the left side, and the data editor on the right side.
+			using (GUIBlock.Layout_Horizontal())
 			{
+				using (GUIBlock.Layout_Vertical())
+					DoGUITilePreview();
+
 				GUILayout.FlexibleSpace();
 
-				using (GUIBlock.Layout_Horizontal())
-				{
-					VisualizeBounds = EditorGUILayout.Toggle("Show Bounds", VisualizeBounds, 
-															 TilesetGUI.Style_Checkbox);
-
-					GUILayout.FlexibleSpace();
-
-					VisualizeAxes = EditorGUILayout.Toggle("Show Axes", VisualizeAxes,
-														   TilesetGUI.Style_Checkbox);
-				}
+				GUILayout.FlexibleSpace(); //Debug placeholder before tile data editors are made.
+				base.DoGUILayout();
 			}
-
+			
 			//Lastly, update the scene preview.
 			if (Event.current.type == EventType.Repaint)
 			{
 				UpdateVizObjects();
 				UpdatePrefab();
+				
 				tileScene.Cam.Render();
 			}
+		}
+		
+		private void DoGUITilePreview()
+		{
+			//Do the slider for texture size.
+			int desiredPreviewSize = Mathf.RoundToInt(GUILayout.HorizontalSlider(
+				NewPreviewSize, 256, 1024,
+				TilesetGUI.Style_SliderBar, TilesetGUI.Style_SliderThumb));
+			bool changedThisFrame = (desiredPreviewSize != NewPreviewSize),
+				 wasChanging = (NewPreviewSize != currentPreviewSize);
 
-			base.DoGUILayout();
+			//If the view size is done being changed, update the camera texture resolution.
+			if (wasChanging && !changedThisFrame)
+			{
+				tileScene.SetCameraRes(new Vector2Int(desiredPreviewSize, desiredPreviewSize));
+				currentPreviewSize = desiredPreviewSize;
+
+				tileScene.Cam.Render();
+			}
+			NewPreviewSize = desiredPreviewSize;
+
+			//Draw the scene as a box.
+			var camTex = tileScene.Cam.targetTexture;
+			GUILayout.Box(camTex,
+						  GUILayout.Width(camTex.width * previewScale),
+						  GUILayout.Height(camTex.height * previewScale));
+
+			using (GUIBlock.Layout_Horizontal())
+			{
+				VisualizeBounds = EditorGUILayout.Toggle("Show Bounds", VisualizeBounds,
+														 TilesetGUI.Style_Checkbox);
+
+				GUILayout.FlexibleSpace();
+
+				VisualizeAxes = EditorGUILayout.Toggle("Show Axes", VisualizeAxes,
+													   TilesetGUI.Style_Checkbox);
+			}
 		}
 
 
@@ -165,7 +207,8 @@ namespace WFC_CS.Editor
 			}
 		}
 
-		private Transform CreateUnitCube(Color col, bool isActive, string objName = "Unit Cube")
+		private Transform CreateUnitCube(bool isActive, string materialName,
+										 string objName = "Unit Cube")
 		{
 			var tr = new GameObject(objName).transform;
 			tr.SetParent(tileScene.Container);
@@ -179,8 +222,7 @@ namespace WFC_CS.Editor
 			var mr = tr.gameObject.AddComponent<MeshRenderer>();
 			mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 			mr.receiveShadows = false;
-			mr.sharedMaterial = Resources.Load<Material>("UnlitTransparentColor");
-			mr.material.color = col;
+			mr.sharedMaterial = Resources.Load<Material>(materialName);
 
 			tr.gameObject.SetActive(isActive);
 

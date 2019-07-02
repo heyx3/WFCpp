@@ -67,6 +67,17 @@ namespace WFC_CS
 			return newPath;
 		}
 
+		public static string TrimEnd(this string str, string toRemove)
+		{
+			if (str.Length >= toRemove.Length &&
+				str.Substring(str.Length - toRemove.Length) == toRemove)
+			{
+				return str.Substring(0, str.Length - toRemove.Length);
+			}
+
+			return str;
+		}
+
 	#if UNITY_EDITOR
 
 	#endif

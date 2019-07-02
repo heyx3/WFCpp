@@ -14,7 +14,7 @@ namespace WFC_CS
 		[Serializable]
 		public class Tile
 		{
-			public GameObject Prefab = new GameObject();
+			public GameObject Prefab;
 
 			public List<LowLevel.Rotations3D> NormalSymmetries = new List<LowLevel.Rotations3D>(),
 											  InvertedSymmetries = new List<LowLevel.Rotations3D>();

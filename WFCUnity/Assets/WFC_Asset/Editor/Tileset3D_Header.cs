@@ -26,11 +26,11 @@ namespace WFC_CS.Editor
 		private Tileset3D_TileEditor pane_tile
 		{
 			get { return (Tileset3D_TileEditor)Children[0]; }
-			set { Children[0] = value; }
 		}
 
 
-		public Tileset3D_Header() { Children.Add(new Tileset3D_TileEditor()); }
+		public Tileset3D_Header()
+			: base(new Tileset3DEditorPiece[] { new Tileset3D_TileEditor() }) { }
 		public Tileset3D_Header(Tileset3D original) : this() { Reset(original); }
 
 		public void Reset(Tileset3D tileset)
@@ -50,7 +50,9 @@ namespace WFC_CS.Editor
 		public override void RevertChanges()
 		{
 			base.RevertChanges();
+
 			tilesetCopy = UnityEngine.Object.Instantiate(tilesetOriginal);
+			tilesetCopy.name = tilesetOriginal.name; //Remove the "(Clone)" that Unity appends to it.
 		}
 		
 		public override void DoGUILayout()
@@ -58,7 +60,7 @@ namespace WFC_CS.Editor
 			using (GUIBlock.Layout_Horizontal())
 			{
 				//The title pane.
-				using (GUIBlock.Layout_Vertical(GUILayout.ExpandWidth(false)))
+				using (GUIBlock.Layout_Vertical(GUILayout.Width(150)))
 				{
 					GUILayout.Label("WFC Tile3D", TilesetGUI.Style_Label_Title);
 					if (tilesetCopy != null)
@@ -69,7 +71,7 @@ namespace WFC_CS.Editor
 										width: 10, color: Color.black);
 
 				//The "New", "Save", "Revert", and "Load" buttons.
-				using (GUIBlock.Layout_Vertical())
+				using (GUIBlock.Layout_Vertical(GUILayout.Width(80)))
 				{
 					//Buttons that are always available:
 					if (GUILayout.Button("New", TilesetGUI.Style_Button_Normal))
@@ -137,9 +139,12 @@ namespace WFC_CS.Editor
 					{
 						for (int tileI = 0; tileI < tilesetCopy.Tiles.Count; ++tileI)
 						{
-							string name = tilesetCopy.Tiles[tileI].Prefab.name;
 							using (GUIBlock.Enabled(pane_tile.TileIndex != tileI))
 							{
+								//Get the button's label from the prefab's name.
+								var prefab = tilesetCopy.Tiles[tileI].Prefab;
+								string name = (prefab == null ? "[no prefab]" : prefab.name);
+
 								if (GUILayout.Button(name, TilesetGUI.Style_Button_Normal) &&
 									pane_tile.ConfirmClosing(true) != ConfirmClosingDialog.Results.Cancel)
 								{
@@ -148,14 +153,14 @@ namespace WFC_CS.Editor
 							}
 						}
 					}
-					if (GUILayout.Button("+", TilesetGUI.Style_Button_BigText) &&
-						pane_tile.ConfirmClosing(true) != ConfirmClosingDialog.Results.Cancel)
-					{
-						HasUnsavedChanges = true;
+					if (GUILayout.Button("+", TilesetGUI.Style_Button_BigText, GUILayout.ExpandWidth(false)))
+						if (pane_tile.ConfirmClosing(true) != ConfirmClosingDialog.Results.Cancel)
+						{
+							HasUnsavedChanges = true;
 
-						tilesetCopy.Tiles.Add(new Tileset3D.Tile());
-						pane_tile.Reset(tilesetCopy, tilesetCopy.Tiles.Count - 1);
-					}
+							tilesetCopy.Tiles.Add(new Tileset3D.Tile());
+							pane_tile.Reset(tilesetCopy, tilesetCopy.Tiles.Count - 1);
+						}
 				}
 				
 				MyGUILayout.DrawTexture(TilesetGUI.Tex_WhitePixel,
@@ -174,13 +179,12 @@ namespace WFC_CS.Editor
 			}
 
 			//Do child GUI underneath.
+			//Leave a bit of space on the sides and bottom.
 			MyGUILayout.DrawTexture(TilesetGUI.Tex_WhitePixel,
 									height: 10, color: Color.black);
+			using (GUIBlock.Layout_HorizontalPad(10))
+				base.DoGUILayout();
 			GUILayout.FlexibleSpace();
-			base.DoGUILayout();
-
-			//Leave a bit of space on the bottom.
-			GUILayout.Space(10.0f);
 		}
 	}
 }

@@ -49,6 +49,29 @@ public class GUIBlock : IDisposable
 
 		return new GUIBlock(() => GUILayout.EndArea());
 	}
+	public static GUIBlock Layout_HorizontalPad(float size = -1, params GUILayoutOption[] options)
+	{
+		GUILayout.BeginHorizontal();
+
+		if (size < 0)
+			GUILayout.FlexibleSpace();
+		else
+			GUILayout.Space(size);
+
+		GUILayout.BeginVertical(options);
+
+		return new GUIBlock(() =>
+		{
+			GUILayout.EndVertical();
+
+			if (size < 0)
+				GUILayout.FlexibleSpace();
+			else
+				GUILayout.Space(size);
+
+			GUILayout.EndHorizontal();
+		});
+	}
 	public static GUIBlock Layout_Horizontal(params GUILayoutOption[] options)
 	{
 		GUILayout.BeginHorizontal(options);

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
+using UnityEditor;
+
 
 namespace WFC_CS.Editor
 {
@@ -12,6 +15,19 @@ namespace WFC_CS.Editor
 	/// </summary>
 	public abstract class Tileset3DEditorPiece : IDisposable
 	{
+		public EditorWindow OwnerWindow
+		{
+			get { return ownerWindow; }
+			set
+			{
+				ownerWindow = value;
+
+				foreach (var child in Children)
+					child.OwnerWindow = value;
+			}
+		}
+		private EditorWindow ownerWindow;
+
 		public bool HasUnsavedChanges { get; protected set; } = false;
 		public bool HasUnsavedChanges_Recursive
 		{
@@ -21,7 +37,7 @@ namespace WFC_CS.Editor
 			}
 		}
 
-		public List<Tileset3DEditorPiece> Children { get; protected set; } = new List<Tileset3DEditorPiece>();
+		public IReadOnlyList<Tileset3DEditorPiece> Children { get; private set; }
 		public IEnumerable<Tileset3DEditorPiece> AllChildren
 		{
 			get
@@ -33,6 +49,26 @@ namespace WFC_CS.Editor
 						yield return deepChild;
 				}
 			}
+		}
+
+
+		/// <summary>
+		/// Creates a new instance with the given children.
+		/// </summary>
+		public Tileset3DEditorPiece(IList<Tileset3DEditorPiece> children = null)
+		{
+			if (children == null)
+				Children = new Tileset3DEditorPiece[0];
+			else
+				Children = children.ToList();
+		}
+		/// <summary>
+		/// Default behavior: calls Dispose() on each child.
+		/// </summary>
+		public virtual void Dispose()
+		{
+			foreach (var child in Children)
+				child.Dispose();
 		}
 
 
@@ -76,7 +112,6 @@ namespace WFC_CS.Editor
 					return ConfirmClosingDialog.Results.Cancel;
 			}
 
-
 			if (!HasUnsavedChanges)
 				return ConfirmClosingDialog.Results.DontSave;
 
@@ -97,15 +132,6 @@ namespace WFC_CS.Editor
 				default: throw new NotImplementedException(result.ToString());
 			}
 			return result;
-		}
-
-		/// <summary>
-		/// Default behavior: calls Dispose() on each child.
-		/// </summary>
-		public virtual void Dispose()
-		{
-			foreach (var child in Children)
-				child.Dispose();
 		}
 
 		/// <summary>

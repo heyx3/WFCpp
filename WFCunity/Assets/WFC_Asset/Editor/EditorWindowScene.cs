@@ -94,8 +94,11 @@ namespace WFC_CS.Editor
 		/// </summary>
 		public void ClearScene()
 		{
-			while (Container.childCount > 0)
-				GameObject.DestroyImmediate(Container.GetChild(0));
+			//Fun fact: the original version of this was basically
+			//    while (tr.childCount > 0) DestroyImmediate(child)
+			//  but it was an infinite loop because childCount never actually updates.
+			foreach (var childTr in Container.Cast<Transform>().ToList())
+				GameObject.DestroyImmediate(childTr.gameObject);
 		}
 		/// <summary>
 		/// Centers the camera around the given bounds.

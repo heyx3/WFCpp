@@ -174,6 +174,29 @@ namespace WFC_CS.Editor
 				return style_rect;
 			}
 		}
+
+		public static GUIStyle Style_SliderThumb
+		{
+			get
+			{
+				if (style_sliderThumb == null)
+				{
+					style_sliderThumb = new GUIStyle(GUI.skin.horizontalSliderThumb);
+				}
+				return style_sliderThumb;
+			}
+		}
+		public static GUIStyle Style_SliderBar
+		{
+			get
+			{
+				if (style_sliderBar == null)
+				{
+					style_sliderBar = new GUIStyle(GUI.skin.horizontalSlider);
+				}
+				return style_sliderBar;
+			}
+		}
 		
 		public static Texture2D Tex_WhitePixel
 		{
@@ -195,11 +218,13 @@ namespace WFC_CS.Editor
 								style_button_normal,
 								style_button_tab,
 								style_button_green,
-							    style_button_red,
+								style_button_red,
 								style_button_bigText,
 								style_textbox,
 								style_checkbox,
-								style_rect;
+								style_rect,
+								style_sliderThumb,
+								style_sliderBar;
 		private static Texture2D tex_pixel_green, tex_pixel_greenSelected, tex_pixel_greenHover,
 								 tex_pixel_red, tex_pixel_redSelected, tex_pixel_redHover,
 								 tex_pixel_white;
