@@ -18,7 +18,7 @@ namespace WFC_CS.Editor
 
 		private Vector2 tileSelectionScrollPos = Vector2.zero;
 
-		protected override string Description => "the tileset";
+		public override string Description => "the tileset";
 
 		/// <summary>
 		/// The child pane for editing a specific tile.
@@ -30,7 +30,10 @@ namespace WFC_CS.Editor
 
 
 		public Tileset3D_Header()
-			: base(new Tileset3DEditorPiece[] { new Tileset3D_TileEditor() }) { }
+			: base(new Tileset3DEditorPiece[] { new Tileset3D_TileEditor() })
+		{
+			pane_tile.OnDeleteButton += Callback_DeleteTileInPanel;
+		}
 		public Tileset3D_Header(Tileset3D original) : this() { Reset(original); }
 
 		public void Reset(Tileset3D tileset)
@@ -186,6 +189,15 @@ namespace WFC_CS.Editor
 			using (GUIBlock.Layout_HorizontalPad(10))
 				base.DoGUILayout();
 			GUILayout.FlexibleSpace();
+		}
+
+		private void Callback_DeleteTileInPanel(Tileset3D_TileEditor pane)
+		{
+			int toDeleteI = pane_tile.TileIndex;
+			pane_tile.Reset(tilesetCopy);
+
+			tilesetCopy.Tiles.RemoveAt(toDeleteI);
+			HasUnsavedChanges = true;
 		}
 	}
 }

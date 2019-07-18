@@ -16,6 +16,23 @@ namespace WFC_CS.Editor
 
 		public Tileset3D.Tile TileCopy { get; private set; }
 
+		public string DisplayName
+		{
+			get
+			{
+				if (TileCopy.Prefab != null)
+					return TileCopy.Prefab.name;
+				if (Tileset.Tiles[TileIndex].Prefab != null)
+					return Tileset.Tiles[TileIndex].Prefab.name;
+
+				return "[no name]";
+			}
+		}
+
+
+		public event Action<Tileset3D_TileEditor> OnDeleteButton;
+
+
 		public bool VisualizeBounds = true,
 					VisualizeAxes = true;
 
@@ -23,15 +40,37 @@ namespace WFC_CS.Editor
 		private int currentPreviewSize;
 		private float previewScale { get { return (float)NewPreviewSize / currentPreviewSize; } }
 
-
 		private EditorWindowScene tileScene = new EditorWindowScene();
 		private Transform tileSceneBoundsViz;
 		private Transform[] tileSceneAxesViz = new Transform[3];
 		private GameObject tileScenePrefabViz, tileScenePrefabSource;
+		
+		private Tileset3D_TileSymmetries pane_symmetries
+		{
+			get { return (Tileset3D_TileSymmetries)Children[0]; }
+		}
+		private Tileset3D_TileFaces pane_faces
+		{
+			get { return (Tileset3D_TileFaces)Children[1]; }
+		}
+		private int tabIndex
+		{
+			get { return Children.IndexOf(t => !t.IsDisabled); }
+			set
+			{
+				for (int i = 0; i < Children.Count; ++i)
+					Children[i].IsDisabled = (i != value);
+			}
+		}
 
 
-		public Tileset3D_TileEditor() { }
+		public Tileset3D_TileEditor()
+			: base(new Tileset3DEditorPiece[] { new Tileset3D_TileSymmetries(), new Tileset3D_TileFaces() })
+		{
+
+		}
 		public Tileset3D_TileEditor(Tileset3D tileset, int tileIndex = 0)
+			: this()
 		{
 			Reset(tileset, tileIndex);
 		}
@@ -79,7 +118,7 @@ namespace WFC_CS.Editor
 		}
 
 
-		protected override string Description =>
+		public override string Description =>
 			"tile " + ((TileCopy == null || TileCopy.Prefab == null) ? "" : TileCopy.Prefab.name);
 
 		public override void SaveChanges()
@@ -121,7 +160,22 @@ namespace WFC_CS.Editor
 
 				GUILayout.FlexibleSpace();
 
-				GUILayout.FlexibleSpace(); //Debug placeholder before tile data editors are made.
+				using (GUIBlock.Layout_Vertical())
+				{
+					int selectedTabI = this.tabIndex;
+					for (int i = 0; i < Children.Count; ++i)
+					{
+						//Do the toggle and track whether it was used.
+						Action ifTabSelected = () => this.tabIndex = i;
+						using (GUIBlock.ChangeCheck(ifTabSelected))
+						{
+							GUILayout.Toggle(i == selectedTabI,
+											 Children[i].Description,
+											 TilesetGUI.Style_Button_Tab);
+						}
+					}
+				}
+
 				base.DoGUILayout();
 			}
 			
@@ -134,9 +188,15 @@ namespace WFC_CS.Editor
 				tileScene.Cam.Render();
 			}
 		}
-		
+
 		private void DoGUITilePreview()
 		{
+			using (TrackChanges(UpdatePrefab))
+			{
+				TileCopy.Prefab = (GameObject)EditorGUILayout.ObjectField(TileCopy.Prefab,
+																		  typeof(GameObject), true);
+			}
+
 			var sliderLayout = new GUILayoutOption[] {
 				GUILayout.MinWidth(200),
 				GUILayout.ExpandWidth(true)
@@ -246,8 +306,28 @@ namespace WFC_CS.Editor
 													     GUILayout.MaxWidth(camTex.width * previewScale),
 													     GUILayout.MaxHeight(camTex.height * previewScale));
 			GUI.DrawTexture(camRect, tileScene.Cam.targetTexture);
-		}
 
+			//The Save/Revert/Delete buttons.
+			using (GUIBlock.Layout_Horizontal())
+			{
+				if (HasUnsavedChanges)
+				{
+					if (GUILayout.Button("Save", TilesetGUI.Style_Button_Normal))
+						SaveChanges();
+					if (GUILayout.Button("Revert", TilesetGUI.Style_Button_Normal))
+						RevertChanges();
+				}
+				if (GUILayout.Button("Delete", TilesetGUI.Style_Button_Normal))
+				{
+					if (EditorUtility.DisplayDialog("Confirm Deleting Tile",
+													"Are you sure you want to delete tile \"" + DisplayName + "\"?",
+													"Yes", "No"))
+					{
+						OnDeleteButton?.Invoke(this);
+					}
+				}
+			}
+		}
 
 		private void UpdatePrefab()
 		{

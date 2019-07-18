@@ -15,7 +15,7 @@ namespace WFC_CS.Editor
 	/// </summary>
 	public abstract class Tileset3DEditorPiece : IDisposable
 	{
-		public EditorWindow OwnerWindow
+		public Tileset3D_EditorWindow OwnerWindow
 		{
 			get { return ownerWindow; }
 			set
@@ -26,28 +26,42 @@ namespace WFC_CS.Editor
 					child.OwnerWindow = value;
 			}
 		}
-		private EditorWindow ownerWindow;
+		private Tileset3D_EditorWindow ownerWindow;
+
+		public bool IsDisabled
+		{
+			get { return isDisabled; }
+			set
+			{
+				bool isDisabling = !isDisabled && value,
+					 isEnabling = isDisabled && !value;
+				isDisabled = value;
+
+				if (isDisabled)
+					OnDisabled();
+				if (isEnabling)
+					OnEnabled();
+			}
+		}
+		private bool isDisabled = false;
 
 		public bool HasUnsavedChanges { get; protected set; } = false;
 		public bool HasUnsavedChanges_Recursive
 		{
 			get
 			{
-				return HasUnsavedChanges || AllChildren.Any(c => c.HasUnsavedChanges);
+				return HasUnsavedChanges || AllChildren(true).Any(c => c.HasUnsavedChanges);
 			}
 		}
 
 		public IReadOnlyList<Tileset3DEditorPiece> Children { get; private set; }
-		public IEnumerable<Tileset3DEditorPiece> AllChildren
+		public IEnumerable<Tileset3DEditorPiece> AllChildren(bool includeDisabled)
 		{
-			get
+			foreach (var child in Children)
 			{
-				foreach (var child in Children)
-				{
-					yield return child;
-					foreach (var deepChild in child.AllChildren)
-						yield return deepChild;
-				}
+				yield return child;
+				foreach (var deepChild in child.AllChildren(includeDisabled))
+					yield return deepChild;
 			}
 		}
 
@@ -136,20 +150,37 @@ namespace WFC_CS.Editor
 
 		/// <summary>
 		/// Does the GUI for this part of the editor.
-		/// Default behavior: calls DoGUILayout on each child.
+		/// Default behavior: calls DoGUILayout on each child
+		///     (then takes ownership of their unsaved changes if TakeChildUnsavedChanges is true).
 		/// </summary>
 		public virtual void DoGUILayout()
 		{
 			foreach (var child in Children)
 				child.DoGUILayout();
+
+			if (TakeChildUnsavedChanges)
+				foreach (var child in Children)
+					if (child.HasUnsavedChanges)
+					{
+						child.HasUnsavedChanges = false;
+						HasUnsavedChanges = true;
+					}
 		}
 
 
 		/// <summary>
+		/// Whether this editor piece should take ownership of its childrens' unsaved changes
+		/// This can help prevent a ton of separate "Save your changes?" prompts
+		///     when closing the window.
+		/// Note that if enabled, the childrens' "SaveChanges()" methods will never get called.
+		/// Default value: false.
+		/// </summary>
+		protected virtual bool TakeChildUnsavedChanges { get { return false; } }
+		/// <summary>
 		/// Used in the TryToClose() method. For example, a value of "tile 'MyTile'"
 		///     results in the message "Do you want to save your changes to tile 'MyTile'?"
 		/// </summary>
-		protected abstract string Description { get; }
+		public abstract string Description { get; }
 		
 		/// <summary>
 		/// Creates a GUIBlock that automatically updates HasUnsavedChanges
@@ -169,5 +200,16 @@ namespace WFC_CS.Editor
 				doOnChanged();
 			});
 		}
+		
+		/// <summary>
+		/// Called when this item is disabled.
+		/// Default behavior: does nothing.
+		/// </summary>
+		protected virtual void OnDisabled() { }
+		/// <summary>
+		/// Called when this item is enabled.
+		/// Default behavior: does nothing.
+		/// </summary>
+		protected virtual void OnEnabled() { }
 	}
 }
