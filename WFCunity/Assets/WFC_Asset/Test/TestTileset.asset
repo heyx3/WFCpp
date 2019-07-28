@@ -13,11 +13,12 @@ MonoBehaviour:
   m_Name: TestTileset
   m_EditorClassIdentifier: 
   TileBounds:
-    m_Center: {x: 0.5, y: 0.5, z: 0.5}
+    m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0.5, y: 0.5, z: 0.5}
   Tiles:
-  - Prefab: {fileID: 0}
-    NormalSymmetries: 
-    InvertedSymmetries: 
+  - Prefab: {fileID: 6263753844390144096, guid: 123108fbc4eac4749b1d7329d8458b19,
+      type: 3}
+    NormalSymmetries: 02000000040000000500000006000000080000000d0000000c000000
+    InvertedSymmetries: 02000000040000000500000006000000080000000d0000000c000000
     FaceIDIndices: 000000000000000000000000000000000000000000000000
   FaceIDSets: []
