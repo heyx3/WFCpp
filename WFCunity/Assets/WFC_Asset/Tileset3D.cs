@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+using Transforms2D = WFC_CS.LowLevel.Transformations;
+
 namespace WFC_CS
 {
 	public class Tileset3D : ScriptableObject
 	{
 		public Bounds TileBounds = new Bounds(Vector3.one * 0.5f, Vector3.one);
 
-		#region Tile data
+		#region Face data
 
 		/// <summary>
-		/// A side of a tile.
+		/// The "blueprint" for a tile face.
+		/// Tiles can line up only if their touching faces come from the same blueprint.
 		/// </summary>
 		[Serializable]
 		public class Face
@@ -41,6 +44,28 @@ namespace WFC_CS
 			}
 		}
 
+		/// <summary>
+		/// A specific face on a tile, using one of the Face "blueprints".
+		/// </summary>
+		[Serializable]
+		public class FaceRef
+		{
+			/// <summary>
+			/// The index of the Face data structure this instance is based on.
+			/// </summary>
+			public int BlueprintI;
+			/// <summary>
+			/// Applied to the four point ID's in the blueprint.
+			/// </summary>
+			public Transforms2D Transform = Transforms2D.None;
+
+			public Face GetBlueprint(Tileset3D tileset) { return tileset.Faces[BlueprintI]; }
+		}
+
+		#endregion
+
+		#region Tile data
+
 		[Serializable]
 		public class Tile
 		{
@@ -49,7 +74,11 @@ namespace WFC_CS
 			public List<LowLevel.Rotations3D> NormalSymmetries = new List<LowLevel.Rotations3D>() { LowLevel.Rotations3D.None },
 											  InvertedSymmetries = new List<LowLevel.Rotations3D>();
 
-			public int[] FaceIndices = new int[6]; //Indexed by the Directions3D enum.
+			/// <summary>
+			/// The faces of this tile, indexed by the Directions3D enum.
+			/// </summary>
+			public FaceRef[] Faces = new FaceRef[6];
+
 
 			public Tile() { }
 			public Tile(Tile toCopy)
@@ -57,19 +86,14 @@ namespace WFC_CS
 				Prefab = toCopy.Prefab;
 				NormalSymmetries = toCopy.NormalSymmetries.ToList();
 				InvertedSymmetries = toCopy.InvertedSymmetries.ToList();
-				FaceIndices = toCopy.FaceIndices.ToArray();
-			}
-
-
-			public Face GetFace(Tileset3D tileset, WFC_CS.LowLevel.Directions3D side)
-			{
-				return tileset.Faces[FaceIndices[(int)side]];
+				Faces = toCopy.Faces.ToArray();
 			}
 		}
 
+		#endregion
+
+		
 		public List<Tile> Tiles = new List<Tile>();
 		public List<Face> Faces = new List<Face>();
-
-		#endregion
 	}
 }

@@ -14,6 +14,18 @@ namespace WFC_CS
 {
 	public static class WfcUtil
 	{
+		public static int IndexOf<T>(this IEnumerable<T> items, T toFind)
+		{
+			var checker = EqualityComparer<T>.Default;
+			int i = -1;
+			foreach (T t in items)
+			{
+				i += 1;
+				if (checker.Equals(t, toFind))
+					return i;
+			}
+			return -1;
+		}
 		public static int IndexOf<T>(this IEnumerable<T> items, Predicate<T> test)
 		{
 			int i = 0;
