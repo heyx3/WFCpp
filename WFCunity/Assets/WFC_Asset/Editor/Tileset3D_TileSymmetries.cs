@@ -26,8 +26,8 @@ namespace WFC_CS.Editor
 						scroll_inverted = Vector2.zero;
 		private const string invertedTooltipPrefix = "inv_";
 
-		private Vector3 targetScale;
-		private Quaternion targetRot;
+		private Vector3 targetScale = Vector3.one;
+		private Quaternion targetRot = Quaternion.identity;
 		private WFC_CS.LowLevel.Transform3D targetTransform = new LowLevel.Transform3D();
 
 		private const float animSpeed = 0.2f;
