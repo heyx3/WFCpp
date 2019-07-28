@@ -45,7 +45,7 @@ namespace WFC_CS.Editor
 		}
 		private bool isDisabled = false;
 
-		public bool HasUnsavedChanges { get; protected set; } = false;
+		public bool HasUnsavedChanges;
 		public bool HasUnsavedChanges_Recursive
 		{
 			get
@@ -166,6 +166,11 @@ namespace WFC_CS.Editor
 						HasUnsavedChanges = true;
 					}
 		}
+		/// <summary>
+		/// A "tick" function.
+		/// Default behavior: calls "Update()" on each active child.
+		/// </summary>
+		public virtual void Update() { foreach (var child in Children.Where(c => !c.IsDisabled)) child.Update(); }
 
 
 		/// <summary>

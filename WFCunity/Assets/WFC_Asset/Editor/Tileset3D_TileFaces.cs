@@ -10,6 +10,8 @@ namespace WFC_CS.Editor
 	{
 		public override string Description => "Faces";
 
+		public Tileset3D_TileEditor ParentEditor;
+
 		//TODO: Implement.
 	}
 }

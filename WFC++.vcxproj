@@ -136,7 +136,7 @@ if exist %CS_OUT_PATH% (
 ) else (
     mkdir "%CS_OUT_PATH%"
 )
-swig -c++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp" "$(ProjectDir)WFC++\SWIG\SWIG_build.i"</Command>
+swig -c++ -namespace WFC_CS.LowLevel -dllimport wfc++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp" "$(ProjectDir)WFC++\SWIG\SWIG_build.i"	</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Run SWIG to generate C exports and C# imports</Message>
@@ -190,7 +190,7 @@ if exist %CS_OUT_PATH% (
 ) else (
     mkdir "%CS_OUT_PATH%"
 )
-swig -c++ -namespace WFC_CS.LowLevel -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp" "$(ProjectDir)WFC++\SWIG\SWIG_build.i"</Command>
+swig -c++ -namespace WFC_CS.LowLevel -dllimport wfc++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp" "$(ProjectDir)WFC++\SWIG\SWIG_build.i"	</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Run SWIG to generate C exports and C# imports</Message>
@@ -250,7 +250,7 @@ if exist %CS_OUT_PATH% (
 ) else (
     mkdir "%CS_OUT_PATH%"
 )
-swig -c++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp" "$(ProjectDir)WFC++\SWIG\SWIG_build.i"</Command>
+swig -c++ -namespace WFC_CS.LowLevel -dllimport wfc++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp" "$(ProjectDir)WFC++\SWIG\SWIG_build.i"	</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Run SWIG to generate C exports and C# imports</Message>
@@ -310,7 +310,7 @@ if exist %CS_OUT_PATH% (
 ) else (
     mkdir "%CS_OUT_PATH%"
 )
-swig -c++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp" "$(ProjectDir)WFC++\SWIG\SWIG_build.i"</Command>
+swig -c++ -namespace WFC_CS.LowLevel -dllimport wfc++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp" "$(ProjectDir)WFC++\SWIG\SWIG_build.i"	</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Run SWIG to generate C exports and C# imports</Message>

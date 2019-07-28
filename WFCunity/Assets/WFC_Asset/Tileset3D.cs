@@ -16,7 +16,7 @@ namespace WFC_CS
 		{
 			public GameObject Prefab;
 
-			public List<LowLevel.Rotations3D> NormalSymmetries = new List<LowLevel.Rotations3D>(),
+			public List<LowLevel.Rotations3D> NormalSymmetries = new List<LowLevel.Rotations3D>() { LowLevel.Rotations3D.None },
 											  InvertedSymmetries = new List<LowLevel.Rotations3D>();
 
 			public int[] FaceIDIndices = new int[6]; //Indexed by the Directions3D enum.

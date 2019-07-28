@@ -52,17 +52,25 @@ namespace WFC_CS.Editor
 						     new Tileset3D_Header() :
 							 new Tileset3D_Header(tileset);
 			editorPane.OwnerWindow = this;
+
+			EditorApplication.update += DoUpdate;
 		}
 		private void OnDestroy()
 		{
 			editorPane.ConfirmClosing(false);
 			editorPane.Dispose();
+
+			EditorApplication.update -= DoUpdate;
 		}
 
 		private void OnGUI()
 		{
 			if (editorPane != null) //OnGUI gets called before Awake??
 				editorPane.DoGUILayout();
+		}
+		private void DoUpdate()
+		{
+			editorPane.Update();
 		}
 	}
 }

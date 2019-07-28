@@ -24,6 +24,18 @@ namespace WFC_CS.Editor
 				return style_label_title;
 			}
 		}
+		public static GUIStyle Style_Label_SmallTitle
+		{
+			get
+			{
+				if (style_label_smallTitle == null)
+				{
+					style_label_smallTitle = new GUIStyle(GUI.skin.label);
+					style_label_smallTitle.fontSize = 18;
+				}
+				return style_label_smallTitle;
+			}
+		}
 		public static GUIStyle Style_Label_Normal
 		{
 			get
@@ -54,8 +66,8 @@ namespace WFC_CS.Editor
 			{
 				if (style_button_tab == null)
 				{
-					style_button_tab = new GUIStyle(GUI.skin.toggle);
-					style_button_tab.fontSize = 18;
+					style_button_tab = new GUIStyle(GUI.skin.button);
+					style_button_tab.fontSize = 16;
 				}
 				return style_button_tab;
 			}
@@ -213,18 +225,14 @@ namespace WFC_CS.Editor
 		}
 
 
-		private static GUIStyle style_label_title,
+		private static GUIStyle style_label_title, style_label_smallTitle,
 								style_label_normal,
 								style_button_normal,
-								style_button_tab,
-								style_button_green,
-								style_button_red,
-								style_button_bigText,
-								style_textbox,
-								style_checkbox,
+								style_button_tab, style_button_bigText,
+								style_button_green, style_button_red,
+								style_textbox, style_checkbox,
 								style_rect,
-								style_sliderThumb,
-								style_sliderBar;
+								style_sliderThumb, style_sliderBar;
 		private static Texture2D tex_pixel_green, tex_pixel_greenSelected, tex_pixel_greenHover,
 								 tex_pixel_red, tex_pixel_redSelected, tex_pixel_redHover,
 								 tex_pixel_white;

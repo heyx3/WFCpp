@@ -32,6 +32,7 @@ namespace WFC_CS.Editor
 		public Tileset3D_Header()
 			: base(new Tileset3DEditorPiece[] { new Tileset3D_TileEditor() })
 		{
+			pane_tile.Parent = this;
 			pane_tile.OnDeleteButton += Callback_DeleteTileInPanel;
 		}
 		public Tileset3D_Header(Tileset3D original) : this() { Reset(original); }
@@ -93,7 +94,8 @@ namespace WFC_CS.Editor
 						}
 					}
 
-					if (GUILayout.Button("Load", TilesetGUI.Style_Button_Normal))
+					if (GUILayout.Button("Load", TilesetGUI.Style_Button_Normal) &&
+						ConfirmClosing(true) != ConfirmClosingDialog.Results.Cancel)
 					{
 						string loadPath = EditorUtility.OpenFilePanel("Load tileset",
 																      Application.dataPath,

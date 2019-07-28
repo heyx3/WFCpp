@@ -29,6 +29,11 @@ namespace WFC_CS.Editor
 			}
 		}
 
+		public GameObject PrefabPreviewObj { get { return tileScenePrefabViz; } }
+
+		[NonSerialized]
+		public Tileset3D_Header Parent;
+
 
 		public event Action<Tileset3D_TileEditor> OnDeleteButton;
 
@@ -63,11 +68,14 @@ namespace WFC_CS.Editor
 			}
 		}
 
+		protected override bool TakeChildUnsavedChanges => true;
+
 
 		public Tileset3D_TileEditor()
 			: base(new Tileset3DEditorPiece[] { new Tileset3D_TileSymmetries(), new Tileset3D_TileFaces() })
 		{
-
+			pane_symmetries.ParentEditor = this;
+			pane_faces.ParentEditor = this;
 		}
 		public Tileset3D_TileEditor(Tileset3D tileset, int tileIndex = 0)
 			: this()
@@ -108,6 +116,7 @@ namespace WFC_CS.Editor
 			tileSceneAxesViz[2] = CreateUnitCube(VisualizeAxes, "ZAxisViz", "Z Axis");
 
 			//Run an update frame to initialize everything.
+			tileScenePrefabSource = null;
 			UpdatePrefab();
 			UpdateVizObjects();
 		}
@@ -124,6 +133,7 @@ namespace WFC_CS.Editor
 		public override void SaveChanges()
 		{
 			Tileset.Tiles[TileIndex] = TileCopy;
+			Parent.HasUnsavedChanges = true;
 
 			base.SaveChanges();
 		}
@@ -174,9 +184,9 @@ namespace WFC_CS.Editor
 											 TilesetGUI.Style_Button_Tab);
 						}
 					}
-				}
 
-				base.DoGUILayout();
+					base.DoGUILayout();
+				}
 			}
 			
 			//Lastly, update the scene preview.
@@ -284,6 +294,8 @@ namespace WFC_CS.Editor
 			camTr.position = Tileset.TileBounds.center +
 							 (Quaternion.Euler(newAngles) *
 							    new Vector3(0, 0, newZoom * Tileset.TileBounds.GetBoundingRadius()));
+			if (camTr.position == Tileset.TileBounds.center)
+				camTr.position = Tileset.TileBounds.center - Vector3.forward;
 			camTr.forward = (Tileset.TileBounds.center - camTr.position).normalized;
 
 			//Visualization features.
