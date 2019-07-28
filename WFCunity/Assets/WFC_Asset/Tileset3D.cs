@@ -11,6 +11,36 @@ namespace WFC_CS
 
 		#region Tile data
 
+		/// <summary>
+		/// A side of a tile.
+		/// </summary>
+		[Serializable]
+		public class Face
+		{
+			public int StartI;
+
+			/// <summary>
+			/// The IDs at each corner, indexed by the FacePoints enum (i.e. in world space).
+			/// Should be relative to the "StartI" value
+			///     (so to get the actual ID passed to the DLL, add StartI to each of these).
+			/// </summary>
+			public int[] PointIDs = new int[4]; //Indexed by the FacePoints enum.
+
+			/// <summary>
+			/// An identifier to make the UI more readable.
+			/// </summary>
+			public string Name;
+
+
+			public Face() { }
+			public Face(Face toCopy, int newStartI)
+			{
+				StartI = newStartI;
+				PointIDs = toCopy.PointIDs.ToArray();
+				Name = toCopy.Name;
+			}
+		}
+
 		[Serializable]
 		public class Tile
 		{
@@ -19,7 +49,7 @@ namespace WFC_CS
 			public List<LowLevel.Rotations3D> NormalSymmetries = new List<LowLevel.Rotations3D>() { LowLevel.Rotations3D.None },
 											  InvertedSymmetries = new List<LowLevel.Rotations3D>();
 
-			public int[] FaceIDIndices = new int[6]; //Indexed by the Directions3D enum.
+			public int[] FaceIndices = new int[6]; //Indexed by the Directions3D enum.
 
 			public Tile() { }
 			public Tile(Tile toCopy)
@@ -27,31 +57,18 @@ namespace WFC_CS
 				Prefab = toCopy.Prefab;
 				NormalSymmetries = toCopy.NormalSymmetries.ToList();
 				InvertedSymmetries = toCopy.InvertedSymmetries.ToList();
-				FaceIDIndices = toCopy.FaceIDIndices.ToArray();
+				FaceIndices = toCopy.FaceIndices.ToArray();
+			}
+
+
+			public Face GetFace(Tileset3D tileset, WFC_CS.LowLevel.Directions3D side)
+			{
+				return tileset.Faces[FaceIndices[(int)side]];
 			}
 		}
 
 		public List<Tile> Tiles = new List<Tile>();
-
-		#endregion
-
-		#region FaceID data
-
-		[Serializable]
-		public class FaceIDs
-		{
-			public int[] IDs = new int[4]; //Indexed by the FacePoints enum.
-		}
-		public List<FaceIDs> FaceIDSets = new List<FaceIDs>();
-
-		public FaceIDs GenerateNewFace()
-		{
-			int firstNewID = FaceIDSets.Max(f => f.IDs.Max()) + 1;
-			return new FaceIDs()
-			{
-				IDs = new int[4] { firstNewID, firstNewID + 1, firstNewID + 2, firstNewID + 3 }
-			};
-		}
+		public List<Face> Faces = new List<Face>();
 
 		#endregion
 	}
