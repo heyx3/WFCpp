@@ -178,14 +178,7 @@ namespace WFC_CS.Editor
 
 		private void SetPreviewTransform(Transform2D t2D)
 		{
-			//Find the 3D transformation that achieves the desired purpose.
-			switch (t2D)
-			{
-				//TODO: Finish. Move into WFC_Helper.
-				default: throw new NotImplementedException(t2D.ToString());
-			}
-
-			//Get the rotation and scale for that transformation.
+			WFC_Helper.GetTransform(currentDir, t2D, previewTargetTransform);
 			WFC_Helper.GetTransform(previewTargetTransform,
 									out previewTargetRot, out previewTargetScale);
 		}

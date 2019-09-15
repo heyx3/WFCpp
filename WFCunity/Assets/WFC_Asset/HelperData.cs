@@ -7,6 +7,31 @@ namespace WFC_CS
 {
 	public static class WFC_Helper
 	{
+		public static void GetTransform(LowLevel.Directions3D face,
+										LowLevel.Transformations faceTransform,
+										LowLevel.Transform3D outTransform3D)
+		{
+			Dictionary<LowLevel.Transformations,
+					   (bool, LowLevel.Rotations3D)> innerLookup;
+			if (lookup_FaceTransformToCubeTransform.TryGetValue(face, out innerLookup))
+			{
+				(bool, LowLevel.Rotations3D) value;
+				if (innerLookup.TryGetValue(faceTransform, out value))
+				{
+					outTransform3D.Invert = value.Item1;
+					outTransform3D.Rot = value.Item2;
+				}
+				else
+				{
+					throw new NotImplementedException(faceTransform.ToString());
+				}
+			}
+			else
+			{
+				throw new NotImplementedException(face.ToString());
+			}
+		}
+
 		public static void GetTransform(LowLevel.Transform3D transform,
 									    out Quaternion rot, out Vector3 scale)
 		{
@@ -129,5 +154,59 @@ namespace WFC_CS
 			unityTransform.localRotation = rot;
 			unityTransform.localScale = scale;
 		}
+
+
+		#region Lookup tables
+		private static Dictionary<LowLevel.Directions3D,
+								  Dictionary<LowLevel.Transformations,
+								  (bool, LowLevel.Rotations3D)>>
+			lookup_FaceTransformToCubeTransform =
+			new Dictionary<LowLevel.Directions3D, Dictionary<LowLevel.Transformations, (bool, LowLevel.Rotations3D)>>()
+			{
+				//TODO: Implement.
+				{ LowLevel.Directions3D.MinX,
+					new Dictionary<LowLevel.Transformations, (bool, LowLevel.Rotations3D)>()
+					{
+						//{ LowLevel.Transformations.Rotate90CW,
+						//	  (false, LowLevel.Rotations3D.AxisX_90) },
+					}
+				},
+				{ LowLevel.Directions3D.MaxX,
+					new Dictionary<LowLevel.Transformations, (bool, LowLevel.Rotations3D)>()
+					{
+						//{ LowLevel.Transformations.Rotate90CW,
+						//	  (false, LowLevel.Rotations3D.AxisX_270) },
+					}
+				},
+				{ LowLevel.Directions3D.MinY,
+					new Dictionary<LowLevel.Transformations, (bool, LowLevel.Rotations3D)>()
+					{
+						//{ LowLevel.Transformations.Rotate90CW,
+						//	  (false, LowLevel.Rotations3D.AxisX_270) },
+					}
+				},
+				{ LowLevel.Directions3D.MaxY,
+					new Dictionary<LowLevel.Transformations, (bool, LowLevel.Rotations3D)>()
+					{
+						//{ LowLevel.Transformations.Rotate90CW,
+						//	  (false, LowLevel.Rotations3D.AxisX_270) },
+					}
+				},
+				{ LowLevel.Directions3D.MinZ,
+					new Dictionary<LowLevel.Transformations, (bool, LowLevel.Rotations3D)>()
+					{
+						//{ LowLevel.Transformations.Rotate90CW,
+						//	  (false, LowLevel.Rotations3D.AxisX_270) },
+					}
+				},
+				{ LowLevel.Directions3D.MaxZ,
+					new Dictionary<LowLevel.Transformations, (bool, LowLevel.Rotations3D)>()
+					{
+						//{ LowLevel.Transformations.Rotate90CW,
+						//	  (false, LowLevel.Rotations3D.AxisX_270) },
+					}
+				}
+			};
+		#endregion
 	}
 }
