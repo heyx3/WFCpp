@@ -161,7 +161,7 @@ xcopy "$(ProjectDir)WFC++\*.h" "$(TargetDir)include" /sy
 xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy
 
 REM Clear Unity C# directory
-set UNITY_WFC_DIR=$(SolutionDir)WFCunity\Assets\WFC_DLL
+set UNITY_WFC_DIR=$(SolutionDir)WFCunity\Assets\WFCpp\WFC_DLL
 del /q "%UNITY_WFC_DIR%"
 
 REM Move C# scripts and DLL to Unity C# directory

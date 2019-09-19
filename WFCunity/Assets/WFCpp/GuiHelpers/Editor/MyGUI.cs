@@ -4,8 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEditor;
 
-
-namespace WW1
+namespace WFC_CS.Utils
 {
 	public static class MyGUI
 	{

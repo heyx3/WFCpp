@@ -96,7 +96,28 @@ namespace WFC_CS
 		}
 
 	#if UNITY_EDITOR
+		public static Mesh GetUnitCube()
+		{
+			if (unitCubeMesh == null)
+			{
+				var assetsDir = new DirectoryInfo(Application.dataPath);
+				var wfcppDir = assetsDir.EnumerateDirectories(
+							       "WFCpp", SearchOption.AllDirectories).FirstOrDefault();
+				if (wfcppDir == null)
+				{
+					Debug.LogError("Couldn't find the UnitCube.asset file in folder 'WFCpp'");
+					return null;
+				}
 
+				var assetPath = Path.Combine(MakeRelativePath(wfcppDir.FullName, "Assets"),
+											 "WFC_Asset",
+											 "UnitCube.asset");
+				unitCubeMesh = AssetDatabase.LoadAssetAtPath<Mesh>(assetPath);
+			}
+
+			return unitCubeMesh;
+		}
+		private static Mesh unitCubeMesh;
 	#endif
 	}
 }

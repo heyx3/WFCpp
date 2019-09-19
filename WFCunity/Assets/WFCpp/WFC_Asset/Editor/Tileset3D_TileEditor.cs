@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEditor;
+using WFC_CS.Utils;
 
 namespace WFC_CS.Editor
 {
@@ -382,7 +383,7 @@ namespace WFC_CS.Editor
 			tr.rotation = Quaternion.identity;
 			tr.localScale = Vector3.one;
 
-			tr.gameObject.AddComponent<MeshFilter>().sharedMesh = Resources.Load<Mesh>("UnitCube");
+			tr.gameObject.AddComponent<MeshFilter>().sharedMesh = WfcUtil.GetUnitCube();
 
 			var mr = tr.gameObject.AddComponent<MeshRenderer>();
 			mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
@@ -396,8 +397,7 @@ namespace WFC_CS.Editor
 		private void UpdateVizObjects()
 		{
 			//Update the bounds visualization.
-			tileSceneBoundsViz.position = -(0.5f * Tileset.TileBounds.size) +
-										  Tileset.TileBounds.center;
+			tileSceneBoundsViz.position = Tileset.TileBounds.min;
 			tileSceneBoundsViz.rotation = Quaternion.identity;
 			tileSceneBoundsViz.localScale = Tileset.TileBounds.size;
 			tileSceneBoundsViz.gameObject.SetActive(VisualizeBounds);

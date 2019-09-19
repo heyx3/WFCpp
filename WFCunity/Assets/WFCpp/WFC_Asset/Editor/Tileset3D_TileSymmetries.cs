@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEditor;
+using WFC_CS.Utils;
 using Rotations3D = WFC_CS.LowLevel.Rotations3D;
 
 namespace WFC_CS.Editor
