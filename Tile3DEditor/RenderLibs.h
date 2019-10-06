@@ -17,4 +17,10 @@
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
+#include <DevIL/il.h>
+#include <DevIL/ilu.h>
+#include <DevIL/ilut.h>
+
+#include <assimp/scene.h>
+
 #include "RenderHelpers.h"

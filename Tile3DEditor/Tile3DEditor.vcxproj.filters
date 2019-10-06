@@ -9,9 +9,6 @@
     <ClInclude Include="dependencies\Full Source\nativefiledialog\nfd_common.h">
       <Filter>Native File Dialog</Filter>
     </ClInclude>
-    <ClInclude Include="dependencies\Full Source\nativefiledialog\include\nfd.h">
-      <Filter>Native File Dialog</Filter>
-    </ClInclude>
     <ClInclude Include="RenderLibs.h" />
     <ClInclude Include="dependencies\Full Source\Dear ImGui\imconfig.h">
       <Filter>Dear ImGui</Filter>
@@ -40,6 +37,9 @@
     </ClInclude>
     <ClInclude Include="dependencies\Full Source\Dear ImGui\imgui_impl_sdl.h">
       <Filter>Dear ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\Full Source\nativefiledialog\nfd.h">
+      <Filter>Native File Dialog</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -78,6 +78,9 @@
     </Filter>
     <Filter Include="Dear ImGui">
       <UniqueIdentifier>{607face5-05a3-473f-b301-e4e6b0c85089}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{40c8695a-51c8-4ce1-a153-54ac8002ad24}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
