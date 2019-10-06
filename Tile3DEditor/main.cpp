@@ -53,8 +53,8 @@ public:
             (data.data1 < MinWindowWidth || data.data2 < MinWindowHeight))
         {
             SDL_SetWindowSize(Window,
-                              max(data.data1, MinWindowWidth),
-                              max(data.data2, MinWindowHeight));
+                              std::max(data.data1, MinWindowWidth),
+                              std::max(data.data2, MinWindowHeight));
         }
     }
 
@@ -173,7 +173,6 @@ int main(int argc, char* argv[])
             switch (sdlEvent.type)
             {
                 case SDL_EventType::SDL_WINDOWEVENT:
-                    std::cout << sdlEvent.window.type << "\n";
                     switch (sdlEvent.window.event)
                     {
                         case SDL_WINDOWEVENT_CLOSE:
