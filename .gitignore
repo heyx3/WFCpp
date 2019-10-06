@@ -104,3 +104,6 @@ WFCunity/obj
 WFCunity/*.csproj
 WFCunity/*.sln
 WFCunity/Assets/WFC_DLL
+
+# Auto-copied headers
+Tile3DEditor/dependencies/include/WFC++

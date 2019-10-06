@@ -109,15 +109,23 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)dependencies\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;SDL2.lib;SDL2main.lib;WFC++.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration);$(ProjectDir)dependencies\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(ProjectDir)dependencies\bin" "$(TargetDir)" /E /Y</Command>
+      <Command>xcopy "$(ProjectDir)dependencies\bin" "$(TargetDir)" /E /Y
+xcopy "$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration)\WFC++.*" "$(TargetDir)" /Y</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy dependencies to build</Message>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>xcopy "$(SolutionDir)WFC++\*.h" "$(ProjectDir)dependencies\include\WFC++\" /sy
+xcopy "$(SolutionDir)WFC++\*.hpp" "$(ProjectDir)dependencies\include\WFC++\" /sy</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Copy WFC++ headers</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -134,15 +142,23 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)dependencies\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;SDL2.lib;SDL2main.lib;WFC++.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration);$(ProjectDir)dependencies\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(ProjectDir)dependencies\bin" "$(TargetDir)" /E /Y</Command>
+      <Command>xcopy "$(ProjectDir)dependencies\bin" "$(TargetDir)" /E /Y
+xcopy "$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration)\WFC++.*" "$(TargetDir)" /Y</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy dependencies to build</Message>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>xcopy "$(SolutionDir)WFC++\*.h" "$(ProjectDir)dependencies\include\WFC++\" /sy
+xcopy "$(SolutionDir)WFC++\*.hpp" "$(ProjectDir)dependencies\include\WFC++\" /sy</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Copy WFC++ headers</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -163,15 +179,23 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)dependencies\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;SDL2.lib;SDL2main.lib;WFC++.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration);$(ProjectDir)dependencies\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(ProjectDir)dependencies\bin" "$(TargetDir)" /E /Y</Command>
+      <Command>xcopy "$(ProjectDir)dependencies\bin" "$(TargetDir)" /E /Y
+xcopy "$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration)\WFC++.*" "$(TargetDir)" /Y</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy dependencies to build</Message>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>xcopy "$(SolutionDir)WFC++\*.h" "$(ProjectDir)dependencies\include\WFC++\" /sy
+xcopy "$(SolutionDir)WFC++\*.hpp" "$(ProjectDir)dependencies\include\WFC++\" /sy</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Copy WFC++ headers</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -192,15 +216,23 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)dependencies\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;SDL2.lib;SDL2main.lib;WFC++.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration);$(ProjectDir)dependencies\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(ProjectDir)dependencies\bin" "$(TargetDir)" /E /Y</Command>
+      <Command>xcopy "$(ProjectDir)dependencies\bin" "$(TargetDir)" /E /Y
+xcopy "$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration)\WFC++.*" "$(TargetDir)" /Y</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy dependencies to build</Message>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>xcopy "$(SolutionDir)WFC++\*.h" "$(ProjectDir)dependencies\include\WFC++\" /sy
+xcopy "$(SolutionDir)WFC++\*.hpp" "$(ProjectDir)dependencies\include\WFC++\" /sy</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Copy WFC++ headers</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Config.cpp" />

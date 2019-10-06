@@ -16,6 +16,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WFCtile", "WFCtile\WFCtile.
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tile3DEditor", "Tile3DEditor\Tile3DEditor.vcxproj", "{C8AC2B05-88B0-4AC6-A3EE-126CDEE7C10C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{38A88B72-ACE0-400E-AC82-677C89622B69} = {38A88B72-ACE0-400E-AC82-677C89622B69}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

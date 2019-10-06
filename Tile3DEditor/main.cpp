@@ -5,6 +5,8 @@
 #include "RenderLibs.h"
 #include "Config.h"
 
+#include <WFC++\Tiled3D\State.h>
+
 
 namespace
 {
@@ -112,8 +114,10 @@ public:
             SDL_DestroyWindow(Window);
         SDL_Quit();
 
-        //Write out the new config file.
-        IO::WriteJsonToFile(GetConfigFullPath(), Config, OnError);
+        //Write out the new config file,
+        //    unless we're running from the IDE.
+        if (!IsDebuggerPresent())
+            IO::WriteJsonToFile(GetConfigFullPath(), Config, OnError);
     }
 
     //No copy or move operator.
@@ -143,6 +147,8 @@ private:
 
 int main(int argc, char* argv[])
 {
+    WFC::Tiled3D::Transform3D().ApplyToFace(WFC::Tiled3D::FacePermutation());
+
     std::cout << "Program path: " << fs::current_path() << "\n\n";
 
     //Set up error management.
