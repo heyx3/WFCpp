@@ -13,6 +13,34 @@
       <Filter>Native File Dialog</Filter>
     </ClInclude>
     <ClInclude Include="RenderLibs.h" />
+    <ClInclude Include="dependencies\Full Source\Dear ImGui\imconfig.h">
+      <Filter>Dear ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\Full Source\Dear ImGui\imgui.h">
+      <Filter>Dear ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\Full Source\Dear ImGui\imgui_internal.h">
+      <Filter>Dear ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\Full Source\Dear ImGui\imgui_stdlib.h">
+      <Filter>Dear ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\Full Source\Dear ImGui\imstb_rectpack.h">
+      <Filter>Dear ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\Full Source\Dear ImGui\imstb_textedit.h">
+      <Filter>Dear ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\Full Source\Dear ImGui\imstb_truetype.h">
+      <Filter>Dear ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderHelpers.h" />
+    <ClInclude Include="dependencies\Full Source\Dear ImGui\imgui_impl_opengl3.h">
+      <Filter>Dear ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\Full Source\Dear ImGui\imgui_impl_sdl.h">
+      <Filter>Dear ImGui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -24,10 +52,32 @@
       <Filter>Native File Dialog</Filter>
     </ClCompile>
     <ClCompile Include="IO.cpp" />
+    <ClCompile Include="dependencies\Full Source\Dear ImGui\imgui.cpp">
+      <Filter>Dear ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\Full Source\Dear ImGui\imgui_draw.cpp">
+      <Filter>Dear ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\Full Source\Dear ImGui\imgui_stdlib.cpp">
+      <Filter>Dear ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\Full Source\Dear ImGui\imgui_widgets.cpp">
+      <Filter>Dear ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderHelpers.cpp" />
+    <ClCompile Include="dependencies\Full Source\Dear ImGui\imgui_impl_opengl3.cpp">
+      <Filter>Dear ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\Full Source\Dear ImGui\imgui_impl_sdl.cpp">
+      <Filter>Dear ImGui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Native File Dialog">
       <UniqueIdentifier>{4ce03b81-0ba1-4555-b8a1-43f82b2ecc40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dear ImGui">
+      <UniqueIdentifier>{607face5-05a3-473f-b301-e4e6b0c85089}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -25,12 +25,14 @@ public:
 
     static const int OpenGLVersion_Major = 4,
                      OpenGLVersion_Minor = 0;
+    static inline const char* OpenGLVersionStr = "#version 400";
     static const int MinWindowWidth = 350,
                      MinWindowHeight = 350;
 
     SDL_Window* Window = nullptr;
 
     SDL_GLContext OpenGL;
+    ImGuiIO ImGuiContext;
 
     Config Config;
     ErrorCallback OnError;
@@ -84,12 +86,18 @@ public:
             return;
 
         //Initialize OpenGL.
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, OpenGLVersion_Major);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, OpenGLVersion_Minor);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-        OpenGL = SDL_GL_CreateContext(Window);
-        if (!TrySDL(OpenGL, "Error initializing OpenGL context"))
+        if (!TrySDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, OpenGLVersion_Major), "Error setting GL major version") ||
+            !TrySDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, OpenGLVersion_Minor), "Error setting GL minor version") ||
+            !TrySDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE), "Error setting context profile") ||
+            !TrySDL(SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1), "Error setting double-buffering") ||
+            !TrySDL(SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24), "Error setting back buffer's depth bits") ||
+            !TrySDL(SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8), "Error setting back buffer's stencil bits") ||
+            !TrySDL(OpenGL = SDL_GL_CreateContext(Window), "Error initializing OpenGL context") ||
+            !TrySDL(SDL_GL_SetSwapInterval(1), "Error setting v-sync") //Enable vsync (0 is off, -1 is freesync/G-sync I think?)
+            )
+        {
             return;
+        }
 
         //Initialize GLEW
         glewExperimental = GL_TRUE;
@@ -100,10 +108,14 @@ public:
             return;
         }
 
-        //Set basic OpenGL settings.
-        //V-sync:
-        if (!TrySDL(SDL_GL_SetSwapInterval(1), "Setting VSync"))
-            return;
+        //Initialize Dear ImGUI.
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiContext = ImGui::GetIO();
+        ImGuiContext.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        ImGui::StyleColorsDark();
+        ImGui_ImplSDL2_InitForOpenGL(Window, OpenGL);
+        ImGui_ImplOpenGL3_Init(OpenGLVersionStr);
     }
     ~App()
     {
@@ -170,13 +182,16 @@ int main(int argc, char* argv[])
         SDL_Event sdlEvent;
         while (SDL_PollEvent(&sdlEvent) != 0)
         {
+            ImGui_ImplSDL2_ProcessEvent(&sdlEvent);
+
             switch (sdlEvent.type)
             {
                 case SDL_EventType::SDL_WINDOWEVENT:
                     switch (sdlEvent.window.event)
                     {
                         case SDL_WINDOWEVENT_CLOSE:
-                            quitApp = true;
+                            if (sdlEvent.window.windowID == SDL_GetWindowID(app.Window))
+                                quitApp = true;
                             break;
 
                         default: break;
@@ -192,9 +207,21 @@ int main(int argc, char* argv[])
             }
         }
 
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplSDL2_NewFrame(app.Window);
+        ImGui::NewFrame();
+
         //Update the app.
+        glm::vec2 v2{ 1, 4 };
+        ImGui::Text("Test");
+        ImGui::SliderFloat("V2.x", &v2.x, -2, 20);
 
         //Render the app.
+        ImGui::Render();
+        GL::SetViewport((int)app.ImGuiContext.DisplaySize.x,
+                        (int)app.ImGuiContext.DisplaySize.y);
+        GL::Clear(glm::vec4{ 0.8f, 0.3f, 0.8f, 1 });
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         SDL_GL_SwapWindow(app.Window);
     }
 
