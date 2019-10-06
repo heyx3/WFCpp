@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="Config.h" />
+    <ClInclude Include="IO.h" />
+    <ClInclude Include="dependencies\Full Source\nativefiledialog\common.h">
+      <Filter>Native File Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\Full Source\nativefiledialog\nfd_common.h">
+      <Filter>Native File Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\Full Source\nativefiledialog\include\nfd.h">
+      <Filter>Native File Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderLibs.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Config.cpp" />
+    <ClCompile Include="dependencies\Full Source\nativefiledialog\nfd_common.c">
+      <Filter>Native File Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\Full Source\nativefiledialog\nfd_win.cpp">
+      <Filter>Native File Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="IO.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Native File Dialog">
+      <UniqueIdentifier>{4ce03b81-0ba1-4555-b8a1-43f82b2ecc40}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
