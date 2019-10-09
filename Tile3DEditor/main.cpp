@@ -2,10 +2,14 @@
 //    so that destructors can still be called.
 //#define exit(code) throw code
 
+#include <memory>
+
 #include "RenderLibs.h"
 #include "Config.h"
 
 #include <WFC++\Tiled3D\State.h>
+
+#include "Apps/Base.h"
 
 
 namespace
@@ -19,15 +23,13 @@ namespace
 
 //The overarching stuff in the app, managed by RAII.
 //Also offers some covenience stuff like clearing the window.
-class App
+class AppResources
 {
 public:
 
     static const int OpenGLVersion_Major = 4,
                      OpenGLVersion_Minor = 0;
     static inline const char* OpenGLVersionStr = "#version 400";
-    static const int MinWindowWidth = 350,
-                     MinWindowHeight = 350;
 
     SDL_Window* Window = nullptr;
 
@@ -35,6 +37,8 @@ public:
     ImGuiIO ImGuiContext;
 
     Config Config;
+    bool WriteConfigOnQuit;
+
     ErrorCallback OnError;
 
 
@@ -49,22 +53,16 @@ public:
             Config.LastWindowWidth = wndW;
             Config.LastWindowHeight = wndH;
         }
-
-        //Make sure the window doesn't get too small.
-        if (data.event == SDL_WINDOWEVENT_RESIZED &&
-            (data.data1 < MinWindowWidth || data.data2 < MinWindowHeight))
-        {
-            SDL_SetWindowSize(Window,
-                              std::max(data.data1, MinWindowWidth),
-                              std::max(data.data2, MinWindowHeight));
-        }
     }
 
 
     #pragma region Initialization/shutdown
 
-    App(const std::string& windowTitle, ErrorCallback onError)
+    AppResources(const std::string& windowTitle, bool writeConfigOnQuit,
+                 ErrorCallback onError)
     {
+        WriteConfigOnQuit = writeConfigOnQuit;
+
         OnError = onError;
 
         //Load the config.
@@ -117,7 +115,7 @@ public:
         ImGui_ImplSDL2_InitForOpenGL(Window, OpenGL);
         ImGui_ImplOpenGL3_Init(OpenGLVersionStr);
     }
-    ~App()
+    ~AppResources()
     {
         //Clean up the window/SDL.
         if (OpenGL != nullptr)
@@ -126,15 +124,14 @@ public:
             SDL_DestroyWindow(Window);
         SDL_Quit();
 
-        //Write out the new config file,
-        //    unless we're running from the IDE.
-        if (!IsDebuggerPresent())
+        //Write out the new config file.
+        if (WriteConfigOnQuit)
             IO::WriteJsonToFile(GetConfigFullPath(), Config, OnError);
     }
 
     //No copy or move operator.
-    App(const App& cpy) = delete;
-    App& operator=(const App& cpy) = delete;
+    AppResources(const AppResources& cpy) = delete;
+    AppResources& operator=(const AppResources& cpy) = delete;
 
     #pragma endregion
 
@@ -159,8 +156,6 @@ private:
 
 int main(int argc, char* argv[])
 {
-    WFC::Tiled3D::Transform3D().ApplyToFace(WFC::Tiled3D::FacePermutation());
-
     std::cout << "Program path: " << fs::current_path() << "\n\n";
 
     //Set up error management.
@@ -172,57 +167,76 @@ int main(int argc, char* argv[])
                                  nullptr);
     };
 
+    //Load command-line settings.
+    bool writeConfigOnExit = true;
+    for (int argI = 0; argI < argc; ++argI)
+        if (std::string(argv[argI]) == "-noWriteConfig")
+            writeConfigOnExit = false;
+
     //Initialize the app's various modules.
-    App app("WFCpp Tile3D Editor", errorCallback);
+    AppResources app("WFCpp Tile3D Editor", writeConfigOnExit, errorCallback);
 
     //Run the main loop.
+    std::unique_ptr<Apps::Base> currentApp;
     while (!quitApp)
     {
+        //TODO: Pull into "Main Menu" app. Turn "Apps::Base" into more of a state machine.
+
         //Process window events.
         SDL_Event sdlEvent;
         while (SDL_PollEvent(&sdlEvent) != 0)
         {
             ImGui_ImplSDL2_ProcessEvent(&sdlEvent);
+            if (currentApp != nullptr)
+                currentApp->ProcessOSEvent(sdlEvent);
 
-            switch (sdlEvent.type)
+            if (sdlEvent.type == SDL_EventType::SDL_QUIT ||
+                (sdlEvent.type == SDL_EventType::SDL_WINDOWEVENT &&
+                 sdlEvent.window.event == SDL_WINDOWEVENT_CLOSE))
             {
-                case SDL_EventType::SDL_WINDOWEVENT:
-                    switch (sdlEvent.window.event)
-                    {
-                        case SDL_WINDOWEVENT_CLOSE:
-                            if (sdlEvent.window.windowID == SDL_GetWindowID(app.Window))
-                                quitApp = true;
-                            break;
-
-                        default: break;
-                    }
-                    app.OnWindowEvent(sdlEvent.window);
-                break;
-            
-                case SDL_QUIT:
-                    quitApp = true;
-                break;
-                 
-                default: break;
+                quitApp = true;
             }
         }
 
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplSDL2_NewFrame(app.Window);
-        ImGui::NewFrame();
+        if (currentApp != nullptr)
+        {
+            if (quitApp)
+                quitApp = currentApp->DoQuit(false);
+            if (currentApp->DidQuit())
+               currentApp.reset();
+        }
 
         //Update the app.
-        glm::vec2 v2{ 1, 4 };
-        ImGui::Text("Test");
-        ImGui::SliderFloat("V2.x", &v2.x, -2, 20);
+        if (currentApp == nullptr)
+        {
+            GL::Clear(0.2f, 0.2f, 0.5f, 1);
 
-        //Render the app.
-        ImGui::Render();
-        GL::SetViewport((int)app.ImGuiContext.DisplaySize.x,
-                        (int)app.ImGuiContext.DisplaySize.y);
-        GL::Clear(glm::vec4{ 0.8f, 0.3f, 0.8f, 1 });
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        SDL_GL_SwapWindow(app.Window);
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplSDL2_NewFrame(app.Window);
+            ImGui::NewFrame();
+
+            ImGui::Begin("Main Menu", nullptr,
+                         ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize);
+
+            if (ImGui::Button("Tile Prefab Editor"))
+                ; //TODO: Make Tile Prefab Editor.
+            if (ImGui::Button("Tile Editor"))
+                ; //TODO: Make Tile Editor.
+            if (ImGui::Button("Tile Runner"))
+                ; //TODO: Make Tile Runner.
+
+            ImGui::End();
+
+            ImGui::Render();
+            GL::SetViewport((int)app.ImGuiContext.DisplaySize.x,
+                (int)app.ImGuiContext.DisplaySize.y);
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            SDL_GL_SwapWindow(app.Window);
+        }
+        else
+        {
+            currentApp->RunAppFrame();
+        }
     }
 
     return 0;

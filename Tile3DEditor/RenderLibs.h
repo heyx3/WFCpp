@@ -23,4 +23,4 @@
 
 #include <assimp/scene.h>
 
-#include "RenderHelpers.h"
+#include "Renderer/Helpers.h"

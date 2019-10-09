@@ -31,7 +31,6 @@
     <ClInclude Include="dependencies\Full Source\Dear ImGui\imstb_truetype.h">
       <Filter>Dear ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="RenderHelpers.h" />
     <ClInclude Include="dependencies\Full Source\Dear ImGui\imgui_impl_opengl3.h">
       <Filter>Dear ImGui</Filter>
     </ClInclude>
@@ -40,6 +39,12 @@
     </ClInclude>
     <ClInclude Include="dependencies\Full Source\nativefiledialog\nfd.h">
       <Filter>Native File Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Helpers.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Apps\Base.h">
+      <Filter>Apps</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -64,12 +69,17 @@
     <ClCompile Include="dependencies\Full Source\Dear ImGui\imgui_widgets.cpp">
       <Filter>Dear ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="RenderHelpers.cpp" />
     <ClCompile Include="dependencies\Full Source\Dear ImGui\imgui_impl_opengl3.cpp">
       <Filter>Dear ImGui</Filter>
     </ClCompile>
     <ClCompile Include="dependencies\Full Source\Dear ImGui\imgui_impl_sdl.cpp">
       <Filter>Dear ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Helpers.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Apps\Base.cpp">
+      <Filter>Apps</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -81,6 +91,9 @@
     </Filter>
     <Filter Include="Renderer">
       <UniqueIdentifier>{40c8695a-51c8-4ce1-a153-54ac8002ad24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Apps">
+      <UniqueIdentifier>{b2fc426b-34f6-4c7c-a187-1049af86873f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
-#include "RenderHelpers.h"
+#include "Helpers.h"
 
-#include "RenderLibs.h"
+#include "../RenderLibs.h"
 
 
 void GL::Clear(float r, float g, float b, float a)

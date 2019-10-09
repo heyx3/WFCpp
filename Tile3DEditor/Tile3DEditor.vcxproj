@@ -114,7 +114,8 @@
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)dependencies\bin" "$(TargetDir)" /E /Y
-xcopy "$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration)\WFC++.*" "$(TargetDir)" /Y</Command>
+xcopy "$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration)\WFC++.*" "$(TargetDir)" /Y
+xcopy "$(ProjectDir)content\*" "$(TargetDir)content\" /E /Y</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy dependencies to build</Message>
@@ -147,7 +148,8 @@ xcopy "$(SolutionDir)WFC++\*.hpp" "$(ProjectDir)dependencies\include\WFC++\" /sy
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)dependencies\bin" "$(TargetDir)" /E /Y
-xcopy "$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration)\WFC++.*" "$(TargetDir)" /Y</Command>
+xcopy "$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration)\WFC++.*" "$(TargetDir)" /Y
+xcopy "$(ProjectDir)content\*" "$(TargetDir)content\" /E /Y</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy dependencies to build</Message>
@@ -184,7 +186,8 @@ xcopy "$(SolutionDir)WFC++\*.hpp" "$(ProjectDir)dependencies\include\WFC++\" /sy
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)dependencies\bin" "$(TargetDir)" /E /Y
-xcopy "$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration)\WFC++.*" "$(TargetDir)" /Y</Command>
+xcopy "$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration)\WFC++.*" "$(TargetDir)" /Y
+xcopy "$(ProjectDir)content\*" "$(TargetDir)content\" /E /Y</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy dependencies to build</Message>
@@ -221,7 +224,8 @@ xcopy "$(SolutionDir)WFC++\*.hpp" "$(ProjectDir)dependencies\include\WFC++\" /sy
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)dependencies\bin" "$(TargetDir)" /E /Y
-xcopy "$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration)\WFC++.*" "$(TargetDir)" /Y</Command>
+xcopy "$(SolutionDir)Build\WFC++\$(Platform)\$(Configuration)\WFC++.*" "$(TargetDir)" /Y
+xcopy "$(ProjectDir)content\*" "$(TargetDir)content\" /E /Y</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy dependencies to build</Message>
@@ -235,6 +239,7 @@ xcopy "$(SolutionDir)WFC++\*.hpp" "$(ProjectDir)dependencies\include\WFC++\" /sy
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Apps\Base.cpp" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="dependencies\Full Source\Dear ImGui\imgui.cpp" />
     <ClCompile Include="dependencies\Full Source\Dear ImGui\imgui_draw.cpp" />
@@ -246,9 +251,10 @@ xcopy "$(SolutionDir)WFC++\*.hpp" "$(ProjectDir)dependencies\include\WFC++\" /sy
     <ClCompile Include="dependencies\Full Source\nativefiledialog\nfd_win.cpp" />
     <ClCompile Include="IO.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="RenderHelpers.cpp" />
+    <ClCompile Include="Renderer\Helpers.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Apps\Base.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="dependencies\Full Source\Dear ImGui\imconfig.h" />
     <ClInclude Include="dependencies\Full Source\Dear ImGui\imgui.h" />
@@ -262,7 +268,7 @@ xcopy "$(SolutionDir)WFC++\*.hpp" "$(ProjectDir)dependencies\include\WFC++\" /sy
     <ClInclude Include="dependencies\Full Source\nativefiledialog\common.h" />
     <ClInclude Include="dependencies\Full Source\nativefiledialog\nfd.h" />
     <ClInclude Include="dependencies\Full Source\nativefiledialog\nfd_common.h" />
-    <ClInclude Include="RenderHelpers.h" />
+    <ClInclude Include="Renderer\Helpers.h" />
     <ClInclude Include="RenderLibs.h" />
     <ClInclude Include="IO.h" />
   </ItemGroup>
