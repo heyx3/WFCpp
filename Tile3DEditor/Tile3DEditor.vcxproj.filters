@@ -46,6 +46,10 @@
     <ClInclude Include="Apps\Base.h">
       <Filter>Apps</Filter>
     </ClInclude>
+    <ClInclude Include="Renderer\Files\Mesh.h">
+      <Filter>Renderer\Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Files\Mesh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -94,6 +98,9 @@
     </Filter>
     <Filter Include="Apps">
       <UniqueIdentifier>{b2fc426b-34f6-4c7c-a187-1049af86873f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\Files">
+      <UniqueIdentifier>{4a024b15-3ff1-4fef-a7d8-515e8cea88d3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

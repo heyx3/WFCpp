@@ -268,7 +268,9 @@ xcopy "$(SolutionDir)WFC++\*.hpp" "$(ProjectDir)dependencies\include\WFC++\" /sy
     <ClInclude Include="dependencies\Full Source\nativefiledialog\common.h" />
     <ClInclude Include="dependencies\Full Source\nativefiledialog\nfd.h" />
     <ClInclude Include="dependencies\Full Source\nativefiledialog\nfd_common.h" />
+    <ClInclude Include="Renderer\Files\Mesh.h" />
     <ClInclude Include="Renderer\Helpers.h" />
+    <ClInclude Include="Renderer\Files\Mesh.cpp" />
     <ClInclude Include="RenderLibs.h" />
     <ClInclude Include="IO.h" />
   </ItemGroup>
