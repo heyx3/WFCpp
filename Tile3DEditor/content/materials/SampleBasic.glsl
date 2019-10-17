@@ -13,6 +13,8 @@
 //Features toggled by the material settings:
 #define NORMAL_MAP 1
 
+//...user configuration goes here...
+
 
 //Vertex inputs:
 layout (location = 0) in vec3 vIn_Pos;
@@ -60,6 +62,10 @@ uniform S_Camera            u_Camera;
 uniform S_Light_Directional u_Lights_Directional[c_MaxDirectionalLights];
 uniform S_Light_Point       u_Lights_Point[c_MaxPointLights];
 uniform uint                u_Lights_NDirectional, u_Lights_NPoint;
+uniform vec3                u_SurfaceTint = 1.0f;
+
+uniform sampler2D u_DiffuseMap;
+uniform sampler2D u_NormalMap;
 
 
 //Custom definitions:
@@ -112,8 +118,13 @@ vec3 H_GetLightColor(S_Light_Point light,
                            fragToCamDir);
 }
 
+//....custom user definitions go here....
+
 void main()
 {
+    //Module: Setup
+    //--------
+
     //Module: UV.
     vOut_UV = vIn_UV;
     //--------
@@ -140,28 +151,21 @@ void main()
 }
 
 
+//TODO: Geometry shader?
+
 //=========================================
 //           Fragment Shader:
 //=========================================
 
-//User-defined configuration:
-layout (depth_unchanged) out float gl_FragDepth;
-
 //...same defines as above...
 
-//Auto-generated for readability:
-#define fIn_UV vOut_UV
-#define fIn_WorldPos vOut_WorldPos
-#define fIn_WorldNormal vOut_WorldNormal
-#define fIn_WorldTangent vOut_WorldTangent
-#define fIn_WorldBitangent vOut_WorldBitangent
+//...user configuration goes here...
 
-
-in vec2 fIn_UV;
-in vec3 fIn_WorldPos;
-in vec3 fIn_WorldNormal;
-in vec3 fIn_WorldTangent;
-in vec3 fIn_WorldBitangent;
+in vec2 vOut_UV;
+in vec3 vOut_WorldPos;
+in vec3 vOut_WorldNormal;
+in vec3 vOut_WorldTangent;
+in vec3 vOut_WorldBitangent;
 
 out vec4 fOut_Color;
 
@@ -170,21 +174,56 @@ out vec4 fOut_Color;
 
 void main()
 {
+    //Define local versions of the vertex inputs in case they'll be modified.
+    vec2 fIn_UV = vOut_UV;
+    vec3 fIn_WorldPos = vOut_WorldPos;
+    vec3 fIn_WorldNormal = vOut_WorldNormal;
+    vec3 fIn_WorldTangent = vOut_WorldTangent;
+    vec3 fIn_WorldBitangent = vOut_WorldBitangent;
+
+    //Module: Setup
+    //--------
+
+    vec3 fIn_TrueWorldNormal = fIn_WorldNormal;
+    #if NORMAL_MAP
+    //Module: NormalMapping
+    fIn_WorldNormal = H_TransformVector(H_GetNormalMapTransform(),
+                                        H_UnpackNormalMapN(texture(u_NormalMap, fIn_UV)));
+    //--------
+    #endif
+
+    //Module: SetupPostNormalMap
+    //--------
+    
+    //Module: LightGather
     vec3 fragToCamDir = normalize(u_Camera.Pos - fIn_WorldPos);
-
-    //TODO: Normal-mapping.
-
-    //Module: Light Gather
     vec3 totalLight = 0.0f;
-    //Module: Directional Light Gather
+    //Module: DirectionalLightGather
     for (int i = 0; i < u_Lights_NDirectional; ++i)
         totalLight += H_GetLightColor(u_Lights_Directional[i],
                                       fIn_WorldPos, fIn_WorldNormal, fragToCamDir);
     //--------
-    //Module: Point Light Gather
+    //Module: PointLightGather
     for (int i = 0; i < u_Lights_NPoint; ++i)
         totalLight += H_GetLightColor(u_Lights_Point[i],
                                       fIn_WorldPos, fIn_WorldNormal, fragToCamDir);
+    //--------
+    //--------
+    
+    vec3 diffuseColor = u_SurfaceTint;
+    float alpha = 1.0f;
+    
+    //Module: GetDiffuse
+    vec4 diffuse4 = texture(u_DiffuseMap, fIn_UV);
+    //--------
+    diffuseColor *= diffuse4.rgb;
+    alpha = diffuse4.a;
 
-    //TODO: Rest of shader. 
+    //Module: ApplyLight
+    vec3 surfaceColor = totalLight * diffuseColor;
+    //--------
+
+    //Module: Finalize
+    fOut_Color = vec4(surfaceColor, alpha);
+    //--------
 }

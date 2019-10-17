@@ -1,35 +1,83 @@
-type = "Basic"
+[blending] # Default is opaque blending.
+    src = "SrcAlpha"
+    dest = "OneMinusSrcAlpha"
+    op = "Add"
+
+#TODO: Plan stencil settings.
+
+#TODO: Alpha-test settings.
+
+cull = "off" # Options are On, Off, and Backwards
+
+
+type = "Phong" # A simple Phong-lit model, for testing.
+
+
+[queue] # When this material is drawn in the render pipeline.
+    base = "Transparent" # Drawn after all opaque things. Other option is "Opaque".
+    offset = 0 # Drawn at the default time, with other transparent things.
+
+#TODO: Depth-test settings.
+#TODO: Able to ask for the opaque rendered scene?
+
+
+globals = '''
+//Any other things the user wants to define.
+struct MyData { ... };
+'''
 
 [params]
-    float.u_Contrast = 1.0 # float parameter that defaults to 1.
+    [params.float.u_Contrast] # Global contrast setting from 0 to 1.
+        default = 1.0
+        min = 0
+        max = 1
+        slider = true
+        slider_power = 3
 
+    [params.float.u_WorldScale] # World UV's scale.
+        default = 10.0
+        min = 0
 
-[vertex_shader]
-    required_inputs = [ # Any vertex data required by your custom code, unrelated to the built-in effects.
-        "WorldPos", # For world-space UV's.
-    ]
-    custom_outputs = [ # Any custom data being output from the fragment shader, other than the usual.
-    ]
+    [params.tex2d.u_ContrastMap]
+        default = "black" # Defaults to a 1x1 black texture.
+        filter = "linear" # Options: "Point", "Linear", "Trilinear".
+                            # If not set, then a specific value isn't forced.
+        wrapping = "repeat" # Options: "Repeat", "Clamp", "MirrorRepeat", "MirrorClamp"
+                            # If not set, then a specific value isn't forced.
+        requireMips = false # Defaults to false.
+            
 
-    [vertex_shader.override_code] # Changing how various parts of the shader are implemented.
-        UV = ''' //Changing how UVs are calculated:
-vOut_UV = Space_ObjectToWorld_Fast(vIn_Pos).xy;
+[vertexShader]
+
+    [[vertexShader.customOutput]] # A user-defined vertex shader output/fragment shader input.
+        name = "WorldUV"
+        type = "vec2"
+
+    configuration = '''
+//Configuring the vertex shader:
 '''
 
-[fragment_shader]
-
-    configuration = ''' //Configuring the fragment shader:
-layout (depth_unchanged) out float gl_FragDepth;
+    [vertexShader.customModules] # Changing how various "modules" of the shader are implemented.
+        OtherOutputs = '''
+//A "module" for users to set their custom vertex shader outputs.
+vOut_WorldUV = vOut_WorldPos.xy * u_WorldScale;
 '''
 
-    override_outputs = [ # Anything that you're going to do differently from how it's normally done.
-        "Color" # Going to apply some contrast to the output color.
-    ]
+[fragmentShader]
 
-    [fragment_shader.override_code]
-        Color = '''
+    configuration = '''
+//Configuring the fragment shader:
+layout (depth_unchanged) out float gl_FragDepth; //A no-op; pls ignore
+'''
+    [fragmentShader.customModules]
+        GetDiffuse = '''
+//Sample diffuse texture with world-space UVs.
+vec4 diffuse4 = texture(u_DiffuseMap, fIn_WorldUV);
+'''
+        Finalize = '''
 //Shader code that computes final output color.
-fOut_Color = lerp(fOut_Color,
-                  smoothstep(0, 1, smoothstep(0, 1, smoothstep(0, 1, fOut_Color))),
+float contrast = u_Contrast * texture(u_ContrastMap, fIn_UV
+fOut_Color = lerp(surfaceColor,
+                  smoothstep(0, 1, smoothstep(0, 1, smoothstep(0, 1, surfaceColor))),
                   u_Contrast); //Apply the contrast.
 '''
