@@ -1,0 +1,35 @@
+type = "Basic"
+
+[params]
+    float.u_Contrast = 1.0 # float parameter that defaults to 1.
+
+
+[vertex_shader]
+    required_inputs = [ # Any vertex data required by your custom code, unrelated to the built-in effects.
+        "WorldPos", # For world-space UV's.
+    ]
+    custom_outputs = [ # Any custom data being output from the fragment shader, other than the usual.
+    ]
+
+    [vertex_shader.override_code] # Changing how various parts of the shader are implemented.
+        UV = ''' //Changing how UVs are calculated:
+vOut_UV = Space_ObjectToWorld_Fast(vIn_Pos).xy;
+'''
+
+[fragment_shader]
+
+    configuration = ''' //Configuring the fragment shader:
+layout (depth_unchanged) out float gl_FragDepth;
+'''
+
+    override_outputs = [ # Anything that you're going to do differently from how it's normally done.
+        "Color" # Going to apply some contrast to the output color.
+    ]
+
+    [fragment_shader.override_code]
+        Color = '''
+//Shader code that computes final output color.
+fOut_Color = lerp(fOut_Color,
+                  smoothstep(0, 1, smoothstep(0, 1, smoothstep(0, 1, fOut_Color))),
+                  u_Contrast); //Apply the contrast.
+'''
