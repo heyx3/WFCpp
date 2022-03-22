@@ -108,14 +108,14 @@ namespace WFC
 
 
         //Different ways to rotate a cube while keeping it axis-aligned.
-        enum WFC_API Rotations3D : uint8_t
+        enum class WFC_API Rotations3D : uint8_t
         {
             //Note that some functions and lookup tables depend on the exact ordering here!
 
-            //0 or 360-degree rotation.
+            //0- or 360-degree rotation.
             None,
 
-            //Rotation along an axis, clockwise when facing the positive face.
+            //Rotation along an axis, clockwise when looking at the positive face.
             AxisX_90, AxisX_180, AxisX_270,
             AxisY_90, AxisY_180, AxisY_270,
             AxisZ_90, AxisZ_180, AxisZ_270,
@@ -155,7 +155,7 @@ namespace WFC
         };
 
 
-        //Reprsents a transformation that can be done to a cube without changing its shape.
+        //Reprsents a transformation that can be done to a cube (while keeping it axis-aligned).
         struct WFC_API Transform3D
         {
             //If true, this transform flips the cube along every axis before rotating.

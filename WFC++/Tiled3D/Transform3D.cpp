@@ -18,7 +18,7 @@ namespace
     //For example, to see what happens to the MinX face
     //    when applying RotY90, use
     //    "Lookup_DirTransforms[MinX][RotY90]".
-    std::array<std::array<Directions3D, Rotations3D::Count>,
+    std::array<std::array<Directions3D, (size_t)Rotations3D::Count>,
                N_DIRECTIONS3D> Lookup_DirTransforms = { {
         #pragma region MinX
         {
@@ -498,7 +498,7 @@ Directions3D Transform3D::ApplyToSide(Directions3D side) const
 {
     if (Invert)
         side = GetOpposite(side);
-    side = Lookup_DirTransforms[side][Rot];
+    side = Lookup_DirTransforms[side][(int)Rot];
     return side;
 }
 FacePermutation Transform3D::ApplyToFace(FacePermutation face) const

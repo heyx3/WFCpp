@@ -7,8 +7,7 @@ namespace WFC
 {
     namespace Tiled3D
     {
-        //Unique identifiers for each tile cube.
-        //Note that this ID changes under transformation.
+        //Unique identifiers for each tile permutation.
         using TileID = uint_fast32_t;
         const TileID TileID_INVALID = -1;
 

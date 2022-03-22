@@ -49,9 +49,9 @@ namespace WFC
             State(const InputData& input, Vector3i outputSize,
                   unsigned int seed, bool periodicX, bool periodicY, bool periodicZ,
                   Vector3i clearSize)
-                : Input(input), Output(outputSize), rng(seed),
+                : Input(input), Output(outputSize),
                   IsPeriodicX(periodicX), IsPeriodicY(periodicY), IsPeriodicZ(periodicZ),
-                  ClearSize(clearSize)
+                  rng(seed), ClearSize(clearSize)
             {
                 Reset(outputSize);
             }
