@@ -105,5 +105,14 @@ WFCunity/*.csproj
 WFCunity/*.sln
 WFCunity/Assets/WFC_DLL
 
-# Auto-copied headers
+# Unreal stuff
+WFCunreal/*.sln
+WFCunreal/Intermediate
+WFCunreal/Saved
+WFCunreal/DerivedDataCache
+WFCunreal/Binaries
+WFCunreal/.idea
+
+# Auto-copied code
 Tile3DEditor/dependencies/include/WFC++
+WFCunreal/Source/MyProject/Private/WFCpp
