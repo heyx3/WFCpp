@@ -70,9 +70,10 @@ void UWFC_Contr::Start(float tileSize, const TArray<FWFC_TileRef>& tiles, FIntVe
 		sourceTileID += 1;
 	}
 
+	wfcInput = WFC::Tiled3D::InputData(tilesBuffer);
+
 	//Start the algorithm.
-	state = WFC::Tiled3D::State(WFC::Tiled3D::InputData(tilesBuffer),
-								WFC::Vector3i(gridSize.X, gridSize.Y, gridSize.Z),
+	state = WFC::Tiled3D::State(wfcInput, WFC::Vector3i(gridSize.X, gridSize.Y, gridSize.Z),
 								static_cast<uint32_t>(seed),
 								periodicX, periodicY, periodicZ,
 								WFC::Vector3i(clearSize.X, clearSize.Y, clearSize.Z));

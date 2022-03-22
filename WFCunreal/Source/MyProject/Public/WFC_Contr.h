@@ -49,7 +49,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="WFC/Algorithm")
 	float GetProgress() const;
 	
-	//TODO: More ways to get information about the current sim state
+	//TODO: More ways to get information about the algorithm
 
 	//-----------------
 	//  Result queries
@@ -95,6 +95,7 @@ private:
 
 	//Arrays used to build sim inputs on startup.
 	WFC::List<WFC::Tiled3D::Tile> tilesBuffer;
+	WFC::Tiled3D::InputData wfcInput;
 
 	//Arrays used to translate the output of WFC back into Unreal.
 	TMap<WFC::Tiled3D::TileID, TTuple<WFC::Tiled3D::Transform3D, TSubclassOf<AActor>, int>> tilesByID;
