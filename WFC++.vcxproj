@@ -21,32 +21,32 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{38A88B72-ACE0-400E-AC82-677C89622B69}</ProjectGuid>
     <RootNamespace>WFC</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -107,16 +107,22 @@ xcopy "$(ProjectDir)WFC++\*.h" "$(TargetDir)include" /sy
 xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy
 
 REM Clear Unity C# directory
-set UNITY_WFC_DIR=$(SolutionDir)WFCunity\Assets\WFC_DLL
+set UNITY_WFC_DIR=$(SolutionDir)WFCunity\Assets\WFCpp\WFC_DLL
 del /q "%UNITY_WFC_DIR%"
 
 REM Move C# scripts and DLL to Unity C# directory
 xcopy "$(TargetDir)..\CSharp_include" "%UNITY_WFC_DIR%\" /sy
 xcopy "$(TargetDir)*.dll" "%UNITY_WFC_DIR%\" /sy
-xcopy "$(TargetDir)*.pdb" "%UNITY_WFC_DIR%\" /sy</Command>
+xcopy "$(TargetDir)*.pdb" "%UNITY_WFC_DIR%\" /sy
+
+REM Move relevant Cpp files to Unreal Source directory
+xcopy "$(ProjectDir)WFC++\*.cpp" "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp" /sy
+del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\Simple"
+del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\SWIG"
+del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\Tiled"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copy headers to build folder and SWIG C# to Unity folder</Message>
+      <Message>Copy headers to build folder, SWIG C# to Unity, Everything to Unreal</Message>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>REM Make sure Swig exists
@@ -167,10 +173,16 @@ del /q "%UNITY_WFC_DIR%"
 REM Move C# scripts and DLL to Unity C# directory
 xcopy "$(TargetDir)..\CSharp_include" "%UNITY_WFC_DIR%\" /sy
 xcopy "$(TargetDir)*.dll" "%UNITY_WFC_DIR%\" /sy
-xcopy "$(TargetDir)*.pdb" "%UNITY_WFC_DIR%\" /sy</Command>
+xcopy "$(TargetDir)*.pdb" "%UNITY_WFC_DIR%\" /sy
+
+REM Move relevant Cpp files to Unreal Source directory
+xcopy "$(ProjectDir)WFC++\*.cpp" "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp" /sy
+del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\Simple"
+del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\SWIG"
+del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\Tiled"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copy headers to build folder and SWIG C# to Unity folder</Message>
+      <Message>Copy headers to build folder, SWIG C# to Unity, Everything to Unreal</Message>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>REM Make sure Swig exists
@@ -221,16 +233,22 @@ xcopy "$(ProjectDir)WFC++\*.h" "$(TargetDir)include" /sy
 xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy
 
 REM Clear Unity C# directory
-set UNITY_WFC_DIR=$(SolutionDir)WFCunity\Assets\WFC_DLL
+set UNITY_WFC_DIR=$(SolutionDir)WFCunity\Assets\WFCpp\WFC_DLL
 del /q "%UNITY_WFC_DIR%"
 
 REM Move C# scripts and DLL to Unity C# directory
 xcopy "$(TargetDir)..\CSharp_include" "%UNITY_WFC_DIR%\" /sy
 xcopy "$(TargetDir)*.dll" "%UNITY_WFC_DIR%\" /sy
-xcopy "$(TargetDir)*.pdb" "%UNITY_WFC_DIR%\" /sy</Command>
+xcopy "$(TargetDir)*.pdb" "%UNITY_WFC_DIR%\" /sy
+
+REM Move relevant Cpp files to Unreal Source directory
+xcopy "$(ProjectDir)WFC++\*.cpp" "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp" /sy
+del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\Simple"
+del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\SWIG"
+del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\Tiled"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copy headers to build folder and SWIG C# to Unity folder</Message>
+      <Message>Copy headers to build folder, SWIG C# to Unity, Everything to Unreal</Message>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>REM Make sure Swig exists
@@ -281,16 +299,22 @@ xcopy "$(ProjectDir)WFC++\*.h" "$(TargetDir)include" /sy
 xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy
 
 REM Clear Unity C# directory
-set UNITY_WFC_DIR=$(SolutionDir)WFCunity\Assets\WFC_DLL
+set UNITY_WFC_DIR=$(SolutionDir)WFCunity\Assets\WFCpp\WFC_DLL
 del /q "%UNITY_WFC_DIR%"
 
 REM Move C# scripts and DLL to Unity C# directory
 xcopy "$(TargetDir)..\CSharp_include" "%UNITY_WFC_DIR%\" /sy
 xcopy "$(TargetDir)*.dll" "%UNITY_WFC_DIR%\" /sy
-xcopy "$(TargetDir)*.pdb" "%UNITY_WFC_DIR%\" /sy</Command>
+xcopy "$(TargetDir)*.pdb" "%UNITY_WFC_DIR%\" /sy
+
+REM Move relevant Cpp files to Unreal Source directory
+xcopy "$(ProjectDir)WFC++\*.cpp" "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp" /sy
+del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\Simple"
+del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\SWIG"
+del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\Tiled"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copy headers to build folder and SWIG C# to Unity folder</Message>
+      <Message>Copy headers to build folder, SWIG C# to Unity, Everything to Unreal</Message>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>REM Make sure Swig exists
