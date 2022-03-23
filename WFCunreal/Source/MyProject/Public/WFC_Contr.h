@@ -48,14 +48,22 @@ public:
 	//Returns a progress indicator from 0 to 1.
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="WFC/Algorithm")
 	float GetProgress() const;
-	
+
 	//TODO: More ways to get information about the algorithm
 
 	//-----------------
 	//  Result queries
 	//-----------------
 
-	//TODO: Provide result data
+	//Gets the value at the given cell, if it exists.
+	//Returns whether the value existed or not.
+	//Outputs the original index of the tile (from the array you passed in on start),
+	//    along with its associated Actor and its the particular permutation.
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="WFC/Algorithm")
+	bool GetCell(FIntVector cell,
+				 int& out_SourceIdx,
+				 TSubclassOf<AActor>& out_SourceActor,
+				 FWFC_Transform3D& out_tileTransform) const;
 
 	
 	//-------------
@@ -66,7 +74,6 @@ public:
 	//Note that if 'clearSize' is set to zero, then WFC will fail if it encounters an unsolvable grid cell.
 	UFUNCTION(BlueprintCallable, Category="WFC/Ops", meta=(AdvancedDisplay=5))
 	void Start(float tileSize, const TArray<FWFC_TileRef>& tiles, FIntVector gridSize,
-			   //TEST HI THERE
 	           FIntVector clearSize,
 	           int seedU32 = 1234567890,
 	           bool periodicX = false,

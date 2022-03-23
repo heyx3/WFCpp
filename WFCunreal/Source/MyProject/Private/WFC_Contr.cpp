@@ -27,6 +27,39 @@ float UWFC_Contr::GetProgress() const
 	}
 }
 
+bool UWFC_Contr::GetCell(FIntVector cell,
+						 int& out_SourceIdx,
+						 TSubclassOf<AActor>& out_SourceActor,
+						 FWFC_Transform3D& out_tileTransform) const
+{
+	UWFC_CHECK(GetStatus() != WFC_SimState::Off, "Simulation hasn't started yet");
+	verify(state.IsSet());
+	const auto& wfc = state.GetValue();
+
+	WFC::Vector3i wfcPos(cell.X, cell.Y, cell.Z);
+	WFC::Region3i wfcBounds(wfc.Output.GetDimensions());
+	UWFC_CHECK(wfcBounds.Contains(wfcPos), "");
+	const auto& wfcTile = wfc.Output[wfcPos];
+
+	if (wfcTile.IsSet())
+	{
+		const auto& sourceData = tilesByID[wfcTile.Value.Value];
+	    out_SourceIdx = sourceData.Get<2>();
+		out_SourceActor = sourceData.Get<1>();
+		out_tileTransform = FWFC_Transform3D{ sourceData.Get<0>().Invert,
+											  (WFC_Rotations3D)sourceData.Get<0>().Rot
+											};
+		return true;
+	}
+	else
+	{
+		out_SourceIdx = -1;
+		out_SourceActor = nullptr;
+		out_tileTransform = FWFC_Transform3D{ false, WFC_Rotations3D::None };
+		return false;
+	}
+}
+
 
 void UWFC_Contr::Start(float tileSize, const TArray<FWFC_TileRef>& tiles, FIntVector gridSize,
 					   FIntVector clearSize, int seed,
@@ -61,9 +94,7 @@ void UWFC_Contr::Start(float tileSize, const TArray<FWFC_TileRef>& tiles, FIntVe
 		//Generate the un-transformed tile.
 		tilesBuffer.PushBack(WFC::Tiled3D::Tile{ tileFaces.ToInternal(), static_cast<uint32_t>(tileRef.Weight) });
 		tilesByID.Add(tilesBuffer.GetSize() - 1,
-					  TTuple<WFC::Tiled3D::Transform3D, TSubclassOf<AActor>, int>(
-					      WFC::Tiled3D::Transform3D(), tileRef.Source.Get(), sourceTileID
-					  ));
+					  MakeTuple(WFC::Tiled3D::Transform3D(), tileRef.Source.Get(), sourceTileID));
 
 		//TODO: Generate permutations as requested
 
@@ -106,8 +137,6 @@ void UWFC_Contr::Tick()
 			for (int i = 0; i < failuresBuffer.GetSize(); ++i)
 				failures.Push(FIntVector(failuresBuffer[i].x, failuresBuffer[i].y, failuresBuffer[i].z));
 		}
-
-		state = TOptional<WFC::Tiled3D::State>();
 	}
 }
 

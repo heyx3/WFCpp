@@ -175,7 +175,6 @@ namespace WFC
             FacePermutation ApplyToFace(FacePermutation currentFace) const;
             //Gets the new permutated cube after this transformation.
             CubePermutation ApplyToCube(CubePermutation currentCube) const;
-
         };
 
         inline bool operator==(Transform3D t1, Transform3D t2)
