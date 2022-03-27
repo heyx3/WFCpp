@@ -116,10 +116,11 @@ xcopy "$(TargetDir)*.dll" "%UNITY_WFC_DIR%\" /sy
 xcopy "$(TargetDir)*.pdb" "%UNITY_WFC_DIR%\" /sy
 
 REM Move relevant Cpp files to Unreal Source directory
-xcopy "$(ProjectDir)WFC++\*.cpp" "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp" /sy
-del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\Simple"
-del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\SWIG"
-del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\Tiled"</Command>
+set UNREAL_WFC_DIR=$(SolutionDir)WfcppDemo\Source\WfcppRuntime
+xcopy "$(ProjectDir)WFC++\*.cpp" "%UNREAL_WFC_DIR%\Private\WFCpp\" /sy
+del /q "%UNREAL_WFC_DIR%\Private\WFCpp\Simple"
+del /q "%UNREAL_WFC_DIR%\Private\WFCpp\SWIG"
+del /q "%UNREAL_WFC_DIR%\Private\WFCpp\Tiled"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy headers to build folder, SWIG C# to Unity, Everything to Unreal</Message>
@@ -176,10 +177,11 @@ xcopy "$(TargetDir)*.dll" "%UNITY_WFC_DIR%\" /sy
 xcopy "$(TargetDir)*.pdb" "%UNITY_WFC_DIR%\" /sy
 
 REM Move relevant Cpp files to Unreal Source directory
-xcopy "$(ProjectDir)WFC++\*.cpp" "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp" /sy
-del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\Simple"
-del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\SWIG"
-del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\Tiled"</Command>
+set UNREAL_WFC_DIR=$(SolutionDir)WfcppDemo\Source\WfcppRuntime
+xcopy "$(ProjectDir)WFC++\*.cpp" "%UNREAL_WFC_DIR%\Private\WFCpp\" /sy
+del /q "%UNREAL_WFC_DIR%\Private\WFCpp\Simple"
+del /q "%UNREAL_WFC_DIR%\Private\WFCpp\SWIG"
+del /q "%UNREAL_WFC_DIR%\Private\WFCpp\Tiled"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy headers to build folder, SWIG C# to Unity, Everything to Unreal</Message>
@@ -242,10 +244,11 @@ xcopy "$(TargetDir)*.dll" "%UNITY_WFC_DIR%\" /sy
 xcopy "$(TargetDir)*.pdb" "%UNITY_WFC_DIR%\" /sy
 
 REM Move relevant Cpp files to Unreal Source directory
-xcopy "$(ProjectDir)WFC++\*.cpp" "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp" /sy
-del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\Simple"
-del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\SWIG"
-del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\Tiled"</Command>
+set UNREAL_WFC_DIR=$(SolutionDir)WfcppDemo\Source\WfcppRuntime
+xcopy "$(ProjectDir)WFC++\*.cpp" "%UNREAL_WFC_DIR%\Private\WFCpp\" /sy
+del /q "%UNREAL_WFC_DIR%\Private\WFCpp\Simple"
+del /q "%UNREAL_WFC_DIR%\Private\WFCpp\SWIG"
+del /q "%UNREAL_WFC_DIR%\Private\WFCpp\Tiled"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy headers to build folder, SWIG C# to Unity, Everything to Unreal</Message>
@@ -308,10 +311,11 @@ xcopy "$(TargetDir)*.dll" "%UNITY_WFC_DIR%\" /sy
 xcopy "$(TargetDir)*.pdb" "%UNITY_WFC_DIR%\" /sy
 
 REM Move relevant Cpp files to Unreal Source directory
-xcopy "$(ProjectDir)WFC++\*.cpp" "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp" /sy
-del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\Simple"
-del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\SWIG"
-del /q "$(SolutionDir)WFCunreal\Source\MyProject\Private\WFCpp\Tiled"</Command>
+set UNREAL_WFC_DIR=$(SolutionDir)WfcppDemo\Source\WfcppRuntime
+xcopy "$(ProjectDir)WFC++\*.cpp" "%UNREAL_WFC_DIR%\Private\WFCpp\" /sy
+del /q "%UNREAL_WFC_DIR%\Private\WFCpp\Simple"
+del /q "%UNREAL_WFC_DIR%\Private\WFCpp\SWIG"
+del /q "%UNREAL_WFC_DIR%\Private\WFCpp\Tiled"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy headers to build folder, SWIG C# to Unity, Everything to Unreal</Message>

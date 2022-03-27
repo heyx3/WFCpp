@@ -1,14 +1,14 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/Object.h"
 
-#include "WFC_DataReflection.h"
+#include "WfcFacePrototype.h"
+#include "WfcDataReflection.h"
 
-#include "BP_Utils.generated.h"
+#include "WfcBpUtils.generated.h"
 
 UCLASS()
-class MYPROJECT_API UBP_Utils : public UBlueprintFunctionLibrary
+class WFCPPRUNTIME_API UBP_Utils : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
@@ -26,4 +26,12 @@ class MYPROJECT_API UBP_Utils : public UBlueprintFunctionLibrary
 	static bool TransfEquals(const FWFC_Transform3D& a, const FWFC_Transform3D& b) { return a == b; }
 	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(CompactNodeTitle="!="))
 	static bool TransfNotEquals(const FWFC_Transform3D& a, const FWFC_Transform3D& b) { return !TransfEquals(a, b); }
+
+
+	//The special face prototype ID that represents 'null'.
+	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(CompactNodeTitle="NULL face ID"))
+	static int FaceIDInvalid() { return (int)INVALID_FACE_ID; }
+	//The first valid face prototype ID. All subsequent values are also valid ID's.
+	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(CompactNodeTitle="First face ID"))
+	static int FaceIDFirstValid() { return (int)FIRST_VALID_FACE_ID; }
 };

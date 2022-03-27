@@ -3,12 +3,12 @@
 using UnrealBuildTool;
 using System.Collections.Generic;
 
-public class MyProjectEditorTarget : TargetRules
+public class WfcppDemoEditorTarget : TargetRules
 {
-	public MyProjectEditorTarget( TargetInfo Target) : base(Target)
+	public WfcppDemoEditorTarget( TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
-		ExtraModuleNames.AddRange( new string[] { "MyProject" } );
+		ExtraModuleNames.AddRange( new string[] { "WfcppDemo", "WfcppEditor" } );
 	}
 }

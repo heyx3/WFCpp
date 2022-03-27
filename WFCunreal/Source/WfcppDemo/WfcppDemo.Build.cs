@@ -2,20 +2,21 @@
 
 using UnrealBuildTool;
 
-public class MyProject : ModuleRules
+public class WfcppDemo : ModuleRules
 {
-	public MyProject(ReadOnlyTargetRules Target) : base(Target)
+	public WfcppDemo(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-
-		//WFC codebase is compiled within this project, not imported as a DLL.
-		PrivateDefinitions.Add("WFC_STATIC=1");
-		PrivateIncludePaths.Add("../../WFC++");
-		PrivateIncludePaths.Add("../../WFC++/Tiled3D");
-
+	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 		
+		PrivateIncludePaths.AddRange(new string[] {
+			"../../WFC++",
+			"../../WFC++/Tiled3D"
+		});
+		PrivateDefinitions.Add("WFC_STATIC=1");
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

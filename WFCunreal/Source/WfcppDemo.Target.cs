@@ -3,12 +3,12 @@
 using UnrealBuildTool;
 using System.Collections.Generic;
 
-public class MyProjectTarget : TargetRules
+public class WfcppDemoTarget : TargetRules
 {
-	public MyProjectTarget( TargetInfo Target) : base(Target)
+	public WfcppDemoTarget( TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
-		ExtraModuleNames.AddRange( new string[] { "MyProject" } );
+		ExtraModuleNames.AddRange( new string[] { "WfcppDemo", "WfcppRuntime" } );
 	}
 }
