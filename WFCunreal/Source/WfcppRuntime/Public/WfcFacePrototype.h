@@ -43,15 +43,15 @@ struct WFCPPRUNTIME_API FWfcFacePrototype
 	//Whether this face can match with itself.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool FriendWithSelf = true;
-};
 
+	//A display name for GUI purposes.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString Nickname = "New Face";
+};
 template<>
-struct TStructOpsTypeTraits<FWfcFacePrototype> : public TStructOpsTypeTraitsBase2<FWfcFacePrototype>
-{
-	enum
-	{
-		WithZeroConstructor = true,
-		WithNoDestructor = true
+struct TStructOpsTypeTraits<FWfcFacePrototype> : public TStructOpsTypeTraitsBase2<FWfcFacePrototype> {
+	enum {
+		
 	};
 };
 

@@ -15,7 +15,7 @@ class WFCPPRUNTIME_API UWfcTileset : public UObject
 public:
 
 	//The faces that tiles can have.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(TitleProperty=Nickname))
 	TMap<int, FWfcFacePrototype> FacePrototypes;
 
 	//All tiles in this set.

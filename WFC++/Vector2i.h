@@ -14,7 +14,8 @@ namespace WFC
 
 	//Things that can be done to 2D integer vectors.
     //Note that this set is completely closed -- any combination of these transformations
-    //    is equivalent to a single one of these transformations.
+    //    is equivalent to another one of these transformations.
+	//TODO: Make enum-class for better scoping.
 	enum WFC_API Transformations
 	{
         None,
