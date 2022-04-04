@@ -6,10 +6,13 @@
 #include "Widgets/Docking/SDockTabStack.h"
 #include "PropertyEditorModule.h"
 #include "IDetailsView.h"
-
-#include "WfcppEditorModule.h"
+#include "PropertyCustomizationHelpers.h"
+#include "SAssetDropTarget.h"
 #include "Widgets/Input/SNumericEntryBox.h"
 #include "Widgets/Views/STileView.h"
+
+#include "WfcppEditorModule.h"
+#include "Widgets/Layout/SScrollBox.h"
 
 
 #define LOCTEXT_NAMESPACE "WfcTilesetEditor"
@@ -69,29 +72,16 @@ TSharedRef<SDockTab> FWfcTilesetEditor::GeneratePropertiesTab(const FSpawnTabArg
 {
 	check(args.GetTabId() == WfcTileset_TabID_Properties);
 
-	auto output = SAssignNew(propertiesTab, SDockTab)
-			 .Icon(FEditorStyle::GetBrush("GenericEditor.Tabs.Properties"))
-			 .Label(LOCTEXT("GenericDetailsTitle", "Details"))
-			 .TabColorScale(GetTabColorScale())
-			 [
-			 	 SNew(SVerticalBox)
-			 	 +SVerticalBox::Slot() .HAlign(HAlign_Left) [
-			         detailsView.ToSharedRef()
-			     ]
-			     +SVerticalBox::Slot() .HAlign(HAlign_Right) [
-				     SNew(SButton)
-				         .Text(LOCTEXT("Experiments7", "Experiments8"))
-			  		     .OnClicked(FOnClicked::CreateLambda([]() {
-					         UE_LOG(LogWfcppEditor, Warning, TEXT("Clicked the button! Experiments9"))
-					   	     return FReply::Handled();
-					     }))
-				 ]
-			 ];
-			 
-	// auto& box = static_cast<const SVerticalBox&>(*output->GetContent());
-	// UE_LOG(LogWfcppEditor, Warning, TEXT("Found %i slots"), box.NumSlots());
-	
-	return output;
+	return SAssignNew(propertiesTab, SDockTab)
+		 .Icon(FEditorStyle::GetBrush("GenericEditor.Tabs.Properties"))
+		 .Label(LOCTEXT("GenericDetailsTitle", "Details"))
+		 .TabColorScale(GetTabColorScale())
+		 [
+			 SNew(SVerticalBox)
+			 +SVerticalBox::Slot() .HAlign(HAlign_Left) [
+		         detailsView.ToSharedRef()
+		     ]
+		 ];
 }
 // ReSharper disable once CppMemberFunctionMayBeConst
 TSharedRef<SDockTab> FWfcTilesetEditor::GenerateExperimentsTab(const FSpawnTabArgs& args)
@@ -149,36 +139,58 @@ TSharedRef<SDockTab> FWfcTilesetEditor::GenerateFaceSelectorTab(const FSpawnTabA
 }
 TSharedRef<SDockTab> FWfcTilesetEditor::GenerateTileSelectorTab(const FSpawnTabArgs& args)
 {
-    check(args.GetTabId() == WfcTileset_TabID_TileSelector);
+	check(args.GetTabId() == WfcTileset_TabID_TileSelector);
 
-    return SAssignNew(tileSelectorTab, SDockTab)
-        .Icon(FEditorStyle::GetBrush("GenericEditor.Tabs.Properties"))
-        .Label(LOCTEXT("TileSelectorTabLabel", "Tile Selector"))
-        .TabColorScale(GetTabColorScale()) [
-            SNew(SVerticalBox)
-                +SVerticalBox::Slot()
-                    .MaxHeight(30.0f)
-                    .Padding(FMargin(10.0f, 10.0f))
-                [
-                    SNew(SHorizontalBox)
-                        +SHorizontalBox::Slot()
-                            .MaxWidth(30.0f)
-                        [
-                            SNew(SButton)
-                                .Text(FText::FromString("+"))
-                                .OnClicked(FOnClicked::CreateSP(this, &FWfcTilesetEditor::GenerateTileData))
-                        ]
-                ]
-                +SVerticalBox::Slot() [
-                    SAssignNew(tileSelector, SListView<TSharedPtr<int>>)
-                        .Orientation(Orient_Vertical)
-                        .ItemHeight(24)
-                        .ListItemsSource(&tilesetBuf_TileIDs)
-                        .OnGenerateRow(SListView<TSharedPtr<int>>
-                                           ::FOnGenerateRow
-                                           ::CreateSP(this, &FWfcTilesetEditor::GenerateFacePrototypeUI))
-                ]
-        ];
+	return SAssignNew(tileSelectorTab, SDockTab)
+		.Icon(FEditorStyle::GetBrush("GenericEditor.Tabs.Properties"))
+		.Label(LOCTEXT("TileSelectorTabLabel", "Tile Selector"))
+		.TabColorScale(GetTabColorScale()) [
+			SNew(SVerticalBox)
+				+SVerticalBox::Slot()
+				    .AutoHeight()
+					.MaxHeight(30.0f)
+					.Padding(FMargin(10.0f, 10.0f))
+				[
+					SNew(SHorizontalBox)
+						+SHorizontalBox::Slot()
+							.MaxWidth(30.0f)
+						[
+							SNew(SButton)
+								.Text(FText::FromString("+"))
+								.OnClicked(FOnClicked::CreateSP(this, &FWfcTilesetEditor::GenerateTileData))
+						]
+				]
+				+SVerticalBox::Slot()
+				    .AutoHeight()
+				[
+				    SNew(SScrollBox)
+				        .Orientation(EOrientation::Orient_Vertical)
+				        +SScrollBox::Slot().VAlign(VAlign_Fill) [
+					        SAssignNew(tileSelector, STileView<TSharedPtr<int>>)
+						        .Orientation(Orient_Vertical)
+						        .ListItemsSource(&tilesetBuf_TileIDs)
+						        .ItemWidth(200).ItemHeight(200)
+						        .OnGenerateTile(STileView<TSharedPtr<int>>
+											        ::FOnGenerateRow
+											        ::CreateSP(this, &FWfcTilesetEditor::GenerateTileUI))
+				        ]
+				]
+		];
+}
+TSharedRef<SDockTab> FWfcTilesetEditor::GenerateTileViewerTab(const FSpawnTabArgs& args)
+{
+	check(args.GetTabId() == WfcTileset_TabID_TileViewer);
+
+	return SAssignNew(tileSelectorTab, SDockTab)
+		.Icon(FEditorStyle::GetBrush("GenericEditor.Tabs.Properties"))
+		.Label(LOCTEXT("TileViewerTabLabel", "Tile Viewer"))
+		.TabColorScale(GetTabColorScale()) [
+			SNew(SVerticalBox)
+				+SVerticalBox::Slot() [
+					SNew(STextBlock)
+						.Text(FText::FromString("//TODO: 3D viewer"))
+				]
+		];
 }
 
 FReply FWfcTilesetEditor::GenerateFacePrototypeData()
@@ -315,7 +327,7 @@ FReply FWfcTilesetEditor::GenerateTileData()
                              100, nullptr};
     
 	tileset->Tiles.Add(newID, tileData);
-	tilesetBuf_PrototypeIDs.Add(MakeShareable(new int(newID)));
+	tilesetBuf_TileIDs.Add(MakeShareable(new int(newID)));
 	this->tileSelector->RequestListRefresh();
 	
 	return FReply::Handled();
@@ -334,31 +346,62 @@ TSharedRef<ITableRow> FWfcTilesetEditor::GenerateTileUI(TSharedPtr<int> item,
 	const auto* ownerPtr = &owner;
 	auto ID = *item;
 	auto* me = this;
-    
+
 	return SNew(STableRow<TSharedPtr<int>>, owner)
-	   .Padding(2.0f) [
-			SNew(SHorizontalBox)
-				// ID label:
-			   	+SHorizontalBox::Slot()
-			   		.FillWidth(0.1f)
-			   	[
-			   		SNew(STextBlock)
-			   			.Text(FText::FromString(FString::Printf(TEXT("%i"), ID)))
-			   	]
-			  
+		.Padding(0)
+	    [
+	   	    SNew(SBorder)
+	   		.Padding(FMargin(5, 5))
+	   		[
+	   		    SNew(SHorizontalBox)
+	   		    +SHorizontalBox::Slot()
+	   		        .AutoWidth()
+	   		    [
+	   		        SNew(SVerticalBox)
+				    //ID label:
+	   		        +SVerticalBox::Slot() [
+			   		    SNew(STextBlock)
+			   			    .Text(FText::FromString(FString::Printf(TEXT("HELLO THERE %i"), ID)))    
+	   		        ]
+	   		        +SVerticalBox::Slot() [
+	   		            SNew(STextBlock)
+	   		                .Text(FText::FromString("AAAAAAA"))
+	   		        ]
+	   		        //Tile data picker:
+			        +SVerticalBox::Slot().AutoHeight() [
+			            this->MakeTileDataPicker(*item)
+			        ]
+	   		        +SVerticalBox::Slot() [
+	   		            SNew(STextBlock)
+	   		                .Text(FText::FromString("BBBBBBB"))
+	   		        ]
+	   		    ]
 			   	//Spacer:
-			   	+SHorizontalBox::Slot().FillWidth(0.25)
+			   	+SHorizontalBox::Slot()//.MaxWidth(50)
 			   	//Delete button:
-			   	+SHorizontalBox::Slot()
-			   		.MaxWidth(30.0f)
+			   	+SHorizontalBox::Slot().AutoWidth()
 			   	[
 			   		SNew(SButton)
-			   			.Text(FText::FromString("X"))
+			   			.Text(FText::FromString("X1X2X3"))
 			   			.OnClicked_Lambda([me, ID]() { return me->RemoveTileData(ID); })
 			   	]
+			]
 	   ];
+}
 
-    #undef MAKE_POINT_EDITOR
+TSharedRef<SWidget> FWfcTilesetEditor::MakeTileDataPicker(int tileID)
+{
+    auto* me = this;
+    return SNew(SObjectPropertyEntryBox)
+        .DisplayThumbnail(true)
+        .DisplayBrowse(true)
+        .DisplayUseSelected(true)
+        .ObjectPath_Lambda([tileID, me]() {
+            return me->tileset->Tiles[tileID].Data->GetPathName();
+        })
+        .OnObjectChanged_Lambda([tileID, me](const FAssetData& data) {
+            me->tileset->Tiles[tileID].Data = data.GetAsset();
+        });
 }
 
 

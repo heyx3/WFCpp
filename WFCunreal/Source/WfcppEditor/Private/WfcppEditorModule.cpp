@@ -4,8 +4,19 @@
 #include "IAssetTools.h"
 #include "AssetToolsModule.h"
 #include "Toolkits/AssetEditorToolkit.h"
+#include "PropertyEditorModule.h"
+#include "IDetailCustomization.h"
 
 #include "AssetTypeActions_WfcTileset.h"
+#include "DetailCategoryBuilder.h"
+#include "DetailLayoutBuilder.h"
+#include "DetailWidgetRow.h"
+#include "IDetailChildrenBuilder.h"
+#include "IDetailGroup.h"
+#include "PropertyCustomizationHelpers.h"
+#include "SResetToDefaultMenu.h"
+
+#include "WfcTilesetPropertiesBuilder_FacePrototypes.hpp"
 #include "WfcTilesetEditor.h"
 
 
@@ -14,6 +25,47 @@ class UWfcTileset;
 
 const FName WfcTilesetEditorAppIdentifier = FName(TEXT("CustomAssetEditorApp"));
 DEFINE_LOG_CATEGORY(LogWfcppEditor);
+
+
+
+struct FTilesetDetailsCustomization : public IDetailCustomization, IDetailCustomNodeBuilder
+{
+public:
+    
+    virtual void CustomizeDetails(IDetailLayoutBuilder& builder) override
+    {
+        layoutBuilder = &builder;
+        
+        const auto& selectedObjects = builder.GetSelectedObjects();
+        check(selectedObjects.Num() > 0);
+        if (selectedObjects.Num() == 1)
+        {
+            tileset = CastChecked<UWfcTileset>(selectedObjects[0].Get());
+
+            const auto* detailsView = builder.GetDetailsView();
+            detailsView->OnFinishedChangingProperties().AddSP(this, &FTilesetDetailsCustomization::FinishedChangingProperties);
+
+            auto& structCategory = builder.EditCategory("WFC", LOCTEXT("WfcCategories", "Elements"));
+
+            auto facePrototypesProp = builder.GetProperty(GET_MEMBER_NAME_CHECKED(UWfcTileset, FacePrototypes));
+            structCategory.AddCustomBuilder(MakeShared<FWfcTilesetPropertiesBuilder_FacePrototypes>(facePrototypesProp));
+            //TODO: Make something similar for tiles.
+        }
+    }
+
+private:
+    IDetailLayoutBuilder* layoutBuilder;
+    TWeakObjectPtr<UWfcTileset> tileset;
+
+    void FinishedChangingProperties(const FPropertyChangedEvent& event)
+    {
+        UE_LOG(LogWfcppEditor, Warning, TEXT("Property changed: %s, member %s, type %i"),
+               *event.Property->GetFullName(),
+               *event.MemberProperty->GetFullName(),
+               static_cast<int>(event.ChangeType));
+        
+    }
+};
 
 
 class FWfcppEditorModule : public IWfcTilesetEditorModule
@@ -29,6 +81,12 @@ public:
 
 		auto& assetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
 		RegisterAssetTypeAction(assetTools, MakeShareable(new FAssetTypeActions_WfcTileset));
+
+	    //Register a custom Properties widget for tilesets.
+	    auto& propEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
+	    // propEditorModule.RegisterCustomClassLayout(UWfcTileset::StaticClass()->GetFName(),
+	    //                                            FOnGetDetailCustomizationInstance::CreateLambda([]() { return MakeShared(FTilesetDetailsCustomization()); }));
+	    //TODO: Re-enable this
 	}
 	virtual void ShutdownModule() override
 	{
@@ -45,6 +103,9 @@ public:
 				assetTools.UnregisterAssetTypeActions(action.ToSharedRef());
 		}
 		createdAssetTypeActions.Empty();
+
+	    auto& propEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
+	    propEditorModule.UnregisterCustomClassLayout(UWfcTileset::StaticClass()->GetFName());
 	}
 
 	virtual TSharedPtr<FExtensibilityManager> GetMenuExtensibilityManager() override { return menuExtensibilityManager; }
