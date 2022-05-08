@@ -15,6 +15,7 @@ public class WfcppEditor : ModuleRules
 			"Json", "Slate", "SlateCore", "EditorStyle", "EditorWidgets",
 			"Kismet", "KismetWidgets",
 			"PropertyEditor", "WorkspaceMenuStructure", "ContentBrowser",
+			"AdvancedPreviewScene",
 			"RenderCore",
 			"Projects", "AssetRegistry"
 		});

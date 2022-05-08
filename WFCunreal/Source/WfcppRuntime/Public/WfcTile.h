@@ -57,6 +57,11 @@ struct WFCPPRUNTIME_API FWfcTile
 	//User data associated with this tile (e.x. an Actor to spawn in its place).
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UObject* Data;
+
+
+    FString GetDisplayName() const { return (Data == nullptr) ? "null" : Data->GetName(); }
+    FString GetDisplayName(int myID) const { return FString::FromInt(myID) + ": " +
+                                                    ((Data == nullptr) ? "null" : Data->GetName()); }
 };
 template<>
 struct TStructOpsTypeTraits<FWfcTile> : public TStructOpsTypeTraitsBase2<FWfcTile>
