@@ -1,9 +1,9 @@
 ﻿#include "WfcTilesetEditorViewportToolBar.h"
 
-#include "WfcTilesetEditorPreviewViewport.h"
+#include "WfcTilesetEditorViewport.h"
 
 
-void SWfcTilesetEditorViewportToolBar::Construct(const FArguments& args, TSharedPtr<SWfcTilesetEditorPreviewViewport> viewport)
+void SWfcTilesetEditorViewportToolBar::Construct(const FArguments& args, TSharedPtr<SWfcTilesetEditorViewport> viewport)
 {
     SCommonEditorViewportToolbarBase::Construct(SCommonEditorViewportToolbarBase::FArguments(), viewport);
 }

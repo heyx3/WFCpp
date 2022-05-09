@@ -1,20 +1,24 @@
 ﻿#include "WfcTilesetEditor.h"
 
 #include "Modules/ModuleManager.h"
-#include "EditorStyleSet.h"
-#include "Widgets/Docking/SDockTab.h"
-#include "Widgets/Docking/SDockTabStack.h"
+
 #include "PropertyEditorModule.h"
 #include "IDetailsView.h"
 #include "PropertyCustomizationHelpers.h"
-#include "SAssetDropTarget.h"
+
+#include "Widgets/Docking/SDockTab.h"
+#include "Widgets/Docking/SDockTabStack.h"
 #include "Widgets/Input/SNumericEntryBox.h"
+#include "Widgets/Input/STextComboBox.h"
 #include "Widgets/Views/STileView.h"
+#include "Widgets/Layout/SScrollBox.h"
+#include "SAssetDropTarget.h"
+#include "EditorStyleSet.h"
 
 #include "WfcppEditorModule.h"
-#include "Widgets/Layout/SScrollBox.h"
-#include "AdvancedPreviewScene.h"
-#include "Widgets/Input/STextComboBox.h"
+#include "WfcTilesetEditorScene.h"
+#include "WfcTilesetEditorSceneViewTab.h"
+#include "WfcTilesetTabBody.h"
 
 
 #define LOCTEXT_NAMESPACE "WfcTilesetEditor"
@@ -23,7 +27,6 @@ const FName ToolkitName(TEXT("WfcTilesetEditor"));
 
 const FName WfcTileset_TabID_Properties   (TEXT("WfcTilesetEditor_Properties"));
 const FName WfcTileset_TabID_TileSelector (TEXT("WfcTilesetEditor_TileSelector"));
-const FName WfcTileset_TabID_TileScene    (TEXT("WfcTilesetEditor_TileScene"));
 
 
 void FWfcTilesetEditor::RegisterTabSpawners(const TSharedRef<FTabManager>& tabManager)
@@ -42,10 +45,13 @@ void FWfcTilesetEditor::RegisterTabSpawners(const TSharedRef<FTabManager>& tabMa
 		.SetDisplayName(LOCTEXT("TileSelectorTab", "Tile Selector"))
 		.SetGroup(WorkspaceMenuCategory.ToSharedRef())
 	    .SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "LevelEditor.Tabs.Details"));
-    tabManager->RegisterTabSpawner(WfcTileset_TabID_TileScene, FOnSpawnTab::CreateSP(this, &FWfcTilesetEditor::GenerateTileSceneTab))
-        .SetDisplayName(LOCTEXT("TileSceneTab", "Tile Preview"))
-        .SetGroup(WorkspaceMenuCategory.ToSharedRef())
-        .SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "LevelEditor.Tabs.Details"));
+    
+    //The scene view tab has its own special factory.
+    //Probably wouldn't hurt to refactor the other tabs similarly (apart from Properties).
+    if (!tileSceneTabFactory.IsValid())
+        tileSceneTabFactory = MakeShareable(new FWfcTilesetEditorSceneViewTab(SharedThis(this)));
+    tileSceneTabFactory->RegisterTabSpawner(tabManager, nullptr)
+        .SetGroup(WorkspaceMenuCategory.ToSharedRef());
 }
 void FWfcTilesetEditor::UnregisterTabSpawners(const TSharedRef<FTabManager>& tabManager)
 {
@@ -55,7 +61,7 @@ void FWfcTilesetEditor::UnregisterTabSpawners(const TSharedRef<FTabManager>& tab
 	//Also remove the button to spawn our custom editor.
 	tabManager->UnregisterTabSpawner(WfcTileset_TabID_Properties);
 	tabManager->UnregisterTabSpawner(WfcTileset_TabID_TileSelector);
-	tabManager->UnregisterTabSpawner(WfcTileset_TabID_TileScene);
+	tabManager->UnregisterTabSpawner(tileSceneTabFactory->GetIdentifier());
 }
 
 TSharedRef<SDockTab> FWfcTilesetEditor::GeneratePropertiesTab(const FSpawnTabArgs& args)
@@ -98,22 +104,6 @@ TSharedRef<SDockTab> FWfcTilesetEditor::GenerateTileSelectorTab(const FSpawnTabA
       //               ]
 		];
 }
-TSharedRef<SDockTab> FWfcTilesetEditor::GenerateTileSceneTab(const FSpawnTabArgs& args)
-{
-	check(args.GetTabId() == WfcTileset_TabID_TileScene);
-
-	return SAssignNew(tileSelectorTab, SDockTab)
-		.Icon(FEditorStyle::GetBrush("GenericEditor.Tabs.Properties"))
-		.Label(LOCTEXT("TileViewerTabLabel", "Tile Viewer"))
-		.TabColorScale(GetTabColorScale()) [
-			SNew(SVerticalBox)
-				+SVerticalBox::Slot() [
-					SNew(STextBlock)
-						.Text(FText::FromString("//TODO: 3D viewer"))
-				]
-				//+SVerticalBox::Slot() [ tileSceneController->StartFrame() ]
-		];
-}
 
 /*
 TSharedRef<SWidget> FWfcTilesetEditor::MakeTileDataPicker(int tileID)
@@ -141,6 +131,7 @@ void FWfcTilesetEditor::RefreshTileChoices()
     {
         auto displayName = tileByID.Value.GetDisplayName(tileByID.Key);
         tilesetTileSelectorChoices.Add(MakeShareable<FString>(new FString(displayName)));
+        tilesetTileSelectorChoiceIDs.Add(tileByID.Key);
     }
 }
 void FWfcTilesetEditor::OnTileSelected(TSharedPtr<FString> name, ESelectInfo::Type)
@@ -154,16 +145,10 @@ void FWfcTilesetEditor::OnTileSelected(TSharedPtr<FString> name, ESelectInfo::Ty
     check(foundI < tilesetTileSelectorChoices.Num());
     int tileID = tilesetTileSelectorChoiceIDs[foundI];
 
-    //Clean up the previous tile visualization, if one exists.
-    if (tileVizActor != nullptr)
-    {
-        TileViz_Destroy(tileID, tileVizActor);
-        tileVizActor->DestroyComponent();
-    }
-
-    //Create a new visualization of the selected tile.
-    tileVizActor = TileViz_Create(tileID);
-    tileScene->AddComponent(tileVizActor, FTransform::Identity);
+    //Update the tile 3D visualization tab.
+    if (tileSceneData->GetTileViz() != nullptr)
+        TileViz_Destroy(tileID, tileSceneData->GetTileViz());
+    tileSceneData->SetTileViz(TileViz_Create(tileID));
 }
 
 
@@ -171,10 +156,11 @@ void FWfcTilesetEditor::InitWfcTilesetEditorEditor(const EToolkitMode::Type mode
                                                    const TSharedPtr<IToolkitHost>& initToolkitHost,
                                                    UWfcTileset* newTileset)
 {
-    tileScene = MakeShared<FAdvancedPreviewScene>(FPreviewScene::ConstructionValues()
-        .SetEditor(true) //TODO: What does this actually do?
-    );
-    tileSceneController = tileScene->GetScene();
+    if (!tileSceneData.IsValid())
+    {
+        tileSceneData = MakeShareable(new FWfcTilesetEditorScene);
+        tileSceneTabFactory = MakeShareable(new FWfcTilesetEditorSceneViewTab(SharedThis(this)));
+    }
     
 	SetAsset(newTileset);
 	
@@ -203,7 +189,7 @@ void FWfcTilesetEditor::InitWfcTilesetEditorEditor(const EToolkitMode::Type mode
                     ->SetOrientation(Orient_Horizontal)
                     ->Split(
                         FTabManager::NewStack()
-                        ->AddTab(WfcTileset_TabID_TileScene, ETabState::OpenedTab)
+                        ->AddTab(WfcTileset_TabID_SceneView, ETabState::OpenedTab)
                     )
                     ->Split(
                         FTabManager::NewSplitter()
@@ -247,6 +233,12 @@ void FWfcTilesetEditor::SetAsset(UWfcTileset* asset)
         tilesetTileSelectorChoiceIDs.Add(tileKVP.Key);
     }
 }
+
+TSharedRef<SWidget> FWfcTilesetEditor::SpawnSceneView()
+{
+    return SAssignNew(tileSceneTabBody, SWfcTilesetTabBody, *tileSceneData);
+}
+
 
 TSharedRef<SWidget> FWfcTilesetEditor::TileViz_MakePreview(int tileID)
 {

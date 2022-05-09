@@ -1,14 +1,10 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "WfcTileset.h"
 #include "Toolkits/AssetEditorToolkit.h"
 #include "Widgets/Views/STileView.h"
 
-class UWfcTileset;
-
-
-//TODO: Use the module Editor/AdvancedPreviewScene
+#include "WfcTileset.h"
 
 class IWfcTilesetEditor : public FAssetEditorToolkit
 {
@@ -18,8 +14,7 @@ public:
 };
 
 
-extern const FName WfcTileset_TabID_Properties, WfcTileset_TabID_TileSelector,
-                   WfcTileset_TabID_TileScene;
+extern const FName WfcTileset_TabID_Properties, WfcTileset_TabID_TileSelector;
 
 //An editor for WFC Tileset data.
 //Has pure virtual functions related to the visualization of the tile's data.
@@ -47,6 +42,9 @@ public:
 	virtual UWfcTileset* GetAsset() const override { return tileset; }
 	virtual void SetAsset(UWfcTileset* asset) override;
 
+    //Meant to be usd by WfcTilesetEditorSceneViewTab:
+    TSharedRef<SWidget> SpawnSceneView();
+
 protected:
     //Makes some kind of preview thumbnail for the given tile.
     //By default, creates a simple label.
@@ -63,7 +61,6 @@ private:
 
 	TSharedRef<SDockTab> GeneratePropertiesTab(const FSpawnTabArgs& args);
     TSharedRef<SDockTab> GenerateTileSelectorTab(const FSpawnTabArgs& args);
-    TSharedRef<SDockTab> GenerateTileSceneTab(const FSpawnTabArgs& args);
 
     void RefreshTileChoices();
     void OnTileSelected(TSharedPtr<FString> name, ESelectInfo::Type);
@@ -77,9 +74,9 @@ private:
 	TSharedPtr<class IDetailsView> detailsView;
     TSharedPtr<STileView<TSharedPtr<int>>> tileSelector;
     
-    TSharedPtr<class FAdvancedPreviewScene> tileScene;
-    FSceneInterface* tileSceneController;
-    UActorComponent* tileVizActor = nullptr;
+    TSharedPtr<class FWfcTilesetEditorScene> tileSceneData;
+    TSharedPtr<struct FWfcTilesetEditorSceneViewTab> tileSceneTabFactory;
+    TSharedPtr<SWidget> tileSceneTabBody;
 };
 
 

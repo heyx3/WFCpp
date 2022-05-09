@@ -12,5 +12,5 @@ public:
     SLATE_BEGIN_ARGS(SWfcTilesetEditorViewportToolBar) { }
     SLATE_END_ARGS()
 
-    void Construct(const FArguments& args, TSharedPtr<class SWfcTilesetEditorPreviewViewport> viewport);
+    void Construct(const FArguments& args, TSharedPtr<class SWfcTilesetEditorViewport> viewport);
 };
