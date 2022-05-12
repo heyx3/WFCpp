@@ -33,9 +33,8 @@ void FWfcTilesetEditorScene::SetTileViz(UActorComponent* newTileViz)
     if (compTileViz != nullptr)
     {
         RemoveComponent(compTileViz);
-        compTileViz->DestroyComponent();
     }
-    compTileViz = newTileViz;
     
-    AddComponent(newTileViz, FTransform(FRotator::ZeroRotator, FVector::ZeroVector, FVector(1000.0f)));
+    compTileViz = newTileViz;
+    AddComponent(newTileViz, FTransform(FRotator::ZeroRotator, FVector::ZeroVector, FVector(1.0f)));
 }

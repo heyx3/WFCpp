@@ -15,8 +15,12 @@ class SWfcTilesetEditorViewport : public SEditorViewport, public ICommonEditorVi
 public:
     SLATE_BEGIN_ARGS(SWfcTilesetEditorViewport) { }
     SLATE_END_ARGS()
-    void Construct(const FArguments& args, FWfcTilesetEditorScene& scene);
+    void Construct(const FArguments& args);
 
+    //Interface:
+public:
+    TSharedPtr<FWfcTilesetEditorScene> GetWfcScene() const { return scene; }
+    
     //Toolbar interface:
 public:
     virtual TSharedRef<SEditorViewport> GetViewportWidget() override;
@@ -31,5 +35,5 @@ protected:
     //Fields:
 private:
     TSharedPtr<FEditorViewportClient> viewportClient;
-    FWfcTilesetEditorScene* scene;
+    TSharedPtr<FWfcTilesetEditorScene> scene;
 };

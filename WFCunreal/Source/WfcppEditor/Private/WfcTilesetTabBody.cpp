@@ -4,9 +4,9 @@
 #include "WfcTilesetEditorViewportClient.h"
 #include "WfcTilesetEditorViewport.h"
 
-void SWfcTilesetTabBody::Construct(const FArguments& inArgs, FWfcTilesetEditorScene& scene)
+void SWfcTilesetTabBody::Construct(const FArguments& inArgs)
 {
-    viewportWidget = SNew(SWfcTilesetEditorViewport, scene);
+    viewportWidget = SNew(SWfcTilesetEditorViewport);
     viewportClient = StaticCastSharedPtr<FWfcTilesetEditorViewportClient>(viewportWidget->GetViewportClient());
 
     TSharedPtr<SVerticalBox> viewportContainer = nullptr;

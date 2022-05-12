@@ -18,6 +18,8 @@
 #include "WfcppEditorModule.h"
 #include "WfcTilesetEditorScene.h"
 #include "WfcTilesetEditorSceneViewTab.h"
+#include "WfcTilesetEditorViewport.h"
+#include "WfcTilesetEditorViewportClient.h"
 #include "WfcTilesetTabBody.h"
 
 
@@ -136,16 +138,23 @@ void FWfcTilesetEditor::RefreshTileChoices()
 }
 void FWfcTilesetEditor::OnTileSelected(TSharedPtr<FString> name, ESelectInfo::Type)
 {
+    //TODO: See the tail end of SMaterialEditor3DPreviewViewport::Construct(), which adds a callback for when an asset's properties change!
+    
+    //For some reason, "null" gets selected sometimes when using the widget.
+    if (!name.IsValid())
+        return;
+    
     //Get which tile this is.
     //Unfortunately, the iterator returned by std::find() doesn't provide the index, so we have to do it manually...
     int foundI;
     for (foundI = 0; foundI < tilesetTileSelectorChoices.Num(); ++foundI)
-        if (tilesetTileSelectorChoices[foundI] == name)
+        if (*tilesetTileSelectorChoices[foundI] == *name)
             break;
     check(foundI < tilesetTileSelectorChoices.Num());
     int tileID = tilesetTileSelectorChoiceIDs[foundI];
 
     //Update the tile 3D visualization tab.
+    auto tileSceneData = tileSceneTabBody->GetViewportWidget()->GetWfcScene();
     if (tileSceneData->GetTileViz() != nullptr)
         TileViz_Destroy(tileID, tileSceneData->GetTileViz());
     tileSceneData->SetTileViz(TileViz_Create(tileID));
@@ -156,11 +165,8 @@ void FWfcTilesetEditor::InitWfcTilesetEditorEditor(const EToolkitMode::Type mode
                                                    const TSharedPtr<IToolkitHost>& initToolkitHost,
                                                    UWfcTileset* newTileset)
 {
-    if (!tileSceneData.IsValid())
-    {
-        tileSceneData = MakeShareable(new FWfcTilesetEditorScene);
+    if (!tileSceneTabFactory.IsValid())
         tileSceneTabFactory = MakeShareable(new FWfcTilesetEditorSceneViewTab(SharedThis(this)));
-    }
     
 	SetAsset(newTileset);
 	
@@ -219,7 +225,9 @@ void FWfcTilesetEditor::InitWfcTilesetEditorEditor(const EToolkitMode::Type mode
 FWfcTilesetEditor::~FWfcTilesetEditor()
 {
 	//TODO: why do we manually release shared pointers in the destructor? Can't we let them clean themselves up?
-	detailsView.Reset();
+	//detailsView.Reset();
+
+    
 }
 
 void FWfcTilesetEditor::SetAsset(UWfcTileset* asset)
@@ -236,7 +244,7 @@ void FWfcTilesetEditor::SetAsset(UWfcTileset* asset)
 
 TSharedRef<SWidget> FWfcTilesetEditor::SpawnSceneView()
 {
-    return SAssignNew(tileSceneTabBody, SWfcTilesetTabBody, *tileSceneData);
+    return SAssignNew(tileSceneTabBody, SWfcTilesetTabBody);
 }
 
 
@@ -255,12 +263,34 @@ FLinearColor FWfcTilesetEditor::GetWorldCentricTabColorScale() const { return FC
 
 UActorComponent* FWfcTilesetEditor_Actors::TileViz_Create(int tileID)
 {
-    auto* component = NewObject<UChildActorComponent>();
-    TSubclassOf<AActor> actorClass = Cast<UClass>(GetAsset()->Tiles[tileID].Data);
-
-    component->SetChildActorClass(actorClass);
-
-    return component;
+    auto* tileData = GetAsset()->Tiles[tileID].Data;
+    if (tileData->IsA<UClass>())
+    {
+        auto dataClass = Cast<UClass>(tileData);
+        if (dataClass->IsChildOf<AActor>())
+        {
+            auto* component = NewObject<UChildActorComponent>(GetTransientPackage(), NAME_None, RF_Transient);
+            component->SetChildActorClass(dataClass);
+            component->CreateChildActor();
+            return component;
+        }
+        else
+        {
+            UE_LOG(LogWfcppEditor, Fatal, TEXT("Unknown UObject type referenced: %s"), *dataClass->GetFullName());
+            return nullptr;
+        }
+    }
+    if (tileData->IsA<UStaticMesh>())
+    {
+        auto* component = NewObject<UStaticMeshComponent>(GetTransientPackage(), NAME_None, RF_Transient);
+        component->SetStaticMesh(Cast<UStaticMesh>(tileData));
+        return component;
+    }
+    else
+    {
+        UE_LOG(LogWfcppEditor, Fatal, TEXT("Unknown UObject data referenced: %s"), *tileData->GetFullName());
+        return nullptr;
+    }
 }
 
 #undef LOCTEXT_NAMESPACE

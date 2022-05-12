@@ -4,10 +4,13 @@
 #include "WfcTilesetEditorViewportToolBar.h"
 
 
-void SWfcTilesetEditorViewport::Construct(const FArguments& args, FWfcTilesetEditorScene& inScene)
+void SWfcTilesetEditorViewport::Construct(const FArguments& args)
 {
-    scene = &inScene;
+    scene = MakeShareable(new FWfcTilesetEditorScene);
+    
     SEditorViewport::Construct(SEditorViewport::FArguments());
+
+    //TODO: See the tail end of SMaterialEditor3DPreviewViewport::Construct(), which adds a callback for when the asset's properties change!
 }
 
 //Toolbar interface:

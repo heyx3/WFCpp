@@ -71,12 +71,11 @@ private:
     TArray<int> tilesetTileSelectorChoiceIDs;
 
 	TSharedPtr<SDockTab> propertiesTab, tileSelectorTab, tileSceneTab;
-	TSharedPtr<class IDetailsView> detailsView;
+	TSharedPtr<IDetailsView> detailsView;
     TSharedPtr<STileView<TSharedPtr<int>>> tileSelector;
     
-    TSharedPtr<class FWfcTilesetEditorScene> tileSceneData;
     TSharedPtr<struct FWfcTilesetEditorSceneViewTab> tileSceneTabFactory;
-    TSharedPtr<SWidget> tileSceneTabBody;
+    TSharedPtr<class SWfcTilesetTabBody> tileSceneTabBody;
 };
 
 
