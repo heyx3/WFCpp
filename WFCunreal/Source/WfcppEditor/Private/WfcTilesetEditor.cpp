@@ -264,15 +264,15 @@ FLinearColor FWfcTilesetEditor::GetWorldCentricTabColorScale() const { return FC
 UActorComponent* FWfcTilesetEditor_Actors::TileViz_Create(int tileID)
 {
     auto* tileData = GetAsset()->Tiles[tileID].Data;
+    
     if (tileData->IsA<UClass>())
     {
         auto dataClass = Cast<UClass>(tileData);
         if (dataClass->IsChildOf<AActor>())
         {
-            auto* component = NewObject<UChildActorComponent>(GetTransientPackage(), NAME_None, RF_Transient);
-            component->SetChildActorClass(dataClass);
-            component->CreateChildActor();
-            return component;
+            UE_LOG(LogWfcppEditor, Error,
+                   TEXT("Unable to spawn an Actor in the preview scene, because the editor crashes when it's destroyed."));
+            return nullptr;
         }
         else
         {
@@ -280,6 +280,14 @@ UActorComponent* FWfcTilesetEditor_Actors::TileViz_Create(int tileID)
             return nullptr;
         }
     }
+    
+    if (tileData->IsA<UBlueprint>())
+    {
+        UE_LOG(LogWfcppEditor, Error,
+               TEXT("Unable to spawn an Actor in the preview scene, because the editor crashes when it's destroyed."));
+        return nullptr;
+    }
+    
     if (tileData->IsA<UStaticMesh>())
     {
         auto* component = NewObject<UStaticMeshComponent>(GetTransientPackage(), NAME_None, RF_Transient);

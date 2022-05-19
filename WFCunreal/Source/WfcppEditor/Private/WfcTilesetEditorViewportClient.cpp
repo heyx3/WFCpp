@@ -16,6 +16,9 @@ FWfcTilesetEditorViewportClient::FWfcTilesetEditorViewportClient(FWfcTilesetEdit
     // DrawHelper.GridColorMajor = FColor(72,72,72);
     // DrawHelper.GridColorMinor = FColor(64,64,64);
     // DrawHelper.PerspectiveGridSize = HALF_WORLD_MAX1;
+
+    //Note: some initialization can't be done here, such as centering the camera viewport.
+    //Instead, it's done on the first tick.
 }
 
 void FWfcTilesetEditorViewportClient::Tick(float deltaSeconds)
@@ -23,6 +26,15 @@ void FWfcTilesetEditorViewportClient::Tick(float deltaSeconds)
     FEditorViewportClient::Tick(deltaSeconds);
     if (!GIntraFrameDebuggingGameThread)
         PreviewScene->GetWorld()->Tick(LEVELTICK_All, deltaSeconds);
+
+    if (firstTick)
+    {
+        firstTick = false;
+
+        SetViewRotation(FVector(1, 1, -1).Rotation());
+        FocusViewportOnBox(FBox(FVector::OneVector * -500, FVector::OneVector * 500),
+                           true);
+    }
 }
 void FWfcTilesetEditorViewportClient::Draw(FViewport* viewport, FCanvas* canvas)
 {
