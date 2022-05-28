@@ -23,10 +23,12 @@ FWfcTilesetEditorViewportClient::FWfcTilesetEditorViewportClient(FWfcTilesetEdit
 
 void FWfcTilesetEditorViewportClient::Tick(float deltaSeconds)
 {
+    //Call normal client behavior.
     FEditorViewportClient::Tick(deltaSeconds);
     if (!GIntraFrameDebuggingGameThread)
         PreviewScene->GetWorld()->Tick(LEVELTICK_All, deltaSeconds);
 
+    //Do late initialization.
     if (firstTick)
     {
         firstTick = false;
@@ -35,6 +37,9 @@ void FWfcTilesetEditorViewportClient::Tick(float deltaSeconds)
         FocusViewportOnBox(FBox(FVector::OneVector * -500, FVector::OneVector * 500),
                            true);
     }
+
+    //Update the scene objects.
+    static_cast<FWfcTilesetEditorScene*>(GetPreviewScene())->RefreshTileViz(GetViewLocation());
 }
 void FWfcTilesetEditorViewportClient::Draw(FViewport* viewport, FCanvas* canvas)
 {

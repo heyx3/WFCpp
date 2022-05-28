@@ -154,10 +154,11 @@ void FWfcTilesetEditor::OnTileSelected(TSharedPtr<FString> name, ESelectInfo::Ty
     int tileID = tilesetTileSelectorChoiceIDs[foundI];
 
     //Update the tile 3D visualization tab.
-    auto tileSceneData = tileSceneTabBody->GetViewportWidget()->GetWfcScene();
+    auto tileSceneData = tileSceneTabBody->GetScene();
     if (tileSceneData->GetTileViz() != nullptr)
         TileViz_Destroy(tileID, tileSceneData->GetTileViz());
-    tileSceneData->SetTileViz(TileViz_Create(tileID));
+    tileSceneData->SetTile(tileID, TileViz_Create(tileID));
+    tileSceneTabBody->GetViewportClient()->Invalidate();
 }
 
 
@@ -224,9 +225,6 @@ void FWfcTilesetEditor::InitWfcTilesetEditorEditor(const EToolkitMode::Type mode
 
 FWfcTilesetEditor::~FWfcTilesetEditor()
 {
-	//TODO: why do we manually release shared pointers in the destructor? Can't we let them clean themselves up?
-	//detailsView.Reset();
-
     
 }
 
@@ -240,11 +238,19 @@ void FWfcTilesetEditor::SetAsset(UWfcTileset* asset)
         tilesetTileSelectorChoices.Add(MakeShareable(new FString(label)));
         tilesetTileSelectorChoiceIDs.Add(tileKVP.Key);
     }
+
+    //Note that if the tile scene tab is not created yet, "SetTileset()" will be called on tab creation.
+    if (tileSceneTabBody.IsValid())
+        tileSceneTabBody->GetScene()->SetTileset(tileset);
 }
 
 TSharedRef<SWidget> FWfcTilesetEditor::SpawnSceneView()
 {
-    return SAssignNew(tileSceneTabBody, SWfcTilesetTabBody);
+    auto ref = SAssignNew(tileSceneTabBody, SWfcTilesetTabBody);
+
+    tileSceneTabBody->GetScene()->SetTileset(tileset);
+
+    return ref;
 }
 
 

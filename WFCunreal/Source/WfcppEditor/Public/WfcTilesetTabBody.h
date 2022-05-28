@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "WfcTilesetEditorViewportClient.h"
 #include "Widgets/SCompoundWidget.h"
 
 //Based on this wonderful tutorial:
@@ -16,6 +17,7 @@ public:
 public:
     TSharedPtr<class FWfcTilesetEditorViewportClient> GetViewportClient() const { return viewportClient; }
     TSharedPtr<class SWfcTilesetEditorViewport> GetViewportWidget() const { return viewportWidget; }
+    class FWfcTilesetEditorScene* GetScene() const { return static_cast<FWfcTilesetEditorScene*>(viewportClient->GetPreviewScene()); }
 
 private:
     TSharedPtr<class FWfcTilesetEditorViewportClient> viewportClient;

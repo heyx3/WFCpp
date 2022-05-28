@@ -56,6 +56,6 @@ struct TStructOpsTypeTraits<FWfcFacePrototype> : public TStructOpsTypeTraitsBase
 };
 
 //Face prototypes have a unique ID in a tile-set.
-using WfcFaceID = int;
-constexpr WfcFaceID INVALID_FACE_ID = 0,
-			        FIRST_VALID_FACE_ID = 1;
+using WfcFacePrototypeID = int32;
+constexpr WfcFacePrototypeID INVALID_FACE_ID = 0,
+			                 FIRST_VALID_FACE_ID = 1;

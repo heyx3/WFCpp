@@ -18,4 +18,8 @@ public:
 
     virtual void Draw(FViewport* viewport, FCanvas* canvas) override;
     virtual void Tick(float deltaSeconds) override;
+
+private:
+
+    bool firstTick = true;
 };
