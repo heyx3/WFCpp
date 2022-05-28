@@ -1,8 +1,9 @@
 #pragma once
 
 #include "../Platform.h"
-#include "../Vector3i.h"
 #include <stdint.h>
+#include <utility>
+#include "../Vector3i.h"
 
 namespace WFC
 {
@@ -18,8 +19,9 @@ namespace WFC
         //Note that we're assuming a left-handed coordinate system.
         //Conceptually, we visualize X as rightward, Z as forward, and Y as upwards.
         //This matches the coordinate system used by the Unity3D game engine.
+        //The Unreal engine's coordinate system is also left-handed (but with Z-up, X-forward).
 
-        //Also note that most/all the enums below have a specific ordering
+        //NOTE: most/all the enums below have a specific ordering
         //    that a number of functions and lookup tables rely on.
         //Don't change them!
 
@@ -33,6 +35,8 @@ namespace WFC
             //Specified as A for "min" or B for "max", for the two face axes.
             //The axes are ordered X, Y, Z (e.x. the Y face's axes are ordered "XZ").
             AA, AB, BA, BB
+
+            #define WFC_N_FACE_POINTS 4
         };
         inline bool WFC_API IsFirstMin(FacePoints p) { return (uint_fast8_t)p / 2 == 0; }
         inline bool WFC_API IsSecondMin(FacePoints p) { return (uint_fast8_t)p % 2 == 0; }
@@ -50,6 +54,7 @@ namespace WFC
             MinY, MaxY,
             MinZ, MaxZ,
 
+            //TODO: Change preprocessor tokens to be prefixed with "WFC_".
             #define N_DIRECTIONS3D 6
         };
         inline bool WFC_API IsMin(Directions3D dir) { return (uint_fast8_t)dir % 2 == 0; }
@@ -71,6 +76,19 @@ namespace WFC
                 case Directions3D::MinZ: return Vector3i(0, 0, -1);
                 case Directions3D::MaxZ: return Vector3i(0, 0, 1);
             }
+        }
+        //Gets the axis the given direction is pointing in,
+        //    as well as the other two axes in world-space order (i.e. X before Y, Y before Z).
+        inline void GetAxes(Directions3D dir, uint_fast8_t& outMain,
+                            uint_fast8_t& outPlane1, uint_fast8_t& outPlane2)
+        {
+            outMain = GetAxisIndex(dir);
+            
+            outPlane1 = (outMain + 1) % 3;
+            outPlane2 = (outPlane1 + 1) % 3;
+
+            if (outPlane2 < outPlane1)
+                std::swap(outPlane1, outPlane2);
         }
 
 
