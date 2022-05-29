@@ -33,6 +33,7 @@ namespace WFC
         FlipDiag2,
 
 		Count, //The size of this enum list -- not an actual transformation
+	    //TODO: Make the count a const or #define
 	};
 
     //A Set of transformations.
@@ -99,6 +100,8 @@ namespace WFC
 		Vector2i LessY() const { return Vector2i(x, y - 1); }
 		Vector2i MoreY() const { return Vector2i(x, y + 1); }
 
+	    //Transforms this vector with the given transformation, pivoting around the origin.
+	    Vector2i Transform(Transformations transf) const { return Transform(transf, Vector2i(1, 1)); }
 		//Transforms this vector with the given transformation,
 		//    assuming the "pivot" is halfway between the origin and "size".
 		Vector2i Transform(Transformations trnsf, Vector2i size) const;

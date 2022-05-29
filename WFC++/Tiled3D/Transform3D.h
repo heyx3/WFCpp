@@ -3,6 +3,7 @@
 #include "../Platform.h"
 #include <stdint.h>
 #include <utility>
+#include "../Vector2i.h"
 #include "../Vector3i.h"
 
 namespace WFC
@@ -46,6 +47,8 @@ namespace WFC
                        (axis2IsMin ? FacePoints::AA : FacePoints::AB) :
                        (axis2IsMin ? FacePoints::BA : FacePoints::BB);
         }
+        //Generates a vector with all components set to -1 or +1, representing a face point.
+        inline Vector2i WFC_API MakeFaceVector(FacePoints point) { return { (IsFirstMin(point) ? -1 : 1), (IsSecondMin(point) ? -1 : 1) }; }
 
         //The different axis directions/faces of a cube.
         enum WFC_API Directions3D : uint8_t
