@@ -4,9 +4,14 @@
 #include "WfcppRuntimeModule.h"
 
 
-TMap<UActorComponent*, FTransform> UWfcTileVisualizer::DefaultBehavior(const UWfcTileset* tileset, WfcTileID tileID)
+TMap<UActorComponent*, FTransform> UWfcTileVisualizer::DefaultBehavior(const UWfcTileset* tileset, WfcTileID tileID, UObject* tileData)
 {
-    auto* tileData = tileset->Tiles[tileID].Data;
+    //If the data is null, don't output anything.
+    if (tileset == nullptr || tileData == nullptr)
+        return { };
+
+    checkf(tileset->Tiles.Contains(tileID), TEXT("No tile with the ID %i in tileset '%s'"),
+           tileID, *tileset->GetName());
 
     //If it's naming a specific class, try to visualize that class.
     if (tileData->IsA<UClass>())
@@ -44,9 +49,8 @@ TMap<UActorComponent*, FTransform> UWfcTileVisualizer::DefaultBehavior(const UWf
             { component, FTransform() }
         };
     }
-    else
-    {
-        UE_LOG(LogWFC, Error, TEXT("Unknown UObject data referenced: %s"), *tileData->GetFullName());
-        return { };
-    }
+
+    //Fallback: log an error.
+    UE_LOG(LogWFC, Error, TEXT("Unknown UObject data referenced: %s"), *tileData->GetFullName());
+    return { };
 }

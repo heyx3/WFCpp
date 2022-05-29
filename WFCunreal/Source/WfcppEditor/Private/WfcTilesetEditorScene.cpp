@@ -168,8 +168,14 @@ void FWfcTilesetEditorScene::Refresh(const UWfcTileset* tileset, TOptional<WfcTi
     }
     
     //Calculate properties in case the tileset/tile is null.
-    float tileLength = (tileset == nullptr) ? 1000.0f : tileset->TileLength;
-    
+    float tileLength = (tileset == nullptr) ?
+                           1000.0f :
+                           tileset->TileLength;
+    UObject* tileData = (tileset == nullptr || !tile.IsSet()) ?
+                            nullptr :
+                            tileset->Tiles[*tile].Data;
+
+    //Update the faces and points.
     for (auto& face : faces)
     {
         uint_fast8_t mainAxis, planeAxis1, planeAxis2;
@@ -214,6 +220,27 @@ void FWfcTilesetEditorScene::Refresh(const UWfcTileset* tileset, TOptional<WfcTi
             {
                 point.Label->SetText(FText::FromString(MakePointLabel(point.CornerType)));
             }
+        }
+    }
+
+    //Update the tile visualization.
+    if (tileData != chosenTileData)
+    {
+        //Clean up the old visualization.
+        for (auto* oldComponent : chosenTileViz)
+            RemoveComponent(oldComponent);
+        chosenTileViz.Empty();
+
+        //Generate the new visualization.
+        chosenTileData = tileData;
+        auto newComponents = (tileset->PreviewVisualizer == nullptr) ?
+                                 UWfcTileVisualizer::DefaultBehavior(tileset, tile.Get(-1), chosenTileData) :
+                                 tileset->PreviewVisualizer->Visualize(tileset, tile.Get(-1), chosenTileData);
+        for (const auto& newComponent : newComponents)
+        {
+            //TODO: Try intercepting 'UChildActorComponent' and spawn the actor directly into the UWorld, instead of actually using that component (which would crash).
+            AddComponent(newComponent.Key, newComponent.Value);
+            chosenTileViz.Add(newComponent.Key);
         }
     }
 }
