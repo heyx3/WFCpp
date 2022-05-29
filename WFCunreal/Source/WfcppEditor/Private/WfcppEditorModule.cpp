@@ -65,7 +65,7 @@ public:
 																  const TSharedPtr<IToolkitHost>& initToolkitHost,
 																  UWfcTileset* tileset) override
 	{
-	    auto* editor = new FWfcTilesetEditor_Actors;
+	    auto* editor = new FWfcTilesetEditor;
 	    TSharedRef<IWfcTilesetEditor> editorRef(editor);
 	    
 		editor->InitWfcTilesetEditorEditor(mode, initToolkitHost, tileset);

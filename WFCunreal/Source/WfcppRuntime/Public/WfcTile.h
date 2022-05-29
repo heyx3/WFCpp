@@ -17,6 +17,11 @@ struct WFCPPRUNTIME_API FWfcTileFace
 	//Maps the symmetry points of the prototype onto this specific face.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	WFC_Transforms2D PrototypeOrientation;
+
+
+    //Transforms a point on this face into its corresponding point in the face prototype,
+    //    based on "PrototypeOrientation".
+    WFC::Tiled3D::FacePoints GetPrototypeCorner(WFC::Tiled3D::FacePoints thisCorner) const;
 };
 template<>
 struct TStructOpsTypeTraits<FWfcTileFace> : public TStructOpsTypeTraitsBase2<FWfcTileFace>
@@ -62,6 +67,21 @@ struct WFCPPRUNTIME_API FWfcTile
     FString GetDisplayName() const { return (Data == nullptr) ? "null" : Data->GetName(); }
     FString GetDisplayName(int myID) const { return FString::FromInt(myID) + ": " +
                                                     ((Data == nullptr) ? "null" : Data->GetName()); }
+
+    const FWfcTileFace& GetFace(WFC::Tiled3D::Directions3D dir) const
+    {
+        switch (dir)
+        {
+            case WFC::Tiled3D::Directions3D::MinX: return MinX;
+            case WFC::Tiled3D::Directions3D::MaxX: return MaxX;
+            case WFC::Tiled3D::Directions3D::MinY: return MinY;
+            case WFC::Tiled3D::Directions3D::MaxY: return MaxY;
+            case WFC::Tiled3D::Directions3D::MinZ: return MinZ;
+            case WFC::Tiled3D::Directions3D::MaxZ: return MaxZ;
+            default: check(false); return MinX;
+        }
+    }
+    FWfcTileFace& GetFace(WFC::Tiled3D::Directions3D dir) { return const_cast<FWfcTileFace&>(const_cast<const FWfcTile*>(this)->GetFace(dir)); }
 };
 template<>
 struct TStructOpsTypeTraits<FWfcTile> : public TStructOpsTypeTraitsBase2<FWfcTile>

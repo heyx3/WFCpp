@@ -6,7 +6,7 @@
 
 void SWfcTilesetTabBody::Construct(const FArguments& inArgs)
 {
-    viewportWidget = SNew(SWfcTilesetEditorViewport);
+    viewportWidget = SNew(SWfcTilesetEditorViewport, );
     viewportClient = StaticCastSharedPtr<FWfcTilesetEditorViewportClient>(viewportWidget->GetViewportClient());
 
     TSharedPtr<SVerticalBox> viewportContainer = nullptr;

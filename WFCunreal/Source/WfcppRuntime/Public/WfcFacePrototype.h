@@ -9,10 +9,10 @@
 UENUM(BlueprintType)
 enum class PointID : uint8
 {
-	_0 = 0,
-	_1 = 1,
-	_2 = 2,
-	_3 = 3
+	a = 0,
+	b = 1,
+	c = 2,
+	d = 3
 };
 
 
@@ -26,19 +26,19 @@ struct WFCPPRUNTIME_API FWfcFacePrototype
 	
 	//The ID of the corner on the 'min' side of both face axes.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	PointID pAA = PointID::_0;
+	PointID pAA = PointID::a;
 	//The ID of the corner on the 'min' side of the first axis (X or Y),
 	//    and the 'max' side of the second axis (Y or Z).
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	PointID pAB = PointID::_1;
+	PointID pAB = PointID::b;
 	
 	//The ID of the corner on the 'max' side of the first axis (X or Y),
 	//    and the 'min' side of the second axis (Y or Z).
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	PointID pBA = PointID::_2;
+	PointID pBA = PointID::c;
 	//The ID of the corner on the 'max' side of both face axes.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	PointID pBB = PointID::_3;
+	PointID pBB = PointID::d;
 
 	//Whether this face can match with itself.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -47,6 +47,22 @@ struct WFCPPRUNTIME_API FWfcFacePrototype
 	//A display name for GUI purposes.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString Nickname = "New Face";
+
+
+    //Finds the symmetry of the given corner.
+    PointID GetPoint(WFC::Tiled3D::FacePoints corner) const { return const_cast<FWfcFacePrototype*>(this)->GetPoint(corner); }
+    //Gets a mutable reference to the symmetry at the given corner.
+    PointID& GetPoint(WFC::Tiled3D::FacePoints corner)
+    {
+        switch (corner)
+        {
+            case WFC::Tiled3D::FacePoints::AA: return pAA;
+            case WFC::Tiled3D::FacePoints::AB: return pAB;
+            case WFC::Tiled3D::FacePoints::BA: return pBA;
+            case WFC::Tiled3D::FacePoints::BB: return pBB;
+            default: check(false); return pAA;
+        }
+    }
 };
 template<>
 struct TStructOpsTypeTraits<FWfcFacePrototype> : public TStructOpsTypeTraitsBase2<FWfcFacePrototype> {

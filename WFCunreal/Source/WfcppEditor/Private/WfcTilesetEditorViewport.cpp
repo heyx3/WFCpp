@@ -7,11 +7,9 @@
 void SWfcTilesetEditorViewport::Construct(const FArguments& args)
 {
     scene = MakeShareable(new FWfcTilesetEditorScene);
-    
     SEditorViewport::Construct(SEditorViewport::FArguments());
-
-    //TODO: See the tail end of SMaterialEditor3DPreviewViewport::Construct(), which adds a callback for when the asset's properties change!
 }
+
 
 //Toolbar interface:
 TSharedRef<SEditorViewport> SWfcTilesetEditorViewport::GetViewportWidget()

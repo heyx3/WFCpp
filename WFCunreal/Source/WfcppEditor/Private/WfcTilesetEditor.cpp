@@ -30,6 +30,29 @@ const FName ToolkitName(TEXT("WfcTilesetEditor"));
 const FName WfcTileset_TabID_Properties   (TEXT("WfcTilesetEditor_Properties"));
 const FName WfcTileset_TabID_TileSelector (TEXT("WfcTilesetEditor_TileSelector"));
 
+namespace
+{
+    FString EventToString(FPropertyChangedEvent& ev)
+    {
+        return FString::Printf(TEXT("'%s' from '%s', object %i of %i, array idx %i"),
+                               *ev.GetPropertyName().ToString(),
+                               *ev.MemberProperty->GetName(),
+                               ev.ObjectIteratorIndex, ev.GetNumObjectsBeingEdited(),
+                               ev.GetArrayIndex(ev.GetPropertyName().ToString()));
+    }
+    FString EventToString(FPropertyChangedChainEvent& ev)
+    {
+        FString baseStr = EventToString(static_cast<FPropertyChangedEvent&>(ev));
+        baseStr += " [";
+
+        for (auto* chain : ev.PropertyChain)
+            baseStr += FString::Printf(TEXT("\n\tFrom %s"), *chain->GetFullName());
+
+        baseStr += "\n]";
+
+        return baseStr;
+    }
+}
 
 void FWfcTilesetEditor::RegisterTabSpawners(const TSharedRef<FTabManager>& tabManager)
 {
@@ -91,38 +114,9 @@ TSharedRef<SDockTab> FWfcTilesetEditor::GenerateTileSelectorTab(const FSpawnTabA
 		.TabColorScale(GetTabColorScale()) [
 		    SNew(STextComboBox)
 		        .OptionsSource(&tilesetTileSelectorChoices)
-		        .OnComboBoxOpening(this, &FWfcTilesetEditor::RefreshTileChoices)
 		        .OnSelectionChanged(this, &FWfcTilesetEditor::OnTileSelected)
-		    // SNew(SScrollBox)
-      //           .Orientation(EOrientation::Orient_Vertical)
-      //           +SScrollBox::Slot().VAlign(VAlign_Fill) [
-      //               SAssignNew(tileSelector, STileView<TSharedPtr<int>>)
-      //                   .Orientation(Orient_Vertical)
-      //                   .ListItemsSource(&tilesetTileIDs)
-      //                   .ItemWidth(200).ItemHeight(200)
-      //                   .OnGenerateTile(STileView<TSharedPtr<int>>
-      //                                   ::FOnGenerateRow
-      //                                   ::CreateSP(this, &FWfcTilesetEditor::GenerateTileSelectorTile))
-      //               ]
 		];
 }
-
-/*
-TSharedRef<SWidget> FWfcTilesetEditor::MakeTileDataPicker(int tileID)
-{
-    auto* me = this;
-    return SNew(SObjectPropertyEntryBox)
-        .DisplayThumbnail(true)
-        .DisplayBrowse(true)
-        .DisplayUseSelected(true)
-        .ObjectPath_Lambda([tileID, me]() {
-            return me->tileset->Tiles[tileID].Data->GetPathName();
-        })
-        .OnObjectChanged_Lambda([tileID, me](const FAssetData& data) {
-            me->tileset->Tiles[tileID].Data = data.GetAsset();
-        });
-}
-*/
 
 void FWfcTilesetEditor::RefreshTileChoices()
 {
@@ -138,8 +132,6 @@ void FWfcTilesetEditor::RefreshTileChoices()
 }
 void FWfcTilesetEditor::OnTileSelected(TSharedPtr<FString> name, ESelectInfo::Type)
 {
-    //TODO: See the tail end of SMaterialEditor3DPreviewViewport::Construct(), which adds a callback for when an asset's properties change!
-    
     //For some reason, "null" gets selected sometimes when using the widget.
     if (!name.IsValid())
         return;
@@ -154,14 +146,14 @@ void FWfcTilesetEditor::OnTileSelected(TSharedPtr<FString> name, ESelectInfo::Ty
     int tileID = tilesetTileSelectorChoiceIDs[foundI];
 
     //Update the tile 3D visualization tab.
-    auto tileSceneData = tileSceneTabBody->GetScene();
-    if (tileSceneData->GetTileViz() != nullptr)
-        TileViz_Destroy(tileID, tileSceneData->GetTileViz());
-    tileSceneData->SetTile(tileID, TileViz_Create(tileID));
+    tileToVisualize = tileID;    
     tileSceneTabBody->GetViewportClient()->Invalidate();
 }
 
+FWfcTilesetEditor::FWfcTilesetEditor() : tileset(nullptr)
+{
 
+}
 void FWfcTilesetEditor::InitWfcTilesetEditorEditor(const EToolkitMode::Type mode,
                                                    const TSharedPtr<IToolkitHost>& initToolkitHost,
                                                    UWfcTileset* newTileset)
@@ -178,7 +170,7 @@ void FWfcTilesetEditor::InitWfcTilesetEditorEditor(const EToolkitMode::Type mode
 		FDetailsViewArgs::ObjectsUseNameArea,
 		false
 	));
-    //TODO: Callback for when tile-collection or face-prototype-collection changes 
+    detailsView->OnFinishedChangingProperties().AddRaw(this, &FWfcTilesetEditor::OnTilesetEdited);
 
 	//Create our editor's layout.
 	auto standaloneDefaultLayout = FTabManager::NewLayout("Standalone_WfcTilesetEditor_Layout_v1")
@@ -225,86 +217,39 @@ void FWfcTilesetEditor::InitWfcTilesetEditorEditor(const EToolkitMode::Type mode
 
 FWfcTilesetEditor::~FWfcTilesetEditor()
 {
-    
+
 }
 
 void FWfcTilesetEditor::SetAsset(UWfcTileset* asset)
 {
 	tileset = asset;
-
-    for (const auto& tileKVP : asset->Tiles)
-    {
-        auto label = tileKVP.Value.GetDisplayName(tileKVP.Key);
-        tilesetTileSelectorChoices.Add(MakeShareable(new FString(label)));
-        tilesetTileSelectorChoiceIDs.Add(tileKVP.Key);
-    }
-
-    //Note that if the tile scene tab is not created yet, "SetTileset()" will be called on tab creation.
-    if (tileSceneTabBody.IsValid())
-        tileSceneTabBody->GetScene()->SetTileset(tileset);
+    RefreshTileChoices();
 }
 
 TSharedRef<SWidget> FWfcTilesetEditor::SpawnSceneView()
 {
     auto ref = SAssignNew(tileSceneTabBody, SWfcTilesetTabBody);
-
-    tileSceneTabBody->GetScene()->SetTileset(tileset);
-
+    tileSceneTabBody->GetViewportClient()->OnTick.AddRaw(this, &FWfcTilesetEditor::OnSceneTick);
     return ref;
 }
 
-
-TSharedRef<SWidget> FWfcTilesetEditor::TileViz_MakePreview(int tileID)
+void FWfcTilesetEditor::OnTilesetEdited(const FPropertyChangedEvent& data)
 {
-    auto displayName = tileset->Tiles[tileID].GetDisplayName(tileID);
-    return SNew(STextBlock)
-        .Text(FText::FromString(displayName));
+    RefreshTileChoices();
+    tileSceneTabBody->GetViewportClient()->Invalidate();
 }
+// ReSharper disable once CppMemberFunctionMayBeConst
+void FWfcTilesetEditor::OnSceneTick(float deltaSeconds)
+{
+    const auto& camPos = tileSceneTabBody->GetViewportClient()->GetViewLocation();
+    tileSceneTabBody->GetScene()->Refresh(tileset, tileToVisualize, camPos);
+}
+
 
 FName FWfcTilesetEditor::GetToolkitFName() const { return ToolkitName; }
 FText FWfcTilesetEditor::GetBaseToolkitName() const { return LOCTEXT("AppLabel", "WFC Tileset Editor"); }
 FText FWfcTilesetEditor::GetToolkitToolTipText() const { return LOCTEXT("ToolTip", "WFC Tileset Editor"); }
 FString FWfcTilesetEditor::GetWorldCentricTabPrefix() const { return LOCTEXT("WorldCentricTabPrefix", "AnimationDatabase ").ToString(); }
 FLinearColor FWfcTilesetEditor::GetWorldCentricTabColorScale() const { return FColor::Red; }
-
-UActorComponent* FWfcTilesetEditor_Actors::TileViz_Create(int tileID)
-{
-    auto* tileData = GetAsset()->Tiles[tileID].Data;
-    
-    if (tileData->IsA<UClass>())
-    {
-        auto dataClass = Cast<UClass>(tileData);
-        if (dataClass->IsChildOf<AActor>())
-        {
-            UE_LOG(LogWfcppEditor, Error,
-                   TEXT("Unable to spawn an Actor in the preview scene, because the editor crashes when it's destroyed."));
-            return nullptr;
-        }
-        else
-        {
-            UE_LOG(LogWfcppEditor, Fatal, TEXT("Unknown UObject type referenced: %s"), *dataClass->GetFullName());
-            return nullptr;
-        }
-    }
-    
-    if (tileData->IsA<UBlueprint>())
-    {
-        UE_LOG(LogWfcppEditor, Error,
-               TEXT("Unable to spawn an Actor in the preview scene, because the editor crashes when it's destroyed."));
-        return nullptr;
-    }
-    
-    if (tileData->IsA<UStaticMesh>())
-    {
-        auto* component = NewObject<UStaticMeshComponent>(GetTransientPackage(), NAME_None, RF_Transient);
-        component->SetStaticMesh(Cast<UStaticMesh>(tileData));
-        return component;
-    }
-    else
-    {
-        UE_LOG(LogWfcppEditor, Fatal, TEXT("Unknown UObject data referenced: %s"), *tileData->GetFullName());
-        return nullptr;
-    }
-}
 
 #undef LOCTEXT_NAMESPACE

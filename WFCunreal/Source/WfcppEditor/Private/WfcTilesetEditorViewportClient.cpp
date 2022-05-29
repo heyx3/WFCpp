@@ -38,8 +38,7 @@ void FWfcTilesetEditorViewportClient::Tick(float deltaSeconds)
                            true);
     }
 
-    //Update the scene objects.
-    static_cast<FWfcTilesetEditorScene*>(GetPreviewScene())->RefreshTileViz(GetViewLocation());
+    OnTick.Broadcast(deltaSeconds);
 }
 void FWfcTilesetEditorViewportClient::Draw(FViewport* viewport, FCanvas* canvas)
 {

@@ -17,7 +17,6 @@ public:
 extern const FName WfcTileset_TabID_Properties, WfcTileset_TabID_TileSelector;
 
 //An editor for WFC Tileset data.
-//Has pure virtual functions related to the visualization of the tile's data.
 class WFCPPEDITOR_API FWfcTilesetEditor : public IWfcTilesetEditor
 {
 public:
@@ -28,6 +27,7 @@ public:
 								    const TSharedPtr<class IToolkitHost>& initToolkitHost,
 								    UWfcTileset* tileset);
 
+    FWfcTilesetEditor();
 	virtual ~FWfcTilesetEditor() override;
 
 	//IToolkit interface:
@@ -44,19 +44,7 @@ public:
 
     //Meant to be usd by WfcTilesetEditorSceneViewTab:
     TSharedRef<SWidget> SpawnSceneView();
-
-protected:
-    //Makes some kind of preview thumbnail for the given tile.
-    //By default, creates a simple label.
-    virtual TSharedRef<SWidget> TileViz_MakePreview(int tileID);
-
-    //Creates a 3D visualization of a given tile.
-    //TODO: Default behavior looks for UClass* of AActor or UActorComponent, and creates an instance of them.
-    virtual UActorComponent* TileViz_Create(int tileID) = 0;
-    //Cleans up the 3D visualization for a given tile.
-    //Does not need to actually call DestroyComponent(), just handle other cleanup.
-    virtual void TileViz_Destroy(int tileID, UActorComponent* tileViz) { }
-
+    
 private:
 
 	TSharedRef<SDockTab> GeneratePropertiesTab(const FSpawnTabArgs& args);
@@ -65,8 +53,12 @@ private:
     void RefreshTileChoices();
     void OnTileSelected(TSharedPtr<FString> name, ESelectInfo::Type);
 
+    void OnTilesetEdited(const FPropertyChangedEvent&);
+    void OnSceneTick(float deltaSeconds);
+
     // ReSharper disable once CppUninitializedNonStaticDataMember
     UWfcTileset* tileset;
+    TOptional<WfcTileID> tileToVisualize;
     TArray<TSharedPtr<FString>> tilesetTileSelectorChoices;
     TArray<int> tilesetTileSelectorChoiceIDs;
 
@@ -76,11 +68,4 @@ private:
     
     TSharedPtr<struct FWfcTilesetEditorSceneViewTab> tileSceneTabFactory;
     TSharedPtr<class SWfcTilesetTabBody> tileSceneTabBody;
-};
-
-
-class WFCPPEDITOR_API FWfcTilesetEditor_Actors : public FWfcTilesetEditor
-{
-protected:
-    virtual UActorComponent* TileViz_Create(int tileID) override;
 };

@@ -3,6 +3,7 @@
 #include "SEditorViewport.h"
 #include "SCommonEditorViewportToolbarBase.h"
 
+class UWfcTileset;
 class FWfcTilesetEditorScene;
 
 //Based on this wonderful tutorial:
@@ -36,4 +37,7 @@ protected:
 private:
     TSharedPtr<FEditorViewportClient> viewportClient;
     TSharedPtr<FWfcTilesetEditorScene> scene;
+
+    //Functions:
+private:
 };

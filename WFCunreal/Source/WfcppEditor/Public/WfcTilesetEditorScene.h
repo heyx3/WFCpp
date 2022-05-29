@@ -24,14 +24,8 @@ class FWfcTilesetEditorScene : public FAdvancedPreviewScene
 public:
     FWfcTilesetEditorScene(ConstructionValues cvs = ConstructionValues());
 
-    UActorComponent* GetTileViz() const { return compTileViz; }
- 
-    void SetTileset(const UWfcTileset* tileset);
-    void SetTile(WfcTileID tile, UActorComponent* tileVisualization);
-    void SetFace(WFC::Tiled3D::Directions3D dir);
-
-    //Makes sure the visualization is up-to-date with the tileset data and camera.
-    void RefreshTileViz(const FVector& camPos);
+    //Call continuously so that this scene can respond to changes in tile data, camera, etc.
+    void Refresh(const UWfcTileset* tileset, TOptional<WfcTileID> tileID, const FVector& camPos);
     
 private:
     
@@ -55,13 +49,7 @@ private:
     };
     void InitializeFaceViz(FaceViz& inOutData);
 
-    void UpdateSizing(float newTileSize);
-
-    
-    const UWfcTileset* tileset;
-    WfcTileID chosenTile;
-    float currentTileSize;
-    
-    UActorComponent* compTileViz;
     TStaticArray<FaceViz, N_DIRECTIONS3D> faces;
+    TArray<UActorComponent*> chosenTileViz;
+    UObject* chosenTileData;
 };

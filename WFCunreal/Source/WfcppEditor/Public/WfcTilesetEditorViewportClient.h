@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include "EditorModeManager.h"
 #include "EditorViewportClient.h"
 
 #include "WfcTilesetEditorScene.h"
@@ -13,9 +12,10 @@
 class FWfcTilesetEditorViewportClient : public FEditorViewportClient
 {
 public:
-
+    FOnGameViewportTick OnTick;
+    
     FWfcTilesetEditorViewportClient(FWfcTilesetEditorScene& scene);
-
+    
     virtual void Draw(FViewport* viewport, FCanvas* canvas) override;
     virtual void Tick(float deltaSeconds) override;
 

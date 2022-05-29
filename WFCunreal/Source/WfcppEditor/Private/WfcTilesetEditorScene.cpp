@@ -1,6 +1,5 @@
 ﻿#include "WfcTilesetEditorScene.h"
 
-#include "WfcppEditorModule.h"
 #include "GameFramework/WorldSettings.h"
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
@@ -8,6 +7,9 @@
 #include "Components/DirectionalLightComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+
+#include "WfcppEditorModule.h"
+#include "WfcTileVisualizer.h"
 
 
 //Most visual settings are encapsulated in this namespace.
@@ -66,10 +68,10 @@ namespace
         const auto* symmetryText = TEXT("ERROR2");
         switch (symmetry.GetValue())
         {
-            case PointID::_0: symmetryText = TEXT("0"); break;
-            case PointID::_1: symmetryText = TEXT("1"); break;
-            case PointID::_2: symmetryText = TEXT("2"); break;
-            case PointID::_3: symmetryText = TEXT("3"); break;
+            case PointID::a: symmetryText = TEXT("a"); break;
+            case PointID::b: symmetryText = TEXT("b"); break;
+            case PointID::c: symmetryText = TEXT("c"); break;
+            case PointID::d: symmetryText = TEXT("d"); break;
             default: check(false);
         }
 
@@ -111,9 +113,10 @@ void FWfcTilesetEditorScene::InitializeFaceViz(FaceViz& inOutData)
     box->ShapeColor = axisColors[inOutData.Dir].ToFColor(false);
     box->bVisualizeComponent = true; //TODO: Probably not needed.
     box->bHiddenInGame = false; //TODO: Probably not needed.
-    
-    FVector boxExtents(currentTileSize / 2.0f);
-    float thickness = GetFaceThickness(currentTileSize);
+
+    constexpr float initialTileSize = 1000.0f;
+    FVector boxExtents(initialTileSize / 2.0f);
+    float thickness = GetFaceThickness(initialTileSize);
     boxExtents[WFC::Tiled3D::GetAxisIndex(inOutData.Dir)] = thickness / 2.0f;
     box->SetBoxExtent(boxExtents);
     
@@ -123,10 +126,8 @@ void FWfcTilesetEditorScene::InitializeFaceViz(FaceViz& inOutData)
 }
 
 
-
 FWfcTilesetEditorScene::FWfcTilesetEditorScene(ConstructionValues cvs)
-    : FAdvancedPreviewScene(cvs),
-      compTileViz(nullptr)
+    : FAdvancedPreviewScene(cvs)
 {
     auto& world = *GetWorld();
     auto& worldSettings = *world.GetWorldSettings();
@@ -141,7 +142,6 @@ FWfcTilesetEditorScene::FWfcTilesetEditorScene(ConstructionValues cvs)
     SetFloorVisibility(false);
     
     //Set up the visualization of each face.
-    currentTileSize = 1000.0f;
     for (int i = 0; i < N_DIRECTIONS3D; ++i)
     {
         auto face = static_cast<WFC::Tiled3D::Directions3D>(i);
@@ -155,76 +155,65 @@ FWfcTilesetEditorScene::FWfcTilesetEditorScene(ConstructionValues cvs)
             InitializeFacePointViz(face, cornerField);
         }
     }
-    UpdateSizing(currentTileSize);
 }
 
-
-void FWfcTilesetEditorScene::UpdateSizing(float newTileSize)
+void FWfcTilesetEditorScene::Refresh(const UWfcTileset* tileset, TOptional<WfcTileID> tile, const FVector& camPos)
 {
-    currentTileSize = newTileSize;
+    //Error-checking.
+    if (tileset != nullptr && tile.IsSet())
+    {
+        checkf(tileset->Tiles.Contains(*tile),
+               TEXT("Gave nonexistent tile %i for tileset %s"),
+               *tile, *tileset->GetFullName());
+    }
+    
+    //Calculate properties in case the tileset/tile is null.
+    float tileLength = (tileset == nullptr) ? 1000.0f : tileset->TileLength;
+    
     for (auto& face : faces)
     {
         uint_fast8_t mainAxis, planeAxis1, planeAxis2;
         WFC::Tiled3D::GetAxes(face.Dir, mainAxis, planeAxis1, planeAxis2);
-        
-        face.Pos = ConvertVec(WFC::Tiled3D::GetFaceDirection(face.Dir))
-                     * (currentTileSize / 2.0f);
-        face.Pos[mainAxis] += GetFaceThickness(newTileSize) * 0.5f *
-                                FMath::Sign(face.Pos[mainAxis]);
-        
+
+        //Update position.
+        face.Pos = ConvertVec(WFC::Tiled3D::GetFaceDirection(face.Dir)) * (tileLength / 2.0f);
+        face.Pos[mainAxis] += GetFaceThickness(tileLength) * 0.5f * FMath::Sign(face.Pos[mainAxis]);
         face.Shape->SetWorldLocation(face.Pos);
 
+        //Update individual corners of the face.
         for (auto& point : face.Points)
         {
+            //Update position.
             FVector pointPos;
             point.Pos[mainAxis] = face.Pos[mainAxis] * 1.15f;
-            point.Pos[planeAxis1] = (currentTileSize / 2.0f) *
+            point.Pos[planeAxis1] = (tileLength / 2.0f) *
                                     (WFC::Tiled3D::IsFirstMin(point.CornerType) ? -1 : 1);
-            point.Pos[planeAxis2] = (currentTileSize / 2.0f) *
+            point.Pos[planeAxis2] = (tileLength / 2.0f) *
                                     (WFC::Tiled3D::IsSecondMin(point.CornerType) ? -1 : 1);
-
             point.Shape->SetWorldLocation(point.Pos);
             point.Label->SetWorldLocation(point.Pos);
 
-            point.Label->SetWorldSize(GetLabelThickness(newTileSize));
-            
-            point.Shape->SetSphereRadius(GetCornerSphereRadius(currentTileSize));
+            //Update size.
+            point.Shape->SetSphereRadius(GetCornerSphereRadius(tileLength));
+
+            //Update labels.
+            point.Label->SetWorldSize(GetLabelThickness(tileLength));
+            point.Label->SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(point.Pos, camPos));
+            if (tileset != nullptr && tile.IsSet())
+            {
+                const auto& assetFace = tileset->Tiles[*tile].GetFace(face.Dir);
+                const auto& assetFacePrototype = tileset->FacePrototypes[assetFace.PrototypeID];
+                
+                auto prototypeCornerType = assetFace.GetPrototypeCorner(point.CornerType);
+                auto pointSymmetry = assetFacePrototype.GetPoint(prototypeCornerType);
+                auto text = MakePointLabel(point.CornerType, pointSymmetry);
+                
+                point.Label->SetText(FText::FromString(MakePointLabel(point.CornerType, pointSymmetry)));
+            }
+            else
+            {
+                point.Label->SetText(FText::FromString(MakePointLabel(point.CornerType)));
+            }
         }
     }
 }
-void FWfcTilesetEditorScene::RefreshTileViz(const FVector& camPos)
-{
-    //Make billboards face the camera.
-    for (auto& face : faces)
-        for (auto& point : face.Points)
-            point.Label->SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(point.Pos, camPos));
-}
-
-void FWfcTilesetEditorScene::SetTileset(const UWfcTileset* newTileset)
-{
-    tileset = newTileset;
-    UpdateSizing(tileset->TileLength);
-
-    if (compTileViz != nullptr)
-        RemoveComponent(compTileViz);
-    compTileViz = nullptr;
-}
-void FWfcTilesetEditorScene::SetTile(WfcTileID tile, UActorComponent* tileVisualization)
-{
-    checkf(tileset != nullptr, TEXT("Trying to visualize a tile from a null tileset"));
-    checkf(tileset->Tiles.Contains(tile),
-            TEXT("Tile with ID %i doesn't exist in tileset '%s'"),
-            tile, *tileset->GetFullName());
-    
-    if (compTileViz != nullptr)
-        RemoveComponent(compTileViz);
-    
-    AddComponent(tileVisualization, FTransform());
-    compTileViz = tileVisualization;
-}
-void FWfcTilesetEditorScene::SetFace(WFC::Tiled3D::Directions3D dir)
-{
-    //TODO: Implement visualization of neighbor tile
-}
-
-//TODO: Try intercepting 'UChildActorComponent' and spawn the actor directly into the UWorld, instead of actually using that component.

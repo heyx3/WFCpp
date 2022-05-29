@@ -10,6 +10,7 @@
 
 using WfcTileID = int32;
 
+
 UCLASS(BlueprintType)
 class WFCPPRUNTIME_API UWfcTileset : public UObject
 {
@@ -28,4 +29,27 @@ public:
     //Used when visualizing the tile in the editor, but you can also use it when placing tiles in the world.
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float TileLength = 1000.0f;
+
+    //How a tile's data can be previewed in the editor.
+    //Leave unset to use the default implementation (handles static meshes).
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    class UWfcTileVisualizer* PreviewVisualizer;
+    
+    
+    //Provide callbacks to the editor for when this asset changes.
+#if WITH_EDITOR    
+    DECLARE_MULTICAST_DELEGATE_TwoParams(FOnTilesetEdited, UWfcTileset*, FPropertyChangedEvent&);
+    FOnTilesetEdited OnEdited;
+    virtual void PostEditChangeProperty(FPropertyChangedEvent& eventData) override
+    {
+        OnEdited.Broadcast(this, eventData);
+    }
+    
+    DECLARE_MULTICAST_DELEGATE_TwoParams(FOnTilesetChainEdited, UWfcTileset*, FPropertyChangedChainEvent&);
+    FOnTilesetChainEdited OnChainEdited;
+    virtual void PostEditChangeChainProperty(FPropertyChangedChainEvent& eventData) override
+    {
+        OnChainEdited.Broadcast(this, eventData);
+    }
+#endif
 };

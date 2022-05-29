@@ -42,7 +42,7 @@ enum class WFC_Transforms2D : uint8
 };
 static_assert(static_cast<int>(WFC_Transforms2D::None) == WFC::Transformations::None,
 			  "Needed to satisfy the compiler");
-//TODO: Map between 'AA', 'AB', 'BA', and 'BB' given a WFC_Transforms2D.
+
 
 UENUM(Category=WFC, BlueprintType)
 enum class WFC_Rotations3D : uint8
