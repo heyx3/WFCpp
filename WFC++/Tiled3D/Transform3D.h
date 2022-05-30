@@ -104,8 +104,7 @@ namespace WFC
 
             //The four points of this face. Indexed with the "FacePoints" enum.
             //Two faces can line up against each other if their corresponding points match.
-            PointID Points[4];
-
+            PointID Points[WFC_N_FACE_POINTS];
 
             #pragma region Hashing/equality-testing
             //Gets the hash value for an instance.
@@ -196,6 +195,16 @@ namespace WFC
             FacePermutation ApplyToFace(FacePermutation currentFace) const;
             //Gets the new permutated cube after this transformation.
             CubePermutation ApplyToCube(CubePermutation currentCube) const;
+
+            //Generates a perfect, unique hash code for this instance.
+            using HashType = uint_fast16_t;
+            HashType GetHash() const
+            {
+                static_assert(sizeof(Rotations3D) == 1, "Rotations3D changed size! Update this hash function");
+                HashType field1 = static_cast<HashType>(Rot),
+                         field2 = (Invert ? HashType{1} : HashType{0}) << HashType{8};
+                return (uint8_t)Rot | ((Invert ? 1 : 0) << 8);
+            }
         };
 
         inline bool operator==(Transform3D t1, Transform3D t2)

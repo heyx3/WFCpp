@@ -9,7 +9,8 @@ namespace WFC
     {
         //Unique identifiers for each tile permutation.
         using TileID = uint_fast32_t;
-        const TileID TileID_INVALID = -1;
+        const TileID TileID_INVALID = -1,
+                     TileID_FIRST_VALID = 0;
 
         //A single item in a tileset.
         struct WFC_API Tile
