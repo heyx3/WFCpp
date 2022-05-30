@@ -86,8 +86,6 @@ enum class WFC_Rotations3D : uint8
 	CornerBBA_120 = WFC::Tiled3D::Rotations3D::CornerBBA_120,
 	CornerBBA_240 = WFC::Tiled3D::Rotations3D::CornerBBA_240
 };
-static_assert(static_cast<int>(WFC_Rotations3D::None) == static_cast<int>(WFC::Tiled3D::Rotations3D::None),
-			  "Needed to satisfy the compiler");
 
 
 //Provides a unique ID for each corner of a cube face.
@@ -184,12 +182,18 @@ struct TStructOpsTypeTraits<FWFC_Cube> : public TStructOpsTypeTraitsBase2<FWFC_C
 
 
 //A transformation that can be done to a cube (while keeping it axis-aligned).
+//Defines hashing and equality.
 USTRUCT(BlueprintType)
 struct FWFC_Transform3D
 {
 	GENERATED_BODY()
-	bool Invert;
-	WFC_Rotations3D Rot;
+public:
+    
+    UPROPERTY(BlueprintReadWrite)
+	WFC_Rotations3D Rot = WFC_Rotations3D::None;
+
+    UPROPERTY(BlueprintReadWrite)
+	bool Invert = false;
 
 	bool operator==(const FWFC_Transform3D& t) const
 	{
@@ -197,6 +201,12 @@ struct FWFC_Transform3D
 					  "Assumption used for fast equality is incorrect");
 		return memcmp(this, &t, sizeof(FWFC_Transform3D)) == 0;
 	}
+
+    FWFC_Transform3D(WFC_Rotations3D rot, bool inverted) :  Rot(rot), Invert(inverted) { }
+    FWFC_Transform3D(WFC_Rotations3D rot) : FWFC_Transform3D(rot, false) { }
+    FWFC_Transform3D() : FWFC_Transform3D(WFC_Rotations3D::None) { }
+
+    WFC::Tiled3D::Transform3D Unwrap() const { return { Invert, static_cast<WFC::Tiled3D::Rotations3D>(Rot) }; }
 };
 template<>
 struct TStructOpsTypeTraits<FWFC_Transform3D> : public TStructOpsTypeTraitsBase2<FWFC_Transform3D>
@@ -208,3 +218,7 @@ struct TStructOpsTypeTraits<FWFC_Transform3D> : public TStructOpsTypeTraitsBase2
 		WithIdenticalViaEquality = true
 	};
 };
+inline uint32 GetTypeHash(const FWFC_Transform3D& t)
+{
+    return static_cast<uint32>(t.Unwrap().GetHash());
+}

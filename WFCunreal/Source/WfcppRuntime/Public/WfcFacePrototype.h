@@ -6,6 +6,7 @@
 
 
 //ID's for a tile face, to identify symmetries and match with other faces.
+//TODO: Rename 'PointSymmetry', and rename 'GetPoint()' below to 'GetPointSymmetry()'.
 UENUM(BlueprintType)
 enum class PointID : uint8
 {

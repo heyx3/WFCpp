@@ -4,6 +4,7 @@
 
 #include "WfcFacePrototype.h"
 #include "WfcDataReflection.h"
+#include "WfcTile.h"
 
 #include "WfcBpUtils.generated.h"
 
@@ -27,6 +28,9 @@ class WFCPPRUNTIME_API UBP_Utils : public UBlueprintFunctionLibrary
 	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(CompactNodeTitle="!="))
 	static bool TransfNotEquals(const FWFC_Transform3D& a, const FWFC_Transform3D& b) { return !TransfEquals(a, b); }
 
+    UFUNCTION(BlueprintCallable, Category="Faces")
+    const FWfcTileFace& GetFace(const FWfcTile& tile, WFC_Directions3D dir) { return tile.GetFace(static_cast<WFC::Tiled3D::Directions3D>(dir)); }
+    
 
 	//The special face prototype ID that represents 'null'.
 	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(CompactNodeTitle="NULL face ID"))
