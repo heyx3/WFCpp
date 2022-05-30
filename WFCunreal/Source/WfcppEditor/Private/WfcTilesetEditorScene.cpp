@@ -181,17 +181,44 @@ void FWfcTilesetEditorScene::Refresh(const UWfcTileset* tileset, TOptional<WfcTi
         uint_fast8_t mainAxis, planeAxis1, planeAxis2;
         WFC::Tiled3D::GetAxes(face.Dir, mainAxis, planeAxis1, planeAxis2);
 
+        //Get the tile's data for this face.
+        const FWfcTileFace* assetFace;
+        if (tile.IsSet())
+            assetFace = &tileset->Tiles[*tile].GetFace(face.Dir);
+        else
+            assetFace = nullptr;
+
+        //Get the prototype for this face.
+        const FWfcFacePrototype* assetFacePrototype;
+        if (assetFace == nullptr)
+            assetFacePrototype = nullptr;
+        else if (tileset->FacePrototypes.Contains(assetFace->PrototypeID))
+            assetFacePrototype = &tileset->FacePrototypes[assetFace->PrototypeID];
+        else
+        {
+            assetFacePrototype = nullptr;
+            UE_LOG(LogWfcppEditor, Warning,
+                   TEXT("Tile %i of tileset '%s' references a nonexistent face prototype %i"),
+                   *tile, *tileset->GetFullName(), assetFace->PrototypeID)
+        };
+        
         //Update position.
         face.Pos = ConvertVec(WFC::Tiled3D::GetFaceDirection(face.Dir)) * (tileLength / 2.0f);
         face.Pos[mainAxis] += GetFaceThickness(tileLength) * 0.5f * FMath::Sign(face.Pos[mainAxis]);
         face.Shape->SetWorldLocation(face.Pos);
 
+        //Update size.
+        FVector boxExtents(tileLength / 2.0f);
+        float thickness = GetFaceThickness(tileLength);
+        boxExtents[WFC::Tiled3D::GetAxisIndex(face.Dir)] = thickness / 2.0f;
+        face.Shape->SetBoxExtent(boxExtents);
+        
         //Update individual corners of the face.
         for (auto& point : face.Points)
         {
             //Update position.
             FVector pointPos;
-            point.Pos[mainAxis] = face.Pos[mainAxis] * 1.15f;
+            point.Pos[mainAxis] = face.Pos[mainAxis] * 1.25f;
             point.Pos[planeAxis1] = (tileLength / 2.0f) *
                                     (WFC::Tiled3D::IsFirstMin(point.CornerType) ? -1 : 1);
             point.Pos[planeAxis2] = (tileLength / 2.0f) *
@@ -205,13 +232,10 @@ void FWfcTilesetEditorScene::Refresh(const UWfcTileset* tileset, TOptional<WfcTi
             //Update labels.
             point.Label->SetWorldSize(GetLabelThickness(tileLength));
             point.Label->SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(point.Pos, camPos));
-            if (tileset != nullptr && tile.IsSet())
+            if (tileset != nullptr && tile.IsSet() && assetFacePrototype != nullptr)
             {
-                const auto& assetFace = tileset->Tiles[*tile].GetFace(face.Dir);
-                const auto& assetFacePrototype = tileset->FacePrototypes[assetFace.PrototypeID];
-                
-                auto prototypeCornerType = assetFace.GetPrototypeCorner(point.CornerType);
-                auto pointSymmetry = assetFacePrototype.GetPoint(prototypeCornerType);
+                auto prototypeCornerType = assetFace->GetPrototypeCorner(point.CornerType);
+                auto pointSymmetry = assetFacePrototype->GetPoint(prototypeCornerType);
                 auto text = MakePointLabel(point.CornerType, pointSymmetry);
                 
                 point.Label->SetText(FText::FromString(MakePointLabel(point.CornerType, pointSymmetry)));

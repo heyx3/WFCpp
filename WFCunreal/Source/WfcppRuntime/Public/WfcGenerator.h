@@ -69,7 +69,8 @@ public:
 	           bool periodicX = false,
 	           bool periodicY = false,
 	           bool periodicZ = false);
-	
+
+    //Fails if the algorithm isn't running.
 	UFUNCTION(BlueprintCallable, Category="WFC/Ops")
 	void Tick();
 

@@ -49,6 +49,8 @@ struct WFCPPRUNTIME_API FWfcFacePrototype
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString Nickname = "New Face";
 
+    //TOOD: Add nicknames for each point as well
+
 
     //Finds the symmetry of the given corner.
     PointID GetPoint(WFC::Tiled3D::FacePoints corner) const { return const_cast<FWfcFacePrototype*>(this)->GetPoint(corner); }

@@ -112,7 +112,7 @@ TSharedRef<SDockTab> FWfcTilesetEditor::GenerateTileSelectorTab(const FSpawnTabA
 		.Icon(FEditorStyle::GetBrush("GenericEditor.Tabs.Properties"))
 		.Label(LOCTEXT("TileSelectorTabLabel", "Tile Selector"))
 		.TabColorScale(GetTabColorScale()) [
-		    SNew(STextComboBox)
+		    SAssignNew(tileSelector, STextComboBox)
 		        .OptionsSource(&tilesetTileSelectorChoices)
 		        .OnSelectionChanged(this, &FWfcTilesetEditor::OnTileSelected)
 		];
@@ -129,6 +129,10 @@ void FWfcTilesetEditor::RefreshTileChoices()
         tilesetTileSelectorChoices.Add(MakeShareable<FString>(new FString(displayName)));
         tilesetTileSelectorChoiceIDs.Add(tileByID.Key);
     }
+
+    //Update the selector widget.
+    if (tileSelector.IsValid())
+        tileSelector->RefreshOptions();
 }
 void FWfcTilesetEditor::OnTileSelected(TSharedPtr<FString> name, ESelectInfo::Type)
 {

@@ -30,6 +30,9 @@ class WFCPPRUNTIME_API UBP_Utils : public UBlueprintFunctionLibrary
 
     UFUNCTION(BlueprintCallable, Category="Faces")
     const FWfcTileFace& GetFace(const FWfcTile& tile, WFC_Directions3D dir) { return tile.GetFace(static_cast<WFC::Tiled3D::Directions3D>(dir)); }
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, meta=(CompactNodeTitle="FTransform"))
+    FTransform ToFTransform(const FWFC_Transform3D& wfcTransform) { return wfcTransform.ToFTransform(); }
     
 
 	//The special face prototype ID that represents 'null'.

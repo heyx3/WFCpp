@@ -26,6 +26,8 @@ public:
 
     //Call continuously so that this scene can respond to changes in tile data, camera, etc.
     void Refresh(const UWfcTileset* tileset, TOptional<WfcTileID> tileID, const FVector& camPos);
+
+    //TODO: Configurable origin point
     
 private:
     

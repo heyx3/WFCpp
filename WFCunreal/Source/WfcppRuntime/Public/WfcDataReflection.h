@@ -158,10 +158,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FWFC_Face MaxZ = { 21, 22, 23, 24 };
 
-	
-	//Converts this Unreal-friendly data into the internal WFC data.
-	WFC::Tiled3D::CubePermutation ToInternal() const;
-	
+    
 	bool operator==(const FWFC_Cube& c) const
 	{
 		static_assert(sizeof(FWFC_Cube) == (4 * sizeof(int)) * 6,
@@ -189,10 +186,10 @@ struct FWFC_Transform3D
 	GENERATED_BODY()
 public:
     
-    UPROPERTY(BlueprintReadWrite)
+    UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	WFC_Rotations3D Rot = WFC_Rotations3D::None;
 
-    UPROPERTY(BlueprintReadWrite)
+    UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	bool Invert = false;
 
 	bool operator==(const FWFC_Transform3D& t) const
@@ -207,6 +204,7 @@ public:
     FWFC_Transform3D() : FWFC_Transform3D(WFC_Rotations3D::None) { }
 
     WFC::Tiled3D::Transform3D Unwrap() const { return { Invert, static_cast<WFC::Tiled3D::Rotations3D>(Rot) }; }
+    FTransform ToFTransform() const;
 };
 template<>
 struct TStructOpsTypeTraits<FWFC_Transform3D> : public TStructOpsTypeTraitsBase2<FWFC_Transform3D>

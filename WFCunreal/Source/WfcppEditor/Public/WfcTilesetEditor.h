@@ -64,7 +64,7 @@ private:
 
 	TSharedPtr<SDockTab> propertiesTab, tileSelectorTab, tileSceneTab;
 	TSharedPtr<IDetailsView> detailsView;
-    TSharedPtr<STileView<TSharedPtr<int>>> tileSelector;
+    TSharedPtr<STextComboBox> tileSelector;
     
     TSharedPtr<struct FWfcTilesetEditorSceneViewTab> tileSceneTabFactory;
     TSharedPtr<class SWfcTilesetTabBody> tileSceneTabBody;

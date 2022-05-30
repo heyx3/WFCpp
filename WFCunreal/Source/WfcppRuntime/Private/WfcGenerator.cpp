@@ -120,7 +120,8 @@ void UWfcGenerator::Start(const UWfcTileset* tiles,
             }
         }
 
-        //Generate each permutation of this tile. 
+        //Generate each permutation of this tile.
+        //TODO: Discard redundant permutations. 
         for (const auto& transform : tileTransforms)
         {
             WFC::Tiled3D::Tile permutedTile{ transform.Unwrap().ApplyToCube(referenceTile.Data),
