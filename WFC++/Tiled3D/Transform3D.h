@@ -87,8 +87,8 @@ namespace WFC
         {
             outMain = GetAxisIndex(dir);
             
-            outPlane1 = (outMain + 1) % 3;
-            outPlane2 = (outPlane1 + 1) % 3;
+            outPlane1 = (outMain + uint_fast8_t{ 1 }) % uint_fast8_t{ 3 };
+            outPlane2 = (outPlane1 + uint_fast8_t{ 1 }) % uint_fast8_t{ 3 };
 
             if (outPlane2 < outPlane1)
                 std::swap(outPlane1, outPlane2);
@@ -96,7 +96,7 @@ namespace WFC
 
 
 
-        //A specific permutation of a face.
+        //A specific permutation of a face, on a specific side of the cube.
         struct WFC_API FacePermutation
         {
             //The side of the cube this face is on.
@@ -119,6 +119,8 @@ namespace WFC
 
             inline bool operator==(const FacePermutation& f2) const
             {
+                static_assert(sizeof(Points) == sizeof(PointID) * 4,
+                              "memcmp() will be broken if this fails");
                 return (Side == f2.Side) &
                        (memcmp(Points, f2.Points, sizeof(PointID) * 4) == 0);
             }

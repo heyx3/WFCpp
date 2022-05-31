@@ -30,10 +30,10 @@ namespace WFC
 
             List<Tile> tiles;
 
-            //A quick lookup of which tiles have a certain face type in a certain direction.
+            //A cached lookup of which tiles have a specific face.
             Dictionary<FacePermutation, TileIDSet> matchingFaces;
 
-            //The default response for "GetTilesWithEdge()".
+            //The default response for "GetTilesWithFace()".
             static const TileIDSet EmptyTileSet;
         };
     }

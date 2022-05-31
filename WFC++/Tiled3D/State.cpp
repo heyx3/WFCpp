@@ -44,7 +44,7 @@ Nullable<bool> State::Iterate(Vector3i& out_changedPos, List<Vector3i>& out_fail
     if (entropy == 0)
     {
         //Either clear out the area to try again, or give up.
-        if (ClearSize == Vector3i())
+        if (ClearSize != Vector3i())
         {
             //Clear the area.
             for (const auto& tilePos : lowestEntropyTilePoses)
@@ -69,7 +69,7 @@ Nullable<bool> State::Iterate(Vector3i& out_changedPos, List<Vector3i>& out_fail
     auto& chosenTile = Output[chosenTilePos];
 
     //Pick a tile randomly, but based on their weights.
-    TileID chosenTileID;
+    TileID chosenTileID = TileID_INVALID;
     //If there's only one possible tile, this is easy.
     if (chosenTile.PossibleTiles.GetSize() == 1)
     {
@@ -121,17 +121,17 @@ void State::SetTile(Vector3i tilePos, TileID value, bool permanent)
 
     //Update adjacent tiles.
     if (IsPeriodicX | (tilePos.x > 0))
-        RecalculateTileChances(FilterPos(tilePos.LessX()));
+        RecalculateTileChances(tilePos.LessX());
     if (IsPeriodicX | (tilePos.x < Output.GetWidth() - 1))
-        RecalculateTileChances(FilterPos(tilePos.MoreX()));
+        RecalculateTileChances(tilePos.MoreX());
     if (IsPeriodicY | (tilePos.y > 0))
-        RecalculateTileChances(FilterPos(tilePos.LessY()));
+        RecalculateTileChances(tilePos.LessY());
     if (IsPeriodicY | (tilePos.y < Output.GetHeight() - 1))
-        RecalculateTileChances(FilterPos(tilePos.MoreY()));
+        RecalculateTileChances(tilePos.MoreY());
     if (IsPeriodicZ | (tilePos.z > 0))
-        RecalculateTileChances(FilterPos(tilePos.LessZ()));
+        RecalculateTileChances(tilePos.LessZ());
     if (IsPeriodicZ | (tilePos.z < Output.GetDepth() - 1))
-        RecalculateTileChances(FilterPos(tilePos.MoreZ()));
+        RecalculateTileChances(tilePos.MoreZ());
 }
 
 void State::ClearArea(Vector3i center, Vector3i clearSize)
@@ -295,9 +295,25 @@ void State::RecalculateTileChances(Vector3i tilePos)
 
         const auto& neighborTile = Input.GetTiles()[neighborOutput.Value.Value];
 
-        //Get all tiles that fit the neighbor tile at this edge.
+        //Get the neighboring face.
         auto oppositeSide = GetOpposite(side);
-        const auto& neighborMatches = Input.GetTilesWithFace(neighborTile.Data.Faces[oppositeSide]);
+        //TODO: Add another lookup to InputData for the below query.
+        const auto* neighborFace = std::find_if(
+            &neighborTile.Data.Faces[0],
+            &neighborTile.Data.Faces[6], //Past the end of the array
+            [oppositeSide](const FacePermutation& facePermutation) {
+            return facePermutation.Side == oppositeSide;
+        }
+        );
+        assert(neighborFace != nullptr); //Each tile must have one face on each side!
+
+        //Find all tiles that can match this face on the other side.
+        auto desiredFace = *neighborFace;
+        desiredFace.Side = GetOpposite(neighborFace->Side);
+        //The point ID's, by design, don't need to be re-ordered
+        //    when flipping from one face to its opposite.
+        //We can just leave them be.
+        const auto& neighborMatches = Input.GetTilesWithFace(desiredFace);
 
         //Remove tiles that don't exist in this set.
         tempTileIDSet = tile.PossibleTiles; //Making a copy

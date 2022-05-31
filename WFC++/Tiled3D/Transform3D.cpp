@@ -430,7 +430,7 @@ Vector3i Transform3D::ApplyToPos(Vector3i pos, Vector3i max) const
             pos = Vector3i(iPos.y, pos.x, pos.z);
             break;
         case Rotations3D::AxisZ_180:
-            pos = Vector3i(iPos.y, iPos.x, pos.z);
+            pos = Vector3i(iPos.x, iPos.y, pos.z);
             break;
         case Rotations3D::AxisZ_270:
             pos = Vector3i(pos.y, iPos.x, pos.z);
@@ -506,61 +506,64 @@ FacePermutation Transform3D::ApplyToFace(FacePermutation face) const
     using smallU_t = uint_fast8_t;
     using smallI_t = int_fast8_t;
 
-    //Get the index of each axis relevant to this face.
-    //"myAxis" is the axis this face is perpendicular to.
-    //"axis1" and "axis2" are the axes parallel to the face.
-    //Note that "axis1" comes first by index (e.x. for the XZ face, it's X).
-    smallU_t i_myAxis = GetAxisIndex(face.Side),
-             i_faceAxis1 = (i_myAxis + 1) % 3,
-             i_faceAxis2 = (i_faceAxis1 + 1) % 3;
-    if (i_faceAxis2 < i_faceAxis1)
-        std::swap(i_faceAxis1, i_faceAxis2);
+    auto oldSide = face.Side;
+    smallU_t axisMainOld, axisFace1Old, axisFace2Old;
+    GetAxes(oldSide, axisMainOld, axisFace1Old, axisFace2Old);
+
+    auto newSide = ApplyToSide(oldSide);
+    smallU_t axisMainNew, axisFace1New, axisFace2New;
+    GetAxes(newSide, axisMainNew, axisFace1New, axisFace2New);
 
     //Get the world-space points on the input face.
     //Their components are 0 if on the min of that axis, and 1 if on the max.
-    std::array<Vector3i, 4> facePointPoses;
+    std::array<Vector3i, 4> oldCornerPoses;
 
     //Build the points algorithmically to make my life simpler.
     {
         //This face's axis has the same value for all four points.
-        smallU_t myAxisValue = IsMin(face.Side) ? 0 : 1;
-        for (int i = 0; i < 4; ++i)
-            facePointPoses[i][i_myAxis] = myAxisValue;
+        smallU_t myAxisValue = IsMin(oldSide) ? 0 : 1;
+        for (int i = 0; i < WFC_N_FACE_POINTS; ++i)
+            oldCornerPoses[i][axisMainOld] = myAxisValue;
 
         //Fill in the "first" axis values.
-        facePointPoses[FacePoints::AA][i_faceAxis1] = 0;
-        facePointPoses[FacePoints::AB][i_faceAxis1] = 0;
-        facePointPoses[FacePoints::BA][i_faceAxis1] = 1;
-        facePointPoses[FacePoints::BB][i_faceAxis1] = 1;
+        oldCornerPoses[FacePoints::AA][axisFace1Old] = 0;
+        oldCornerPoses[FacePoints::AB][axisFace1Old] = 0;
+        oldCornerPoses[FacePoints::BA][axisFace1Old] = 1;
+        oldCornerPoses[FacePoints::BB][axisFace1Old] = 1;
 
         //Fill in the "second" axis values.
-        facePointPoses[FacePoints::AA][i_faceAxis2] = 0;
-        facePointPoses[FacePoints::AB][i_faceAxis2] = 1;
-        facePointPoses[FacePoints::BA][i_faceAxis2] = 0;
-        facePointPoses[FacePoints::BB][i_faceAxis2] = 1;
+        oldCornerPoses[FacePoints::AA][axisFace2Old] = 0;
+        oldCornerPoses[FacePoints::AB][axisFace2Old] = 1;
+        oldCornerPoses[FacePoints::BA][axisFace2Old] = 0;
+        oldCornerPoses[FacePoints::BB][axisFace2Old] = 1;
     }
 
     //Apply this transform to the face points.
-    for (auto& p : facePointPoses)
+    auto newCornerPoses = oldCornerPoses;
+    for (auto& p : newCornerPoses)
         p = ApplyToPos(p, Vector3i(1, 1, 1));
 
     //For each point, figure out where it is now on the new face.
     //Swap the point ID's accordingly.
-    PointID oldPointIDs[4];
-    memcpy(oldPointIDs, face.Points, sizeof(PointID) * 4);
-    for (smallU_t pI = 0; pI < 4; ++pI)
+    std::array<PointID, WFC_N_FACE_POINTS> oldPointIDs, newPointIDs;
+    memcpy(oldPointIDs.data(), face.Points, sizeof(PointID) * oldPointIDs.size());
+    memset(newPointIDs.data(), 0xff, sizeof(PointID) * newPointIDs.size());
+    for (smallU_t pI = 0; pI < WFC_N_FACE_POINTS; ++pI)
     {
-        Vector3i worldPos = facePointPoses[pI];
-        bool isAxis1Min = worldPos[i_faceAxis1] == 0,
-             isAxis2Min = worldPos[i_faceAxis2] == 0;
+        Vector3i worldPos = newCornerPoses[pI];
+        bool isAxis1Min = worldPos[axisFace1New] == 0,
+             isAxis2Min = worldPos[axisFace2New] == 0;
 
         auto place = MakeFacePoint(isAxis1Min, isAxis2Min);
-        face.Points[place] = oldPointIDs[pI];
+        newPointIDs[place] = oldPointIDs[pI];
     }
+    //Double-check that every old point mapped to a unique new point.
+    for (PointID newID : newPointIDs)
+        assert(newID != PointID{ -1 });
 
-    //Finally, transform the face's side.
-    face.Side = ApplyToSide(face.Side);
-
+    //Output the mapped face data.
+    memcpy(face.Points, newPointIDs.data(), sizeof(PointID) * newPointIDs.size());
+    face.Side = newSide;
     return face;
 }
 CubePermutation Transform3D::ApplyToCube(CubePermutation cube) const
