@@ -28,6 +28,7 @@ public:
     void Refresh(const UWfcTileset* tileset, TOptional<WfcTileID> tileID, const FVector& camPos);
 
     //TODO: Configurable origin point
+    //TODO: Label for the face prototype nickname
     
 private:
     

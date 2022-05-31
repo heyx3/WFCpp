@@ -22,7 +22,7 @@ public:
 	TMap<int32, FWfcFacePrototype> FacePrototypes;
 
 	//All tiles in this set.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(TitleProperty=Data))
 	TMap<int32, FWfcTile> Tiles;
 
     //The width/height/depth of each tile.

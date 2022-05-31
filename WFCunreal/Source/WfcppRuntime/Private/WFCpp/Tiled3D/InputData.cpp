@@ -6,12 +6,6 @@ using namespace WFC;
 using namespace WFC::Tiled3D;
 
 
-namespace
-{
-    template<typename I>
-    I GetMax(I a, I b) { return (a > b) ? a : b; }
-}
-
 const TileIDSet InputData::EmptyTileSet;
 
 
@@ -22,10 +16,10 @@ InputData::InputData(const List<Tile>& _tiles)
     for (TileID tileID = 0; tileID < (TileID)tiles.GetSize(); ++tileID)
     {
         const auto& tile = tiles[tileID];
-        for (uint_fast8_t faceI = 0; faceI < 6; ++faceI)
+        for (uint_fast8_t faceI = 0; faceI < N_DIRECTIONS3D; ++faceI)
         {
-            auto key = tile.Data.Faces[faceI];
-            matchingFaces[key].Add(tileID);
+            const auto& faceData = tile.Data.Faces[faceI];
+            matchingFaces[faceData].Add(tileID);
         }
     }
 }

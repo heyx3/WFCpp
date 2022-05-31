@@ -128,7 +128,7 @@ void UWfcGenerator::Start(const UWfcTileset* tiles,
                                              referenceTile.Weight };
             
             tilesByID.Add(nextTileID, MakeTuple(transform.Unwrap(), tile.Value.Data, tile.Key));
-            wfcTileInputs.PushBack(WFC::Tiled3D::Tile());
+            wfcTileInputs.PushBack(permutedTile);
             nextTileID += 1;
         }
     }

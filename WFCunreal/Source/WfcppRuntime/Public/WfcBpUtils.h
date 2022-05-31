@@ -12,6 +12,7 @@ UCLASS()
 class WFCPPRUNTIME_API UBP_Utils : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
+public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(CompactNodeTitle="=="))
 	static bool FaceEquals(const FWFC_Face& a, const FWFC_Face& b) { return a == b; }
@@ -29,10 +30,10 @@ class WFCPPRUNTIME_API UBP_Utils : public UBlueprintFunctionLibrary
 	static bool TransfNotEquals(const FWFC_Transform3D& a, const FWFC_Transform3D& b) { return !TransfEquals(a, b); }
 
     UFUNCTION(BlueprintCallable, Category="Faces")
-    const FWfcTileFace& GetFace(const FWfcTile& tile, WFC_Directions3D dir) { return tile.GetFace(static_cast<WFC::Tiled3D::Directions3D>(dir)); }
+    static const FWfcTileFace& GetFace(const FWfcTile& tile, WFC_Directions3D dir) { return tile.GetFace(static_cast<WFC::Tiled3D::Directions3D>(dir)); }
 
     UFUNCTION(BlueprintCallable, BlueprintPure, meta=(CompactNodeTitle="FTransform"))
-    FTransform ToFTransform(const FWFC_Transform3D& wfcTransform) { return wfcTransform.ToFTransform(); }
+    static FTransform ToFTransform(const FWFC_Transform3D& wfcTransform) { return wfcTransform.ToFTransform(); }
     
 
 	//The special face prototype ID that represents 'null'.

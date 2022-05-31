@@ -8,7 +8,7 @@ FTransform FWFC_Transform3D::ToFTransform() const
         #define WFC_CASE(enumRot, axisX, axisY, axisZ, angleDegrees) \
             case WFC_Rotations3D::enumRot: \
                 rot = FQuat(FVector(axisX, axisY, axisZ).GetUnsafeNormal(), \
-                            angleDegrees / 360.0f * PI); \
+                            angleDegrees / 360.0f * PI * 2.0f); \
             break
         
         WFC_CASE(None,  1, 0, 0,  0);
@@ -27,14 +27,14 @@ FTransform FWFC_Transform3D::ToFTransform() const
         WFC_CASE(EdgesYb,  1, 0, -1,  180);
         WFC_CASE(EdgesZa,  1, 1, 0,  180);
         WFC_CASE(EdgesZb,  1, -1, 0,  180);
-        WFC_CASE(CornerAAA_120, 1, 1, 1, 120);
-        WFC_CASE(CornerAAA_240, 1, 1, 1, 240);
-        WFC_CASE(CornerBAA_120, -1, 1, 1, 120);
-        WFC_CASE(CornerBAA_240, -1, 1, 1, 240);
-        WFC_CASE(CornerABA_120, 1, -1, 1, 120);
-        WFC_CASE(CornerABA_240, 1, -1, 1, 240);
-        WFC_CASE(CornerBBA_120, -1, -1, 1, 120);
-        WFC_CASE(CornerBBA_240, -1, -1, 1, 240);
+        WFC_CASE(CornerAAA_120, 1, 1, 1, -120);
+        WFC_CASE(CornerAAA_240, 1, 1, 1, -240);
+        WFC_CASE(CornerABA_120, 1, -1, 1, -120);
+        WFC_CASE(CornerABA_240, 1, -1, 1, -240);
+        WFC_CASE(CornerBAA_120, -1, 1, 1, -120);
+        WFC_CASE(CornerBAA_240, -1, 1, 1, -240);
+        WFC_CASE(CornerBBA_120, -1, -1, 1, -120);
+        WFC_CASE(CornerBBA_240, -1, -1, 1, -240);
 
         default: check(false); return FTransform();
     }

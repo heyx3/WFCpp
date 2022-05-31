@@ -67,7 +67,7 @@ public:
 	//Higher values make this tile more popular during generation.
     //The value will be casted into uint32.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin=0, ClampMax=4294967295))
-	int WeightU32;
+	int WeightU32 = 100;
 
 	//User data associated with this tile (e.x. an Actor to spawn in its place).
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -108,7 +108,7 @@ public:
     bool UseCornerRotations = false;
     
     //Specific transformations to support on this tile.
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Transforms")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Transforms", meta=(TitleProperty="Rot"))
     TArray<FWFC_Transform3D> SpecificSupportedTransforms;
 
     FString GetDisplayName() const { return (Data == nullptr) ? "null" : Data->GetName(); }

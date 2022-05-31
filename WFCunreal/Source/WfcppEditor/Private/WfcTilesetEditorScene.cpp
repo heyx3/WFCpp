@@ -159,12 +159,13 @@ FWfcTilesetEditorScene::FWfcTilesetEditorScene(ConstructionValues cvs)
 
 void FWfcTilesetEditorScene::Refresh(const UWfcTileset* tileset, TOptional<WfcTileID> tile, const FVector& camPos)
 {
-    //Error-checking.
-    if (tileset != nullptr && tile.IsSet())
+    //If the referenced tile is nonexistent, don't select any tile.
+    if (tileset != nullptr && tile.IsSet() && !tileset->Tiles.Contains(*tile))
     {
-        checkf(tileset->Tiles.Contains(*tile),
-               TEXT("Gave nonexistent tile %i for tileset %s"),
+        UE_LOG(LogWfcppEditor, Error,
+               TEXT("Scene is trying to visualize nonexistent tile %i from tileset %s"),
                *tile, *tileset->GetFullName());
+        tile.Reset();
     }
     
     //Calculate properties in case the tileset/tile is null.
