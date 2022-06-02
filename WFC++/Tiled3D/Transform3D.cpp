@@ -547,7 +547,8 @@ FacePermutation Transform3D::ApplyToFace(FacePermutation face) const
     //Swap the point ID's accordingly.
     std::array<PointID, WFC_N_FACE_POINTS> oldPointIDs, newPointIDs;
     memcpy(oldPointIDs.data(), face.Points, sizeof(PointID) * oldPointIDs.size());
-    memset(newPointIDs.data(), 0xff, sizeof(PointID) * newPointIDs.size());
+    memset(newPointIDs.data(), 0xff, sizeof(PointID) * newPointIDs.size()); //Initialize the data to -1 so that
+                                                                            //    it stands out if one stays uninitialized.
     for (smallU_t pI = 0; pI < WFC_N_FACE_POINTS; ++pI)
     {
         Vector3i worldPos = newCornerPoses[pI];
@@ -559,7 +560,7 @@ FacePermutation Transform3D::ApplyToFace(FacePermutation face) const
     }
     //Double-check that every old point mapped to a unique new point.
     for (PointID newID : newPointIDs)
-        assert(newID != PointID{ -1 });
+        assert(newID != (PointID)0 - (PointID)1);
 
     //Output the mapped face data.
     memcpy(face.Points, newPointIDs.data(), sizeof(PointID) * newPointIDs.size());
