@@ -40,6 +40,12 @@ The command-line interface for the "Tiled" WFC algorithm. Pulls all config data 
 
 ### TODO: Tiled3D
 
+## Tests
+
+Unit tests are based on the *UnitTest++*"* library, kept in the folder 'UnitTestLibrary'. I tried to make it a git submodule, but they're quite annoying to work with, so the library is pasted right into the repo.
+
+The actual unit tests are in the project *WFCtests*.
+
 ## License
 
 MIT license; go crazy.

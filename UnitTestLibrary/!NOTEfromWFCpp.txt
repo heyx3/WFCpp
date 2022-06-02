@@ -1,0 +1,5 @@
+A local clone of the repo "unittest-cpp", from here: https://github.com/unittest-cpp/unittest-cpp/tree/v2.0.0
+
+I tried very hard to make this a proper git submodule, but apparently you can't point submodules to a SHA or a tag...so I had to put in a zip of the repository. Don't blame me! Unless you know how to do this, in which case please fix it!
+
+I stripped out a lot of the files not relevant to using the library, for brevity.
