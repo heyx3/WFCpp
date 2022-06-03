@@ -27,26 +27,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -106,15 +106,6 @@ REM Move headers to "include" directory
 xcopy "$(ProjectDir)WFC++\*.h" "$(TargetDir)include" /sy
 xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy
 
-REM Clear Unity C# directory
-set UNITY_WFC_DIR=$(SolutionDir)WFCunity\Assets\WFCpp\WFC_DLL
-del /q "%UNITY_WFC_DIR%"
-
-REM Move C# scripts and DLL to Unity C# directory
-xcopy "$(TargetDir)..\CSharp_include" "%UNITY_WFC_DIR%\" /sy
-xcopy "$(TargetDir)*.dll" "%UNITY_WFC_DIR%\" /sy
-xcopy "$(TargetDir)*.pdb" "%UNITY_WFC_DIR%\" /sy
-
 REM Move relevant Cpp files to Unreal Source directory
 set UNREAL_WFC_DIR=$(SolutionDir)WFCunreal\Source\WfcppRuntime\Private\WFCpp
 xcopy "$(ProjectDir)WFC++\*.cpp" "%UNREAL_WFC_DIR%\" /sy
@@ -123,30 +114,15 @@ del /q "%UNREAL_WFC_DIR%\SWIG"
 del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copy headers to build folder, SWIG C# to Unity, Everything to Unreal</Message>
+      <Message>Copy headers to build folder, and source to Unreal</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>REM Make sure Swig exists
-swig -help &gt;nul 2&gt;&amp;1 &amp;&amp; (
-    REM everything's fine
-) || (
-    echo ERROR: Couldn't find SWIG! Make sure it's in your PATH.
-    swig -help
-    exit 1
-)
-
-REM Clear the CSharp output folder, and run SWIG to output there and overwrite the C++ file already in this project
-REM Note that the CSharp folder does not change with Debug vs Release
-set CS_OUT_PATH=$(OutputPath)..\CSharp_include
-if exist %CS_OUT_PATH% (
-    del /Q "%CS_OUT_PATH%"
-) else (
-    mkdir "%CS_OUT_PATH%"
-)
-swig -c++ -namespace WFC_CS.LowLevel -dllimport wfc++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp" "$(ProjectDir)WFC++\SWIG\SWIG_build.i"	</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>Run SWIG to generate C exports and C# imports</Message>
+      <Message>
+      </Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -156,7 +132,7 @@ swig -c++ -namespace WFC_CS.LowLevel -dllimport wfc++ -csharp -outdir "%CS_OUT_P
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDLL;WFC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)\%(RelativeDir)\%(Filename).obj</ObjectFileName>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <PostBuildEvent>
       <Command>REM Clear "include" directory
@@ -167,15 +143,6 @@ REM Move headers to "include" directory
 xcopy "$(ProjectDir)WFC++\*.h" "$(TargetDir)include" /sy
 xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy
 
-REM Clear Unity C# directory
-set UNITY_WFC_DIR=$(SolutionDir)WFCunity\Assets\WFCpp\WFC_DLL
-del /q "%UNITY_WFC_DIR%"
-
-REM Move C# scripts and DLL to Unity C# directory
-xcopy "$(TargetDir)..\CSharp_include" "%UNITY_WFC_DIR%\" /sy
-xcopy "$(TargetDir)*.dll" "%UNITY_WFC_DIR%\" /sy
-xcopy "$(TargetDir)*.pdb" "%UNITY_WFC_DIR%\" /sy
-
 REM Move relevant Cpp files to Unreal Source directory
 set UNREAL_WFC_DIR=$(SolutionDir)WFCunreal\Source\WfcppRuntime\Private\WFCpp
 xcopy "$(ProjectDir)WFC++\*.cpp" "%UNREAL_WFC_DIR%\" /sy
@@ -184,30 +151,15 @@ del /q "%UNREAL_WFC_DIR%\SWIG"
 del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copy headers to build folder, SWIG C# to Unity, Everything to Unreal</Message>
+      <Message>Copy headers to build folder, and source to Unreal</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>REM Make sure Swig exists
-swig -help &gt;nul 2&gt;&amp;1 &amp;&amp; (
-    REM everything's fine
-) || (
-    echo ERROR: Couldn't find SWIG! Make sure it's in your PATH.
-    swig -help
-    exit 1
-)
-
-REM Clear the CSharp output folder, and run SWIG to output there and overwrite the C++ file already in this project
-REM Note that the CSharp folder does not change with Debug vs Release
-set CS_OUT_PATH=$(OutputPath)..\CSharp_include
-if exist %CS_OUT_PATH% (
-    del /Q "%CS_OUT_PATH%"
-) else (
-    mkdir "%CS_OUT_PATH%"
-)
-swig -c++ -namespace WFC_CS.LowLevel -dllimport wfc++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp" "$(ProjectDir)WFC++\SWIG\SWIG_build.i"	</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>Run SWIG to generate C exports and C# imports</Message>
+      <Message>
+      </Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -234,15 +186,6 @@ REM Move headers to "include" directory
 xcopy "$(ProjectDir)WFC++\*.h" "$(TargetDir)include" /sy
 xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy
 
-REM Clear Unity C# directory
-set UNITY_WFC_DIR=$(SolutionDir)WFCunity\Assets\WFCpp\WFC_DLL
-del /q "%UNITY_WFC_DIR%"
-
-REM Move C# scripts and DLL to Unity C# directory
-xcopy "$(TargetDir)..\CSharp_include" "%UNITY_WFC_DIR%\" /sy
-xcopy "$(TargetDir)*.dll" "%UNITY_WFC_DIR%\" /sy
-xcopy "$(TargetDir)*.pdb" "%UNITY_WFC_DIR%\" /sy
-
 REM Move relevant Cpp files to Unreal Source directory
 set UNREAL_WFC_DIR=$(SolutionDir)WFCunreal\Source\WfcppRuntime\Private\WFCpp
 xcopy "$(ProjectDir)WFC++\*.cpp" "%UNREAL_WFC_DIR%\" /sy
@@ -251,30 +194,15 @@ del /q "%UNREAL_WFC_DIR%\SWIG"
 del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copy headers to build folder, SWIG C# to Unity, Everything to Unreal</Message>
+      <Message>Copy headers to build folder, and source to Unreal</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>REM Make sure Swig exists
-swig -help &gt;nul 2&gt;&amp;1 &amp;&amp; (
-    REM everything's fine
-) || (
-    echo ERROR: Couldn't find SWIG! Make sure it's in your PATH.
-    swig -help
-    exit 1
-)
-
-REM Clear the CSharp output folder, and run SWIG to output there and overwrite the C++ file already in this project
-REM Note that the CSharp folder does not change with Debug vs Release
-set CS_OUT_PATH=$(OutputPath)..\CSharp_include
-if exist %CS_OUT_PATH% (
-    del /Q "%CS_OUT_PATH%"
-) else (
-    mkdir "%CS_OUT_PATH%"
-)
-swig -c++ -namespace WFC_CS.LowLevel -dllimport wfc++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp" "$(ProjectDir)WFC++\SWIG\SWIG_build.i"	</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>Run SWIG to generate C exports and C# imports</Message>
+      <Message>
+      </Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -301,15 +229,6 @@ REM Move headers to "include" directory
 xcopy "$(ProjectDir)WFC++\*.h" "$(TargetDir)include" /sy
 xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy
 
-REM Clear Unity C# directory
-set UNITY_WFC_DIR=$(SolutionDir)WFCunity\Assets\WFCpp\WFC_DLL
-del /q "%UNITY_WFC_DIR%"
-
-REM Move C# scripts and DLL to Unity C# directory
-xcopy "$(TargetDir)..\CSharp_include" "%UNITY_WFC_DIR%\" /sy
-xcopy "$(TargetDir)*.dll" "%UNITY_WFC_DIR%\" /sy
-xcopy "$(TargetDir)*.pdb" "%UNITY_WFC_DIR%\" /sy
-
 REM Move relevant Cpp files to Unreal Source directory
 set UNREAL_WFC_DIR=$(SolutionDir)WFCunreal\Source\WfcppRuntime\Private\WFCpp
 xcopy "$(ProjectDir)WFC++\*.cpp" "%UNREAL_WFC_DIR%\" /sy
@@ -318,30 +237,15 @@ del /q "%UNREAL_WFC_DIR%\SWIG"
 del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copy headers to build folder, SWIG C# to Unity, Everything to Unreal</Message>
+      <Message>Copy headers to build folder, and source to Unreal</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>REM Make sure Swig exists
-swig -help &gt;nul 2&gt;&amp;1 &amp;&amp; (
-    REM everything's fine
-) || (
-    echo ERROR: Couldn't find SWIG! Make sure it's in your PATH.
-    swig -help
-    exit 1
-)
-
-REM Clear the CSharp output folder, and run SWIG to output there and overwrite the C++ file already in this project
-REM Note that the CSharp folder does not change with Debug vs Release
-set CS_OUT_PATH=$(OutputPath)..\CSharp_include
-if exist %CS_OUT_PATH% (
-    del /Q "%CS_OUT_PATH%"
-) else (
-    mkdir "%CS_OUT_PATH%"
-)
-swig -c++ -namespace WFC_CS.LowLevel -dllimport wfc++ -csharp -outdir "%CS_OUT_PATH%" -o "$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp" "$(ProjectDir)WFC++\SWIG\SWIG_build.i"	</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>Run SWIG to generate C exports and C# imports</Message>
+      <Message>
+      </Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -374,7 +278,6 @@ swig -c++ -namespace WFC_CS.LowLevel -dllimport wfc++ -csharp -outdir "%CS_OUT_P
     <ClCompile Include="WFC++\Simple\InputData.cpp" />
     <ClCompile Include="WFC++\Simple\Pattern.cpp" />
     <ClCompile Include="WFC++\Simple\State.cpp" />
-    <ClCompile Include="WFC++\SWIG\wfc_wrap.cpp" />
     <ClCompile Include="WFC++\Tiled3D\InputData.cpp" />
     <ClCompile Include="WFC++\Tiled3D\State.cpp" />
     <ClCompile Include="WFC++\Tiled3D\TilePermutator.cpp" />
@@ -384,31 +287,6 @@ swig -c++ -namespace WFC_CS.LowLevel -dllimport wfc++ -csharp -outdir "%CS_OUT_P
     <ClCompile Include="WFC++\Tiled\TilePermutator.cpp" />
     <ClCompile Include="WFC++\Vector2i.cpp" />
     <ClCompile Include="WFC++\Vector3i.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="WFC++\SWIG\SWIG_build.i">
-      <FileType>Document</FileType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</DeploymentContent>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</DeploymentContent>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DeploymentContent>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DeploymentContent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">echo TEST</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)WFC++;%(AdditionalInputs)</AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">echo TEST</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)WFC++;%(AdditionalInputs)</AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">echo TEST</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)WFC++;%(AdditionalInputs)</AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">echo TEST</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)WFC++;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)WFC++\SWIG\wfc_wrap.cpp;%(Outputs)</Outputs>
-    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
