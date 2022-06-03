@@ -26,7 +26,7 @@ namespace WFC
 			width = aWidth;
 			height = aHeight;
 
-			arrayVals = new ArrayType[width * height];
+			arrayVals = new ArrayType[(size_t)width * height];
 		}
 		//Creates a new Array2D without initializing any of the values.
 		Array2D(Vector2i size) : Array2D(size.x, size.y) { }

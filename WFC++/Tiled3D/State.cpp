@@ -279,7 +279,7 @@ void State::RecalculateTileChances(Vector3i tilePos)
     //Do this by starting with all tiles, then eliminating any that don't fit
     //    based on each of the adjacent neighbor tiles.
     tile.PossibleTiles = allTileIDs;
-    for (int faceI = 0; faceI < N_DIRECTIONS3D; ++faceI)
+    for (int faceI = 0; faceI < N_DIRECTIONS_3D; ++faceI)
     {
         auto side = (Directions3D)faceI;
 

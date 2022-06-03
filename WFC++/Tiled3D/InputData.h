@@ -10,6 +10,8 @@ namespace WFC
         //A collection of tiles, by their ID.
         using TileIDSet = Set<TileID, std::hash<TileID>>;
 
+        //Cached information about the incoming tiles.
+
         //Holds all the tiles that can be used by the algorithm.
         //Provides various queries for them.
         class WFC_API InputData

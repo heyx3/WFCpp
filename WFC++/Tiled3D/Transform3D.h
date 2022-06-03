@@ -3,8 +3,10 @@
 #include "../Platform.h"
 #include <stdint.h>
 #include <utility>
+
 #include "../Vector2i.h"
 #include "../Vector3i.h"
+#include "../WFCMath.h"
 
 namespace WFC
 {
@@ -36,9 +38,9 @@ namespace WFC
             //Specified as A for "min" or B for "max", for the two face axes.
             //The axes are ordered X, Y, Z (e.x. the Y face's axes are ordered "XZ").
             AA, AB, BA, BB
-
-            #define WFC_N_FACE_POINTS 4
         };
+        const int N_FACE_POINTS = 4;
+
         inline bool WFC_API IsFirstMin(FacePoints p) { return (uint_fast8_t)p / 2 == 0; }
         inline bool WFC_API IsSecondMin(FacePoints p) { return (uint_fast8_t)p % 2 == 0; }
         inline FacePoints WFC_API MakeFacePoint(bool axis1IsMin, bool axis2IsMin)
@@ -50,16 +52,16 @@ namespace WFC
         //Generates a vector with all components set to -1 or +1, representing a face point.
         inline Vector2i WFC_API MakeFaceVector(FacePoints point) { return { (IsFirstMin(point) ? -1 : 1), (IsSecondMin(point) ? -1 : 1) }; }
 
+
         //The different axis directions/faces of a cube.
         enum WFC_API Directions3D : uint8_t
         {
             MinX, MaxX,
             MinY, MaxY,
             MinZ, MaxZ,
-
-            //TODO: Change preprocessor tokens to be prefixed with "WFC_".
-            #define N_DIRECTIONS3D 6
         };
+        const uint_fast8_t N_DIRECTIONS_3D = 6;
+
         inline bool WFC_API IsMin(Directions3D dir) { return (uint_fast8_t)dir % 2 == 0; }
         inline bool WFC_API IsMax(Directions3D dir) { return (uint_fast8_t)dir % 2 == 1; }
         inline uint_fast8_t GetAxisIndex(Directions3D dir) { return (uint_fast8_t)dir / 2; }
@@ -104,7 +106,7 @@ namespace WFC
 
             //The four points of this face. Indexed with the "FacePoints" enum.
             //Two faces can line up against each other if their corresponding points match.
-            PointID Points[WFC_N_FACE_POINTS];
+            PointID Points[N_FACE_POINTS];
 
             #pragma region Hashing/equality-testing
             //Gets the hash value for an instance.
@@ -121,7 +123,7 @@ namespace WFC
             {
                 static_assert(sizeof(Points) == sizeof(PointID) * 4,
                               "memcmp() will be broken if this fails");
-                return (Side == f2.Side) &
+                return (Side == f2.Side) &&
                        (memcmp(Points, f2.Points, sizeof(PointID) * 4) == 0);
             }
             inline bool operator!=(const FacePermutation& f2) const { return !(operator==(f2)); }
@@ -159,10 +161,9 @@ namespace WFC
             CornerABA_120, CornerABA_240,
             CornerBAA_120, CornerBAA_240,
             CornerBBA_120, CornerBBA_240,
-
-            //Used for enumeration:
-            Count
         };
+        const uint_fast16_t N_ROTATIONS_3D = 24;
+
 
         //The faces of a cube, with memory of how they have been transformed.
         struct WFC_API CubePermutation
@@ -170,7 +171,7 @@ namespace WFC
             //The faces of this cube.
             //Their positions in the array are based on the original un-transformed cube --
             //    e.x. Faces[Directions::MinX] is the face that STARTED as the MinX face.
-            FacePermutation Faces[N_DIRECTIONS3D];
+            FacePermutation Faces[N_DIRECTIONS_3D];
 
             //Gets the index in "Faces" for the face currently facing the given direction.
             uint_fast8_t GetFace(Directions3D dir) const;
@@ -211,11 +212,192 @@ namespace WFC
 
         inline bool operator==(Transform3D t1, Transform3D t2)
         {
-            return (t1.Invert == t2.Invert) & (t1.Rot == t2.Rot);
+            return (t1.Invert == t2.Invert) && (t1.Rot == t2.Rot);
         }
         inline bool operator!=(Transform3D t1, Transform3D t2)
         {
             return !operator==(t1, t2);
         }
+
+
+        //An optimized collection of all possible transforms.
+        //The first half of the bits are for non-inverted rotations;
+        //    the second half are for inverted ones.
+        //The rotations are ordered by their enum values.
+        //Iteration order through this set is deterministic, based on the bit order.
+        struct TransformSet
+        {
+        public:
+            static const uint_fast8_t BIT_COUNT = N_ROTATIONS_3D * 2;
+            
+            using BitsType = Math::SmallestUInt<BIT_COUNT>;
+            static constexpr BitsType ZERO = 0,
+                                      ONE = 1,
+                                      FIRST_INVERT_BIT = N_ROTATIONS_3D;
+
+
+            //Turns a transformation into a specific bit.
+            static BitsType ToBits(Transform3D tr)
+            {
+                return tr.Invert ?
+                           (ONE << ((BitsType)tr.Rot + FIRST_INVERT_BIT)) :
+                           (ONE << (BitsType)tr.Rot);
+            }
+            //Turns a specific bit-pattern into the Transform it represents.
+            static Transform3D FromBits(BitsType bits)
+            {
+                return FromBit(Math::FindBitIndex(bits));
+            }
+            //Finds the transform corresponding to a specific bit.
+            static Transform3D FromBit(uint_fast8_t bitIdx)
+            {
+                return (bitIdx < FIRST_INVERT_BIT) ?
+                           Transform3D{ false, (Rotations3D)bitIdx } :
+                           Transform3D{ true, (Rotations3D)(bitIdx - FIRST_INVERT_BIT) };
+            }
+
+
+            //Creates a set from any combination of iterators and individual transforms.
+            template<typename T>
+            static TransformSet CombineTransforms(const T& iterable)
+            {
+                TransformSet set;
+                for (Transform3D tr : iterable)
+                {
+                    set.bits |= ToBits(tr);
+                    set.nBits += 1;
+                }
+                return set;
+            }
+            static TransformSet CombineTransforms(Transform3D transf)
+            {
+                TransformSet s;
+                s.Add(transf);
+                return s;
+            }
+            template<typename T, typename... Arguments>
+            static TransformSet CombineTransforms(T first, Arguments... rest)
+            {
+                TransformSet tFirst = CombineTransforms(first),
+                             tRest = CombineTransforms(rest...);
+                tRest.Add(tFirst);
+                return tRest;
+            }
+
+
+            uint_fast8_t Size() const { return nBits; }
+
+            bool Contains(Transform3D tr) const { return (bits & ToBits(tr)) != ZERO; }
+            bool Add(Transform3D tr)
+            {
+                auto newBits = ToBits(tr);
+                bool contained = (newBits & bits) != ZERO;
+
+                nBits += contained ? ZERO : ONE;
+                bits |= newBits;
+
+                return contained;
+            }
+            bool Remove(Transform3D tr)
+            {
+                auto newBits = ToBits(tr);
+                bool contained = (newBits & bits) != ZERO;
+
+                nBits -= contained ? ONE : ZERO;
+                bits &= ~newBits;
+
+                return contained;
+            }
+
+            bool Contains(TransformSet set) const
+            {
+                return (bits & set.bits) == set.bits;
+            }
+            void Add(TransformSet set)
+            {
+                bits |= set.bits;
+                nBits = Math::CountBits(bits);
+            }
+            void Remove(TransformSet set)
+            {
+                bits &= ~(set.bits);
+                nBits = Math::CountBits(bits);
+            }
+
+            void Clear() { bits = ZERO; nBits = ZERO; }
+
+            //Implement equality/hashing for WFC dictionaries.
+            bool operator==(TransformSet t) const { return bits == t.bits; }
+            auto operator()(TransformSet t)
+            {
+                if constexpr (sizeof(BitsType) <= sizeof(size_t))
+                {
+                    return bits;
+                }
+                else
+                {
+                    return std::hash<BitsType>()(bits);
+                }
+            }
+
+            //Implement iteration.
+            #pragma region Iterator
+
+            struct ConstIterator
+            {
+                using iterator_category = std::forward_iterator_tag;
+                using difference_type = int32_t;
+                using value_type = Transform3D;
+                using pointer = Transform3D;
+                using reference = Transform3D;
+                //TODO: make proxies for references to elements.
+
+                const TransformSet* Set;
+                uint_fast8_t CurrentBit;
+
+                //Makes an iterator starting at the given bit.
+                //Automatically moves forward to the first actual element.
+                ConstIterator(const TransformSet& set, uint_fast8_t startBit)
+                    : Set(&set), CurrentBit(startBit)
+                {
+                    //Jump forward to the first existing rotation.
+                    while (CurrentBit < BIT_COUNT && !IsValidElement())
+                        CurrentBit += 1;
+                }
+                //Makes an 'end()' iterator.
+                ConstIterator(const TransformSet& set) : Set(&set), CurrentBit(BIT_COUNT) { }
+
+                ConstIterator& operator=(const ConstIterator& iter) { Set = iter.Set; CurrentBit = iter.CurrentBit; return *this; }
+                ConstIterator& operator++()
+                {
+                    while (CurrentBit < BIT_COUNT)
+                    {
+                        CurrentBit += 1;
+                        if (IsValidElement())
+                            break;
+                    }
+                    return *this;
+                };
+
+                bool operator==(const ConstIterator& iter) const { return (Set == iter.Set) && (CurrentBit == iter.CurrentBit); }
+                bool operator!=(const ConstIterator& iter) const { return !operator==(iter); }
+
+                Transform3D operator*() const { return FromBit(CurrentBit); }
+                Transform3D operator->() const { return operator*(); }
+
+
+            private:
+                bool IsValidElement() const { return Set->Contains(FromBit(CurrentBit)); }
+            };
+
+            #pragma endregion
+
+            auto begin() const { return ConstIterator(*this, 0); }
+            auto end() const { return ConstIterator(*this); }
+
+        private:
+            BitsType bits = 0;
+            uint_fast8_t nBits = 0;
+        };
     }
 }

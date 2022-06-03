@@ -18,8 +18,8 @@ namespace
     //For example, to see what happens to the MinX face
     //    when applying RotY90, use
     //    "Lookup_DirTransforms[MinX][RotY90]".
-    std::array<std::array<Directions3D, (size_t)Rotations3D::Count>,
-               N_DIRECTIONS3D> Lookup_DirTransforms = { {
+    std::array<std::array<Directions3D, (size_t)N_ROTATIONS_3D>,
+               N_DIRECTIONS_3D> Lookup_DirTransforms = { {
         #pragma region MinX
         {
             MinX, //None
@@ -189,186 +189,12 @@ namespace
         }
         #pragma endregion
     } };
-
-    /*
-    std::array<std::array<Transformations2D, Rotations3D::Count>,
-               Directions3D::Count> Lookup_DirLocalRots = { {
-        #pragma region MinX
-        {
-            Transformations2D::None, //None
-            Transformations2D::Rotate270CW, //AxisX_90
-            Transformations2D::Rotate180, //AxisX_180
-            Transformations2D::Rotate90CW, //AxisX_270
-            , //AxisY_90
-            , //AxisY_180
-            , //AxisY_270
-            , //AxisZ_90
-            , //AxisZ_180
-            , //AxisZ_270
-            , //EdgesXa
-            , //EdgesXb
-            , //EdgesYa
-            , //EdgesYb
-            , //EdgesZa
-            , //EdgesZb
-            , //CornerAAA_120
-            , //CornerAAA_240
-            , //CornerABA_120
-            , //CornerABA_240
-            , //CornerBAA_120
-            , //CornerBAA_240
-            , //CornerBBA_120
-            , //CornerBBA_240
-        },
-        #pragma endregion
-        #pragma region MaxX
-        {
-            Transformations2D::None, //None
-            , //AxisX_90
-            , //AxisX_180
-            , //AxisX_270
-            , //AxisY_90
-            , //AxisY_180
-            , //AxisY_270
-            , //AxisZ_90
-            , //AxisZ_180
-            , //AxisZ_270
-            , //EdgesXa
-            , //EdgesXb
-            , //EdgesYa
-            , //EdgesYb
-            , //EdgesZa
-            , //EdgesZb
-            , //CornerAAA_120
-            , //CornerAAA_240
-            , //CornerABA_120
-            , //CornerABA_240
-            , //CornerBAA_120
-            , //CornerBAA_240
-            , //CornerBBA_120
-            , //CornerBBA_240
-        },
-        #pragma endregion
-        #pragma region MinY
-        {
-            Transformations2D::None, //None
-            , //AxisX_90
-            , //AxisX_180
-            , //AxisX_270
-            , //AxisY_90
-            , //AxisY_180
-            , //AxisY_270
-            , //AxisZ_90
-            , //AxisZ_180
-            , //AxisZ_270
-            , //EdgesXa
-            , //EdgesXb
-            , //EdgesYa
-            , //EdgesYb
-            , //EdgesZa
-            , //EdgesZb
-            , //CornerAAA_120
-            , //CornerAAA_240
-            , //CornerABA_120
-            , //CornerABA_240
-            , //CornerBAA_120
-            , //CornerBAA_240
-            , //CornerBBA_120
-            , //CornerBBA_240
-        },
-        #pragma endregion
-        #pragma region MaxY
-        {
-            Transformations2D::None, //None
-            , //AxisX_90
-            , //AxisX_180
-            , //AxisX_270
-            , //AxisY_90
-            , //AxisY_180
-            , //AxisY_270
-            , //AxisZ_90
-            , //AxisZ_180
-            , //AxisZ_270
-            , //EdgesXa
-            , //EdgesXb
-            , //EdgesYa
-            , //EdgesYb
-            , //EdgesZa
-            , //EdgesZb
-            , //CornerAAA_120
-            , //CornerAAA_240
-            , //CornerABA_120
-            , //CornerABA_240
-            , //CornerBAA_120
-            , //CornerBAA_240
-            , //CornerBBA_120
-            , //CornerBBA_240
-        },
-        #pragma endregion
-        #pragma region MinZ
-        {
-            Transformations2D::None, //None
-            , //AxisX_90
-            , //AxisX_180
-            , //AxisX_270
-            , //AxisY_90
-            , //AxisY_180
-            , //AxisY_270
-            , //AxisZ_90
-            , //AxisZ_180
-            , //AxisZ_270
-            , //EdgesXa
-            , //EdgesXb
-            , //EdgesYa
-            , //EdgesYb
-            , //EdgesZa
-            , //EdgesZb
-            , //CornerAAA_120
-            , //CornerAAA_240
-            , //CornerABA_120
-            , //CornerABA_240
-            , //CornerBAA_120
-            , //CornerBAA_240
-            , //CornerBBA_120
-            , //CornerBBA_240
-        },
-        #pragma endregion
-        #pragma region MaxZ
-        {
-            Transformations2D::None, //None
-            , //AxisX_90
-            , //AxisX_180
-            , //AxisX_270
-            , //AxisY_90
-            , //AxisY_180
-            , //AxisY_270
-            , //AxisZ_90
-            , //AxisZ_180
-            , //AxisZ_270
-            , //EdgesXa
-            , //EdgesXb
-            , //EdgesYa
-            , //EdgesYb
-            , //EdgesZa
-            , //EdgesZb
-            , //CornerAAA_120
-            , //CornerAAA_240
-            , //CornerABA_120
-            , //CornerABA_240
-            , //CornerBAA_120
-            , //CornerBAA_240
-            , //CornerBBA_120
-            , //CornerBBA_240
-        }
-        #pragma endregion
-    } };
-    */
 }
 
 
 uint_fast8_t CubePermutation::GetFace(Directions3D dir) const
 {
-    for (uint_fast8_t i = 0; i < N_DIRECTIONS3D; ++i)
+    for (uint_fast8_t i = 0; i < N_DIRECTIONS_3D; ++i)
         if (Faces[i].Side == dir)
             return i;
 
@@ -376,21 +202,6 @@ uint_fast8_t CubePermutation::GetFace(Directions3D dir) const
     assert(false);
     return -1;
 }
-
-/*
-Rotations2D WFC::Tiled3D::GetDelta(Rotations2D start, Rotations2D end)
-{
-    int_fast16_t deltaI = end - start;
-    if (deltaI < 0)
-        deltaI = Rotations2D::Count + deltaI;
-
-    return (Rotations2D)deltaI;
-}
-Rotations2D WFC::Tiled3D::Combine(Rotations2D a, Rotations2D b)
-{
-    return (Rotations2D)((uint_fast16_t)(a + b) % 4);
-}
-*/
 
 Vector3i Transform3D::ApplyToPos(Vector3i pos, Vector3i max) const
 {
@@ -522,7 +333,7 @@ FacePermutation Transform3D::ApplyToFace(FacePermutation face) const
     {
         //This face's axis has the same value for all four points.
         smallU_t myAxisValue = IsMin(oldSide) ? 0 : 1;
-        for (int i = 0; i < WFC_N_FACE_POINTS; ++i)
+        for (int i = 0; i < N_FACE_POINTS; ++i)
             oldCornerPoses[i][axisMainOld] = myAxisValue;
 
         //Fill in the "first" axis values.
@@ -545,11 +356,11 @@ FacePermutation Transform3D::ApplyToFace(FacePermutation face) const
 
     //For each point, figure out where it is now on the new face.
     //Swap the point ID's accordingly.
-    std::array<PointID, WFC_N_FACE_POINTS> oldPointIDs, newPointIDs;
+    std::array<PointID, N_FACE_POINTS> oldPointIDs, newPointIDs;
     memcpy(oldPointIDs.data(), face.Points, sizeof(PointID) * oldPointIDs.size());
     memset(newPointIDs.data(), 0xff, sizeof(PointID) * newPointIDs.size()); //Initialize the data to -1 so that
                                                                             //    it stands out if one stays uninitialized.
-    for (smallU_t pI = 0; pI < WFC_N_FACE_POINTS; ++pI)
+    for (smallU_t pI = 0; pI < N_FACE_POINTS; ++pI)
     {
         Vector3i worldPos = newCornerPoses[pI];
         bool isAxis1Min = worldPos[axisFace1New] == 0,
@@ -573,26 +384,3 @@ CubePermutation Transform3D::ApplyToCube(CubePermutation cube) const
         face = ApplyToFace(face);
     return cube;
 }
-
-/*
-SmartFace CubeTransform::GetNewFace(SmartFace currentFace) const
-{
-    if (Invert)
-    {
-        currentFace.IsFlippedX = !currentFace.IsFlippedX;
-        currentFace.Side = GetOpposite(currentFace.Side);
-        //TODO: I think rotate 2d face by 180 degrees as well
-
-        //TODO: How does this effect the below local rotations?
-    }
-
-
-    auto faceRotDelta = Lookup_DirLocalRots[currentFace.Side][Rot];
-    currentFace.Rot = Combine(currentFace.Rot, faceRotDelta);
-    //TODO: How does the reflection play into this??
-
-    currentFace.Side = GetNewDir(currentFace.Side);
-    
-    return currentFace;
-}
-*/
