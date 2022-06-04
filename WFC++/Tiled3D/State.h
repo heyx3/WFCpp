@@ -12,6 +12,27 @@ namespace WFC
         {
         public:
 
+            //For each cell (X/Y), and for each input tile (Z),
+            //    stores the set of permutations of that tile
+            //    which could possibly be placed at that cell.
+            Array3D<TransformSet> PossibleTiles;
+
+            //The state of an output cell.
+            struct WFC_API CellState
+            {
+                //If set to "TileID_INVALID", then no tile was chosen yet.
+                TileID ChosenTile = TileID_INVALID;
+                Transform3D ChosenPermutation;
+
+                //Some tiles are given by the user, and this algorithm has to work around them.
+                //Those tiles must not be cleared or otherwise manipulated.
+                bool IsChangeable = true;
+            };
+            Array2D<CellState> Cells;
+
+
+
+
             //A space that may become one of several tiles,
             //    until eventually a single specific tile is chosen.
             struct WFC_API OutputTile

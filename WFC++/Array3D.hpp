@@ -8,7 +8,8 @@
 
 namespace WFC
 {
-    //TODO: Convert to unsigned ints. Will require Vector2i and Vector3i to be templated.
+    //TODO: Convert to unsigned ints? Will require Vector2i and Vector3i to be templated.
+	//TODO: Use vector<> for backing, or else things like default-construction won't be handled right.
 
 	template<class ArrayType>
 	//Wraps a contiguous heap-allocated one-dimensional array

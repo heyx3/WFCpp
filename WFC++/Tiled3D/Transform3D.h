@@ -225,7 +225,7 @@ namespace WFC
         //    the second half are for inverted ones.
         //The rotations are ordered by their enum values.
         //Iteration order through this set is deterministic, based on the bit order.
-        struct TransformSet
+        struct TransformSet //Everything is kept inlined in the header, so no WFC_API tag is needed.
         {
         public:
             static const uint_fast8_t BIT_COUNT = N_ROTATIONS_3D * 2;
