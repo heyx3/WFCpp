@@ -22,6 +22,7 @@ namespace WFC
             { vec.push_back(first); vec.push_back(second); vec.push_back(third); }
         explicit List(const T& first, const T& second, const T& third, const T& fourth)
             { vec.push_back(first); vec.push_back(second); vec.push_back(third); vec.push_back(fourth); }
+        List(std::initializer_list<T> list) : vec(list) { }
 
         //Move operators:
         List(List<T>&& from) : vec(std::move(from.vec)) { }

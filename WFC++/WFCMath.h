@@ -81,6 +81,8 @@ namespace WFC
                  resultHalf2 = FindBitIndex(uint32_t{ u >> 32 });
             return resultHalf1;
         }
+        //Forbid implicit conversion from unsupported types.
+        template<class T> uint_fast8_t FindBitIndex(T t) = delete;
 
         //Counts the number of '1' bits in an integer.
         inline uint_fast8_t CountBits(uint8_t u)
@@ -108,6 +110,8 @@ namespace WFC
             return CountBits((uint32_t)(u & 0xffffffff)) +
                    CountBits((uint32_t)(u >> 32));
         }
+        //Forbid implicit conversion from unsupported types
+        template<class T> uint_fast8_t CountBits(T t) = delete;
 
 
         template<size_t NBits>

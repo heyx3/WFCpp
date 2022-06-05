@@ -260,6 +260,7 @@ del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
     <ClInclude Include="WFC++\EnumFlags.h" />
     <ClInclude Include="WFC++\HelperClasses.h" />
     <ClInclude Include="WFC++\List.hpp" />
+    <ClInclude Include="WFC++\WFCppStreamPrinting.hpp" />
     <ClInclude Include="WFC++\Tiled3D\InputData.h" />
     <ClInclude Include="WFC++\Tiled3D\State.h" />
     <ClInclude Include="WFC++\Tiled3D\Tile.hpp" />

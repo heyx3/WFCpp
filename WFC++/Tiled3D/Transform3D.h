@@ -260,6 +260,17 @@ namespace WFC
             }
         };
 
+        //Gets a specific face of a transformed cube.
+        inline FacePermutation GetFace(CubePermutation cubeBeforeTransform,
+                                       Transform3D transform,
+                                       Directions3D sideAfterTransform)
+        {
+            auto originalSide = transform.Inverse().ApplyToSide(sideAfterTransform);
+            auto newFace = transform.ApplyToFace(cubeBeforeTransform.Faces[originalSide]);
+            assert(newFace.Side == sideAfterTransform);
+            return newFace;
+        }
+
         inline bool operator==(Transform3D t1, Transform3D t2)
         {
             return (t1.Invert == t2.Invert) && (t1.Rot == t2.Rot);
@@ -286,7 +297,12 @@ namespace WFC
             using BitsType = Math::SmallestUInt<BIT_COUNT>;
             static constexpr BitsType ZERO = 0,
                                       ONE = 1,
-                                      FIRST_INVERT_BIT = N_ROTATIONS_3D;
+                                      ALL = ~ZERO,
+                                      N_TYPE_BITS = 8 * sizeof(BitsType),
+                                      FIRST_INVERT_BIT_IDX = N_ROTATIONS_3D,
+                                      USED_BITS = ALL >> (N_TYPE_BITS - BIT_COUNT),
+                                      UNINVERTED_BITS = USED_BITS >> FIRST_INVERT_BIT_IDX,
+                                      INVERTED_BITS = USED_BITS & (~UNINVERTED_BITS);
 
             //Efficiently clears a contiguous array of transform sets.
             static void ClearRow(TransformSet* first, size_t count) { std::memset(first, 0, count * sizeof(TransformSet)); }
@@ -296,7 +312,7 @@ namespace WFC
             static BitsType ToBits(Transform3D tr)
             {
                 return tr.Invert ?
-                           (ONE << ((BitsType)tr.Rot + FIRST_INVERT_BIT)) :
+                           (ONE << ((BitsType)tr.Rot + FIRST_INVERT_BIT_IDX)) :
                            (ONE << (BitsType)tr.Rot);
             }
             //Turns a specific bit-pattern into the Transform it represents.
@@ -307,13 +323,13 @@ namespace WFC
             //Finds the transform corresponding to a specific bit.
             static Transform3D FromBit(uint_fast8_t bitIdx)
             {
-                return (bitIdx < FIRST_INVERT_BIT) ?
+                return (bitIdx < FIRST_INVERT_BIT_IDX) ?
                            Transform3D{ false, (Rotations3D)bitIdx } :
-                           Transform3D{ true, (Rotations3D)(bitIdx - FIRST_INVERT_BIT) };
+                           Transform3D{ true, (Rotations3D)(bitIdx - FIRST_INVERT_BIT_IDX) };
             }
 
 
-            //Creates a set from any combination of iterators and individual transforms.
+            //Creates a set from any combination of iterators, subsets, and elements.
             template<typename T>
             static TransformSet CombineTransforms(const T& iterable)
             {
@@ -325,7 +341,8 @@ namespace WFC
                 }
                 return set;
             }
-            static TransformSet CombineTransforms(Transform3D transf)
+            template<> static TransformSet CombineTransforms<TransformSet>(const TransformSet& set) { return set; }
+            template<> static TransformSet CombineTransforms<Transform3D>(const Transform3D& transf)
             {
                 TransformSet s;
                 s.Add(transf);
@@ -342,6 +359,7 @@ namespace WFC
 
 
             uint_fast8_t Size() const { return nBits; }
+            BitsType Bits() const { return bits; }
 
             bool Contains(Transform3D tr) const { return (bits & ToBits(tr)) != ZERO; }
             bool Add(Transform3D tr)
@@ -404,6 +422,24 @@ namespace WFC
 
                 assert(nBits <= prevNBits);
                 return prevNBits - nBits;
+            }
+
+            //Adds some iteration of tranforms to this set.
+            //Returns the number of actual new elements.
+            template<typename Iter>
+            uint_fast8_t Add(const Iter& iterable)
+            {
+                uint_fast8_t newCount = 0;
+                for (Transform3D tr : iterable)
+                    newCount += Add(tr);
+                return newCount;
+            }
+            //Adds all inverted versions of this set's un-inverted transforms.
+            //Existing inverted transforms will stay in the set.
+            void AddInvertedVersions()
+            {
+                bits |= (bits & UNINVERTED_BITS) << FIRST_INVERT_BIT_IDX;
+                nBits = Math::CountBits(bits);
             }
 
             void Clear() { bits = ZERO; nBits = ZERO; }

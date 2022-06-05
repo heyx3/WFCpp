@@ -75,6 +75,7 @@
     <ClInclude Include="WFC++\Vector4i.h">
       <Filter>Helper Classes</Filter>
     </ClInclude>
+    <ClInclude Include="WFC++\WFCppStreamPrinting.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Helper Classes">

@@ -128,12 +128,17 @@ namespace WFC
                 int32_t nFacePermutations = nextID;
 
                 //Set up MatchingFaces.
-                MatchingFaces = Array2D<TransformSet>(InputTiles.GetSize(), nFacePermutations,
+                MatchingFaces = Array2D<TransformSet>((int)InputTiles.GetSize(), nFacePermutations,
                                                       TransformSet());
                 for (int tileI = 0; tileI < (int)InputTiles.GetSize(); ++tileI)
                     for (const auto& transform : InputTiles[tileI].Permutations)
                         for (const auto& face : InputTiles[tileI].Data.Faces)
-                            MatchingFaces[Vector2i(tileI, FaceIndices[transform.ApplyToFace(face)])].Add(transform);
+                        {
+                            auto transformedFace = transform.ApplyToFace(face);
+                            auto facePermIdx = FaceIndices[transformedFace];
+                            auto& matches = MatchingFaces[{tileI, facePermIdx}];
+                            matches.Add(transform);
+                        }
             }
 
             
@@ -298,14 +303,11 @@ namespace WFC
 
 
             //Gets a specific face of a transformed tile, by its side (after transformation).
-            //TODO: Make this an external helper function.
             inline FacePermutation GetFace(TileIdx tileIdx, Transform3D permutation,
                                            Directions3D sideAfterTransform) const
             {
-                auto originalSide = permutation.Inverse().ApplyToSide(sideAfterTransform);
-                auto newFace = permutation.ApplyToFace(InputTiles[tileIdx].Data.Faces[originalSide]);
-                assert(newFace.Side == sideAfterTransform);
-                return newFace;
+                return Tiled3D::GetFace(InputTiles[tileIdx].Data,
+                                        permutation, sideAfterTransform);
             }
 
             //Removes tile options from the given cell that do not fit the given face.
