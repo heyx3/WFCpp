@@ -11,6 +11,7 @@ namespace Tilesets
 {
     namespace Simple
     {
+        using namespace WFC;
         using namespace WFC::Simple;
 
         //TODO: Make Simple tests.
@@ -18,6 +19,7 @@ namespace Tilesets
     
     namespace Tiled
     {
+        using namespace WFC;
         using namespace WFC::Tiled;
 
         //TODO: Make Tiled tests.
@@ -25,6 +27,7 @@ namespace Tilesets
 
     namespace Tiled3D
     {
+        using namespace WFC;
         using namespace WFC::Tiled3D;
 
         //TODO: Make Tiled3D tests.

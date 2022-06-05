@@ -1,8 +1,9 @@
 #pragma once
 
 #include "../Platform.h"
-#include <stdint.h>
+#include <stdint.h> //TODO: Why? remove this
 #include <utility>
+#include <array>
 
 #include "../Vector2i.h"
 #include "../Vector3i.h"
@@ -66,6 +67,7 @@ namespace WFC
         inline bool WFC_API IsMax(Directions3D dir) { return (uint_fast8_t)dir % 2 == 1; }
         inline uint_fast8_t GetAxisIndex(Directions3D dir) { return (uint_fast8_t)dir / 2; }
         inline Directions3D WFC_API GetOpposite(Directions3D dir) { return (Directions3D)(IsMin(dir) ? (dir + 1) : (dir - 1)); }
+        inline Directions3D WFC_API MakeDirection3D(bool isMin, int axis) { return (Directions3D)((isMin ? 0 : 1) + (axis * 2)); }
         inline Vector3i GetFaceDirection(Directions3D dir)
         {
             switch (dir)
@@ -108,15 +110,28 @@ namespace WFC
             //Two faces can line up against each other if their corresponding points match.
             PointID Points[N_FACE_POINTS];
 
+            //Gets the matching face on the opposite side.
+            FacePermutation Flipped() const
+            {
+                auto copy = *this;
+
+                copy.Side = GetOpposite(Side);
+                //The points, by design, are ordered the same
+                //    regardless of whether you're on the min or max side.
+
+                return copy;
+            }
+
             #pragma region Hashing/equality-testing
             //Gets the hash value for an instance.
             //Allows this type to be used as a Dictionary<> key.
-            inline unsigned int operator()(const FacePermutation& f) const
+            inline uint32_t operator()(const FacePermutation& f) const
             {
                 //Use the Vector3i hasher since it already exists.
-                Vector3i v1((int)Side, (int)Points[0], (int)Points[1]),
-                         v2((int)Points[2], (int)Points[3], (int)Vector3i()(v1));
-                return Vector3i()(v2);
+                return Vector2i(
+                    Vector2i(Points[0] * Side, Points[1] * Side).GetHashcode(),
+                    Vector2i(Points[2] + Side, Points[3] - Side).GetHashcode()
+                ).GetHashcode();
             }
 
             inline bool operator==(const FacePermutation& f2) const
@@ -199,6 +214,41 @@ namespace WFC
             //Gets the new permutated cube after this transformation.
             CubePermutation ApplyToCube(CubePermutation currentCube) const;
 
+            inline Transform3D Inverse() const
+            {
+                //This is actually quite simple, because you can consider
+                //    the inversion and rotation separately.
+
+                static const std::array<Rotations3D, N_ROTATIONS_3D> rotLookup = {
+                    Rotations3D::None, //None
+                    Rotations3D::AxisX_270, //AxisX_90
+                    Rotations3D::AxisX_180, //AxisX_180
+                    Rotations3D::AxisX_90, //AxisX_270
+                    Rotations3D::AxisY_270, //AxisY_90
+                    Rotations3D::AxisY_180, //AxisY_180
+                    Rotations3D::AxisY_90, //AxisY_270
+                    Rotations3D::AxisZ_270, //AxisZ_90
+                    Rotations3D::AxisZ_180, //AxisZ_180
+                    Rotations3D::AxisZ_90, //AxisZ_270
+                    Rotations3D::EdgesXa, //EdgesXa
+                    Rotations3D::EdgesXb, //EdgesXb
+                    Rotations3D::EdgesYa, //EdgesYa
+                    Rotations3D::EdgesYb, //EdgesYb
+                    Rotations3D::EdgesZa, //EdgesZa
+                    Rotations3D::EdgesZb, //EdgesZb
+                    Rotations3D::CornerAAA_240, //CornerAAA_120
+                    Rotations3D::CornerAAA_120, //CornerAAA_240
+                    Rotations3D::CornerABA_240, //CornerABA_120
+                    Rotations3D::CornerABA_120, //CornerABA_240
+                    Rotations3D::CornerBAA_240, //CornerBAA_120
+                    Rotations3D::CornerBAA_120, //CornerBAA_240
+                    Rotations3D::CornerBBA_240, //CornerBBA_120
+                    Rotations3D::CornerBBA_120, //CornerBBA_240
+                };
+
+                return { Invert, rotLookup[(int)Rot] };
+            }
+
             //Generates a perfect, unique hash code for this instance.
             using HashType = uint_fast16_t;
             HashType GetHash() const
@@ -225,7 +275,10 @@ namespace WFC
         //    the second half are for inverted ones.
         //The rotations are ordered by their enum values.
         //Iteration order through this set is deterministic, based on the bit order.
-        struct TransformSet //Everything is kept inlined in the header, so no WFC_API tag is needed.
+        struct TransformSet
+            //Everything is kept inlined in the header, so
+            //    no WFC_API tag is needed on this struct.
+            //TODO: Move to its own file.
         {
         public:
             static const uint_fast8_t BIT_COUNT = N_ROTATIONS_3D * 2;
@@ -234,6 +287,9 @@ namespace WFC
             static constexpr BitsType ZERO = 0,
                                       ONE = 1,
                                       FIRST_INVERT_BIT = N_ROTATIONS_3D;
+
+            //Efficiently clears a contiguous array of transform sets.
+            static void ClearRow(TransformSet* first, size_t count) { std::memset(first, 0, count * sizeof(TransformSet)); }
 
 
             //Turns a transformation into a specific bit.
@@ -313,15 +369,41 @@ namespace WFC
             {
                 return (bits & set.bits) == set.bits;
             }
-            void Add(TransformSet set)
+            //Adds the given set to this one.
+            //Returns how many new elements were added.
+            uint_fast8_t Add(TransformSet set)
             {
+                auto prevNBits = nBits;
+
                 bits |= set.bits;
                 nBits = Math::CountBits(bits);
+
+                assert(nBits >= prevNBits);
+                return nBits - prevNBits;
             }
-            void Remove(TransformSet set)
+            //Removes the given elements from this set.
+            //Returns how many elements were removed.
+            uint_fast8_t Remove(TransformSet set)
             {
+                auto prevNBits = nBits;
+
                 bits &= ~(set.bits);
                 nBits = Math::CountBits(bits);
+
+                assert(nBits <= prevNBits);
+                return prevNBits - nBits;
+            }
+            //Removes all elements of this set except for those in the given one.
+            //Returns how many elements were removed.
+            uint_fast8_t Intersect(TransformSet set)
+            {
+                auto prevNBits = nBits;
+
+                bits &= set.bits;
+                nBits = Math::CountBits(bits);
+
+                assert(nBits <= prevNBits);
+                return prevNBits - nBits;
             }
 
             void Clear() { bits = ZERO; nBits = ZERO; }

@@ -9,9 +9,12 @@ namespace WFC
         //Some kind of signed integer type.
         template<typename IntType>
         //Does a more intuitive modulo operation, where the result is always positive.
-        inline IntType PositiveModulo(IntType numerator, IntType denominator)
+        inline auto PositiveModulo(IntType numerator, IntType denominator)
         {
-            return (numerator % denominator) + (denominator * (numerator < 0));
+            auto modulo = (numerator % denominator);
+            if (modulo < 0)
+                modulo += denominator;
+            return modulo;
         }
 
         template<typename T>
@@ -67,6 +70,17 @@ namespace WFC
                         sizeof(uint32_t));
             return (uint_fast8_t)((bytes[exponentHalf] >> 20) - 0x3FF);
         }
+        inline uint_fast8_t FindBitIndex(uint64_t u)
+        {
+            uint32_t half1 = u & 0xFFFFFFFF,
+                     half2 = u >> 32;
+            return (half1 == 0) ?
+                       (FindBitIndex(half2) + 32) :
+                       half2;
+            auto resultHalf1 = FindBitIndex(uint32_t{ u & 0xffffffff }),
+                 resultHalf2 = FindBitIndex(uint32_t{ u >> 32 });
+            return resultHalf1;
+        }
 
         //Counts the number of '1' bits in an integer.
         inline uint_fast8_t CountBits(uint8_t u)
@@ -111,5 +125,18 @@ namespace WFC
         //Finds an integer type that has at least N bits.
         template<size_t NBits>
         using SmallestUInt = typename impl_SmallestUInt<NBits>::value;
+
+
+        inline uint32_t Hash(uint32_t a, uint32_t b)
+        {
+            #define WFC_ROT_LEFT(i, n) ((i << n)  | (i >> (32 - n)))
+            return a ^ WFC_ROT_LEFT(b, 16);
+            #undef WFC_ROT_LEFT
+        }
+        inline int32_t Hash(int32_t a, int32_t b)
+        {
+            return static_cast<int32_t>(Hash(static_cast<uint32_t>(a),
+                                             static_cast<uint32_t>(b)));
+        }
     }
 }

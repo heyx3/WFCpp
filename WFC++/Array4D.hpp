@@ -1,83 +1,62 @@
 #pragma once
 
 #include "WFCMath.h"
-#include "Vector3i.h"
+#include "Vector4i.h"
 
 #pragma warning(disable: 4018)
 
 
 namespace WFC
 {
-    //TODO: Convert to unsigned ints? Will require Vector2i and Vector3i to be templated.
+	//TODO: Check out this library: https://www.cs.cornell.edu/~saeed/lite/html/group__array.html
 	//TODO: Use vector<> for backing, or else things like default-construction won't be handled right.
 
 	template<class ArrayType>
 	//Wraps a contiguous heap-allocated one-dimensional array
-	//    so it can be treated like a three-dimensional array.
+	//    so it can be treated like a four-dimensional array.
 	//The most cache-efficient way to iterate through this array is through
-	//    the Z in the outer loop, Y in the middle loop, and X in the inner loop.
-	class Array3D
+	//    the W in the outer loop, and the X in the inner loop.
+	class Array4D
 	{
 	public:
 
-        //Creates an invalid Array3D with 0 elements.
-        Array3D() : width(0), height(0), depth(0), arrayVals(nullptr) { }
+        //Creates an invalid Array4D with 0 elements.
+        Array4D() : size(0, 0, 0, 0), arrayVals(nullptr) { }
 
-		//Creates a new Array3D without initializing any of the values.
-		Array3D(int aWidth, int aHeight, int aDepth)
+		//Creates a new Array4D without initializing any of the values.
+		Array4D(const Vector4i& size) : size(size), arrayVals(new ArrayType[size.x * size.y * size.z * size.w]) { }
+		//Creates a new Array4D and fills it with copies of the given element.
+		Array4D(const Vector4i& size, const ArrayType& defaultValue)
+			: Array4D(size)
 		{
-			width = aWidth;
-			height = aHeight;
-            depth = aDepth;
-
-			arrayVals = new ArrayType[GetNumbElements()];
-		}
-		//Creates a new Array3D without initializing any of the values.
-		Array3D(Vector3i size) : Array3D(size.x, size.y, size.z) { }
-
-		Array3D(int aWidth, int aHeight, int aDepth, const ArrayType& defaultValue)
-		{
-			width = aWidth;
-			height = aHeight;
-            depth = aDepth;
-
-			arrayVals = new ArrayType[GetNumbElements()];
-
 			for (int i = 0; i < GetNumbElements(); ++i)
 				arrayVals[i] = defaultValue;
 		}
-		Array3D(Vector3i size, const ArrayType& defaultValue) : Array3D(size.x, size.y, size.z, defaultValue) { }
 
 		//Move operator.
-		Array3D(Array3D&& toMove) : arrayVals(nullptr) { *this = std::move(toMove); }
-		Array3D& operator=(Array3D&& toMove)
+		Array4D(Array4D&& toMove) : arrayVals(nullptr) { *this = std::move(toMove); }
+		Array4D& operator=(Array4D&& toMove)
 		{
 			if (arrayVals != nullptr)
 				delete[] arrayVals;
 
-			width = toMove.width;
-			height = toMove.height;
-            depth = toMove.depth;
+			size = toMove.size;
 			arrayVals = toMove.arrayVals;
 
-			toMove.width = 0;
-			toMove.height = 0;
-            toMove.depth = 0;
+			toMove.size = Vector4i{};
 			toMove.arrayVals = nullptr;
 
 			return *this;
 		}
 
 		//Copy operator.
-		Array3D(const Array3D<ArrayType>& copy) { *this = copy; }
-        Array3D& operator=(const Array3D<ArrayType>& other)
+		Array4D(const Array4D<ArrayType>& copy) { *this = copy; }
+        Array4D& operator=(const Array4D<ArrayType>& other)
         {
             if (arrayVals != nullptr)
                 delete[] arrayVals;
 
-            width = other.width;
-            height = other.height;
-            depth = other.depth;
+			size = other.size;
             arrayVals = new ArrayType[GetNumbElements()];
 
             for (size_t i = 0; i < (size_t)GetNumbElements(); ++i)
@@ -86,7 +65,7 @@ namespace WFC
             return *this;
         }
 
-		~Array3D()
+		~Array4D()
 		{
 			if (arrayVals != nullptr)
 			{
@@ -95,81 +74,74 @@ namespace WFC
 		}
 
 
-		ArrayType& operator[](const Vector3i& l)
+		ArrayType& operator[](const Vector4i& l)
         {
-			assert(IsIndexValid(l));
-            return arrayVals[GetIndex(l.x, l.y, l.z)];
+            assert(Region4i(GetDimensions()).Contains(l));
+            return arrayVals[GetIndex(l.x, l.y, l.z, l.w)];
         }
-		const ArrayType& operator[](const Vector3i& l) const
+		const ArrayType& operator[](const Vector4i& l) const
         {
-			assert(IsIndexValid(l));
-            return arrayVals[GetIndex(l.x, l.y, l.z)];
+            assert(Region4i(GetDimensions()).Contains(l));
+            return arrayVals[GetIndex(l.x, l.y, l.z, l.w)];
         }
 
 
-		//Gets the X size of this array.
-		inline int GetWidth() const { return width; }
-		//Gets the Y size of this array.
-        inline int GetHeight() const { return height; }
-        //Gets the Z size of this array.
-        inline int GetDepth() const { return depth; }
 		//Gets the size of this array along each axis.
-		Vector3i GetDimensions() const { return Vector3i(width, height, depth); }
-		bool IsIndexValid(const Vector3i& idx) const { return Region3i(GetDimensions()).Contains(idx); }
+		Vector4i GetDimensions() const { return size; }
 
 
 		//Resets this array to the given size and leaves its elements uninitialized.
 		//If the total number of elements doesn't change, then nothing is allocated or un-allocated
 		//    and the elements keep their values.
-		void Reset(int _width, int _height, int _depth)
+		void Reset(const Vector4i& newSize)
 		{
 			//Only resize if the current array does not have the same number of elements.
-			if (GetNumbElements() != (_width * _height * _depth))
+			if (GetNumbElements() != (newSize.x * newSize.y * newSize.z * newSize.w))
 			{
 				if (arrayVals != nullptr)
 				    delete[] arrayVals;
 
-				arrayVals = new ArrayType[_width * _height * _depth];
+				arrayVals = new ArrayType[newSize.x * newSize.y * newSize.z * newSize.w];
 			}
 
-			width = _width;
-			height = _height;
-            depth = _depth;
+			size = newSize;
 		}
 		//Resets this array to the given size and initializes all elements to the given value.
-		void Reset(int _width, int _height, int _depth, const ArrayType& newValues)
+		void Reset(const Vector4i& size, const ArrayType& newValues)
 		{
-			Reset(_width, _height, _depth);
+			Reset(size);
 			Fill(newValues);
 		}
 
 
 		//Gets the array index for the given position.
-		int GetIndex(int x, int y, int z) const
+		int GetIndex(int x, int y, int z, int w) const
 		{
-			return x + (y * width) + (z * width * height);
+			return x + (y * size.x) + (z * size.x * size.y) + (w * size.x * size.y * size.z);
 		}
 		//Gets the location in this array that corresponds to the given array index.
-		Vector3i GetLocation(int index) const
+		Vector4i GetLocation(int index) const
 		{
-			return Vector3i(index % width,
-                            (index / width) % height,
-                            index / (width * height));
+			return Vector4i(index % size.x,
+                            (index / size.x) % size.y,
+                            (index / (size.x * size.y)) % size.z,
+							index / (size.x * size.y * size.z));
 		}
 
 
 		//Wraps the given index around the range of allowable indices for this array.
-		Vector3i Wrap(Vector3i in) const
+		Vector4i Wrap(Vector4i in) const
 		{
-            in.x = Math::PositiveModulo(in.x, width);
-            in.y = Math::PositiveModulo(in.y, height);
-            in.z = Math::PositiveModulo(in.z, depth);
+            in.x = Math::PositiveModulo(in.x, size.x);
+            in.y = Math::PositiveModulo(in.y, size.y);
+			in.z = Math::PositiveModulo(in.z, size.z);
+			in.w = Math::PositiveModulo(in.w, size.w);
 			return in;
 		}
 
 
 		//Gets the total number of elements contained by this array.
-		int GetNumbElements() const { return width * height * depth; }
+		int GetNumbElements() const { return size.x * size.y * size.z * size.w; }
 
 
 		//Fills every element with the given value.
@@ -190,16 +162,15 @@ namespace WFC
 				arrayVals[i] = values[i];
 		}
 
-		//A function with signature "void GetValue(Vector3i index, ArrayType* outNewValue)".
+		//A function with signature "void GetValue(Vector4i index, ArrayType* outNewValue)".
 		template<typename Func>
 		//Fills every element using the given function.
 		void FillFunc(Func getValue)
 		{
-			Vector3i loc;
-            for (loc.z = 0; loc.z < depth; ++loc.z)
-                for (loc.y = 0; loc.y < height; ++loc.y)
-				    for (loc.x = 0; loc.x < width; ++loc.x)
-					    getValue(loc, &arrayVals[GetIndex(loc.x, loc.y, loc.z)]);
+			Vector4i loc;
+
+			for (Vector4i p : Region4i(GetDimensions()))
+				getValue(loc, &(*this)[p]);
 		}
 
 		//Copies this array into the given one using "memcpy", which is as fast as possible.
@@ -225,7 +196,7 @@ namespace WFC
 
 	private:
 
-		int width, height, depth;
+		Vector4i size;
 		ArrayType* arrayVals;
 	};
 }

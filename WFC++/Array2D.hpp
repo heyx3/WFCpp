@@ -26,7 +26,7 @@ namespace WFC
 			width = aWidth;
 			height = aHeight;
 
-			arrayVals = new ArrayType[(size_t)width * height];
+			arrayVals = new ArrayType[(size_t)GetNumbElements()];
 		}
 		//Creates a new Array2D without initializing any of the values.
 		Array2D(Vector2i size) : Array2D(size.x, size.y) { }
@@ -36,12 +36,9 @@ namespace WFC
 			width = aWidth;
 			height = aHeight;
 
-			arrayVals = new ArrayType[width * height];
-
-			for (int i = 0; i < width * height; ++i)
-			{
+			arrayVals = new ArrayType[GetNumbElements()];
+			for (int i = 0; i < GetNumbElements(); ++i)
 				arrayVals[i] = defaultValue;
-			}
 		}
 		Array2D(Vector2i size, const ArrayType& defaultValue) : Array2D(size.x, size.y, defaultValue) { }
 
@@ -72,9 +69,9 @@ namespace WFC
 
             width = other.width;
             height = other.height;
-            arrayVals = new ArrayType[width * height];
+            arrayVals = new ArrayType[GetNumbElements()];
 
-            size_t size = (size_t)(width * height);
+            size_t size = (size_t)(GetNumbElements());
             for (size_t i = 0; i < size; ++i)
                 arrayVals[i] = other.arrayVals[i];
 
@@ -116,7 +113,7 @@ namespace WFC
 		void Reset(int _width, int _height)
 		{
 			//Only resize if the current array does not have the same number of elements.
-			if ((width * height) != (_width * _height))
+			if ((GetNumbElements()) != (_width * _height))
 			{
 				if (arrayVals != nullptr)
 				    delete[] arrayVals;
@@ -163,7 +160,7 @@ namespace WFC
 		//Fills every element with the given value.
 		void Fill(const ArrayType& value)
 		{
-			int size = width * height;
+			int size = GetNumbElements();
 			for (int i = 0; i < size; ++i)
 				arrayVals[i] = value;
 		}
@@ -174,9 +171,9 @@ namespace WFC
 		void Fill(const ArrayType* values, bool useMemcpy)
 		{
 			if (useMemcpy)
-				memcpy(arrayVals, values, width * height * sizeof(ArrayType));
+				memcpy(arrayVals, values, GetNumbElements() * sizeof(ArrayType));
 
-			else for (int i = 0; i < (width * height); ++i)
+			else for (int i = 0; i < (GetNumbElements()); ++i)
 				arrayVals[i] = values[i];
 		}
 
@@ -253,14 +250,14 @@ namespace WFC
 		//Assumes the given array is the same size as this one.
 		void MemCopyInto(ArrayType* outValues) const
 		{
-			memcpy(outValues, arrayVals, width * height * sizeof(ArrayType));
+			memcpy(outValues, arrayVals, GetNumbElements() * sizeof(ArrayType));
 		}
 		//Copies this array into the given one using the assignment operator for each value.
 		//Assumes it is the same size as this array.
 		//Use this instead of "MemCopyInto" if the items are too complex to just copy their byte-data over.
 		void CopyInto(ArrayType* outValues) const
 		{
-			for (int i = 0; i < width * height; ++i)
+			for (int i = 0; i < GetNumbElements(); ++i)
 				outValues[i] = arrayVals[i];
 		}
 

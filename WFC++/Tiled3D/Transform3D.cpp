@@ -1,6 +1,5 @@
 #include "Transform3D.h"
 
-#include <array>
 #include <algorithm>
 
 #include "../Vector2i.h"
@@ -236,6 +235,7 @@ Vector3i Transform3D::ApplyToPos(Vector3i pos, Vector3i max) const
             break;
         case Rotations3D::AxisY_270:
             pos = Vector3i(iPos.z, pos.y, pos.x);
+            break;
 
         case Rotations3D::AxisZ_90:
             pos = Vector3i(iPos.y, pos.x, pos.z);

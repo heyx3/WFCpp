@@ -96,6 +96,7 @@
       <PreprocessorDefinitions>_WINDLL;WFC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)\%(RelativeDir)\%(Filename).obj</ObjectFileName>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <PostBuildEvent>
       <Command>REM Clear "include" directory
@@ -133,6 +134,7 @@ del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
       <PreprocessorDefinitions>_WINDLL;WFC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)\%(RelativeDir)\%(Filename).obj</ObjectFileName>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <PostBuildEvent>
       <Command>REM Clear "include" directory
@@ -172,6 +174,7 @@ del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
       <PreprocessorDefinitions>_WINDLL;WFC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)\%(RelativeDir)\%(Filename).obj</ObjectFileName>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -215,6 +218,7 @@ del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
       <PreprocessorDefinitions>_WINDLL;WFC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)\%(RelativeDir)\%(Filename).obj</ObjectFileName>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -251,6 +255,7 @@ del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
   <ItemGroup>
     <ClInclude Include="WFC++\Array2D.hpp" />
     <ClInclude Include="WFC++\Array3D.hpp" />
+    <ClInclude Include="WFC++\Array4D.hpp" />
     <ClInclude Include="WFC++\Dictionary.hpp" />
     <ClInclude Include="WFC++\EnumFlags.h" />
     <ClInclude Include="WFC++\HelperClasses.h" />
@@ -260,6 +265,7 @@ del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
     <ClInclude Include="WFC++\Tiled3D\Tile.hpp" />
     <ClInclude Include="WFC++\Tiled3D\TilePermutator.h" />
     <ClInclude Include="WFC++\Tiled3D\Transform3D.h" />
+    <ClInclude Include="WFC++\Vector4i.h" />
     <ClInclude Include="WFC++\WFCMath.h" />
     <ClInclude Include="WFC++\Nullable.hpp" />
     <ClInclude Include="WFC++\Platform.h" />
@@ -286,7 +292,6 @@ del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
     <ClCompile Include="WFC++\Tiled\State.cpp" />
     <ClCompile Include="WFC++\Tiled\TilePermutator.cpp" />
     <ClCompile Include="WFC++\Vector2i.cpp" />
-    <ClCompile Include="WFC++\Vector3i.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

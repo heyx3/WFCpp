@@ -7,6 +7,7 @@
 
 namespace WFC
 {
+    //TODO: Rename 'Array1D', switch all these collections to just use vector and unordered_map (and fix hashing!)
 	template<typename T>
     class List
     {
@@ -14,12 +15,28 @@ namespace WFC
 
         List() { }
 
+        explicit List(int size) : vec(size) { }
         explicit List(const T& first) { vec.push_back(first); }
         explicit List(const T& first, const T& second) { vec.push_back(first); vec.push_back(second); }
         explicit List(const T& first, const T& second, const T& third)
             { vec.push_back(first); vec.push_back(second); vec.push_back(third); }
         explicit List(const T& first, const T& second, const T& third, const T& fourth)
             { vec.push_back(first); vec.push_back(second); vec.push_back(third); vec.push_back(fourth); }
+
+        //Move operators:
+        List(List<T>&& from) : vec(std::move(from.vec)) { }
+        List<T>& operator=(List<T>&& from)
+        {
+            vec = std::move(from.vec);
+            return *this;
+        }
+        //Copy operators:
+        List(const List<T>& from) : vec(from.vec) { }
+        List<T>& operator=(const List<T>& from)
+        {
+            vec = from.vec;
+            return *this;
+        }
 
 
         size_t GetSize() const { return vec.size(); }

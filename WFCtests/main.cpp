@@ -1,5 +1,7 @@
 #include "TestTilesets.hpp"
 
+#include <iostream>
+
 #define WFC_CONCAT(...) __VA_ARGS__
 
 TEST(Sanity)
@@ -45,18 +47,19 @@ SUITE(Utils)
 
     TEST(FindBitIndex)
     {
-        CHECK(FindBitIndex(0b1) == 0);
-        CHECK(FindBitIndex(0b10) == 1);
-        CHECK(FindBitIndex(0b100) == 2);
-        CHECK(FindBitIndex(0b100000) == 5);
-        CHECK(FindBitIndex(0b100000000000) == 11);
-        CHECK(FindBitIndex(0b10000000000000000) == 16);
-        CHECK(FindBitIndex(0b100000000000000000) == 17);
-        CHECK(FindBitIndex(0b100000000000000000000000) == 23);
-        CHECK(FindBitIndex(0b1000000000000000000000000000000) == 30);
-        CHECK(FindBitIndex(0b10000000000000000000000000000000) == 31);
+        CHECK(FindBitIndex((uint32_t)0b1) == 0);
+        CHECK(FindBitIndex((uint32_t)0b10) == 1);
+        CHECK(FindBitIndex((uint32_t)0b100) == 2);
+        CHECK(FindBitIndex((uint32_t)0b100000) == 5);
+        CHECK(FindBitIndex((uint32_t)0b100000000000) == 11);
+        CHECK(FindBitIndex((uint32_t)0b10000000000000000) == 16);
+        CHECK(FindBitIndex((uint32_t)0b100000000000000000) == 17);
+        CHECK(FindBitIndex((uint32_t)0b100000000000000000000000) == 23);
+        CHECK(FindBitIndex((uint32_t)0b1000000000000000000000000000000) == 30);
+        CHECK(FindBitIndex((uint32_t)0b10000000000000000000000000000000) == 31);
     }
-    TEST(CountBits)
+    
+    TEST(CountBitsPt1)
     {
         CHECK(CountBits((uint8_t)0b0) == 0);
         CHECK(CountBits((uint8_t)0b0110) == 2);
@@ -103,7 +106,10 @@ SUITE(Utils)
         CHECK(CountBits((uint16_t)0b1010101000000000) == 4);
         CHECK(CountBits((uint16_t)0b1111111100000000) == 8);
         CHECK(CountBits((uint16_t)0b1111111111111111) == 16);
+    }
 
+    TEST(CountBitsPt2)
+    {
         CHECK(CountBits((uint32_t)0b0) == 0);
         CHECK(CountBits((uint32_t)0b0110) == 2);
         CHECK(CountBits((uint32_t)0b1001) == 2);
@@ -146,6 +152,10 @@ SUITE(Utils)
         CHECK(CountBits((uint32_t)0b1111111100000000) == 8);
         CHECK(CountBits((uint32_t)0b0000000011111111) == 8);
         CHECK(CountBits((uint32_t)0b1111111111111111) == 16);
+    }
+
+    TEST(CountBitsPart2_5)
+    {
         CHECK(CountBits((uint32_t)0b01100000000000000000000000000000) == 2);
         CHECK(CountBits((uint32_t)0b10010000000000000000000000000000) == 2);
         CHECK(CountBits((uint32_t)0b11100000000000000000000000000000) == 3);
@@ -181,7 +191,10 @@ SUITE(Utils)
         CHECK(CountBits((uint32_t)0b11111111111111110000000000000000) == 16);
         CHECK(CountBits((uint32_t)0b00000000000000001111111111111111) == 16);
         CHECK(CountBits((uint32_t)0b11111111111111111111111111111111) == 32);
+    }
 
+    TEST(CountBitsPt3)
+    {
         CHECK(CountBits((uint64_t)0b0) == 0);
         CHECK(CountBits((uint64_t)0b0110) == 2);
         CHECK(CountBits((uint64_t)0b1001) == 2);
@@ -224,6 +237,10 @@ SUITE(Utils)
         CHECK(CountBits((uint64_t)0b1111111100000000) == 8);
         CHECK(CountBits((uint64_t)0b0000000011111111) == 8);
         CHECK(CountBits((uint64_t)0b1111111111111111) == 16);
+    }
+
+    TEST(CountBitsPart3_5)
+    {
         CHECK(CountBits((uint64_t)0b01100000000000000000000000000000) == 2);
         CHECK(CountBits((uint64_t)0b10010000000000000000000000000000) == 2);
         CHECK(CountBits((uint64_t)0b11100000000000000000000000000000) == 3);
@@ -259,6 +276,10 @@ SUITE(Utils)
         CHECK(CountBits((uint64_t)0b11111111111111110000000000000000) == 16);
         CHECK(CountBits((uint64_t)0b00000000000000001111111111111111) == 16);
         CHECK(CountBits((uint64_t)0b11111111111111111111111111111111) == 32);
+    }
+
+    TEST(CountBitsPt4)
+    {
         CHECK(CountBits((uint64_t)0b0110000000000000000000000000000000000000000000000000000000000000) == 2);
         CHECK(CountBits((uint64_t)0b1001000000000000000000000000000000000000000000000000000000000000) == 2);
         CHECK(CountBits((uint64_t)0b1110000000000000000000000000000000000000000000000000000000000000) == 3);
@@ -295,6 +316,16 @@ SUITE(Utils)
         CHECK(CountBits((uint64_t)0b0000000000000000111111111111111100000000000000000000000000000000) == 16);
         CHECK(CountBits((uint64_t)0b1111111111111111111111111111111100000000000000000000000000000000) == 32);
     }
+
+    TEST(PositiveModulo)
+    {
+        CHECK(PositiveModulo(5, 20) == 5);
+        CHECK(PositiveModulo(5, 3) == 2);
+        CHECK(PositiveModulo(5, 3) == 2);
+        CHECK(PositiveModulo(-5, 2) == 1);
+        CHECK(PositiveModulo(-6, 2) == 0);
+        CHECK(PositiveModulo(-13, 4) == 3);
+    }
 }
 
 SUITE(WFC_Simple)
@@ -326,93 +357,147 @@ SUITE(WFC_Tiled3D)
         return output;
     }
 
-    TEST(TransformSet)
+    TEST(TransformPoint)
+    {
+        //Try some simple point transformations.
+        Vector3i testPos(1, 3, 5);
+
+        CHECK(Transform3D{ false }.ApplyToPos(testPos)
+                == testPos);
+        CHECK(Transform3D{ true }.ApplyToPos(testPos)
+                == -testPos);
+        CHECK((Transform3D{WFC_CONCAT(false, Rotations3D::EdgesZb)}).ApplyToPos(testPos)
+                == -Vector3i(WFC_CONCAT(testPos.y, testPos.x, testPos.z)));
+    }
+
+    TEST(TransformInversion)
+    {
+        //For every possible transform, try applying it and then its inverse,
+        //    and check that the output is unchanged.
+        Vector3i testPos(1, 3, 5);
+
+        for (int invert = 0; invert < 2; ++invert)
+            for (int rotI = 0; rotI < N_ROTATIONS_3D; ++rotI)
+            {
+                Transform3D forward = { invert == 1, (Rotations3D)rotI },
+                            inverse = forward.Inverse();
+                CHECK(inverse.ApplyToPos(forward.ApplyToPos(testPos)) == testPos);
+                CHECK(forward.ApplyToPos(inverse.ApplyToPos(testPos)) == testPos);
+            }
+    }
+
+    static const Transform3D setTransforms[] = {
+        //Defined in their expected order.
+        { false, Rotations3D::None },
+        { false, Rotations3D::CornerBAA_120 },
+        { true, Rotations3D::None },
+        { true, Rotations3D::AxisZ_180 },
+        { true, Rotations3D::CornerBAA_120 }
+    };
+    TEST(TransformSetPart1)
     {
         TransformSet set;
 
-        Transform3D transforms[] = {
-            //Defined in their expected order.
-            { false, Rotations3D::None },
-            { false, Rotations3D::CornerBAA_120 },
-            { true, Rotations3D::None },
-            { true, Rotations3D::AxisZ_180 },
-            { true, Rotations3D::CornerBAA_120 }
-        };
-
         CHECK(set.Size() == 0);
         CHECK(CountSetIterator(set) == 0);
-        CHECK(!set.Contains(transforms[0]));
-        CHECK(!set.Contains(transforms[1]));
-        CHECK(!set.Contains(transforms[2]));
-        CHECK(!set.Contains(transforms[3]));
-        CHECK(!set.Contains(transforms[4]));
+        CHECK(!set.Contains(setTransforms[0]));
+        CHECK(!set.Contains(setTransforms[1]));
+        CHECK(!set.Contains(setTransforms[2]));
+        CHECK(!set.Contains(setTransforms[3]));
+        CHECK(!set.Contains(setTransforms[4]));
         auto vec = ReadSet(set);
         CHECK(vec.size() == 0);
 
-        set.Add(transforms[0]);
+        set.Add(setTransforms[0]);
         CHECK(set.Size() == 1);
         CHECK(CountSetIterator(set) == 1);
-        CHECK(set.Contains(transforms[0]));
-        CHECK(!set.Contains(transforms[1]));
-        CHECK(!set.Contains(transforms[2]));
-        CHECK(!set.Contains(transforms[3]));
-        CHECK(!set.Contains(transforms[4]));
+        CHECK(set.Contains(setTransforms[0]));
+        CHECK(!set.Contains(setTransforms[1]));
+        CHECK(!set.Contains(setTransforms[2]));
+        CHECK(!set.Contains(setTransforms[3]));
+        CHECK(!set.Contains(setTransforms[4]));
         vec = ReadSet(set);
         CHECK(vec.size() == 1);
-        CHECK(vec[0] == transforms[0]);
+        CHECK(vec[0] == setTransforms[0]);
 
-        set.Add(transforms[2]);
+        set.Add(setTransforms[2]);
         CHECK(set.Size() == 2);
         CHECK(CountSetIterator(set) == 2);
-        CHECK(set.Contains(transforms[0]));
-        CHECK(!set.Contains(transforms[1]));
-        CHECK(set.Contains(transforms[2]));
-        CHECK(!set.Contains(transforms[3]));
-        CHECK(!set.Contains(transforms[4]));
+        CHECK(set.Contains(setTransforms[0]));
+        CHECK(!set.Contains(setTransforms[1]));
+        CHECK(set.Contains(setTransforms[2]));
+        CHECK(!set.Contains(setTransforms[3]));
+        CHECK(!set.Contains(setTransforms[4]));
         vec = ReadSet(set);
         CHECK(vec.size() == 2);
-        CHECK(vec[0] == transforms[0]);
-        CHECK(vec[1] == transforms[2]);
+        CHECK(vec[0] == setTransforms[0]);
+        CHECK(vec[1] == setTransforms[2]);
 
-        set.Remove(transforms[0]);
+        set.Remove(setTransforms[0]);
         CHECK(set.Size() == 1);
         CHECK(CountSetIterator(set) == 1);
-        CHECK(!set.Contains(transforms[0]));
-        CHECK(!set.Contains(transforms[1]));
-        CHECK(set.Contains(transforms[2]));
-        CHECK(!set.Contains(transforms[3]));
-        CHECK(!set.Contains(transforms[4]));
+        CHECK(!set.Contains(setTransforms[0]));
+        CHECK(!set.Contains(setTransforms[1]));
+        CHECK(set.Contains(setTransforms[2]));
+        CHECK(!set.Contains(setTransforms[3]));
+        CHECK(!set.Contains(setTransforms[4]));
         vec = ReadSet(set);
         CHECK(vec.size() == 1);
-        CHECK(vec[0] == transforms[2]);
+        CHECK(vec[0] == setTransforms[2]);
 
-        set.Remove(transforms[2]);
+        set.Remove(setTransforms[2]);
         CHECK(set.Size() == 0);
         CHECK(CountSetIterator(set) == 0);
-        CHECK(!set.Contains(transforms[0]));
-        CHECK(!set.Contains(transforms[1]));
-        CHECK(!set.Contains(transforms[2]));
-        CHECK(!set.Contains(transforms[3]));
-        CHECK(!set.Contains(transforms[4]));
+        CHECK(!set.Contains(setTransforms[0]));
+        CHECK(!set.Contains(setTransforms[1]));
+        CHECK(!set.Contains(setTransforms[2]));
+        CHECK(!set.Contains(setTransforms[3]));
+        CHECK(!set.Contains(setTransforms[4]));
         vec = ReadSet(set);
         CHECK(vec.size() == 0);
+    }
+    TEST(TransformSetPart2)
+    {
+        TransformSet set;
 
-        auto set1 = TransformSet::CombineTransforms(transforms[0], transforms[3]);
-        auto set2 = TransformSet::CombineTransforms(transforms[2], transforms[4]);
+        auto set1 = TransformSet::CombineTransforms(setTransforms[0], setTransforms[3]);
+        auto set2 = TransformSet::CombineTransforms(setTransforms[2], setTransforms[4]);
         set = TransformSet::CombineTransforms(set1, set2);
         CHECK(set.Size() == 4);
         CHECK(CountSetIterator(set) == 4);
-        CHECK(set.Contains(transforms[0]));
-        CHECK(!set.Contains(transforms[1]));
-        CHECK(set.Contains(transforms[2]));
-        CHECK(set.Contains(transforms[3]));
-        CHECK(set.Contains(transforms[4]));
-        vec = ReadSet(set);
+        CHECK(set.Contains(setTransforms[0]));
+        CHECK(!set.Contains(setTransforms[1]));
+        CHECK(set.Contains(setTransforms[2]));
+        CHECK(set.Contains(setTransforms[3]));
+        CHECK(set.Contains(setTransforms[4]));
+        auto vec = ReadSet(set);
         CHECK(vec.size() == 4);
-        CHECK(vec[0] == transforms[0]);
-        CHECK(vec[1] == transforms[2]);
-        CHECK(vec[2] == transforms[3]);
-        CHECK(vec[3] == transforms[4]);
+        CHECK(vec[0] == setTransforms[0]);
+        CHECK(vec[1] == setTransforms[2]);
+        CHECK(vec[2] == setTransforms[3]);
+        CHECK(vec[3] == setTransforms[4]);
+
+        CHECK(set1 != set2);
+        CHECK(set == TransformSet::CombineTransforms(set1, set2));
+        CHECK(set == TransformSet::CombineTransforms(set2, set1));
+
+        set = set1;
+        CHECK(set.Add(set2) == 2);
+        CHECK(set == TransformSet::CombineTransforms(set1, set2));
+        CHECK(set.Add(set2) == 0);
+        CHECK(set == TransformSet::CombineTransforms(set1, set2));
+
+        set = set1;
+        CHECK(set.Remove(set1) == 2);
+        CHECK(set == TransformSet{});
+        CHECK(set.Remove(set1) == 0);
+        CHECK(set == TransformSet{});
+
+        set = TransformSet::CombineTransforms(set1, set2);
+        CHECK(set.Intersect(set2) == 2);
+        CHECK(set == set2);
+        CHECK(set.Intersect(set2) == 0);
+        CHECK(set == set2);
     }
 }
 

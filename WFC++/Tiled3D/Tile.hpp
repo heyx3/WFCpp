@@ -18,6 +18,9 @@ namespace WFC
             //Information about the faces of this tile.
             CubePermutation Data;
 
+            //The allowed permutations of this tile.
+            TransformSet Permutations = TransformSet::CombineTransforms(Transform3D());
+
             //The "weight" of this tile.
             //"Heavier" tiles are more likely to be chosen.
             //The default weight is chosen by convention to be 100

@@ -1,11 +1,13 @@
 #pragma once
 
-#include "Platform.h"
-#include "EnumFlags.h"
-
 #include <assert.h>
 #include <iterator>
 #include <math.h>
+
+#include "Platform.h"
+#include "EnumFlags.h"
+#include "WFCMath.h"
+
 
 
 namespace WFC
@@ -53,11 +55,7 @@ namespace WFC
 
 		//Gets the hash value for a vector instance.
 		//Enables this class to be used for std collections that use hashes.
-		inline unsigned int operator()(const Vector2i& v) const
-		{
-			int i = v.GetHashcode();
-			return *((unsigned int*)(&i));
-		}
+		inline uint32_t operator()(const Vector2i& v) const { return v.GetHashcode(); }
 
 
 		int x;
@@ -106,7 +104,8 @@ namespace WFC
 		//    assuming the "pivot" is halfway between the origin and "size".
 		Vector2i Transform(Transformations trnsf, Vector2i size) const;
 
-		int GetHashcode() const { return (x * 73856093) ^ (y * 19349663); }
+		uint32_t GetHashcode() const { return Math::Hash(static_cast<int32_t>(x),
+														 static_cast<int32_t>(y)); }
 	};
 
 
