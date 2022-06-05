@@ -47,284 +47,279 @@ SUITE(Utils)
 
     TEST(FindBitIndex)
     {
-        CHECK(FindBitIndex((uint32_t)0b1) == 0);
-        CHECK(FindBitIndex((uint32_t)0b10) == 1);
-        CHECK(FindBitIndex((uint32_t)0b100) == 2);
-        CHECK(FindBitIndex((uint32_t)0b100000) == 5);
-        CHECK(FindBitIndex((uint32_t)0b100000000000) == 11);
-        CHECK(FindBitIndex((uint32_t)0b10000000000000000) == 16);
-        CHECK(FindBitIndex((uint32_t)0b100000000000000000) == 17);
-        CHECK(FindBitIndex((uint32_t)0b100000000000000000000000) == 23);
-        CHECK(FindBitIndex((uint32_t)0b1000000000000000000000000000000) == 30);
-        CHECK(FindBitIndex((uint32_t)0b10000000000000000000000000000000) == 31);
+        CHECK_EQUAL(0, FindBitIndex((uint32_t)0b1));
+        CHECK_EQUAL(1, FindBitIndex((uint32_t)0b10));
+        CHECK_EQUAL(2, FindBitIndex((uint32_t)0b100));
+        CHECK_EQUAL(5, FindBitIndex((uint32_t)0b100000));
+        CHECK_EQUAL(11, FindBitIndex((uint32_t)0b100000000000));
+        CHECK_EQUAL(16, FindBitIndex((uint32_t)0b10000000000000000));
+        CHECK_EQUAL(17, FindBitIndex((uint32_t)0b100000000000000000));
+        CHECK_EQUAL(23, FindBitIndex((uint32_t)0b100000000000000000000000));
+        CHECK_EQUAL(30, FindBitIndex((uint32_t)0b1000000000000000000000000000000));
+        CHECK_EQUAL(31, FindBitIndex((uint32_t)0b10000000000000000000000000000000));
     }
     
     TEST(CountBitsPt1)
     {
-        CHECK(CountBits((uint8_t)0b0) == 0);
-        CHECK(CountBits((uint8_t)0b0110) == 2);
-        CHECK(CountBits((uint8_t)0b1001) == 2);
-        CHECK(CountBits((uint8_t)0b1110) == 3);
-        CHECK(CountBits((uint8_t)0b01100000) == 2);
-        CHECK(CountBits((uint8_t)0b10010000) == 2);
-        CHECK(CountBits((uint8_t)0b11100000) == 3);
-        CHECK(CountBits((uint8_t)0b10101010) == 4);
-        CHECK(CountBits((uint8_t)0b11111111) == 8);
+        CHECK_EQUAL(0, CountBits((uint8_t)0b0));
+        CHECK_EQUAL(2, CountBits((uint8_t)0b0110));
+        CHECK_EQUAL(2, CountBits((uint8_t)0b1001));
+        CHECK_EQUAL(3, CountBits((uint8_t)0b1110));
+        CHECK_EQUAL(2, CountBits((uint8_t)0b01100000));
+        CHECK_EQUAL(2, CountBits((uint8_t)0b10010000));
+        CHECK_EQUAL(3, CountBits((uint8_t)0b11100000));
+        CHECK_EQUAL(4, CountBits((uint8_t)0b10101010));
+        CHECK_EQUAL(8, CountBits((uint8_t)0b11111111));
 
-        CHECK(CountBits((uint16_t)0b0) == 0);
-        CHECK(CountBits((uint16_t)0b0110) == 2);
-        CHECK(CountBits((uint16_t)0b1001) == 2);
-        CHECK(CountBits((uint16_t)0b1110) == 3);
-        CHECK(CountBits((uint16_t)0b01100000) == 2);
-        CHECK(CountBits((uint16_t)0b10010000) == 2);
-        CHECK(CountBits((uint16_t)0b11100000) == 3);
-        CHECK(CountBits((uint16_t)0b01100000) == 2);
-        CHECK(CountBits((uint16_t)0b10010000) == 2);
-        CHECK(CountBits((uint16_t)0b11100000) == 3);
-        CHECK(CountBits((uint16_t)0b10101010) == 4);
-        CHECK(CountBits((uint16_t)0b11111111) == 8);
-        CHECK(CountBits((uint16_t)0b0110000000000000) == 2);
-        CHECK(CountBits((uint16_t)0b1001000000000000) == 2);
-        CHECK(CountBits((uint16_t)0b1110000000000000) == 3);
-        CHECK(CountBits((uint16_t)0b0110000000000000) == 2);
-        CHECK(CountBits((uint16_t)0b1001000000000000) == 2);
-        CHECK(CountBits((uint16_t)0b1110000000000000) == 3);
-        CHECK(CountBits((uint16_t)0b0110000000000000) == 2);
-        CHECK(CountBits((uint16_t)0b1001000000000000) == 2);
-        CHECK(CountBits((uint16_t)0b1110000000000000) == 3);
-        CHECK(CountBits((uint16_t)0b1010101000000000) == 4);
-        CHECK(CountBits((uint16_t)0b1111111100000000) == 8);
-        CHECK(CountBits((uint16_t)0b0110001110000000) == 5);
-        CHECK(CountBits((uint16_t)0b1001000001111000) == 6);
-        CHECK(CountBits((uint16_t)0b1110001000000000) == 4);
-        CHECK(CountBits((uint16_t)0b0110000111111111) == 11);
-        CHECK(CountBits((uint16_t)0b1001000000000001) == 3);
-        CHECK(CountBits((uint16_t)0b1110010000100010) == 6);
-        CHECK(CountBits((uint16_t)0b0110000000000000) == 2);
-        CHECK(CountBits((uint16_t)0b1001000000000000) == 2);
-        CHECK(CountBits((uint16_t)0b1110000000000000) == 3);
-        CHECK(CountBits((uint16_t)0b1010101000000000) == 4);
-        CHECK(CountBits((uint16_t)0b1111111100000000) == 8);
-        CHECK(CountBits((uint16_t)0b1111111111111111) == 16);
+        CHECK_EQUAL(0, CountBits((uint16_t)0b0));
+        CHECK_EQUAL(2, CountBits((uint16_t)0b0110));
+        CHECK_EQUAL(2, CountBits((uint16_t)0b1001));
+        CHECK_EQUAL(3, CountBits((uint16_t)0b1110));
+        CHECK_EQUAL(2, CountBits((uint16_t)0b01100000));
+        CHECK_EQUAL(2, CountBits((uint16_t)0b10010000));
+        CHECK_EQUAL(3, CountBits((uint16_t)0b11100000));
+        CHECK_EQUAL(2, CountBits((uint16_t)0b01100000));
+        CHECK_EQUAL(2, CountBits((uint16_t)0b10010000));
+        CHECK_EQUAL(3, CountBits((uint16_t)0b11100000));
+        CHECK_EQUAL(4, CountBits((uint16_t)0b10101010));
+        CHECK_EQUAL(8, CountBits((uint16_t)0b11111111));
+        CHECK_EQUAL(2, CountBits((uint16_t)0b0110000000000000));
+        CHECK_EQUAL(2, CountBits((uint16_t)0b1001000000000000));
+        CHECK_EQUAL(3, CountBits((uint16_t)0b1110000000000000));
+        CHECK_EQUAL(2, CountBits((uint16_t)0b0110000000000000));
+        CHECK_EQUAL(2, CountBits((uint16_t)0b1001000000000000));
+        CHECK_EQUAL(3, CountBits((uint16_t)0b1110000000000000));
+        CHECK_EQUAL(2, CountBits((uint16_t)0b0110000000000000));
+        CHECK_EQUAL(2, CountBits((uint16_t)0b1001000000000000));
+        CHECK_EQUAL(3, CountBits((uint16_t)0b1110000000000000));
+        CHECK_EQUAL(4, CountBits((uint16_t)0b1010101000000000));
+        CHECK_EQUAL(8, CountBits((uint16_t)0b1111111100000000));
+        CHECK_EQUAL(5, CountBits((uint16_t)0b0110001110000000));
+        CHECK_EQUAL(6, CountBits((uint16_t)0b1001000001111000));
+        CHECK_EQUAL(4, CountBits((uint16_t)0b1110001000000000));
+        CHECK_EQUAL(11, CountBits((uint16_t)0b0110000111111111));
+        CHECK_EQUAL(3, CountBits((uint16_t)0b1001000000000001));
+        CHECK_EQUAL(6, CountBits((uint16_t)0b1110010000100010));
+        CHECK_EQUAL(2, CountBits((uint16_t)0b0110000000000000));
+        CHECK_EQUAL(2, CountBits((uint16_t)0b1001000000000000));
+        CHECK_EQUAL(3, CountBits((uint16_t)0b1110000000000000));
+        CHECK_EQUAL(4, CountBits((uint16_t)0b1010101000000000));
+        CHECK_EQUAL(8, CountBits((uint16_t)0b1111111100000000));
+        CHECK_EQUAL(16, CountBits((uint16_t)0b1111111111111111));
     }
-
     TEST(CountBitsPt2)
     {
-        CHECK(CountBits((uint32_t)0b0) == 0);
-        CHECK(CountBits((uint32_t)0b0110) == 2);
-        CHECK(CountBits((uint32_t)0b1001) == 2);
-        CHECK(CountBits((uint32_t)0b1110) == 3);
-        CHECK(CountBits((uint32_t)0b01100000) == 2);
-        CHECK(CountBits((uint32_t)0b10010000) == 2);
-        CHECK(CountBits((uint32_t)0b11100000) == 3);
-        CHECK(CountBits((uint32_t)0b01100000) == 2);
-        CHECK(CountBits((uint32_t)0b10010000) == 2);
-        CHECK(CountBits((uint32_t)0b11100000) == 3);
-        CHECK(CountBits((uint32_t)0b10101010) == 4);
-        CHECK(CountBits((uint32_t)0b11111111) == 8);
-        CHECK(CountBits((uint32_t)0b0110000000000000) == 2);
-        CHECK(CountBits((uint32_t)0b1001000000000000) == 2);
-        CHECK(CountBits((uint32_t)0b1110000000000000) == 3);
-        CHECK(CountBits((uint32_t)0b0110000000000000) == 2);
-        CHECK(CountBits((uint32_t)0b1001000000000000) == 2);
-        CHECK(CountBits((uint32_t)0b1110000000000000) == 3);
-        CHECK(CountBits((uint32_t)0b0110000000000000) == 2);
-        CHECK(CountBits((uint32_t)0b1001000000000000) == 2);
-        CHECK(CountBits((uint32_t)0b1110000000000000) == 3);
-        CHECK(CountBits((uint32_t)0b1010101000000000) == 4);
-        CHECK(CountBits((uint32_t)0b1111111100000000) == 8);
-        CHECK(CountBits((uint32_t)0b0110001110000000) == 5);
-        CHECK(CountBits((uint32_t)0b1001000001111000) == 6);
-        CHECK(CountBits((uint32_t)0b1110001000000000) == 4);
-        CHECK(CountBits((uint32_t)0b0110000111111111) == 11);
-        CHECK(CountBits((uint32_t)0b1001000000000001) == 3);
-        CHECK(CountBits((uint32_t)0b1110010000100010) == 6);
-        CHECK(CountBits((uint32_t)0b0110000000000000) == 2);
-        CHECK(CountBits((uint32_t)0b1001000000000000) == 2);
-        CHECK(CountBits((uint32_t)0b1110000000000000) == 3);
-        CHECK(CountBits((uint32_t)0b1010101000000000) == 4);
-        CHECK(CountBits((uint32_t)0b1111111100000000) == 8);
-        CHECK(CountBits((uint32_t)0b1110010000100010) == 6);
-        CHECK(CountBits((uint32_t)0b0110000000000000) == 2);
-        CHECK(CountBits((uint32_t)0b1001000000000000) == 2);
-        CHECK(CountBits((uint32_t)0b1110000000000000) == 3);
-        CHECK(CountBits((uint32_t)0b1010101000000000) == 4);
-        CHECK(CountBits((uint32_t)0b1111111100000000) == 8);
-        CHECK(CountBits((uint32_t)0b0000000011111111) == 8);
-        CHECK(CountBits((uint32_t)0b1111111111111111) == 16);
+        CHECK_EQUAL(0, CountBits((uint32_t)0b0));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b0110));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b1001));
+        CHECK_EQUAL(3, CountBits((uint32_t)0b1110));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b01100000));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b10010000));
+        CHECK_EQUAL(3, CountBits((uint32_t)0b11100000));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b01100000));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b10010000));
+        CHECK_EQUAL(3, CountBits((uint32_t)0b11100000));
+        CHECK_EQUAL(4, CountBits((uint32_t)0b10101010));
+        CHECK_EQUAL(8, CountBits((uint32_t)0b11111111));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b0110000000000000));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b1001000000000000));
+        CHECK_EQUAL(3, CountBits((uint32_t)0b1110000000000000));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b0110000000000000));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b1001000000000000));
+        CHECK_EQUAL(3, CountBits((uint32_t)0b1110000000000000));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b0110000000000000));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b1001000000000000));
+        CHECK_EQUAL(3, CountBits((uint32_t)0b1110000000000000));
+        CHECK_EQUAL(4, CountBits((uint32_t)0b1010101000000000));
+        CHECK_EQUAL(8, CountBits((uint32_t)0b1111111100000000));
+        CHECK_EQUAL(5, CountBits((uint32_t)0b0110001110000000));
+        CHECK_EQUAL(6, CountBits((uint32_t)0b1001000001111000));
+        CHECK_EQUAL(4, CountBits((uint32_t)0b1110001000000000));
+        CHECK_EQUAL(11, CountBits((uint32_t)0b0110000111111111));
+        CHECK_EQUAL(3, CountBits((uint32_t)0b1001000000000001));
+        CHECK_EQUAL(6, CountBits((uint32_t)0b1110010000100010));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b0110000000000000));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b1001000000000000));
+        CHECK_EQUAL(3, CountBits((uint32_t)0b1110000000000000));
+        CHECK_EQUAL(4, CountBits((uint32_t)0b1010101000000000));
+        CHECK_EQUAL(8, CountBits((uint32_t)0b1111111100000000));
+        CHECK_EQUAL(6, CountBits((uint32_t)0b1110010000100010));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b0110000000000000));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b1001000000000000));
+        CHECK_EQUAL(3, CountBits((uint32_t)0b1110000000000000));
+        CHECK_EQUAL(4, CountBits((uint32_t)0b1010101000000000));
+        CHECK_EQUAL(8, CountBits((uint32_t)0b1111111100000000));
+        CHECK_EQUAL(8, CountBits((uint32_t)0b0000000011111111));
+        CHECK_EQUAL(16, CountBits((uint32_t)0b1111111111111111));
     }
-
-    TEST(CountBitsPart2_5)
+    TEST(CountBitsPart3)
     {
-        CHECK(CountBits((uint32_t)0b01100000000000000000000000000000) == 2);
-        CHECK(CountBits((uint32_t)0b10010000000000000000000000000000) == 2);
-        CHECK(CountBits((uint32_t)0b11100000000000000000000000000000) == 3);
-        CHECK(CountBits((uint32_t)0b01100000000000000000000000000000) == 2);
-        CHECK(CountBits((uint32_t)0b10010000000000000000000000000000) == 2);
-        CHECK(CountBits((uint32_t)0b11100000000000000000000000000000) == 3);
-        CHECK(CountBits((uint32_t)0b01100000000000000000000000000000) == 2);
-        CHECK(CountBits((uint32_t)0b10010000000000000000000000000000) == 2);
-        CHECK(CountBits((uint32_t)0b11100000000000000000000000000000) == 3);
-        CHECK(CountBits((uint32_t)0b10101010000000000000000000000000) == 4);
-        CHECK(CountBits((uint32_t)0b11111111000000000000000000000000) == 8);
-        CHECK(CountBits((uint32_t)0b01100011100000000000000000000000) == 5);
-        CHECK(CountBits((uint32_t)0b10010000011110000000000000000000) == 6);
-        CHECK(CountBits((uint32_t)0b11100010000000000000000000000000) == 4);
-        CHECK(CountBits((uint32_t)0b01100001111111110000000000000000) == 11);
-        CHECK(CountBits((uint32_t)0b10010000000000010000000000000000) == 3);
-        CHECK(CountBits((uint32_t)0b11100100001000100000000000000000) == 6);
-        CHECK(CountBits((uint32_t)0b01100000000000000000000000000000) == 2);
-        CHECK(CountBits((uint32_t)0b10010000000000000000000000000000) == 2);
-        CHECK(CountBits((uint32_t)0b11100000000000000000000000000000) == 3);
-        CHECK(CountBits((uint32_t)0b10101010000000000000000000000000) == 4);
-        CHECK(CountBits((uint32_t)0b11111111000000000000000000000000) == 8);
-        CHECK(CountBits((uint32_t)0b11100100001000100000000000000000) == 6);
-        CHECK(CountBits((uint32_t)0b01100000000000000000000000000000) == 2);
-        CHECK(CountBits((uint32_t)0b10010000000000000000000000000000) == 2);
-        CHECK(CountBits((uint32_t)0b11100000000000000000000000000000) == 3);
-        CHECK(CountBits((uint32_t)0b10101010000000000000000000000000) == 4);
-        CHECK(CountBits((uint32_t)0b11111111000000000000000000000000) == 8);
-        CHECK(CountBits((uint32_t)0b11111111111111110000000000000000) == 16);
-        CHECK(CountBits((uint32_t)0b11100000000000000011111110000000) == 10);
-        CHECK(CountBits((uint32_t)0b10101010000011100111001110011101) == 17);
-        CHECK(CountBits((uint32_t)0b11111111110000110110001111000110) == 20);
-        CHECK(CountBits((uint32_t)0b11111111111111110000000000000000) == 16);
-        CHECK(CountBits((uint32_t)0b00000000000000001111111111111111) == 16);
-        CHECK(CountBits((uint32_t)0b11111111111111111111111111111111) == 32);
+        CHECK_EQUAL(2, CountBits((uint32_t)0b01100000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b10010000000000000000000000000000));
+        CHECK_EQUAL(3, CountBits((uint32_t)0b11100000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b01100000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b10010000000000000000000000000000));
+        CHECK_EQUAL(3, CountBits((uint32_t)0b11100000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b01100000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b10010000000000000000000000000000));
+        CHECK_EQUAL(3, CountBits((uint32_t)0b11100000000000000000000000000000));
+        CHECK_EQUAL(4, CountBits((uint32_t)0b10101010000000000000000000000000));
+        CHECK_EQUAL(8, CountBits((uint32_t)0b11111111000000000000000000000000));
+        CHECK_EQUAL(5, CountBits((uint32_t)0b01100011100000000000000000000000));
+        CHECK_EQUAL(6, CountBits((uint32_t)0b10010000011110000000000000000000));
+        CHECK_EQUAL(4, CountBits((uint32_t)0b11100010000000000000000000000000));
+        CHECK_EQUAL(11, CountBits((uint32_t)0b01100001111111110000000000000000));
+        CHECK_EQUAL(3, CountBits((uint32_t)0b10010000000000010000000000000000));
+        CHECK_EQUAL(6, CountBits((uint32_t)0b11100100001000100000000000000000));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b01100000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b10010000000000000000000000000000));
+        CHECK_EQUAL(3, CountBits((uint32_t)0b11100000000000000000000000000000));
+        CHECK_EQUAL(4, CountBits((uint32_t)0b10101010000000000000000000000000));
+        CHECK_EQUAL(8, CountBits((uint32_t)0b11111111000000000000000000000000));
+        CHECK_EQUAL(6, CountBits((uint32_t)0b11100100001000100000000000000000));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b01100000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint32_t)0b10010000000000000000000000000000));
+        CHECK_EQUAL(3, CountBits((uint32_t)0b11100000000000000000000000000000));
+        CHECK_EQUAL(4, CountBits((uint32_t)0b10101010000000000000000000000000));
+        CHECK_EQUAL(8, CountBits((uint32_t)0b11111111000000000000000000000000));
+        CHECK_EQUAL(16, CountBits((uint32_t)0b11111111111111110000000000000000));
+        CHECK_EQUAL(10, CountBits((uint32_t)0b11100000000000000011111110000000));
+        CHECK_EQUAL(17, CountBits((uint32_t)0b10101010000011100111001110011101));
+        CHECK_EQUAL(20, CountBits((uint32_t)0b11111111110000110110001111000110));
+        CHECK_EQUAL(16, CountBits((uint32_t)0b11111111111111110000000000000000));
+        CHECK_EQUAL(16, CountBits((uint32_t)0b00000000000000001111111111111111));
+        CHECK_EQUAL(32, CountBits((uint32_t)0b11111111111111111111111111111111));
     }
-
-    TEST(CountBitsPt3)
-    {
-        CHECK(CountBits((uint64_t)0b0) == 0);
-        CHECK(CountBits((uint64_t)0b0110) == 2);
-        CHECK(CountBits((uint64_t)0b1001) == 2);
-        CHECK(CountBits((uint64_t)0b1110) == 3);
-        CHECK(CountBits((uint64_t)0b01100000) == 2);
-        CHECK(CountBits((uint64_t)0b10010000) == 2);
-        CHECK(CountBits((uint64_t)0b11100000) == 3);
-        CHECK(CountBits((uint64_t)0b01100000) == 2);
-        CHECK(CountBits((uint64_t)0b10010000) == 2);
-        CHECK(CountBits((uint64_t)0b11100000) == 3);
-        CHECK(CountBits((uint64_t)0b10101010) == 4);
-        CHECK(CountBits((uint64_t)0b11111111) == 8);
-        CHECK(CountBits((uint64_t)0b0110000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b1001000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b1110000000000000) == 3);
-        CHECK(CountBits((uint64_t)0b0110000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b1001000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b1110000000000000) == 3);
-        CHECK(CountBits((uint64_t)0b0110000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b1001000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b1110000000000000) == 3);
-        CHECK(CountBits((uint64_t)0b1010101000000000) == 4);
-        CHECK(CountBits((uint64_t)0b1111111100000000) == 8);
-        CHECK(CountBits((uint64_t)0b0110001110000000) == 5);
-        CHECK(CountBits((uint64_t)0b1001000001111000) == 6);
-        CHECK(CountBits((uint64_t)0b1110001000000000) == 4);
-        CHECK(CountBits((uint64_t)0b0110000111111111) == 11);
-        CHECK(CountBits((uint64_t)0b1001000000000001) == 3);
-        CHECK(CountBits((uint64_t)0b1110010000100010) == 6);
-        CHECK(CountBits((uint64_t)0b0110000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b1001000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b1110000000000000) == 3);
-        CHECK(CountBits((uint64_t)0b1010101000000000) == 4);
-        CHECK(CountBits((uint64_t)0b1111111100000000) == 8);
-        CHECK(CountBits((uint64_t)0b1110010000100010) == 6);
-        CHECK(CountBits((uint64_t)0b0110000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b1001000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b1110000000000000) == 3);
-        CHECK(CountBits((uint64_t)0b1010101000000000) == 4);
-        CHECK(CountBits((uint64_t)0b1111111100000000) == 8);
-        CHECK(CountBits((uint64_t)0b0000000011111111) == 8);
-        CHECK(CountBits((uint64_t)0b1111111111111111) == 16);
-    }
-
-    TEST(CountBitsPart3_5)
-    {
-        CHECK(CountBits((uint64_t)0b01100000000000000000000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b10010000000000000000000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b11100000000000000000000000000000) == 3);
-        CHECK(CountBits((uint64_t)0b01100000000000000000000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b10010000000000000000000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b11100000000000000000000000000000) == 3);
-        CHECK(CountBits((uint64_t)0b01100000000000000000000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b10010000000000000000000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b11100000000000000000000000000000) == 3);
-        CHECK(CountBits((uint64_t)0b10101010000000000000000000000000) == 4);
-        CHECK(CountBits((uint64_t)0b11111111000000000000000000000000) == 8);
-        CHECK(CountBits((uint64_t)0b01100011100000000000000000000000) == 5);
-        CHECK(CountBits((uint64_t)0b10010000011110000000000000000000) == 6);
-        CHECK(CountBits((uint64_t)0b11100010000000000000000000000000) == 4);
-        CHECK(CountBits((uint64_t)0b01100001111111110000000000000000) == 11);
-        CHECK(CountBits((uint64_t)0b10010000000000010000000000000000) == 3);
-        CHECK(CountBits((uint64_t)0b11100100001000100000000000000000) == 6);
-        CHECK(CountBits((uint64_t)0b01100000000000000000000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b10010000000000000000000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b11100000000000000000000000000000) == 3);
-        CHECK(CountBits((uint64_t)0b10101010000000000000000000000000) == 4);
-        CHECK(CountBits((uint64_t)0b11111111000000000000000000000000) == 8);
-        CHECK(CountBits((uint64_t)0b11100100001000100000000000000000) == 6);
-        CHECK(CountBits((uint64_t)0b01100000000000000000000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b10010000000000000000000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b11100000000000000000000000000000) == 3);
-        CHECK(CountBits((uint64_t)0b10101010000000000000000000000000) == 4);
-        CHECK(CountBits((uint64_t)0b11111111000000000000000000000000) == 8);
-        CHECK(CountBits((uint64_t)0b11111111111111110000000000000000) == 16);
-        CHECK(CountBits((uint64_t)0b11100000000000000011111110000000) == 10);
-        CHECK(CountBits((uint64_t)0b10101010000011100111001110011101) == 17);
-        CHECK(CountBits((uint64_t)0b11111111110000110110001111000110) == 20);
-        CHECK(CountBits((uint64_t)0b11111111111111110000000000000000) == 16);
-        CHECK(CountBits((uint64_t)0b00000000000000001111111111111111) == 16);
-        CHECK(CountBits((uint64_t)0b11111111111111111111111111111111) == 32);
-    }
-
     TEST(CountBitsPt4)
     {
-        CHECK(CountBits((uint64_t)0b0110000000000000000000000000000000000000000000000000000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b1001000000000000000000000000000000000000000000000000000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b1110000000000000000000000000000000000000000000000000000000000000) == 3);
-        CHECK(CountBits((uint64_t)0b0110000000000000000000000000000000000000000000000000000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b1001000000000000000000000000000000000000000000000000000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b1110000000000000000000000000000000000000000000000000000000000000) == 3);
-        CHECK(CountBits((uint64_t)0b0110000000000000000000000000000000000000000000000000000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b1001000000000000000000000000000000000000000000000000000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b1110000000000000000000000000000000000000000000000000000000000000) == 3);
-        CHECK(CountBits((uint64_t)0b1010101000000000000000000000000000000000000000000000000000000000) == 4);
-        CHECK(CountBits((uint64_t)0b1111111100000000000000000000000000000000000000000000000000000000) == 8);
-        CHECK(CountBits((uint64_t)0b0110001110000000000000000000000000000000000000000000000000000000) == 5);
-        CHECK(CountBits((uint64_t)0b1001000001111000000000000000000000000000000000000000000000000000) == 6);
-        CHECK(CountBits((uint64_t)0b1110001000000000000000000000000000000000000000000000000000000000) == 4);
-        CHECK(CountBits((uint64_t)0b0110000111111111000000000000000000000000000000000000000000000000) == 11);
-        CHECK(CountBits((uint64_t)0b1001000000000001000000000000000000000000000000000000000000000000) == 3);
-        CHECK(CountBits((uint64_t)0b1110010000100010000000000000000000000000000000000000000000000000) == 6);
-        CHECK(CountBits((uint64_t)0b0110000000000000000000000000000000000000000000000000000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b1001000000000000000000000000000000000000000000000000000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b1110000000000000000000000000000000000000000000000000000000000000) == 3);
-        CHECK(CountBits((uint64_t)0b1010101000000000000000000000000000000000000000000000000000000000) == 4);
-        CHECK(CountBits((uint64_t)0b1111111100000000000000000000000000000000000000000000000000000000) == 8);
-        CHECK(CountBits((uint64_t)0b1110010000100010000000000000000000000000000000000000000000000000) == 6);
-        CHECK(CountBits((uint64_t)0b0110000000000000000000000000000000000000000000000000000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b1001000000000000000000000000000000000000000000000000000000000000) == 2);
-        CHECK(CountBits((uint64_t)0b1110000000000000000000000000000000000000000000000000000000000000) == 3);
-        CHECK(CountBits((uint64_t)0b1010101000000000000000000000000000000000000000000000000000000000) == 4);
-        CHECK(CountBits((uint64_t)0b1111111100000000000000000000000000000000000000000000000000000000) == 8);
-        CHECK(CountBits((uint64_t)0b1111111111111111000000000000000000000000000000000000000000000000) == 16);
-        CHECK(CountBits((uint64_t)0b1110000000000000001111111000000000000000000000000000000000000000) == 10);
-        CHECK(CountBits((uint64_t)0b1010101000001110011100111001110100000000000000000000000000000000) == 17);
-        CHECK(CountBits((uint64_t)0b1111111111000011011000111100011000000000000000000000000000000000) == 20);
-        CHECK(CountBits((uint64_t)0b1111111111111111000000000000000000000000000000000000000000000000) == 16);
-        CHECK(CountBits((uint64_t)0b0000000000000000111111111111111100000000000000000000000000000000) == 16);
-        CHECK(CountBits((uint64_t)0b1111111111111111111111111111111100000000000000000000000000000000) == 32);
+        CHECK_EQUAL(0, CountBits((uint64_t)0b0));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b0110));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b1001));
+        CHECK_EQUAL(3, CountBits((uint64_t)0b1110));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b01100000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b10010000));
+        CHECK_EQUAL(3, CountBits((uint64_t)0b11100000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b01100000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b10010000));
+        CHECK_EQUAL(3, CountBits((uint64_t)0b11100000));
+        CHECK_EQUAL(4, CountBits((uint64_t)0b10101010));
+        CHECK_EQUAL(8, CountBits((uint64_t)0b11111111));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b0110000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b1001000000000000));
+        CHECK_EQUAL(3, CountBits((uint64_t)0b1110000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b0110000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b1001000000000000));
+        CHECK_EQUAL(3, CountBits((uint64_t)0b1110000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b0110000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b1001000000000000));
+        CHECK_EQUAL(3, CountBits((uint64_t)0b1110000000000000));
+        CHECK_EQUAL(4, CountBits((uint64_t)0b1010101000000000));
+        CHECK_EQUAL(8, CountBits((uint64_t)0b1111111100000000));
+        CHECK_EQUAL(5, CountBits((uint64_t)0b0110001110000000));
+        CHECK_EQUAL(6, CountBits((uint64_t)0b1001000001111000));
+        CHECK_EQUAL(4, CountBits((uint64_t)0b1110001000000000));
+        CHECK_EQUAL(11, CountBits((uint64_t)0b0110000111111111));
+        CHECK_EQUAL(3, CountBits((uint64_t)0b1001000000000001));
+        CHECK_EQUAL(6, CountBits((uint64_t)0b1110010000100010));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b0110000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b1001000000000000));
+        CHECK_EQUAL(3, CountBits((uint64_t)0b1110000000000000));
+        CHECK_EQUAL(4, CountBits((uint64_t)0b1010101000000000));
+        CHECK_EQUAL(8, CountBits((uint64_t)0b1111111100000000));
+        CHECK_EQUAL(6, CountBits((uint64_t)0b1110010000100010));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b0110000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b1001000000000000));
+        CHECK_EQUAL(3, CountBits((uint64_t)0b1110000000000000));
+        CHECK_EQUAL(4, CountBits((uint64_t)0b1010101000000000));
+        CHECK_EQUAL(8, CountBits((uint64_t)0b1111111100000000));
+        CHECK_EQUAL(8, CountBits((uint64_t)0b0000000011111111));
+        CHECK_EQUAL(16, CountBits((uint64_t)0b1111111111111111));
+    }
+    TEST(CountBitsPt5)
+    {
+        CHECK_EQUAL(2, CountBits((uint64_t)0b01100000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b10010000000000000000000000000000));
+        CHECK_EQUAL(3, CountBits((uint64_t)0b11100000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b01100000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b10010000000000000000000000000000));
+        CHECK_EQUAL(3, CountBits((uint64_t)0b11100000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b01100000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b10010000000000000000000000000000));
+        CHECK_EQUAL(3, CountBits((uint64_t)0b11100000000000000000000000000000));
+        CHECK_EQUAL(4, CountBits((uint64_t)0b10101010000000000000000000000000));
+        CHECK_EQUAL(8, CountBits((uint64_t)0b11111111000000000000000000000000));
+        CHECK_EQUAL(5, CountBits((uint64_t)0b01100011100000000000000000000000));
+        CHECK_EQUAL(6, CountBits((uint64_t)0b10010000011110000000000000000000));
+        CHECK_EQUAL(4, CountBits((uint64_t)0b11100010000000000000000000000000));
+        CHECK_EQUAL(11, CountBits((uint64_t)0b01100001111111110000000000000000));
+        CHECK_EQUAL(3, CountBits((uint64_t)0b10010000000000010000000000000000));
+        CHECK_EQUAL(6, CountBits((uint64_t)0b11100100001000100000000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b01100000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b10010000000000000000000000000000));
+        CHECK_EQUAL(3, CountBits((uint64_t)0b11100000000000000000000000000000));
+        CHECK_EQUAL(4, CountBits((uint64_t)0b10101010000000000000000000000000));
+        CHECK_EQUAL(8, CountBits((uint64_t)0b11111111000000000000000000000000));
+        CHECK_EQUAL(6, CountBits((uint64_t)0b11100100001000100000000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b01100000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b10010000000000000000000000000000));
+        CHECK_EQUAL(3, CountBits((uint64_t)0b11100000000000000000000000000000));
+        CHECK_EQUAL(4, CountBits((uint64_t)0b10101010000000000000000000000000));
+        CHECK_EQUAL(8, CountBits((uint64_t)0b11111111000000000000000000000000));
+        CHECK_EQUAL(16, CountBits((uint64_t)0b11111111111111110000000000000000));
+        CHECK_EQUAL(10, CountBits((uint64_t)0b11100000000000000011111110000000));
+        CHECK_EQUAL(17, CountBits((uint64_t)0b10101010000011100111001110011101));
+        CHECK_EQUAL(20, CountBits((uint64_t)0b11111111110000110110001111000110));
+        CHECK_EQUAL(16, CountBits((uint64_t)0b11111111111111110000000000000000));
+        CHECK_EQUAL(16, CountBits((uint64_t)0b00000000000000001111111111111111));
+        CHECK_EQUAL(32, CountBits((uint64_t)0b11111111111111111111111111111111));
+    }
+    TEST(CountBitsPt6)
+    {
+        CHECK_EQUAL(2, CountBits((uint64_t)0b0110000000000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b1001000000000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(3, CountBits((uint64_t)0b1110000000000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b0110000000000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b1001000000000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(3, CountBits((uint64_t)0b1110000000000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b0110000000000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b1001000000000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(3, CountBits((uint64_t)0b1110000000000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(4, CountBits((uint64_t)0b1010101000000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(8, CountBits((uint64_t)0b1111111100000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(5, CountBits((uint64_t)0b0110001110000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(6, CountBits((uint64_t)0b1001000001111000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(4, CountBits((uint64_t)0b1110001000000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(11, CountBits((uint64_t)0b0110000111111111000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(3, CountBits((uint64_t)0b1001000000000001000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(6, CountBits((uint64_t)0b1110010000100010000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b0110000000000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b1001000000000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(3, CountBits((uint64_t)0b1110000000000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(4, CountBits((uint64_t)0b1010101000000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(8, CountBits((uint64_t)0b1111111100000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(6, CountBits((uint64_t)0b1110010000100010000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b0110000000000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(2, CountBits((uint64_t)0b1001000000000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(3, CountBits((uint64_t)0b1110000000000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(4, CountBits((uint64_t)0b1010101000000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(8, CountBits((uint64_t)0b1111111100000000000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(16, CountBits((uint64_t)0b1111111111111111000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(10, CountBits((uint64_t)0b1110000000000000001111111000000000000000000000000000000000000000));
+        CHECK_EQUAL(17, CountBits((uint64_t)0b1010101000001110011100111001110100000000000000000000000000000000));
+        CHECK_EQUAL(20, CountBits((uint64_t)0b1111111111000011011000111100011000000000000000000000000000000000));
+        CHECK_EQUAL(16, CountBits((uint64_t)0b1111111111111111000000000000000000000000000000000000000000000000));
+        CHECK_EQUAL(16, CountBits((uint64_t)0b0000000000000000111111111111111100000000000000000000000000000000));
+        CHECK_EQUAL(32, CountBits((uint64_t)0b1111111111111111111111111111111100000000000000000000000000000000));
     }
 
     TEST(PositiveModulo)
     {
-        CHECK(PositiveModulo(5, 20) == 5);
-        CHECK(PositiveModulo(5, 3) == 2);
-        CHECK(PositiveModulo(5, 3) == 2);
-        CHECK(PositiveModulo(-5, 2) == 1);
-        CHECK(PositiveModulo(-6, 2) == 0);
-        CHECK(PositiveModulo(-13, 4) == 3);
+        CHECK_EQUAL(5, PositiveModulo(5, 20));
+        CHECK_EQUAL(2, PositiveModulo(5, 3));
+        CHECK_EQUAL(2, PositiveModulo(5, 3));
+        CHECK_EQUAL(1, PositiveModulo(-5, 2));
+        CHECK_EQUAL(0, PositiveModulo(-6, 2));
+        CHECK_EQUAL(3, PositiveModulo(-13, 4));
     }
 }
 
@@ -381,10 +376,12 @@ SUITE(WFC_Tiled3D)
             {
                 Transform3D forward = { invert == 1, (Rotations3D)rotI },
                             inverse = forward.Inverse();
-                CHECK(inverse.ApplyToPos(forward.ApplyToPos(testPos)) == testPos);
-                CHECK(forward.ApplyToPos(inverse.ApplyToPos(testPos)) == testPos);
+                CHECK_EQUAL(testPos, inverse.ApplyToPos(forward.ApplyToPos(testPos)));
+                CHECK_EQUAL(testPos, forward.ApplyToPos(inverse.ApplyToPos(testPos)));
             }
     }
+
+    //TODO: Test GetFace.
 
     static const Transform3D setTransforms[] = {
         //Defined in their expected order.
@@ -398,63 +395,63 @@ SUITE(WFC_Tiled3D)
     {
         TransformSet set;
 
-        CHECK(set.Size() == 0);
-        CHECK(CountSetIterator(set) == 0);
+        CHECK_EQUAL(0, set.Size());
+        CHECK_EQUAL(0, CountSetIterator(set));
         CHECK(!set.Contains(setTransforms[0]));
         CHECK(!set.Contains(setTransforms[1]));
         CHECK(!set.Contains(setTransforms[2]));
         CHECK(!set.Contains(setTransforms[3]));
         CHECK(!set.Contains(setTransforms[4]));
         auto vec = ReadSet(set);
-        CHECK(vec.size() == 0);
+        CHECK_EQUAL(0, vec.size());
 
         set.Add(setTransforms[0]);
-        CHECK(set.Size() == 1);
-        CHECK(CountSetIterator(set) == 1);
+        CHECK_EQUAL(1, set.Size());
+        CHECK_EQUAL(1, CountSetIterator(set));
         CHECK(set.Contains(setTransforms[0]));
         CHECK(!set.Contains(setTransforms[1]));
         CHECK(!set.Contains(setTransforms[2]));
         CHECK(!set.Contains(setTransforms[3]));
         CHECK(!set.Contains(setTransforms[4]));
         vec = ReadSet(set);
-        CHECK(vec.size() == 1);
-        CHECK(vec[0] == setTransforms[0]);
+        CHECK_EQUAL(1, vec.size());
+        CHECK_EQUAL(setTransforms[0], vec[0]);
 
         set.Add(setTransforms[2]);
-        CHECK(set.Size() == 2);
-        CHECK(CountSetIterator(set) == 2);
+        CHECK_EQUAL(2, set.Size());
+        CHECK_EQUAL(2, CountSetIterator(set));
         CHECK(set.Contains(setTransforms[0]));
         CHECK(!set.Contains(setTransforms[1]));
         CHECK(set.Contains(setTransforms[2]));
         CHECK(!set.Contains(setTransforms[3]));
         CHECK(!set.Contains(setTransforms[4]));
         vec = ReadSet(set);
-        CHECK(vec.size() == 2);
-        CHECK(vec[0] == setTransforms[0]);
-        CHECK(vec[1] == setTransforms[2]);
+        CHECK_EQUAL(2, vec.size());
+        CHECK_EQUAL(setTransforms[0], vec[0]);
+        CHECK_EQUAL(setTransforms[2], vec[1]);
 
         set.Remove(setTransforms[0]);
-        CHECK(set.Size() == 1);
-        CHECK(CountSetIterator(set) == 1);
+        CHECK_EQUAL(1, set.Size());
+        CHECK_EQUAL(1, CountSetIterator(set));
         CHECK(!set.Contains(setTransforms[0]));
         CHECK(!set.Contains(setTransforms[1]));
         CHECK(set.Contains(setTransforms[2]));
         CHECK(!set.Contains(setTransforms[3]));
         CHECK(!set.Contains(setTransforms[4]));
         vec = ReadSet(set);
-        CHECK(vec.size() == 1);
-        CHECK(vec[0] == setTransforms[2]);
+        CHECK_EQUAL(1, vec.size());
+        CHECK_EQUAL(setTransforms[2], vec[0]);
 
         set.Remove(setTransforms[2]);
-        CHECK(set.Size() == 0);
-        CHECK(CountSetIterator(set) == 0);
+        CHECK_EQUAL(0, set.Size());
+        CHECK_EQUAL(0, CountSetIterator(set));
         CHECK(!set.Contains(setTransforms[0]));
         CHECK(!set.Contains(setTransforms[1]));
         CHECK(!set.Contains(setTransforms[2]));
         CHECK(!set.Contains(setTransforms[3]));
         CHECK(!set.Contains(setTransforms[4]));
         vec = ReadSet(set);
-        CHECK(vec.size() == 0);
+        CHECK_EQUAL(0, vec.size());
     }
     TEST(TransformSetPart2)
     {
@@ -463,41 +460,142 @@ SUITE(WFC_Tiled3D)
         auto set1 = TransformSet::CombineTransforms(setTransforms[0], setTransforms[3]);
         auto set2 = TransformSet::CombineTransforms(setTransforms[2], setTransforms[4]);
         set = TransformSet::CombineTransforms(set1, set2);
-        CHECK(set.Size() == 4);
-        CHECK(CountSetIterator(set) == 4);
+        CHECK_EQUAL(4, set.Size());
+        CHECK_EQUAL(4, CountSetIterator(set));
         CHECK(set.Contains(setTransforms[0]));
         CHECK(!set.Contains(setTransforms[1]));
         CHECK(set.Contains(setTransforms[2]));
         CHECK(set.Contains(setTransforms[3]));
         CHECK(set.Contains(setTransforms[4]));
         auto vec = ReadSet(set);
-        CHECK(vec.size() == 4);
-        CHECK(vec[0] == setTransforms[0]);
-        CHECK(vec[1] == setTransforms[2]);
-        CHECK(vec[2] == setTransforms[3]);
-        CHECK(vec[3] == setTransforms[4]);
+        CHECK_EQUAL(4, vec.size());
+        CHECK_EQUAL(setTransforms[0], vec[0]);
+        CHECK_EQUAL(setTransforms[2], vec[1]);
+        CHECK_EQUAL(setTransforms[3], vec[2]);
+        CHECK_EQUAL(setTransforms[4], vec[3]);
 
         CHECK(set1 != set2);
-        CHECK(set == TransformSet::CombineTransforms(set1, set2));
-        CHECK(set == TransformSet::CombineTransforms(set2, set1));
+        CHECK_EQUAL(TransformSet::CombineTransforms(set1, set2), set);
+        CHECK_EQUAL(TransformSet::CombineTransforms(set2, set1), set);
 
         set = set1;
-        CHECK(set.Add(set2) == 2);
-        CHECK(set == TransformSet::CombineTransforms(set1, set2));
-        CHECK(set.Add(set2) == 0);
-        CHECK(set == TransformSet::CombineTransforms(set1, set2));
+        CHECK_EQUAL(2, set.Add(set2));
+        CHECK_EQUAL(TransformSet::CombineTransforms(set1, set2), set);
+        CHECK_EQUAL(0, set.Add(set2));
+        CHECK_EQUAL(TransformSet::CombineTransforms(set1, set2), set);
 
         set = set1;
-        CHECK(set.Remove(set1) == 2);
-        CHECK(set == TransformSet{});
-        CHECK(set.Remove(set1) == 0);
-        CHECK(set == TransformSet{});
+        CHECK_EQUAL(2, set.Remove(set1));
+        CHECK_EQUAL(TransformSet{}, set);
+        CHECK_EQUAL(0, set.Remove(set1));
+        CHECK_EQUAL(TransformSet{}, set);
 
         set = TransformSet::CombineTransforms(set1, set2);
-        CHECK(set.Intersect(set2) == 2);
-        CHECK(set == set2);
-        CHECK(set.Intersect(set2) == 0);
-        CHECK(set == set2);
+        CHECK_EQUAL(2, set.Intersect(set2));
+        CHECK_EQUAL(set2, set);
+        CHECK_EQUAL(0, set.Intersect(set2));
+        CHECK_EQUAL(set2, set);
+    }
+    TEST(TransformSetPart3)
+    {
+        TransformSet set;
+        set.Add(Transform3D{ });
+        set.Add(Transform3D{ false, Rotations3D::AxisX_90 });
+        set.Add(Transform3D{ false, Rotations3D::CornerBBA_240 });
+        set.AddInvertedVersions();
+
+        CHECK_EQUAL(6, set.Size());
+        CHECK(set.Contains(Transform3D{ true }));
+        CHECK(set.Contains(Transform3D{ true, Rotations3D::AxisX_90 }));
+        CHECK(set.Contains(Transform3D{ true, Rotations3D::CornerBBA_240 }));
+        CHECK(!set.Contains(Transform3D{ true, Rotations3D::AxisX_180 }));
+        auto vec = ReadSet(set);
+        CHECK_EQUAL(6, vec.size());
+        CHECK_EQUAL(Transform3D{ }, vec[0]);
+        CHECK_EQUAL(Transform3D{WFC_CONCAT(false, Rotations3D::AxisX_90)}, vec[1]);
+        CHECK_EQUAL(Transform3D{WFC_CONCAT(false, Rotations3D::CornerBBA_240)}, vec[2]);
+        CHECK_EQUAL(Transform3D{ true }, vec[3]);
+        CHECK_EQUAL(Transform3D{WFC_CONCAT(true, Rotations3D::AxisX_90)}, vec[4]);
+        CHECK_EQUAL(Transform3D{WFC_CONCAT(true, Rotations3D::CornerBBA_240)}, vec[5]);
+
+        //Check that existing inverted rotations are not affected by 'AddInvertedRotations()'.
+        set.Clear();
+        set.Add(Transform3D{ false, Rotations3D::AxisZ_270 });
+        set.Add(Transform3D{ true, Rotations3D::EdgesYa });
+        set.AddInvertedVersions();
+
+        CHECK_EQUAL(3, set.Size());
+        CHECK(set.Contains(Transform3D{ false, Rotations3D::AxisZ_270 }));
+        CHECK(set.Contains(Transform3D{ true, Rotations3D::AxisZ_270 }));
+        CHECK(set.Contains(Transform3D{ true, Rotations3D::EdgesYa }));
+        vec = ReadSet(set);
+        CHECK_EQUAL(3, vec.size());
+        CHECK_EQUAL(Transform3D{ WFC_CONCAT(false, Rotations3D::AxisZ_270) }, vec[0]);
+        CHECK_EQUAL(Transform3D{ WFC_CONCAT(true, Rotations3D::AxisZ_270) }, vec[1]);
+        CHECK_EQUAL(Transform3D{ WFC_CONCAT(true, Rotations3D::EdgesYa) }, vec[2]);
+    }
+
+    TEST(StateInitialization)
+    {
+        //Use inverted and/or sideways permutations of the single-tile tileset.
+        TransformSet usedTransforms;
+        usedTransforms.Add(Transform3D{ });
+        usedTransforms.Add(Transform3D{ false, Rotations3D::AxisZ_90 });
+        usedTransforms.AddInvertedVersions();
+        //TODO: Add one permutation that doesn't affect the X faces.
+        State state(OneTileArmy(usedTransforms), { 1, 2, 3 });
+
+        CHECK_EQUAL(1, state.InputTiles.GetSize());
+        CHECK_EQUAL(4, state.NPermutedTiles);
+
+        //The Z faces are entirely symmetrical, so the rotation/inversion
+        //    should not change them.
+        //The same does not hold for the X or Y faces.
+        CHECK_EQUAL(2 + (4 * 4), state.FaceIndices.GetSize());
+
+        //Check that the input tile data transferred over correctly.
+        CHECK_EQUAL(Vector4i{WFC_CONCAT(1, 1, 2, 3)}, state.PossiblePermutations.GetDimensions());
+        for (const auto& index : Region4i(state.PossiblePermutations.GetDimensions()))
+            CHECK_EQUAL(usedTransforms, state.PossiblePermutations[index]);
+        for (const auto& tile : state.InputTiles)
+            for (const auto& originalFace : tile.Data.Faces)
+                for (auto transform : usedTransforms)
+                    CHECK(state.FaceIndices.Contains(transform.ApplyToFace(originalFace)));
+
+        //Check the link between face permutations and available tiles.
+        for (int faceI = 0; faceI < N_DIRECTIONS_3D; ++faceI)
+        {
+            const auto& originalFace = state.InputTiles[0].Data.Faces[faceI];
+            for (auto transform : usedTransforms)
+            {
+                auto transformedFace = transform.ApplyToFace(originalFace);
+                bool expectAllPermutationToMatch = (transformedFace.Side == MinZ) ||
+                                                   (transformedFace.Side == MaxZ);
+                const auto& matchesToTransformedFace =
+                    state.MatchingFaces[{ 0, state.FaceIndices[transformedFace] }];
+
+                TransformSet expectedMatches;
+                if (expectAllPermutationToMatch)
+                    expectedMatches.Add(usedTransforms);
+                else
+                    expectedMatches.Add(transform);
+
+                CHECK_EQUAL(expectedMatches, matchesToTransformedFace);
+            }
+        }
+
+        //Check that the cells initialized correctly.
+        CHECK_EQUAL(Vector3i{WFC_CONCAT(1, 2, 3)}, state.Cells.GetDimensions());
+        for (auto v : Region3i(state.Cells.GetDimensions()))
+        {
+            const auto& cell = state.Cells[v];
+            CHECK_EQUAL((TileIdx)(-1), cell.ChosenTile);
+            CHECK_EQUAL(true, cell.IsChangeable);
+            CHECK_EQUAL(4, cell.NPossibilities);
+        }
+
+        CHECK_EQUAL(0, state.SearchFrontier.GetSize());
+        CHECK_EQUAL(0, state.UnsolvableCells.GetSize());
     }
 }
 
