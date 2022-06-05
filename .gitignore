@@ -115,4 +115,4 @@ WFCunreal/.idea
 
 # Auto-copied code
 Tile3DEditor/dependencies/include/WFC++
-WFCunreal/Source/MyProject/Private/WFCpp
+WFCunreal/Source/WfcppRuntime/Private/WFCpp
