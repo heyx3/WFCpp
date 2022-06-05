@@ -7,7 +7,7 @@ using namespace WFC::Math;
 using namespace WFC::Tiled3D;
 
 
-void State::Reset(Vector3i newOutputSize)
+void OldState::Reset(Vector3i newOutputSize)
 {
     //To start with, all output tiles will share the same chances of being anything.
     allTileIDs.Clear();
@@ -25,7 +25,7 @@ void State::Reset(Vector3i newOutputSize)
 }
 
 
-Nullable<bool> State::Iterate(Vector3i& out_changedPos, List<Vector3i>& out_failedAt)
+Nullable<bool> OldState::Iterate(Vector3i& out_changedPos, List<Vector3i>& out_failedAt)
 {
     //Define some useful data.
     auto& outputArray = Output;
@@ -102,7 +102,7 @@ Nullable<bool> State::Iterate(Vector3i& out_changedPos, List<Vector3i>& out_fail
     return Nullable<bool>();
 }
 
-bool State::RunToEnd(List<Vector3i>& out_failedAt)
+bool OldState::RunToEnd(List<Vector3i>& out_failedAt)
 {
     Nullable<bool> result;
     while (!result.HasValue)
@@ -110,7 +110,7 @@ bool State::RunToEnd(List<Vector3i>& out_failedAt)
     return result.Value;
 }
 
-void State::SetTile(Vector3i tilePos, TileID value, bool permanent)
+void OldState::SetTile(Vector3i tilePos, TileID value, bool permanent)
 {
     //Set the pixel.
     auto& outTile = Output[tilePos];
@@ -134,7 +134,7 @@ void State::SetTile(Vector3i tilePos, TileID value, bool permanent)
         RecalculateTileChances(tilePos.MoreZ());
 }
 
-void State::ClearArea(Vector3i center, Vector3i clearSize)
+void OldState::ClearArea(Vector3i center, Vector3i clearSize)
 {
     //Calculate the region to be cleared.
     Region3i clearRegion(center - clearSize,
@@ -227,7 +227,7 @@ void State::ClearArea(Vector3i center, Vector3i clearSize)
         RecalculateTileChances(affectedPos);
 }
 
-void State::GetBestTiles(List<Vector3i>& outValues) const
+void OldState::GetBestTiles(List<Vector3i>& outValues) const
 {
     //Find the output spaces with the smallest "entropy",
     //    where "entropy" is the sum of all the different tiles the pixel could still become.
@@ -261,7 +261,7 @@ void State::GetBestTiles(List<Vector3i>& outValues) const
 }
 
 
-void State::RecalculateTileChances(Vector3i tilePos)
+void OldState::RecalculateTileChances(Vector3i tilePos)
 {
 	tilePos = FilterPos(tilePos);
 

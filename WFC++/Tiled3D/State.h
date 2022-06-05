@@ -1,38 +1,386 @@
 #pragma once
 
+#include <array>
+#include <tuple>
+#include <algorithm>
+
 #include "InputData.h"
+#include "../Array4D.hpp"
 
 namespace WFC
 {
     namespace Tiled3D
     {
+        using TileIdx = uint16_t;
+        const TileIdx TileIdx_INVALID = 0xffff;
+        
+
         //The state of a WFC algorithm run.
         //This class contains the bulk of the algorithm.
         class WFC_API State
         {
         public:
 
-            //For each cell (X/Y), and for each input tile (Z),
-            //    stores the set of permutations of that tile
-            //    which could possibly be placed at that cell.
-            Array3D<TransformSet> PossibleTiles;
+            //TODO: Pull the heavy logic into the cpp.
 
             //The state of an output cell.
             struct WFC_API CellState
             {
-                //If set to "TileID_INVALID", then no tile was chosen yet.
-                TileID ChosenTile = TileID_INVALID;
-                Transform3D ChosenPermutation;
+                TileIdx ChosenTile = -1;
+                Transform3D ChosenPermutation = Transform3D{};
 
                 //Some tiles are given by the user, and this algorithm has to work around them.
                 //Those tiles must not be cleared or otherwise manipulated.
                 bool IsChangeable = true;
+
+                //Cached count of the data in "PossiblePermutations" at this cell.
+                uint16_t NPossibilities = 0;
+
+
+                bool IsSet() const { return ChosenTile >= TileID_FIRST_VALID; }
             };
-            Array2D<CellState> Cells;
+
+
+            //The input data:
+            const List<Tile> InputTiles;
+            const int NPermutedTiles;
+            //Assigns a unique, contiguous, 0-based index to every face that appears in the tileset.
+            Dictionary<FacePermutation, int32_t> FaceIndices;
+            //For each input tile (X) and FacePermutation (Y),
+            //    stores which tile permutations contain that face.
+            //You can get the index for a FacePermutation with 'FaceIndices'.
+            Array2D<TransformSet> MatchingFaces;
+            
+            //The output data:
+            Array3D<CellState> Cells;
+            //For each input tile (X), and each cell (YZW),
+            //    stores the permutations of that tile
+            //    which could possibly be placed at that cell.
+            //NOTE: after a cell is set, its entry here no longer gets updated,
+            //    so you should check whether a cell is set before paying attention to this data.
+            Array4D<TransformSet> PossiblePermutations;
+            //Cells which are not set yet, but are neighboring set ones.
+            //These are the candidates for the next tile placement.
+            //If it is empty, then the whole grid should be finished.
+            Set<Vector3i> SearchFrontier;
+            //Cells which are currently not solvable, and need to be handled.
+            Set<Vector3i> UnsolvableCells;
+
+            //TODO: "Policies". Such as:
+            //  * BoundaryPolicy (e.x. wrapping, clamping, or assuming a specific edge face)
+            //  * SubsetPolicy (only allow some tiles/permutations in specific locations)
+            //  * WeightPolicy (change the weights of tiles/permutations, possibly based on location)
+            //TODO: "Strategies" that actually run the algorithm with various techniques
+            //TOOD: Data about which pointIDs are "friends"
+
+            //The simulation settings:
+            bool IsPeriodicX, IsPeriodicY, IsPeriodicZ;
+            inline Vector3i FilterPos(const Vector3i& in) const
+            {
+                return {
+                    (IsPeriodicX ?
+                        Math::PositiveModulo(in.x, Cells.GetWidth()) :
+                        in.x
+                    ),
+                    (IsPeriodicY ?
+                        Math::PositiveModulo(in.y, Cells.GetHeight()) :
+                        in.y
+                    ),
+                    (IsPeriodicZ ?
+                        Math::PositiveModulo(in.z, Cells.GetDepth()) :
+                        in.z
+                    ),
+                };
+            }
+
+            
+            //Allocates a new state for the given tileset and grid size.
+            //These will stay constant through the State's lifetime,
+            //    but you can configure it to use only a subset of them.
+            State(const List<Tile>& inputTiles, const Vector3i& outputSize)
+                : InputTiles(inputTiles), Cells(outputSize),
+                  PossiblePermutations({ (int)inputTiles.GetSize(), outputSize }),
+                  NPermutedTiles(std::accumulate(InputTiles.begin(), InputTiles.end(),
+                                                 0, [](int sum, const Tile& tile) { return sum + tile.Permutations.Size(); }))
+            {
+                Reset();
+            }
+
+            //Sets up this State for another run.
+            void Reset()
+            {
+                //Set up Cells.
+                CellState startingCellData;
+                startingCellData.NPossibilities = NPermutedTiles;
+                Cells.Fill(startingCellData);
+
+                //Set up PossiblePermutations.
+                for (int tileI = 0; tileI < InputTiles.GetSize(); ++tileI)
+                    for (const Vector3i& cellPos : Region3i(Cells.GetDimensions()))
+                        PossiblePermutations[Vector4i(tileI, cellPos)] = InputTiles[tileI].Permutations;
+
+                //Set up FaceIndices.
+                int32_t nextID = 0;
+                for (const auto& tile : InputTiles)
+                    for (const auto& transform : tile.Permutations)
+                        for (const auto& face : tile.Data.Faces)
+                            FaceIndices[transform.ApplyToFace(face)] = nextID++;
+                int32_t nFacePermutations = nextID;
+
+                //Set up MatchingFaces.
+                MatchingFaces = Array2D<TransformSet>(InputTiles.GetSize(), nFacePermutations,
+                                                      TransformSet());
+                for (int tileI = 0; tileI < (int)InputTiles.GetSize(); ++tileI)
+                    for (const auto& transform : InputTiles[tileI].Permutations)
+                        for (const auto& face : InputTiles[tileI].Data.Faces)
+                            MatchingFaces[Vector2i(tileI, FaceIndices[transform.ApplyToFace(face)])].Add(transform);
+            }
+
+            
+            bool IsLegalPlacement(const Vector3i& cellPos,
+                                  TileIdx tileIdx, Transform3D tilePermutation) const
+            {
+                for (const auto& [neighborPos, mySide] : GetNeighbors(cellPos))
+                    if (Cells.IsIndexValid(neighborPos) && Cells[neighborPos].IsSet())
+                    {
+                        const auto& neighborCell = Cells[neighborPos];
+                        auto neighborSide = GetOpposite(mySide);
+
+                        auto neighborFace = GetFace(neighborCell.ChosenTile,
+                                                    neighborCell.ChosenPermutation,
+                                                    neighborSide);
+                        auto myRequiredFace = neighborFace.Flipped();
+
+                        if (!MatchingFaces[{ tileIdx, FaceIndices[myRequiredFace] }].Contains(tilePermutation))
+                            return false;
+                    }
+
+                return true;
+            }
+
+
+            //Overwrites the tile in the given cell (even if it was marked as not changeable).
+            void SetCell(const Vector3i& pos, TileIdx tile, Transform3D tilePermutation,
+                         bool doubleCheckLegalFit = true, bool canBeChangedInFuture = true)
+            {
+                if (doubleCheckLegalFit)
+                    assert(IsLegalPlacement(pos, tile, tilePermutation));
+
+                //If the cell is being *replaced* rather than going from unset to set,
+                //    then neighbor data is harder to update seamlessly because
+                //    it could add tile possibilities as well as remove them.
+                //The best and simplest option is to clear this cell as an intermediate step.
+                auto& cell = Cells[pos];
+                if (cell.IsSet())
+                    ClearCells(Region3i(pos, pos + 1));
+
+                cell = { tile, tilePermutation, canBeChangedInFuture, 1 };
+
+                //Update the neighbors.
+                for (const auto& [neighborPos, sideTowardsNeighbor] : GetNeighbors(pos))
+                    if (Cells.IsIndexValid(neighborPos))
+                        ApplyFilter(pos, neighborPos, sideTowardsNeighbor);
+            }
+
+            //Clears out the values of all cells in the given region.
+            //Optionally, even cells marked "!IsChangeable" get cleared.
+            void ClearCells(const Region3i& region,
+                            bool includeImmutableCells = false,
+                            bool clearedImmutableCellsAreMutableNow = true)
+            {
+                //Use a buffer to track the uncleared cells in the region.
+                buffer_clearCells_leftovers.Clear();
+                auto& unclearedCellsInRegion = buffer_clearCells_leftovers;
+
+                //Clear the cells.
+                for (Vector3i cellPos : region)
+                {
+                    cellPos = FilterPos(cellPos);
+                    auto& cell = Cells[cellPos];
+
+                    if (!cell.IsChangeable && !includeImmutableCells)
+                    {
+                        //It's not likely for a cell to be immutable and unset, but it's possible.
+                        if (cell.IsSet())
+                            unclearedCellsInRegion.Add(cellPos);
+                    }
+                    else
+                    {
+                        cell.ChosenTile = -1;
+                        cell.ChosenPermutation = { };
+                        cell.IsChangeable |= clearedImmutableCellsAreMutableNow;
+                        ResetCellPossibilities(cellPos, cell);
+                    }
+                }
+
+                //The cells on the border of the clear region need to update
+                //    their neighbors, and themselves!
+                Vector3i outsideCorners[2] = { region.MinInclusive - 1,
+                                               region.MaxExclusive };
+                for (int axis = 0; axis < 3; ++axis)
+                {
+                    int faceAxis1 = (axis + 1) % 3,
+                        faceAxis2 = (axis + 2) % 3;
+                    //Order them for cache-friendly iteration.
+                    if (faceAxis1 < faceAxis2)
+                        std::swap(faceAxis1, faceAxis2);
+                    
+                    //Go through every cell on the border of this axis of the clear region.
+                    for (int side = 0; side < 2; ++side) // 0 for "min", 1 for "max".
+                        for (int faceY = region.MinInclusive[faceAxis1]; faceY < region.MaxExclusive[faceAxis1]; ++faceY)
+                            for (int faceX = region.MinInclusive[faceAxis2]; faceX < region.MaxExclusive[faceAxis2]; ++faceX)
+                            {
+                                Vector3i outsidePos;
+                                outsidePos[axis] = outsideCorners[side][axis];
+                                outsidePos[faceAxis1] = faceY;
+                                outsidePos[faceAxis2] = faceX;
+                                outsidePos = FilterPos(outsidePos);
+
+                                if (Cells.IsIndexValid(outsidePos))
+                                {
+                                    auto& outsideCell = Cells[outsidePos];
+
+                                    //If the outside cell is already set, then its adjacent cleared neighbor
+                                    //     should filter out some tile possibilities based on their connecting face.
+                                    if (outsideCell.IsSet())
+                                    {
+                                        Vector3i clearedPos = outsidePos;
+                                        int inwardDelta = -((side * 2) - 1);
+                                        clearedPos[axis] += inwardDelta;
+
+                                        auto sideTowardsOutside = Tiled3D::MakeDirection3D(side == 0, axis);
+
+                                        ApplyFilter(clearedPos, outsidePos, sideTowardsOutside);
+                                    }
+                                    //Otherwise, the outside cell needs to recompute *its* possibilities
+                                    //    because the cleared cell may have opened them back up.
+                                    else
+                                    {
+                                        //It's pretty hard to add tile possibilities back in.
+                                        //Much easier is to recompute them from scratch based on *all* neighbors.
+                                        ResetCellPossibilities(outsidePos, outsideCell);
+                                        for (const auto& [neighborPos, sideTowardsNeighbor] : GetNeighbors(outsidePos))
+                                            ApplyFilter(outsidePos, neighborPos, sideTowardsNeighbor);
+                                    }
+                                }
+                            }
+                }
+
+                //Any immutable/uncleared cells will affect their newly-cleared neighbors.
+                for (const Vector3i& cellPos : unclearedCellsInRegion)
+                {
+                    const auto& cell = Cells[cellPos];
+                    assert(cell.IsSet());
+
+                    for (const auto& [neighborPos, sideTowardsNeighbor] : GetNeighbors(cellPos))
+                        if (region.Contains(neighborPos) && Cells.IsIndexValid(neighborPos))
+                            ApplyFilter(cellPos, neighborPos, sideTowardsNeighbor);
+                }
+            }
+
+
+        private:
+
+            //Gets the position and connecting face towards each neighbor of a cell.
+            //The neighbor positions are pre-filtered for convenience.
+            inline std::array<std::tuple<Vector3i, Directions3D>, N_DIRECTIONS_3D>
+                GetNeighbors(const Vector3i& cellPos) const
+            {
+                std::array<std::tuple<Vector3i, Directions3D>, N_DIRECTIONS_3D> neighbors;
+                neighbors[0] = { FilterPos(cellPos.LessX()), Directions3D::MinX };
+                neighbors[1] = { FilterPos(cellPos.MoreX()), Directions3D::MaxX };
+                neighbors[2] = { FilterPos(cellPos.LessY()), Directions3D::MinY };
+                neighbors[3] = { FilterPos(cellPos.MoreY()), Directions3D::MaxY };
+                neighbors[4] = { FilterPos(cellPos.LessZ()), Directions3D::MinZ };
+                neighbors[5] = { FilterPos(cellPos.MoreZ()), Directions3D::MaxZ };
+                return neighbors;
+            }
+
+
+            //Gets a specific face of a transformed tile, by its side (after transformation).
+            //TODO: Make this an external helper function.
+            inline FacePermutation GetFace(TileIdx tileIdx, Transform3D permutation,
+                                           Directions3D sideAfterTransform) const
+            {
+                auto originalSide = permutation.Inverse().ApplyToSide(sideAfterTransform);
+                auto newFace = permutation.ApplyToFace(InputTiles[tileIdx].Data.Faces[originalSide]);
+                assert(newFace.Side == sideAfterTransform);
+                return newFace;
+            }
+
+            //Removes tile options from the given cell that do not fit the given face.
+            inline void ApplyFilter(const Vector3i& cellPos,
+                                    const FacePermutation& face)
+            {
+                auto& cell = Cells[cellPos];
+                if (cell.IsSet())
+                    return;
+
+                //It's possible, if uncommon, that a tileset has no match for a particular face.
+                if (!FaceIndices.Contains(face))
+                {
+                    TransformSet::ClearRow(&PossiblePermutations[{0, cellPos}],
+                                           InputTiles.GetSize());
+                    cell.NPossibilities = 0;
+                }
+                else
+                {
+                    auto faceIdx = FaceIndices[face];
+                    for (int tileI = 0; tileI < InputTiles.GetSize(); ++tileI)
+                    {
+                        auto supported = MatchingFaces[{tileI, faceIdx}];
+                        auto& available = PossiblePermutations[{tileI, cellPos}];
+                        auto nChoicesLost = available.Intersect(supported);
+
+                        assert(nChoicesLost <= cell.NPossibilities);
+                        cell.NPossibilities -= nChoicesLost;
+                    }
+                }
+
+                //If the cell no longer has any tile choices, it's unsolvable.
+                if (cell.NPossibilities)
+                {
+                    SearchFrontier.Erase(cellPos);
+                    UnsolvableCells.Add(cellPos);
+                }
+                //Otherwise, it's a candidate of interest since it just had some possibilities narrowed down.
+                else
+                {
+                    SearchFrontier.Add(cellPos);
+                    assert(!UnsolvableCells.Contains(cellPos));
+                }
+            }
+            //Updates a given neighbor of a cell, based on the given cell (presumably set).
+            inline void ApplyFilter(const Vector3i& cellPos,
+                                    const Vector3i& neighborPos,
+                                    Directions3D sideTowardsNeighbor)
+            {
+                auto& cell = Cells[cellPos];
+                if (!cell.IsSet())
+                    return;
+
+                auto cellFace = GetFace(cell.ChosenTile, cell.ChosenPermutation, sideTowardsNeighbor);
+                auto neighborFace = cellFace.Flipped();
+
+                ApplyFilter(neighborPos, neighborFace);
+            }
+
+            inline void ResetCellPossibilities(const Vector3i& cellPos) { ResetCellPossibilities(cellPos, Cells[cellPos]); }
+            void ResetCellPossibilities(const Vector3i& cellPos, CellState& cell)
+            {
+                cell.NPossibilities = NPermutedTiles;
+                for (int tileI = 0; tileI < InputTiles.GetSize(); ++tileI)
+                    PossiblePermutations[{tileI, cellPos}] = InputTiles[tileI].Permutations;
+            }
+
+
+            Set<Vector3i> buffer_clearCells_leftovers;
+        };
 
 
 
-
+        class OldState {
+        public:
             //A space that may become one of several tiles,
             //    until eventually a single specific tile is chosen.
             struct WFC_API OutputTile
@@ -67,7 +415,7 @@ namespace WFC
             Vector3i ClearSize;
 
 
-            State(const InputData& input, Vector3i outputSize,
+            OldState(const InputData& input, Vector3i outputSize,
                   unsigned int seed, bool periodicX, bool periodicY, bool periodicZ,
                   Vector3i clearSize)
                 : Input(input), Output(outputSize),
@@ -111,9 +459,9 @@ namespace WFC
             //    taking wrapping into account.
             inline bool IsValidPos(const Vector3i& tilePos) const
             {
-                return (IsPeriodicX | ((tilePos.x >= 0) & (tilePos.x < Output.GetWidth()))) &
-                       (IsPeriodicY | ((tilePos.y >= 0) & (tilePos.y < Output.GetHeight()))) &
-                       (IsPeriodicZ | ((tilePos.z >= 0) & (tilePos.z < Output.GetDepth())));
+                return (IsPeriodicX || ((tilePos.x >= 0) && (tilePos.x < Output.GetWidth()))) &&
+                       (IsPeriodicY || ((tilePos.y >= 0) && (tilePos.y < Output.GetHeight()))) &&
+                       (IsPeriodicZ || ((tilePos.z >= 0) && (tilePos.z < Output.GetDepth())));
             }
 
             //Sets the given space to use the given tile.
