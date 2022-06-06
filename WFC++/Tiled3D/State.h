@@ -9,6 +9,8 @@
 
 namespace WFC
 {
+    //TODO: Take advantage of std::span<>
+
     namespace Tiled3D
     {
         using TileIdx = uint16_t;
@@ -34,10 +36,12 @@ namespace WFC
                 bool IsChangeable = true;
 
                 //Cached count of the data in "PossiblePermutations" at this cell.
+                //A value of 0 means "unsolvable".
+                //A value of 1 means that it's set, OR that it only has one possiblity left.
                 uint16_t NPossibilities = 0;
 
 
-                bool IsSet() const { return ChosenTile >= TileID_FIRST_VALID; }
+                bool IsSet() const { return ChosenTile != (TileIdx)(-1); }
             };
 
 
@@ -74,7 +78,10 @@ namespace WFC
             //TOOD: Data about which pointIDs are "friends"
 
             //The simulation settings:
-            bool IsPeriodicX, IsPeriodicY, IsPeriodicZ;
+            //TODO: These shouldn't be publicly non-const, as changing them effects tile possibilities. But don't overdo it, this will be refactored out eventually
+            bool IsPeriodicX = false,
+                 IsPeriodicY = false,
+                 IsPeriodicZ = false;
             inline Vector3i FilterPos(const Vector3i& in) const
             {
                 return {
@@ -103,6 +110,8 @@ namespace WFC
                   NPermutedTiles(std::accumulate(InputTiles.begin(), InputTiles.end(),
                                                  0, [](int sum, const Tile& tile) { return sum + tile.Permutations.Size(); }))
             {
+                assert(inputTiles.GetSize() < (TileIdx)(-1)); //The last index is reserved for [null]
+
                 Reset();
             }
 
@@ -211,9 +220,8 @@ namespace WFC
                     }
                     else
                     {
-                        cell.ChosenTile = -1;
-                        cell.ChosenPermutation = { };
                         cell.IsChangeable |= clearedImmutableCellsAreMutableNow;
+                        cell.ChosenPermutation = { }; //For completeness
                         ResetCellPossibilities(cellPos, cell);
                     }
                 }
@@ -265,7 +273,8 @@ namespace WFC
                                         //Much easier is to recompute them from scratch based on *all* neighbors.
                                         ResetCellPossibilities(outsidePos, outsideCell);
                                         for (const auto& [neighborPos, sideTowardsNeighbor] : GetNeighbors(outsidePos))
-                                            ApplyFilter(outsidePos, neighborPos, sideTowardsNeighbor);
+                                            if (Cells.IsIndexValid(neighborPos))
+                                                ApplyFilter(neighborPos, outsidePos, GetOpposite(sideTowardsNeighbor));
                                     }
                                 }
                             }
@@ -282,7 +291,14 @@ namespace WFC
                             ApplyFilter(cellPos, neighborPos, sideTowardsNeighbor);
                 }
             }
-
+            //Clears the given cell, even if it's marked as "!IsChangeable".
+            //Optionally, even cells marked "!IsChangeable" get cleared.
+            void ClearCell(const Vector3i& cellPos,
+                           bool isChangeableAfterwards = true)
+            {
+                ClearCells(Region3i(cellPos, cellPos + 1),
+                           true, isChangeableAfterwards);
+            }
 
         private:
 
@@ -330,7 +346,7 @@ namespace WFC
                     auto faceIdx = FaceIndices[face];
                     for (int tileI = 0; tileI < InputTiles.GetSize(); ++tileI)
                     {
-                        auto supported = MatchingFaces[{tileI, faceIdx}];
+                        const auto& supported = MatchingFaces[{tileI, faceIdx}];
                         auto& available = PossiblePermutations[{tileI, cellPos}];
                         auto nChoicesLost = available.Intersect(supported);
 
@@ -340,7 +356,7 @@ namespace WFC
                 }
 
                 //If the cell no longer has any tile choices, it's unsolvable.
-                if (cell.NPossibilities)
+                if (cell.NPossibilities < 1)
                 {
                     SearchFrontier.Erase(cellPos);
                     UnsolvableCells.Add(cellPos);
@@ -370,7 +386,12 @@ namespace WFC
             inline void ResetCellPossibilities(const Vector3i& cellPos) { ResetCellPossibilities(cellPos, Cells[cellPos]); }
             void ResetCellPossibilities(const Vector3i& cellPos, CellState& cell)
             {
+                cell.ChosenTile = -1;
                 cell.NPossibilities = NPermutedTiles;
+                
+                SearchFrontier.Erase(cellPos);
+                UnsolvableCells.Erase(cellPos);
+
                 for (int tileI = 0; tileI < InputTiles.GetSize(); ++tileI)
                     PossiblePermutations[{tileI, cellPos}] = InputTiles[tileI].Permutations;
             }

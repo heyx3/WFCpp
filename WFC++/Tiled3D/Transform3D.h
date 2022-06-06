@@ -331,7 +331,7 @@ namespace WFC
 
             //Creates a set from any combination of iterators, subsets, and elements.
             template<typename T>
-            static TransformSet CombineTransforms(const T& iterable)
+            static TransformSet Combine(const T& iterable)
             {
                 TransformSet set;
                 for (Transform3D tr : iterable)
@@ -341,18 +341,18 @@ namespace WFC
                 }
                 return set;
             }
-            template<> static TransformSet CombineTransforms<TransformSet>(const TransformSet& set) { return set; }
-            template<> static TransformSet CombineTransforms<Transform3D>(const Transform3D& transf)
+            template<> static TransformSet Combine<TransformSet>(const TransformSet& set) { return set; }
+            template<> static TransformSet Combine<Transform3D>(const Transform3D& transf)
             {
                 TransformSet s;
                 s.Add(transf);
                 return s;
             }
             template<typename T, typename... Arguments>
-            static TransformSet CombineTransforms(T first, Arguments... rest)
+            static TransformSet Combine(T first, Arguments... rest)
             {
-                TransformSet tFirst = CombineTransforms(first),
-                             tRest = CombineTransforms(rest...);
+                TransformSet tFirst = Combine(first),
+                             tRest = Combine(rest...);
                 tRest.Add(tFirst);
                 return tRest;
             }

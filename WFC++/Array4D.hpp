@@ -24,7 +24,7 @@ namespace WFC
         Array4D() : size(0, 0, 0, 0), arrayVals(nullptr) { }
 
 		//Creates a new Array4D without initializing any of the values.
-		Array4D(const Vector4i& size) : size(size), arrayVals(new ArrayType[size.x * size.y * size.z * size.w]) { }
+		Array4D(const Vector4i& size) : size(size), arrayVals(new ArrayType[(size_t)size.x * size.y * size.z * size.w]) { }
 		//Creates a new Array4D and fills it with copies of the given element.
 		Array4D(const Vector4i& size, const ArrayType& defaultValue)
 			: Array4D(size)

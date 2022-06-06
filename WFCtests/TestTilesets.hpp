@@ -51,7 +51,7 @@ namespace Tilesets
                         { MinZ, { 3, 3, 3, 3 } }, //MinZ
                         { MaxZ, { 3, 3, 3, 3 } }  //MaxZ
                     } },
-                    TransformSet::CombineTransforms(transforms...),
+                    TransformSet::Combine(transforms...),
                     uint32_t{100}
                 }
             };

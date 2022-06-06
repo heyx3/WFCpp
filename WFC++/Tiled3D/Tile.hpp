@@ -19,7 +19,7 @@ namespace WFC
             CubePermutation Data;
 
             //The allowed permutations of this tile.
-            TransformSet Permutations = TransformSet::CombineTransforms(Transform3D());
+            TransformSet Permutations = TransformSet::Combine(Transform3D());
 
             //The "weight" of this tile.
             //"Heavier" tiles are more likely to be chosen.

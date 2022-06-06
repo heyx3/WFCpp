@@ -381,7 +381,8 @@ SUITE(WFC_Tiled3D)
             }
     }
 
-    //TODO: Test GetFace.
+    // NOTE: Tests of Tiled3D::GetFace() would be nice, but it's self-testing with asserts
+    //    so not high-priority.
 
     static const Transform3D setTransforms[] = {
         //Defined in their expected order.
@@ -457,9 +458,9 @@ SUITE(WFC_Tiled3D)
     {
         TransformSet set;
 
-        auto set1 = TransformSet::CombineTransforms(setTransforms[0], setTransforms[3]);
-        auto set2 = TransformSet::CombineTransforms(setTransforms[2], setTransforms[4]);
-        set = TransformSet::CombineTransforms(set1, set2);
+        auto set1 = TransformSet::Combine(setTransforms[0], setTransforms[3]);
+        auto set2 = TransformSet::Combine(setTransforms[2], setTransforms[4]);
+        set = TransformSet::Combine(set1, set2);
         CHECK_EQUAL(4, set.Size());
         CHECK_EQUAL(4, CountSetIterator(set));
         CHECK(set.Contains(setTransforms[0]));
@@ -475,14 +476,14 @@ SUITE(WFC_Tiled3D)
         CHECK_EQUAL(setTransforms[4], vec[3]);
 
         CHECK(set1 != set2);
-        CHECK_EQUAL(TransformSet::CombineTransforms(set1, set2), set);
-        CHECK_EQUAL(TransformSet::CombineTransforms(set2, set1), set);
+        CHECK_EQUAL(TransformSet::Combine(set1, set2), set);
+        CHECK_EQUAL(TransformSet::Combine(set2, set1), set);
 
         set = set1;
         CHECK_EQUAL(2, set.Add(set2));
-        CHECK_EQUAL(TransformSet::CombineTransforms(set1, set2), set);
+        CHECK_EQUAL(TransformSet::Combine(set1, set2), set);
         CHECK_EQUAL(0, set.Add(set2));
-        CHECK_EQUAL(TransformSet::CombineTransforms(set1, set2), set);
+        CHECK_EQUAL(TransformSet::Combine(set1, set2), set);
 
         set = set1;
         CHECK_EQUAL(2, set.Remove(set1));
@@ -490,7 +491,7 @@ SUITE(WFC_Tiled3D)
         CHECK_EQUAL(0, set.Remove(set1));
         CHECK_EQUAL(TransformSet{}, set);
 
-        set = TransformSet::CombineTransforms(set1, set2);
+        set = TransformSet::Combine(set1, set2);
         CHECK_EQUAL(2, set.Intersect(set2));
         CHECK_EQUAL(set2, set);
         CHECK_EQUAL(0, set.Intersect(set2));
@@ -586,7 +587,7 @@ SUITE(WFC_Tiled3D)
 
         //Check that the cells initialized correctly.
         CHECK_EQUAL(Vector3i{WFC_CONCAT(1, 2, 3)}, state.Cells.GetDimensions());
-        for (auto v : Region3i(state.Cells.GetDimensions()))
+        for (const auto& v : Region3i(state.Cells.GetDimensions()))
         {
             const auto& cell = state.Cells[v];
             CHECK_EQUAL((TileIdx)(-1), cell.ChosenTile);
@@ -597,6 +598,83 @@ SUITE(WFC_Tiled3D)
         CHECK_EQUAL(0, state.SearchFrontier.GetSize());
         CHECK_EQUAL(0, state.UnsolvableCells.GetSize());
     }
+    TEST(StateModification)
+    {
+        //Use two permutations of the single-tile tileset
+        //    which can connect vertically.
+        //Add a third permutation which doesn't line up at all with the other two,
+        //    so we can test that it's never legal.
+        TransformSet usedTransforms;
+        usedTransforms.Add(Transform3D{ });
+        usedTransforms.Add(Transform3D{ false, Rotations3D::AxisZ_90 });
+        usedTransforms.Add(Transform3D{ false, Rotations3D::AxisY_90 }); // The odd one out
+        State state(OneTileArmy(usedTransforms), { 4, 4, 4 });
+
+        //Set a cell in the min corner with no transform, and check the effects.
+        //Horizontally, the neighbors should be locked into using the null permutation.
+        //Vertically, the neighbors could still be any permutation,
+        //    as the Z face is very symmetrical.
+        state.SetCell({ 0, 0, 0 }, 0, { }, true, false);
+        auto* minCell = &state.Cells[{0, 0, 0}];
+        //Check cell state.
+        CHECK_EQUAL(false, minCell->IsChangeable);
+        CHECK_EQUAL(0, minCell->ChosenTile);
+        CHECK_EQUAL(Transform3D{ }, minCell->ChosenPermutation);
+        CHECK_EQUAL(1, minCell->NPossibilities);
+        CHECK(minCell->IsSet());
+        //Check algorithm state.
+        CHECK_EQUAL(0, state.UnsolvableCells.GetSize());
+        CHECK_EQUAL(3, state.SearchFrontier.GetSize());
+        CHECK(state.SearchFrontier.Contains({ 1, 0, 0 }));
+        CHECK(state.SearchFrontier.Contains({ 0, 1, 0 }));
+        CHECK(state.SearchFrontier.Contains({ 0, 0, 1 }));
+        //Check the possible neighbor tiles.
+        CHECK_EQUAL(TransformSet::Combine(Transform3D{ }),
+                    state.PossiblePermutations[WFC_CONCAT({ 0, {1, 0, 0} })]);
+        CHECK_EQUAL(TransformSet::Combine(Transform3D{ }),
+                    state.PossiblePermutations[WFC_CONCAT({ 0, {0, 1, 0} })]);
+        CHECK_EQUAL(TransformSet::Combine(WFC_CONCAT(
+                        Transform3D{ },
+                        Transform3D{ false, Rotations3D::AxisZ_90 }
+                    )),
+                    state.PossiblePermutations[WFC_CONCAT({ 0, { 0, 0, 1 } })]);
+
+        //Set a second-neighbor of that cell, to make the cell in-between them unsolvable.
+        state.SetCell({ 2, 0, 0 }, 0, { false, Rotations3D::AxisZ_90});
+        CHECK(minCell->IsSet());
+        CHECK(!state.SearchFrontier.Contains({ 1, 0, 0 }));
+        CHECK_EQUAL(1, state.UnsolvableCells.GetSize());
+        CHECK_EQUAL(5, state.SearchFrontier.GetSize());
+        CHECK(state.SearchFrontier.Contains({ 0, 1, 0 }));
+        CHECK(state.SearchFrontier.Contains({ 0, 0, 1 }));
+        CHECK(state.SearchFrontier.Contains({ 3, 0, 0 }));
+        CHECK(state.SearchFrontier.Contains({ 2, 1, 0 }));
+        CHECK(state.SearchFrontier.Contains({ 2, 0, 1 }));
+        CHECK(state.UnsolvableCells.Contains(WFC_CONCAT({ 1, 0, 0 })));
+        CHECK(!state.Cells[WFC_CONCAT({ 1, 0, 0 })].IsSet());
+        CHECK_EQUAL(0, state.Cells[WFC_CONCAT({ 1, 0, 0 })].NPossibilities);
+        CHECK_EQUAL(TransformSet(), state.PossiblePermutations[WFC_CONCAT({ 0, { 1, 0, 0 } })]);
+
+        //Clear the second-neighbor; it should make the immediate-neighbor solvable again.
+        state.ClearCell({ 2, 0, 0 }, true);
+        CHECK(minCell->IsSet());
+        CHECK(!state.Cells[WFC_CONCAT({ 2, 0, 0 })].IsSet());
+        CHECK(state.Cells[WFC_CONCAT({ 2, 0, 0 })].IsChangeable);
+        CHECK(state.SearchFrontier.Contains({ 1, 0, 0 }));
+        CHECK_EQUAL(0, state.UnsolvableCells.GetSize());
+        CHECK_EQUAL(3, state.SearchFrontier.GetSize());
+        CHECK(state.SearchFrontier.Contains({ 0, 1, 0 }));
+        CHECK(state.SearchFrontier.Contains({ 0, 0, 1 }));
+        CHECK_EQUAL(1, state.Cells[WFC_CONCAT({ 1, 0, 0 })].NPossibilities);
+        CHECK_EQUAL(TransformSet::Combine(Transform3D{ }),
+                    state.PossiblePermutations[WFC_CONCAT({ 0, {1, 0, 0} })]);
+
+        //TODO: Set {1, 0, 1} to use the 2nd permutation, then {0, 0, 1} goes from 2 possibilities to 1.
+
+        //TODO: Set a cell that isn't on the edges, and check that min faces are also updated.
+    }
+
+    //TODO: Test clearing whole, NON-SQUARE areas, including immutable cells
 }
 
 

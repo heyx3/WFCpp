@@ -38,7 +38,7 @@ namespace WFC
 
 			arrayVals = new ArrayType[GetNumbElements()];
 			for (int i = 0; i < GetNumbElements(); ++i)
-				arrayVals[i] = defaultValue;
+				arrayVals[i] = defaultValue; //MSVC warns this is a buffer overflow, but it's not?
 		}
 		Array2D(Vector2i size, const ArrayType& defaultValue) : Array2D(size.x, size.y, defaultValue) { }
 
