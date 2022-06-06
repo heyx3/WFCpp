@@ -49,13 +49,16 @@ namespace WFC
             const List<Tile> InputTiles;
             const int NPermutedTiles;
             //Assigns a unique, contiguous, 0-based index to every face that appears in the tileset.
-            Dictionary<FacePermutation, int32_t> FaceIndices;
+            const Dictionary<FacePermutation, int32_t>& GetFaceIndices() const { return FaceIndices; }
             //For each input tile (X) and FacePermutation (Y),
             //    stores which tile permutations contain that face.
             //You can get the index for a FacePermutation with 'FaceIndices'.
-            Array2D<TransformSet> MatchingFaces;
+            const Array2D<TransformSet>& GetMatchingFaces() const { return MatchingFaces; }
             
-            //The output data:
+            //The output data.
+            //While these fields are exposed publicly,
+            //    you are strongly encouraged to not modify them directly.
+            //TODO: Make them private with const getters, but public in DEBUG builds
             Array3D<CellState> Cells;
             //For each input tile (X), and each cell (YZW),
             //    stores the permutations of that tile
@@ -63,9 +66,9 @@ namespace WFC
             //NOTE: after a cell is set, its entry here no longer gets updated,
             //    so you should check whether a cell is set before paying attention to this data.
             Array4D<TransformSet> PossiblePermutations;
-            //Cells which are not set yet, but are neighboring set ones.
-            //These are the candidates for the next tile placement.
-            //If it is empty, then the whole grid should be finished.
+            //The most interesting candidates for the next tile placement.
+            //These cells are not set yet, but are neighboring set ones.
+            //If empty, then either all cells are set or all cells are unset.
             Set<Vector3i> SearchFrontier;
             //Cells which are currently not solvable, and need to be handled.
             Set<Vector3i> UnsolvableCells;
@@ -111,23 +114,7 @@ namespace WFC
                                                  0, [](int sum, const Tile& tile) { return sum + tile.Permutations.Size(); }))
             {
                 assert(inputTiles.GetSize() < (TileIdx)(-1)); //The last index is reserved for [null]
-
-                Reset();
-            }
-
-            //Sets up this State for another run.
-            void Reset()
-            {
-                //Set up Cells.
-                CellState startingCellData;
-                startingCellData.NPossibilities = NPermutedTiles;
-                Cells.Fill(startingCellData);
-
-                //Set up PossiblePermutations.
-                for (int tileI = 0; tileI < InputTiles.GetSize(); ++tileI)
-                    for (const Vector3i& cellPos : Region3i(Cells.GetDimensions()))
-                        PossiblePermutations[Vector4i(tileI, cellPos)] = InputTiles[tileI].Permutations;
-
+                
                 //Set up FaceIndices.
                 int32_t nextID = 0;
                 for (const auto& tile : InputTiles)
@@ -148,6 +135,26 @@ namespace WFC
                             auto& matches = MatchingFaces[{tileI, facePermIdx}];
                             matches.Add(transform);
                         }
+
+                Reset();
+            }
+
+            //Sets up this State for another run.
+            void Reset()
+            {
+                //Set up Cells.
+                CellState startingCellData;
+                startingCellData.NPossibilities = NPermutedTiles;
+                Cells.Fill(startingCellData);
+
+                //Set up PossiblePermutations.
+                for (int tileI = 0; tileI < InputTiles.GetSize(); ++tileI)
+                    for (const Vector3i& cellPos : Region3i(Cells.GetDimensions()))
+                        PossiblePermutations[Vector4i(tileI, cellPos)] = InputTiles[tileI].Permutations;
+
+                //Empty out the other output states.
+                SearchFrontier.Clear();
+                UnsolvableCells.Clear();
             }
 
             
@@ -396,6 +403,9 @@ namespace WFC
                     PossiblePermutations[{tileI, cellPos}] = InputTiles[tileI].Permutations;
             }
 
+
+            Dictionary<FacePermutation, int32_t> FaceIndices;
+            Array2D<TransformSet> MatchingFaces;
 
             Set<Vector3i> buffer_clearCells_leftovers;
         };

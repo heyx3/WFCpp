@@ -552,7 +552,7 @@ SUITE(WFC_Tiled3D)
         //The Z faces are entirely symmetrical, so the rotation/inversion
         //    should not change them.
         //The same does not hold for the X or Y faces.
-        CHECK_EQUAL(2 + (4 * 4), state.FaceIndices.GetSize());
+        CHECK_EQUAL(2 + (4 * 4), state.GetFaceIndices().GetSize());
 
         //Check that the input tile data transferred over correctly.
         CHECK_EQUAL(Vector4i{WFC_CONCAT(1, 1, 2, 3)}, state.PossiblePermutations.GetDimensions());
@@ -561,7 +561,7 @@ SUITE(WFC_Tiled3D)
         for (const auto& tile : state.InputTiles)
             for (const auto& originalFace : tile.Data.Faces)
                 for (auto transform : usedTransforms)
-                    CHECK(state.FaceIndices.Contains(transform.ApplyToFace(originalFace)));
+                    CHECK(state.GetFaceIndices().Contains(transform.ApplyToFace(originalFace)));
 
         //Check the link between face permutations and available tiles.
         for (int faceI = 0; faceI < N_DIRECTIONS_3D; ++faceI)
@@ -573,7 +573,7 @@ SUITE(WFC_Tiled3D)
                 bool expectAllPermutationToMatch = (transformedFace.Side == MinZ) ||
                                                    (transformedFace.Side == MaxZ);
                 const auto& matchesToTransformedFace =
-                    state.MatchingFaces[{ 0, state.FaceIndices[transformedFace] }];
+                    state.GetMatchingFaces()[{ 0, state.GetFaceIndices()[transformedFace] }];
 
                 TransformSet expectedMatches;
                 if (expectAllPermutationToMatch)
@@ -669,7 +669,22 @@ SUITE(WFC_Tiled3D)
         CHECK_EQUAL(TransformSet::Combine(Transform3D{ }),
                     state.PossiblePermutations[WFC_CONCAT({ 0, {1, 0, 0} })]);
 
-        //TODO: Set {1, 0, 1} to use the 2nd permutation, then {0, 0, 1} goes from 2 possibilities to 1.
+        //Set {1, 0, 1} to use the 2nd permutation, then {0, 0, 1} goes from 2 possibilities to 1.
+        Vector3i newCellPos{ 1, 0, 1 };
+        Transform3D newCellTransform{ false, Rotations3D::AxisZ_90 };
+        state.SetCell(newCellPos, 0, newCellTransform, true, true);
+        CHECK(state.Cells[newCellPos].IsSet());
+        CHECK_EQUAL(0, state.Cells[newCellPos].ChosenTile);
+        CHECK_EQUAL(newCellTransform, state.Cells[newCellPos].ChosenPermutation);
+        CHECK(state.Cells[newCellPos].IsChangeable);
+        CHECK(state.SearchFrontier.Contains({ 2, 0, 1 }));
+        CHECK(state.SearchFrontier.Contains({ 1, 1, 1 }));
+        CHECK(state.SearchFrontier.Contains({ 1, 0, 2 }));
+        CHECK_EQUAL(6, state.SearchFrontier.GetSize());
+        CHECK(state.SearchFrontier.Contains({ 1, 0, 0 }));
+        CHECK(state.SearchFrontier.Contains({ 0, 1, 0 }));
+        CHECK(state.SearchFrontier.Contains({ 0, 0, 1 }));
+        CHECK_EQUAL(1, state.Cells[newCellPos.LessX()].NPossibilities);
 
         //TODO: Set a cell that isn't on the edges, and check that min faces are also updated.
     }
