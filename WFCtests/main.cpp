@@ -594,9 +594,6 @@ SUITE(WFC_Tiled3D)
             CHECK_EQUAL(true, cell.IsChangeable);
             CHECK_EQUAL(4, cell.NPossibilities);
         }
-
-        CHECK_EQUAL(0, state.SearchFrontier.GetSize());
-        CHECK_EQUAL(0, state.UnsolvableCells.GetSize());
     }
     TEST(StateModification)
     {
@@ -609,12 +606,13 @@ SUITE(WFC_Tiled3D)
         usedTransforms.Add(Transform3D{ false, Rotations3D::AxisZ_90 });
         usedTransforms.Add(Transform3D{ false, Rotations3D::AxisY_90 }); // The odd one out
         State state(OneTileArmy(usedTransforms), { 4, 4, 4 });
+        State::Report report;
 
         //Set a cell in the min corner with no transform, and check the effects.
         //Horizontally, the neighbors should be locked into using the null permutation.
         //Vertically, the neighbors could still be any permutation,
         //    as the Z face is very symmetrical.
-        state.SetCell({ 0, 0, 0 }, 0, { }, true, false);
+        state.SetCell({ 0, 0, 0 }, 0, { }, &report, true, false);
         auto* minCell = &state.Cells[{0, 0, 0}];
         //Check cell state.
         CHECK_EQUAL(false, minCell->IsChangeable);
@@ -623,11 +621,11 @@ SUITE(WFC_Tiled3D)
         CHECK_EQUAL(1, minCell->NPossibilities);
         CHECK(minCell->IsSet());
         //Check algorithm state.
-        CHECK_EQUAL(0, state.UnsolvableCells.GetSize());
-        CHECK_EQUAL(3, state.SearchFrontier.GetSize());
-        CHECK(state.SearchFrontier.Contains({ 1, 0, 0 }));
-        CHECK(state.SearchFrontier.Contains({ 0, 1, 0 }));
-        CHECK(state.SearchFrontier.Contains({ 0, 0, 1 }));
+        CHECK_EQUAL(0, report.GotUnsolvable.GetSize());
+        CHECK_EQUAL(3, report.GotInteresting.GetSize());
+        CHECK(report.GotInteresting.Contains({ 1, 0, 0 }));
+        CHECK(report.GotInteresting.Contains({ 0, 1, 0 }));
+        CHECK(report.GotInteresting.Contains({ 0, 0, 1 }));
         //Check the possible neighbor tiles.
         CHECK_EQUAL(TransformSet::Combine(Transform3D{ }),
                     state.PossiblePermutations[WFC_CONCAT({ 0, {1, 0, 0} })]);
@@ -640,53 +638,52 @@ SUITE(WFC_Tiled3D)
                     state.PossiblePermutations[WFC_CONCAT({ 0, { 0, 0, 1 } })]);
 
         //Set a second-neighbor of that cell, to make the cell in-between them unsolvable.
-        state.SetCell({ 2, 0, 0 }, 0, { false, Rotations3D::AxisZ_90});
+        report.Clear();
+        state.SetCell({ 2, 0, 0 }, 0, { false, Rotations3D::AxisZ_90}, &report);
         CHECK(minCell->IsSet());
-        CHECK(!state.SearchFrontier.Contains({ 1, 0, 0 }));
-        CHECK_EQUAL(1, state.UnsolvableCells.GetSize());
-        CHECK_EQUAL(5, state.SearchFrontier.GetSize());
-        CHECK(state.SearchFrontier.Contains({ 0, 1, 0 }));
-        CHECK(state.SearchFrontier.Contains({ 0, 0, 1 }));
-        CHECK(state.SearchFrontier.Contains({ 3, 0, 0 }));
-        CHECK(state.SearchFrontier.Contains({ 2, 1, 0 }));
-        CHECK(state.SearchFrontier.Contains({ 2, 0, 1 }));
-        CHECK(state.UnsolvableCells.Contains(WFC_CONCAT({ 1, 0, 0 })));
+        CHECK_EQUAL(1, report.GotUnsolvable.GetSize());
+        CHECK_EQUAL(3, report.GotInteresting.GetSize());
+        CHECK(report.GotInteresting.Contains({ 3, 0, 0 }));
+        CHECK(report.GotInteresting.Contains({ 2, 1, 0 }));
+        CHECK(report.GotInteresting.Contains({ 2, 0, 1 }));
+        CHECK(report.GotUnsolvable.Contains(WFC_CONCAT({ 1, 0, 0 })));
         CHECK(!state.Cells[WFC_CONCAT({ 1, 0, 0 })].IsSet());
         CHECK_EQUAL(0, state.Cells[WFC_CONCAT({ 1, 0, 0 })].NPossibilities);
         CHECK_EQUAL(TransformSet(), state.PossiblePermutations[WFC_CONCAT({ 0, { 1, 0, 0 } })]);
 
         //Clear the second-neighbor; it should make the immediate-neighbor solvable again.
-        state.ClearCell({ 2, 0, 0 }, true);
+        report.Clear();
+        state.ClearCell({ 2, 0, 0 }, &report, true);
         CHECK(minCell->IsSet());
         CHECK(!state.Cells[WFC_CONCAT({ 2, 0, 0 })].IsSet());
         CHECK(state.Cells[WFC_CONCAT({ 2, 0, 0 })].IsChangeable);
-        CHECK(state.SearchFrontier.Contains({ 1, 0, 0 }));
-        CHECK_EQUAL(0, state.UnsolvableCells.GetSize());
-        CHECK_EQUAL(3, state.SearchFrontier.GetSize());
-        CHECK(state.SearchFrontier.Contains({ 0, 1, 0 }));
-        CHECK(state.SearchFrontier.Contains({ 0, 0, 1 }));
+        CHECK(report.GotInteresting.Contains({ 1, 0, 0 }));
+        CHECK_EQUAL(0, report.GotUnsolvable.GetSize());
+        CHECK_EQUAL(1, report.GotInteresting.GetSize());
         CHECK_EQUAL(1, state.Cells[WFC_CONCAT({ 1, 0, 0 })].NPossibilities);
         CHECK_EQUAL(TransformSet::Combine(Transform3D{ }),
                     state.PossiblePermutations[WFC_CONCAT({ 0, {1, 0, 0} })]);
 
+        //Set {1, 0, 0}, so tht the next test is more interesting.
+        //Don't pass the Report instance either, to make sure that use-case is fine.
+        state.SetCell({ 1, 0, 0 }, 0, { });
+
         //Set {1, 0, 1} to use the 2nd permutation, then {0, 0, 1} goes from 2 possibilities to 1.
         Vector3i newCellPos{ 1, 0, 1 };
         Transform3D newCellTransform{ false, Rotations3D::AxisZ_90 };
-        state.SetCell(newCellPos, 0, newCellTransform, true, true);
+        report.Clear();
+        state.SetCell(newCellPos, 0, newCellTransform, &report, true, true);
         CHECK(state.Cells[newCellPos].IsSet());
         CHECK_EQUAL(0, state.Cells[newCellPos].ChosenTile);
         CHECK_EQUAL(newCellTransform, state.Cells[newCellPos].ChosenPermutation);
         CHECK(state.Cells[newCellPos].IsChangeable);
-        CHECK(state.SearchFrontier.Contains({ 2, 0, 1 }));
-        CHECK(state.SearchFrontier.Contains({ 1, 1, 1 }));
-        CHECK(state.SearchFrontier.Contains({ 1, 0, 2 }));
-        CHECK_EQUAL(6, state.SearchFrontier.GetSize());
-        CHECK(state.SearchFrontier.Contains({ 1, 0, 0 }));
-        CHECK(state.SearchFrontier.Contains({ 0, 1, 0 }));
-        CHECK(state.SearchFrontier.Contains({ 0, 0, 1 }));
+        CHECK(report.GotInteresting.Contains({ 2, 0, 1 }));
+        CHECK(report.GotInteresting.Contains({ 1, 1, 1 }));
+        CHECK(report.GotInteresting.Contains({ 1, 0, 2 }));
+        CHECK(!report.GotInteresting.Contains({ 1, 0, 0 })); // Because it's already set
+        CHECK(report.GotInteresting.Contains({ 0, 0, 1 }));
+        CHECK_EQUAL(4, report.GotInteresting.GetSize());
         CHECK_EQUAL(1, state.Cells[newCellPos.LessX()].NPossibilities);
-
-        //TODO: Set a cell that isn't on the edges, and check that min faces are also updated.
     }
 
     //TODO: Test clearing whole, NON-SQUARE areas, including immutable cells
