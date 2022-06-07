@@ -47,10 +47,14 @@ namespace WFC
             //A record of what happened during some action.
             struct WFC_API Report
             {
-                //Cells that have fewer possible options now.
-                Set<Vector3i> GotInteresting;
+                //NOTE: this report may have redundant entries.
+                // A cell in 'GotInteresting' should supercede its entry  in 'GotBoring',
+                //    and 'GotUnsolvable' should supercede 'GotInteresting'.
+
                 //Cells that no longer have any contraints on their tile options.
                 Set<Vector3i> GotBoring;
+                //Cells that have fewer possible options now.
+                Set<Vector3i> GotInteresting;
                 //Cells that now have zero options for tile placement.
                 Set<Vector3i> GotUnsolvable;
 
@@ -59,6 +63,27 @@ namespace WFC
                     GotInteresting.Clear();
                     GotBoring.Clear();
                     GotUnsolvable.Clear();
+                }
+
+                template<typename Func>
+                void ForeachBoringCell(Func toDo)
+                {
+                    for (const auto& p : GotBoring)
+                        if (!GotInteresting.Contains(p) && !GotUnsolvable.Contains(p))
+                            toDo(p);
+                }
+                template<typename Func>
+                void ForeachInterestingCell(Func toDo)
+                {
+                    for (const auto& p : GotInteresting)
+                        if (!GotUnsolvable.Contains(p))
+                            toDo(p);
+                }
+                template<typename Func>
+                void ForeachUnsolvableCell(Func toDo)
+                {
+                    for (const auto& p : GotUnsolvable)
+                        toDo(p);
                 }
             };
 
@@ -237,7 +262,8 @@ namespace WFC
                     else
                     {
                         cell.IsChangeable |= clearedImmutableCellsAreMutableNow;
-                        cell.ChosenPermutation = { }; //For completeness
+                        cell.ChosenPermutation = { }; //Not important, but it keeps unset cells
+                                                      //    consistent for debugging
                         ResetCellPossibilities(cellPos, cell, report);
                     }
                 }
@@ -404,6 +430,10 @@ namespace WFC
             inline void ResetCellPossibilities(const Vector3i& cellPos, Report* report) { ResetCellPossibilities(cellPos, Cells[cellPos], report); }
             void ResetCellPossibilities(const Vector3i& cellPos, CellState& cell, Report* report)
             {
+                //If the cell is already completely empty, don't change anything.
+                if (cell.NPossibilities == NPermutedTiles)
+                    return;
+
                 cell.ChosenTile = -1;
                 cell.NPossibilities = NPermutedTiles;
                 

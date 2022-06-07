@@ -685,8 +685,106 @@ SUITE(WFC_Tiled3D)
         CHECK_EQUAL(4, report.GotInteresting.GetSize());
         CHECK_EQUAL(1, state.Cells[newCellPos.LessX()].NPossibilities);
     }
+    TEST(StateClearing)
+    {
+        //Use one tile and two incompatible permutations.
+        //Use a non-square grid size for more interesting tests.
+        TransformSet usedTransforms;
+        usedTransforms.Add(Transform3D{ });
+        usedTransforms.Add(Transform3D{ false, Rotations3D::AxisY_90 });
+        State state(OneTileArmy(usedTransforms), { 8, 3, 4 });
+        State::Report report;
 
-    //TODO: Test clearing whole, NON-SQUARE areas, including immutable cells
+        //Set a bunch of cells in a region, some immutable.
+        const Vector3i min(1, 2, 1),
+                       max(7, 2, 3);
+        const Region3i region(min, max + 1);
+        const Vector3i range = region.GetSize();
+        std::function<bool(Vector3i)> isMutable = [](Vector3i p) { return p.z != 2; };
+        for (Vector3i p : region)
+            state.SetCell(p, 0, Transform3D{ }, nullptr, true, isMutable(p));
+
+        //Clear all but the immutable cells.
+        report.Clear();
+        state.ClearCells(region, &report);
+        for (Vector3i p : region)
+            CHECK_EQUAL(!isMutable(p), state.Cells[p].IsSet());
+        //The immutable Z layer means that the other Z layer stays interesting.
+        for (Vector3i p : region)
+            CHECK_EQUAL(!state.Cells[p].IsSet(), report.GotInteresting.Contains(p));
+        CHECK(report.GotInteresting.GetSize());
+
+        //Make sure their neighbors were updated (except for the neighbors of immutables).
+        auto checkClearedNeighbor = [&](int x, int y, int z, int dirX, int dirY, int dirZ) {
+            Vector3i p = Vector3i{ x, y, z } + Vector3i{ dirX, dirY, dirZ };
+            if (!state.Cells.IsIndexValid(p))
+                return;
+            const auto& legalPermutations = state.PossiblePermutations[{0, p}];
+            if (isMutable({ x, y, z }))
+            {
+                CHECK_EQUAL(2, state.Cells[p].NPossibilities);
+                CHECK_EQUAL(usedTransforms, legalPermutations);
+            }
+            else
+            {
+                CHECK_EQUAL(1, state.Cells[p].NPossibilities);
+                CHECK_EQUAL(TransformSet::Combine(Transform3D{ }), legalPermutations);
+            }
+        };
+        //The Z face neighbors:
+        for (int y = min.y; y <= max.y; ++y)
+            for (int x = min.x; x <= max.x; ++x)
+                for (auto [z, dir] : std::vector{ std::make_tuple(min.z, -1),
+                                                  std::make_tuple(max.z, +1) })
+                    checkClearedNeighbor(x, y, z, 0, 0, dir);
+        //The X- and Y-face neighbors:
+        for (int z = min.z; z <= max.z; ++z)
+        {
+            for (int x = min.x; x <= max.x; ++x)
+                for (auto [y, dir] : std::vector{ std::make_tuple(min.y, -1),
+                                                  std::make_tuple(max.y, +1) })
+                    checkClearedNeighbor(x, y, z, 0, dir, 0);
+            for (int y = min.y; y <= max.y; ++y)
+                for (auto [x, dir] : std::vector{ std::make_tuple(min.x, -1),
+                                                  std::make_tuple(max.x, +1) })
+                    checkClearedNeighbor(x, y, z, dir, 0, 0);
+        }
+
+        //Clear the immutable cells too.
+        //Change them to mutable as they're cleared.
+        report.Clear();
+        state.ClearCells(region, &report, true, true);
+        for (Vector3i p : region)
+        {
+            CHECK(!state.Cells[p].IsSet());
+            CHECK(state.Cells[p].IsChangeable);
+            CHECK(report.GotBoring.Contains(p));
+        }
+        
+        //Now the entire grid is empty.
+        CHECK_EQUAL(0, report.GotInteresting.GetSize());
+        CHECK_EQUAL(0, report.GotUnsolvable.GetSize());
+
+        //Look for all the cells marked boring.
+        Set<Vector3i> affectedCells;
+        //The immutable Z-layer was affected, along with the layers above and below it.
+        for (int x = min.x; x <= max.x; ++x)
+            for (int y = min.y; y <= max.y; ++y)
+                for (int z = 1; z <= 3; ++z)
+                    affectedCells.Add({ x, y, z});
+        //The perimeter of the Z-layer was affected as well.
+        for (int x = min.x; x <= max.x; ++x)
+            affectedCells.Add({ x, min.y - 1, 2 });
+        for (int y = min.y; y <= max.y; ++y)
+            affectedCells.Add({ min.x - 1, y, 2 });
+        //Now test that reality lines up with expectations.
+        CHECK_EQUAL(affectedCells.GetSize(), report.GotBoring.GetSize());
+        for (Vector3i cell : affectedCells)
+            CHECK(report.GotBoring.Contains(cell));
+        for (Vector3i cell : Region3i(Vector3i(-1, -1, -1), state.Cells.GetDimensions() + 1))
+            if (!affectedCells.Contains(cell))
+                CHECK(!report.GotBoring.Contains(cell));
+    }
 }
 
 
