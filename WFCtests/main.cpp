@@ -536,7 +536,7 @@ SUITE(WFC_Tiled3D)
         CHECK_EQUAL(Transform3D{ WFC_CONCAT(true, Rotations3D::EdgesYa) }, vec[2]);
     }
 
-    TEST(StateInitialization)
+    TEST(GridInitialization)
     {
         //Use inverted and/or sideways permutations of the single-tile tileset.
         TransformSet usedTransforms;
@@ -544,7 +544,7 @@ SUITE(WFC_Tiled3D)
         usedTransforms.Add(Transform3D{ false, Rotations3D::AxisZ_90 });
         usedTransforms.AddInvertedVersions();
         //TODO: Add one permutation that doesn't affect the X faces.
-        State state(OneTileArmy(usedTransforms), { 1, 2, 3 });
+        Grid state(OneTileArmy(usedTransforms), { 1, 2, 3 });
 
         CHECK_EQUAL(1, state.InputTiles.GetSize());
         CHECK_EQUAL(4, state.NPermutedTiles);
@@ -595,7 +595,7 @@ SUITE(WFC_Tiled3D)
             CHECK_EQUAL(4, cell.NPossibilities);
         }
     }
-    TEST(StateModification)
+    TEST(GridModification)
     {
         //Use two permutations of the single-tile tileset
         //    which can connect vertically.
@@ -605,8 +605,8 @@ SUITE(WFC_Tiled3D)
         usedTransforms.Add(Transform3D{ });
         usedTransforms.Add(Transform3D{ false, Rotations3D::AxisZ_90 });
         usedTransforms.Add(Transform3D{ false, Rotations3D::AxisY_90 }); // The odd one out
-        State state(OneTileArmy(usedTransforms), { 4, 4, 4 });
-        State::Report report;
+        Grid state(OneTileArmy(usedTransforms), { 4, 4, 4 });
+        Grid::Report report;
 
         //Set a cell in the min corner with no transform, and check the effects.
         //Horizontally, the neighbors should be locked into using the null permutation.
@@ -685,15 +685,15 @@ SUITE(WFC_Tiled3D)
         CHECK_EQUAL(4, report.GotInteresting.GetSize());
         CHECK_EQUAL(1, state.Cells[newCellPos.LessX()].NPossibilities);
     }
-    TEST(StateClearing)
+    TEST(GridClearing)
     {
         //Use one tile and two incompatible permutations.
         //Use a non-square grid size for more interesting tests.
         TransformSet usedTransforms;
         usedTransforms.Add(Transform3D{ });
         usedTransforms.Add(Transform3D{ false, Rotations3D::AxisY_90 });
-        State state(OneTileArmy(usedTransforms), { 8, 3, 4 });
-        State::Report report;
+        Grid state(OneTileArmy(usedTransforms), { 8, 3, 4 });
+        Grid::Report report;
 
         //Set a bunch of cells in a region, some immutable.
         const Vector3i min(1, 2, 1),
