@@ -308,12 +308,16 @@ namespace WFC
             static void ClearRow(TransformSet* first, size_t count) { std::memset(first, 0, count * sizeof(TransformSet)); }
 
 
+            //Gets the index of the bit for this transform.
+            static uint_fast8_t ToBitIdx(Transform3D tr)
+            {
+                return (uint_fast8_t)tr.Rot +
+                       (uint_fast8_t)(tr.Invert ? FIRST_INVERT_BIT_IDX : 0);
+            }
             //Turns a transformation into a specific bit.
             static BitsType ToBits(Transform3D tr)
             {
-                return tr.Invert ?
-                           (ONE << ((BitsType)tr.Rot + FIRST_INVERT_BIT_IDX)) :
-                           (ONE << (BitsType)tr.Rot);
+                return ONE << ToBitIdx(tr);
             }
             //Turns a specific bit-pattern into the Transform it represents.
             static Transform3D FromBits(BitsType bits)

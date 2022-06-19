@@ -178,3 +178,20 @@ namespace WFC
 		}
 	};
 }
+
+template<>
+inline WFC::Vector2i WFC::Math::Max<WFC::Vector2i>(Vector2i a, Vector2i b)
+{
+	Vector2i x;
+	for (int i = 0; i < 2; ++i)
+		x[i] = Max(a[i], b[i]);
+	return x;
+}
+template<>
+inline WFC::Vector2i WFC::Math::Min<WFC::Vector2i>(Vector2i a, Vector2i b)
+{
+	Vector2i x;
+	for (int i = 0; i < 2; ++i)
+		x[i] = Min(a[i], b[i]);
+	return x;
+}
