@@ -59,7 +59,7 @@ SUITE(Utils)
         CHECK_EQUAL(31, FindBitIndex((uint32_t)0b10000000000000000000000000000000));
     }
     
-    TEST(CountBitsPt1)
+    TEST(CountBitsU8)
     {
         CHECK_EQUAL(0, CountBits((uint8_t)0b0));
         CHECK_EQUAL(2, CountBits((uint8_t)0b0110));
@@ -70,7 +70,9 @@ SUITE(Utils)
         CHECK_EQUAL(3, CountBits((uint8_t)0b11100000));
         CHECK_EQUAL(4, CountBits((uint8_t)0b10101010));
         CHECK_EQUAL(8, CountBits((uint8_t)0b11111111));
-
+    }
+    TEST(CountBitsU16)
+    {
         CHECK_EQUAL(0, CountBits((uint16_t)0b0));
         CHECK_EQUAL(2, CountBits((uint16_t)0b0110));
         CHECK_EQUAL(2, CountBits((uint16_t)0b1001));
@@ -107,7 +109,7 @@ SUITE(Utils)
         CHECK_EQUAL(8, CountBits((uint16_t)0b1111111100000000));
         CHECK_EQUAL(16, CountBits((uint16_t)0b1111111111111111));
     }
-    TEST(CountBitsPt2)
+    TEST(CountBitsU32Pt1)
     {
         CHECK_EQUAL(0, CountBits((uint32_t)0b0));
         CHECK_EQUAL(2, CountBits((uint32_t)0b0110));
@@ -152,7 +154,7 @@ SUITE(Utils)
         CHECK_EQUAL(8, CountBits((uint32_t)0b0000000011111111));
         CHECK_EQUAL(16, CountBits((uint32_t)0b1111111111111111));
     }
-    TEST(CountBitsPart3)
+    TEST(CountBitsU32Pt2)
     {
         CHECK_EQUAL(2, CountBits((uint32_t)0b01100000000000000000000000000000));
         CHECK_EQUAL(2, CountBits((uint32_t)0b10010000000000000000000000000000));
@@ -190,7 +192,7 @@ SUITE(Utils)
         CHECK_EQUAL(16, CountBits((uint32_t)0b00000000000000001111111111111111));
         CHECK_EQUAL(32, CountBits((uint32_t)0b11111111111111111111111111111111));
     }
-    TEST(CountBitsPt4)
+    TEST(CountBitsU64Pt1)
     {
         CHECK_EQUAL(0, CountBits((uint64_t)0b0));
         CHECK_EQUAL(2, CountBits((uint64_t)0b0110));
@@ -235,7 +237,7 @@ SUITE(Utils)
         CHECK_EQUAL(8, CountBits((uint64_t)0b0000000011111111));
         CHECK_EQUAL(16, CountBits((uint64_t)0b1111111111111111));
     }
-    TEST(CountBitsPt5)
+    TEST(CountBitsU64Pt2)
     {
         CHECK_EQUAL(2, CountBits((uint64_t)0b01100000000000000000000000000000));
         CHECK_EQUAL(2, CountBits((uint64_t)0b10010000000000000000000000000000));
@@ -273,7 +275,7 @@ SUITE(Utils)
         CHECK_EQUAL(16, CountBits((uint64_t)0b00000000000000001111111111111111));
         CHECK_EQUAL(32, CountBits((uint64_t)0b11111111111111111111111111111111));
     }
-    TEST(CountBitsPt6)
+    TEST(CountBitsU64Pt3)
     {
         CHECK_EQUAL(2, CountBits((uint64_t)0b0110000000000000000000000000000000000000000000000000000000000000));
         CHECK_EQUAL(2, CountBits((uint64_t)0b1001000000000000000000000000000000000000000000000000000000000000));
@@ -544,36 +546,36 @@ SUITE(WFC_Tiled3D)
         usedTransforms.Add(Transform3D{ false, Rotations3D::AxisZ_90 });
         usedTransforms.AddInvertedVersions();
         //TODO: Add one permutation that doesn't affect the X faces.
-        Grid state(OneTileArmy(usedTransforms), { 1, 2, 3 });
+        Grid grid(OneTileArmy(usedTransforms), { 1, 2, 3 });
 
-        CHECK_EQUAL(1, state.InputTiles.GetSize());
-        CHECK_EQUAL(4, state.NPermutedTiles);
+        CHECK_EQUAL(1, grid.InputTiles.GetSize());
+        CHECK_EQUAL(4, grid.NPermutedTiles);
 
         //The Z faces are entirely symmetrical, so the rotation/inversion
         //    should not change them.
         //The same does not hold for the X or Y faces.
-        CHECK_EQUAL(2 + (4 * 4), state.GetFaceIndices().GetSize());
+        CHECK_EQUAL(2 + (4 * 4), grid.GetFaceIndices().GetSize());
 
         //Check that the input tile data transferred over correctly.
-        CHECK_EQUAL(Vector4i{WFC_CONCAT(1, 1, 2, 3)}, state.PossiblePermutations.GetDimensions());
-        for (const auto& index : Region4i(state.PossiblePermutations.GetDimensions()))
-            CHECK_EQUAL(usedTransforms, state.PossiblePermutations[index]);
-        for (const auto& tile : state.InputTiles)
+        CHECK_EQUAL(Vector4i{WFC_CONCAT(1, 1, 2, 3)}, grid.PossiblePermutations.GetDimensions());
+        for (const auto& index : Region4i(grid.PossiblePermutations.GetDimensions()))
+            CHECK_EQUAL(usedTransforms, grid.PossiblePermutations[index]);
+        for (const auto& tile : grid.InputTiles)
             for (const auto& originalFace : tile.Data.Faces)
                 for (auto transform : usedTransforms)
-                    CHECK(state.GetFaceIndices().Contains(transform.ApplyToFace(originalFace)));
+                    CHECK(grid.GetFaceIndices().Contains(transform.ApplyToFace(originalFace)));
 
         //Check the link between face permutations and available tiles.
         for (int faceI = 0; faceI < N_DIRECTIONS_3D; ++faceI)
         {
-            const auto& originalFace = state.InputTiles[0].Data.Faces[faceI];
+            const auto& originalFace = grid.InputTiles[0].Data.Faces[faceI];
             for (auto transform : usedTransforms)
             {
                 auto transformedFace = transform.ApplyToFace(originalFace);
                 bool expectAllPermutationToMatch = (transformedFace.Side == MinZ) ||
                                                    (transformedFace.Side == MaxZ);
                 const auto& matchesToTransformedFace =
-                    state.GetMatchingFaces()[{ 0, state.GetFaceIndices()[transformedFace] }];
+                    grid.GetMatchingFaces()[{ 0, grid.GetFaceIndices()[transformedFace] }];
 
                 TransformSet expectedMatches;
                 if (expectAllPermutationToMatch)
@@ -586,10 +588,10 @@ SUITE(WFC_Tiled3D)
         }
 
         //Check that the cells initialized correctly.
-        CHECK_EQUAL(Vector3i{WFC_CONCAT(1, 2, 3)}, state.Cells.GetDimensions());
-        for (const auto& v : Region3i(state.Cells.GetDimensions()))
+        CHECK_EQUAL(Vector3i{WFC_CONCAT(1, 2, 3)}, grid.Cells.GetDimensions());
+        for (const auto& v : Region3i(grid.Cells.GetDimensions()))
         {
-            const auto& cell = state.Cells[v];
+            const auto& cell = grid.Cells[v];
             CHECK_EQUAL((TileIdx)(-1), cell.ChosenTile);
             CHECK_EQUAL(true, cell.IsChangeable);
             CHECK_EQUAL(4, cell.NPossibilities);
@@ -692,7 +694,7 @@ SUITE(WFC_Tiled3D)
         TransformSet usedTransforms;
         usedTransforms.Add(Transform3D{ });
         usedTransforms.Add(Transform3D{ false, Rotations3D::AxisY_90 });
-        Grid state(OneTileArmy(usedTransforms), { 8, 3, 4 });
+        Grid grid(OneTileArmy(usedTransforms), { 8, 3, 4 });
         Grid::Report report;
 
         //Set a bunch of cells in a region, some immutable.
@@ -702,32 +704,32 @@ SUITE(WFC_Tiled3D)
         const Vector3i range = region.GetSize();
         std::function<bool(Vector3i)> isMutable = [](Vector3i p) { return p.z != 2; };
         for (Vector3i p : region)
-            state.SetCell(p, 0, Transform3D{ }, nullptr, true, isMutable(p));
+            grid.SetCell(p, 0, Transform3D{ }, nullptr, true, isMutable(p));
 
         //Clear all but the immutable cells.
         report.Clear();
-        state.ClearCells(region, &report);
+        grid.ClearCells(region, &report);
         for (Vector3i p : region)
-            CHECK_EQUAL(!isMutable(p), state.Cells[p].IsSet());
+            CHECK_EQUAL(!isMutable(p), grid.Cells[p].IsSet());
         //The immutable Z layer means that the other Z layer stays interesting.
         for (Vector3i p : region)
-            CHECK_EQUAL(!state.Cells[p].IsSet(), report.GotInteresting.Contains(p));
+            CHECK_EQUAL(!grid.Cells[p].IsSet(), report.GotInteresting.Contains(p));
         CHECK(report.GotInteresting.GetSize());
 
         //Make sure their neighbors were updated (except for the neighbors of immutables).
         auto checkClearedNeighbor = [&](int x, int y, int z, int dirX, int dirY, int dirZ) {
             Vector3i p = Vector3i{ x, y, z } + Vector3i{ dirX, dirY, dirZ };
-            if (!state.Cells.IsIndexValid(p))
+            if (!grid.Cells.IsIndexValid(p))
                 return;
-            const auto& legalPermutations = state.PossiblePermutations[{0, p}];
+            const auto& legalPermutations = grid.PossiblePermutations[{0, p}];
             if (isMutable({ x, y, z }))
             {
-                CHECK_EQUAL(2, state.Cells[p].NPossibilities);
+                CHECK_EQUAL(2, grid.Cells[p].NPossibilities);
                 CHECK_EQUAL(usedTransforms, legalPermutations);
             }
             else
             {
-                CHECK_EQUAL(1, state.Cells[p].NPossibilities);
+                CHECK_EQUAL(1, grid.Cells[p].NPossibilities);
                 CHECK_EQUAL(TransformSet::Combine(Transform3D{ }), legalPermutations);
             }
         };
@@ -753,11 +755,11 @@ SUITE(WFC_Tiled3D)
         //Clear the immutable cells too.
         //Change them to mutable as they're cleared.
         report.Clear();
-        state.ClearCells(region, &report, true, true);
+        grid.ClearCells(region, &report, true, true);
         for (Vector3i p : region)
         {
-            CHECK(!state.Cells[p].IsSet());
-            CHECK(state.Cells[p].IsChangeable);
+            CHECK(!grid.Cells[p].IsSet());
+            CHECK(grid.Cells[p].IsChangeable);
             CHECK(report.GotBoring.Contains(p));
         }
         
@@ -781,9 +783,79 @@ SUITE(WFC_Tiled3D)
         CHECK_EQUAL(affectedCells.GetSize(), report.GotBoring.GetSize());
         for (Vector3i cell : affectedCells)
             CHECK(report.GotBoring.Contains(cell));
-        for (Vector3i cell : Region3i(Vector3i(-1, -1, -1), state.Cells.GetDimensions() + 1))
+        for (Vector3i cell : Region3i(Vector3i(-1, -1, -1), grid.Cells.GetDimensions() + 1))
             if (!affectedCells.Contains(cell))
                 CHECK(!report.GotBoring.Contains(cell));
+    }
+
+    TEST(StandardRunner)
+    {
+        //StandardRunner uses <random> to generate numbers.
+        //Run the test many times to cover a broad range of possible outcomes.
+        const int N_TESTS =
+            #ifdef _DEBUG
+                100000
+            #else
+                400000
+            #endif
+        ;
+        for (int i = 0; i < N_TESTS; ++i)
+        {
+            //Use two permutations of a single tile,
+            //    which are compatible along Z but not X or Y,
+            //    ensuring that each Z-level uses all one permutation.
+            TransformSet usedTransforms;
+            usedTransforms.Add(Transform3D{ });
+            usedTransforms.Add(Transform3D{ false, Rotations3D::AxisZ_90 });
+            StandardRunner state(OneTileArmy(usedTransforms), {4, 5, 6});
+
+            //Tick once, and check that one cell is set.
+            bool isFinished = state.Tick();
+            CHECK(!isFinished);
+            int nSet = 0;
+            Vector3i setCellPos;
+            for (Vector3i cellPos : Region3i(state.Grid.Cells.GetDimensions()))
+            {
+                const auto& cell = state.Grid.Cells[cellPos];
+                if (cell.IsSet())
+                {
+                    nSet += 1;
+                    setCellPos = cellPos;
+                    CHECK_EQUAL(0, cell.ChosenTile);
+                    CHECK(cell.ChosenPermutation ==
+                            Transform3D{ } ||
+                          cell.ChosenPermutation ==
+                            Transform3D{WFC_CONCAT(false, Rotations3D::AxisZ_90)});
+                }
+            }
+            CHECK_EQUAL(1, nSet);
+
+            //Tick again, and check that the new set cell is a neighbor of the previous one.
+            Vector3i originalCellPos = setCellPos;
+            nSet = 0;
+            state.Tick();
+            for (Vector3i cellPos : Region3i(state.Grid.Cells.GetDimensions()))
+            {
+                const auto& cell = state.Grid.Cells[cellPos];
+                if (cell.IsSet())
+                {
+                    nSet += 1;
+                    CHECK_EQUAL(0, cell.ChosenTile);
+                    CHECK(cell.ChosenPermutation ==
+                          state.Grid.Cells[originalCellPos].ChosenPermutation);
+
+                    if (cellPos != originalCellPos)
+                        setCellPos = cellPos;
+                }
+            }
+            CHECK_EQUAL(2, nSet);
+            CHECK(setCellPos == originalCellPos.LessX() ||
+                    setCellPos == originalCellPos.MoreX() ||
+                    setCellPos == originalCellPos.LessY() ||
+                    setCellPos == originalCellPos.MoreY() ||
+                    setCellPos == originalCellPos.LessZ() ||
+                    setCellPos == originalCellPos.MoreZ());
+        }
     }
 }
 
