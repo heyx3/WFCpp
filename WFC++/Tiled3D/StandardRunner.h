@@ -1,5 +1,6 @@
 #pragma once
 
+#include <span>
 #include "Grid.h"
 
 namespace WFC::Tiled3D
@@ -8,13 +9,6 @@ namespace WFC::Tiled3D
     class WFC_API StandardRunner
     {
     public:
-
-        enum class Status
-        {
-            Running,
-            Finished
-        };
-        Status CurrentState = Status::Running;
 
         //In this model, cells have a "temperature", reflecting
         //    how often they have been unsolved.
@@ -25,11 +19,11 @@ namespace WFC::Tiled3D
         struct WFC_API CellHistory
         {
             //A measure of how frequently the cell has been unsolvable.
-            float BaseTemperature;
+            float BaseTemperature = 0.0f;
             //A "timestamp" of how recently the cell has been unsolvable.
             //This has an implicit cooling effect on the temperature.
             //The special value ~0 (all bits set) means it's never been unsolvable.
-            uint32_t LastUnsolvedTime;
+            uint32_t LastUnsolvedTime = 0;
         };
         static const uint32_t NEVER_UNSOLVED_TIMESTAMP = -1;
 
@@ -78,7 +72,7 @@ namespace WFC::Tiled3D
         //Note that the 'NPermutations' value is fed in as a float from 0 to 1.
         float PriorityWeightEntropy = 0.8f;
 
-        PRNG Rand = PRNG(std::random_device()());
+        PRNG Rand;
 
 
         Grid Grid;
@@ -92,20 +86,33 @@ namespace WFC::Tiled3D
         float GetPriority(const Vector3i& cellPos);
 
         //Runs one iteration of the algorithm.
-        void Tick();
+        //Returns whether the algorithm is finished.
+        bool Tick();
         //Runs the algorithm until finished, or for N ticks.
-        void TickN(int n);
+        //Returns whether the algorithm is finished.
+        bool TickN(int n);
+
+
+        StandardRunner(const List<Tile>& inputTiles, const Vector3i& gridSize,
+                       PRNG rand = PRNG(std::random_device()()))
+            : Grid(inputTiles, gridSize), Rand(rand),
+              History(gridSize, { })
+        {
+
+        }
 
 
     private:
         Grid::Report report;
         Set<Vector3i> nextCells, unsolvableCells;
         Dictionary<Vector3i, float> buffer_pickCell_priorities;
-        List<int> buffer_pickCell_distribution;
+        List<int> buffer_randomTile_distribution;
 
         void ClearAround(const Vector3i& centerCellPos);
         void Set(const Vector3i& cellPos, TileIdx tile, Transform3D permutation);
 
         Vector3i PickNextCellToSet();
+
+        std::tuple<TileIdx, Transform3D> RandomTile(const std::span<TransformSet>& allowedPerTile);
     };
 }

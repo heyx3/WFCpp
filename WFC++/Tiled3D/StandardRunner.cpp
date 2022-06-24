@@ -71,9 +71,6 @@ void StandardRunner::ClearAround(const Vector3i& centerCellPos)
                                               Vector3i(xI, yI, zI) - 1);
                 History[cellPos].BaseTemperature += TempIncreases[xI][yI][zI];
             }
-
-    //Whatever the algorithm's previous state, it's now unfinished.
-    CurrentState = Status::Running;
 }
 void StandardRunner::Set(const Vector3i& cellPos, TileIdx tile, Transform3D permutation)
 {
@@ -109,18 +106,23 @@ Vector3i StandardRunner::PickNextCellToSet()
     }
 
     //Filter out the cells of less-than-max priority.
-    for (auto iter = cellPriorities.begin(); iter != cellPriorities.end(); ++iter)
+    auto iter = cellPriorities.begin();
+    while (iter != cellPriorities.end())
+    {
         if (iter->second < maxPriority)
             iter = cellPriorities.Unwrap().erase(iter);
+        else
+            ++iter;
+    }
 
     //Pick one cell randomly.
-    auto iter = cellPriorities.begin();
-    auto idx = std::uniform_int_distribution<int>(0, cellPriorities.GetSize())(Rand);
+    iter = cellPriorities.begin();
+    auto idx = std::uniform_int_distribution<int>(0, cellPriorities.GetSize() - 1)(Rand);
     std::advance(iter, idx);
     return iter->first;
 }
 
-void StandardRunner::Tick()
+bool StandardRunner::Tick()
 {
     //If cells are unsolvable, clear them.
     bool hasUnsolvable = unsolvableCells.GetSize() > 0;
@@ -129,11 +131,13 @@ void StandardRunner::Tick()
     unsolvableCells.Clear();
     if (hasUnsolvable)
     {
-        return;
+        return false;
     }
     //If there's no search frontier, re-scan the grid for options.
     else if (nextCells.GetSize() == 0)
     {
+        //Look for any cells with less than full range of possibilities,
+        //    and track how many are set.
         size_t nSetCells = 0;
         for (const Vector3i& cellPos : Region3i(Grid.Cells.GetDimensions()))
         {
@@ -144,38 +148,58 @@ void StandardRunner::Tick()
                 nextCells.Add(cellPos);
         }
         
-        //If every cell was set, then we're done.
+        //If every cell was set, then the algorithm is done.
         if (nSetCells == Grid.Cells.GetNumbElements())
         {
-            CurrentState = Status::Finished;
-            return;
+            return true;
+        }
+        //If all cells have an equal chance to be set, then pick one at random.
+        else if (nextCells.GetSize() == 0)
+        {
+            Vector3i cellPos;
+            for (int i = 0; i < 3; ++i)
+                cellPos[i] = std::uniform_int_distribution(0, Grid.Cells.GetDimensions()[i] - 1)(Rand);
+            nextCells.Add(cellPos);
         }
     }
 
     //Pick the highest-priority cell.
     Vector3i cellPos = PickNextCellToSet();
-    const auto& cell = Grid.Cells[cellPos];
-    //Pick a tile for it.
-    buffer_pickCell_distribution.Clear();
-    for (int tileI = 0; tileI < buffer_pickCell_distribution.GetSize(); ++tileI)
-        buffer_pickCell_distribution.PushBack(Grid.PossiblePermutations[{ tileI, cellPos }].Size());
-    std::discrete_distribution tileDistribution(buffer_pickCell_distribution.begin(),
-                                                buffer_pickCell_distribution.end());
-    int chosenTileI = tileDistribution(Rand);
-    //Pick a permutation for the tile.
-    const auto& permutations = Grid.PossiblePermutations[{ chosenTileI, cellPos }];
-    buffer_pickCell_distribution.Resize((size_t)N_ROTATIONS_3D * 2);
-    std::fill(buffer_pickCell_distribution.begin(), buffer_pickCell_distribution.end(), 0);
-    for (Transform3D tr : permutations)
-        buffer_pickCell_distribution[TransformSet::ToBitIdx(tr)] = 1;
-    std::discrete_distribution permDistribution(buffer_pickCell_distribution.begin(),
-                                                buffer_pickCell_distribution.end());
-    int chosenTransformI = permDistribution(Rand);
-    //Set the tile.
-    Set(cellPos, chosenTileI, TransformSet::FromBit(chosenTransformI));
+    auto [tileIdx, tilePermutation] = RandomTile(std::span(
+        &Grid.PossiblePermutations[{ 0, cellPos }],
+        Grid.InputTiles.GetSize()
+    ));
+    Set(cellPos, tileIdx, tilePermutation);
+
+    return false;
 }
-void StandardRunner::TickN(int n)
+bool StandardRunner::TickN(int n)
 {
-    for (int i = 0; i < n && CurrentState != Status::Finished; ++i)
-        Tick();
+    for (int i = 0; i < n; ++i)
+        if (Tick())
+            return true;
+    return false;
+}
+
+std::tuple<TileIdx, Transform3D> StandardRunner::RandomTile(const std::span<TransformSet>& allowedPerTile)
+{
+    //Pick a tile.
+    buffer_randomTile_distribution.Clear();
+    for (int tileI = 0; tileI < buffer_randomTile_distribution.GetSize(); ++tileI)
+        buffer_randomTile_distribution.PushBack(allowedPerTile[tileI].Size());
+    std::discrete_distribution tileDistribution(buffer_randomTile_distribution.begin(),
+                                                buffer_randomTile_distribution.end());
+    int chosenTileI = tileDistribution(Rand);
+
+    //Pick a permutation for the tile.
+    const auto& permutations = allowedPerTile[chosenTileI];
+    buffer_randomTile_distribution.Resize((size_t)N_ROTATIONS_3D * 2);
+    std::fill(buffer_randomTile_distribution.begin(), buffer_randomTile_distribution.end(), 0);
+    for (Transform3D tr : permutations)
+        buffer_randomTile_distribution[TransformSet::ToBitIdx(tr)] = 1;
+    std::discrete_distribution permDistribution(buffer_randomTile_distribution.begin(),
+                                                buffer_randomTile_distribution.end());
+    int chosenTransformI = permDistribution(Rand);
+
+    return std::make_tuple((TileIdx)chosenTileI, TransformSet::FromBit(chosenTransformI));
 }
