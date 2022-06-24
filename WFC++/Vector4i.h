@@ -55,7 +55,12 @@ namespace WFC
 
 		Vector4i operator-() const { return Vector4i(-x, -y, -z, -w); }
 
-		bool operator==(const Vector4i& v) const { return (x == v.x) && (y == v.y) && (z == v.z) && (w == v.w); }
+		bool operator==(const Vector4i& v) const
+		{
+			static_assert(sizeof(Vector4i) == 4 * sizeof(int),
+						  "Vector4i has some byte padding");
+			return memcmp(this, &v, sizeof(Vector4i)) == 0;
+		}
 		bool operator!=(const Vector4i& v) const { return !operator==(v); }
 
 
@@ -68,9 +73,12 @@ namespace WFC
 		Vector4i LessW() const { return Vector4i(x, y, z, w - 1); }
 		Vector4i MoreW() const { return Vector4i(x, y, z, w + 1); }
 
-		uint32_t GetHashcode() const { return Vector2i(Vector2i(x, y).GetHashcode(),
-												       Vector2i(z, w).GetHashcode()
-													  ).GetHashcode(); }
+		uint32_t GetHashcode() const
+		{
+			auto a = Vector2i(x, y).GetHashcode(),
+				 b = Vector2i(x, y ).GetHashcode();
+			return Vector2i(static_cast<int32_t>(a), static_cast<int32_t>(b)).GetHashcode();
+		}
 	};
 
 

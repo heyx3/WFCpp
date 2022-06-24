@@ -55,8 +55,13 @@ namespace WFC
 
 		Vector3i operator-() const { return Vector3i(-x, -y, -z); }
 
-		bool operator==(const Vector3i& v) const { return (x == v.x) && (y == v.y) && (z == v.z); }
-		bool operator!=(const Vector3i& v) const { return (x != v.x) || (y != v.y) || (z != v.z); }
+		bool operator==(const Vector3i& v) const
+		{
+			static_assert(sizeof(Vector3i) == 3 * sizeof(int),
+						  "Vector3i has some byte padding");
+			return memcmp(this, &v, sizeof(Vector3i)) == 0;
+		}
+		bool operator!=(const Vector3i& v) const { return !operator==(v); }
 
 
 		Vector3i LessX() const { return Vector3i(x - 1, y, z); }
@@ -66,9 +71,10 @@ namespace WFC
         Vector3i LessZ() const { return Vector3i(x, y, z - 1); }
         Vector3i MoreZ() const { return Vector3i(x, y, z + 1); }
 
-		uint32_t GetHashcode() const { return Vector2i(static_cast<uint32_t>(z),
-				  							           Vector2i(x, y).GetHashcode()
-													  ).GetHashcode(); }
+		uint32_t GetHashcode() const
+		{
+			return Vector2i(Vector2i(x, y).GetHashcode(), z).GetHashcode();
+		}
 	};
 
 
