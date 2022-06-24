@@ -1,10 +1,11 @@
 #pragma once
 
-#include <span>
 #include <tuple>
 #include "Grid.h"
 
-namespace WFC::Tiled3D
+namespace WFC
+{
+namespace Tiled3D
 {
     //Provides a flexible strategy to generate a tile Grid with WFC.
     class WFC_API StandardRunner
@@ -110,8 +111,13 @@ namespace WFC::Tiled3D
               History(gridSize, { })
         {
             if (constants != nullptr)
-                for (const auto& [cellPos, tileData] : *constants)
-                    Set(cellPos, std::get<0>(tileData), std::get<1>(tileData));
+                for (const auto& constant : *constants)
+                {
+                    Vector3i cellPos = std::get<0>(constant);
+                    TileIdx chosenTile = std::get<0>(std::get<1>(constant));
+                    Transform3D chosenPermutation = std::get<1>(std::get<1>(constant));
+                    Set(cellPos, chosenTile, chosenPermutation);
+                }
         }
 
 
@@ -126,6 +132,7 @@ namespace WFC::Tiled3D
 
         Vector3i PickNextCellToSet();
 
-        std::tuple<TileIdx, Transform3D> RandomTile(const std::span<TransformSet>& allowedPerTile);
+        std::tuple<TileIdx, Transform3D> RandomTile(const TransformSet* allowedPerTile);
     };
+}
 }

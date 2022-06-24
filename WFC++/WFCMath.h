@@ -1,6 +1,7 @@
 #pragma once
 
 #include <numeric>
+#include <limits>
 
 namespace WFC
 {
@@ -41,6 +42,16 @@ namespace WFC
             return b;
         }
 
+        //Not defined in the standard before C++20...
+        constexpr bool IsPlatformLittleEndian()
+        {
+            //Reference: https://stackoverflow.com/a/1001328
+
+            uint32_t i = 1;
+            unsigned char* iBytes = (unsigned char*)(&i);
+            return iBytes[0] == 1;
+        }
+
         //Finds which bit is set, in an integer with 1 bit set.
         inline uint_fast8_t FindBitIndex(uint32_t u)
         {
@@ -52,8 +63,8 @@ namespace WFC
             
             //Assemble the double's bit-pattern with a specific exponent.
             const uint32_t exponent = 0x43300000;
-            uint_fast8_t exponentHalf = (std::endian::native == std::endian::little) ? 1 : 0,
-                         mantissaHalf = (std::endian::native == std::endian::little) ? 0 : 1;
+            uint_fast8_t exponentHalf = IsPlatformLittleEndian() ? 1 : 0,
+                         mantissaHalf = IsPlatformLittleEndian() ? 0 : 1;
             uint32_t bytes[2];
             bytes[exponentHalf] = exponent;
             bytes[mantissaHalf] = u;

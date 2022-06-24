@@ -95,8 +95,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDLL;WFC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)\%(RelativeDir)\%(Filename).obj</ObjectFileName>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <DisableSpecificWarnings>4251;4984</DisableSpecificWarnings>
     </ClCompile>
     <PostBuildEvent>
       <Command>REM Clear "include" directory
@@ -133,8 +133,8 @@ del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDLL;WFC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)\%(RelativeDir)\%(Filename).obj</ObjectFileName>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <DisableSpecificWarnings>4251;4984</DisableSpecificWarnings>
     </ClCompile>
     <PostBuildEvent>
       <Command>REM Clear "include" directory
@@ -173,8 +173,8 @@ del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDLL;WFC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)\%(RelativeDir)\%(Filename).obj</ObjectFileName>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <DisableSpecificWarnings>4251;4984</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -217,8 +217,8 @@ del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDLL;WFC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)\%(RelativeDir)\%(Filename).obj</ObjectFileName>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <DisableSpecificWarnings>4251;4984</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

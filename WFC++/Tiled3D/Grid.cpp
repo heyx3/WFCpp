@@ -56,7 +56,12 @@ void Grid::Reset()
 bool Grid::IsLegalPlacement(const Vector3i& cellPos,
                             TileIdx tileIdx, Transform3D tilePermutation) const
 {
-    for (const auto& [neighborPos, mySide] : GetNeighbors(cellPos))
+    for (const auto& neighborData : GetNeighbors(cellPos))
+    {
+        Vector3i neighborPos;
+        Directions3D mySide;
+        std::tie(neighborPos, mySide) = neighborData;
+
         if (Cells.IsIndexValid(neighborPos) && Cells[neighborPos].IsSet())
         {
             const auto& neighborCell = Cells[neighborPos];
@@ -70,6 +75,7 @@ bool Grid::IsLegalPlacement(const Vector3i& cellPos,
             if (!MatchingFaces[{ tileIdx, FaceIndices[myRequiredFace] }].Contains(tilePermutation))
                 return false;
         }
+    }
 
     return true;
 }
@@ -91,9 +97,9 @@ void Grid::SetCell(const Vector3i& pos, TileIdx tile, Transform3D tilePermutatio
     cell = { tile, tilePermutation, canBeChangedInFuture, 1 };
 
     //Update the neighbors.
-    for (const auto& [neighborPos, sideTowardsNeighbor] : GetNeighbors(pos))
-        if (Cells.IsIndexValid(neighborPos))
-            ApplyFilter(pos, neighborPos, sideTowardsNeighbor, report);
+    for (const auto& neighborData : GetNeighbors(pos))
+        if (Cells.IsIndexValid(std::get<0>(neighborData)))
+            ApplyFilter(pos, std::get<0>(neighborData), std::get<1>(neighborData), report);
 }
 
 
@@ -172,9 +178,14 @@ void Grid::ClearCells(const Region3i& region, Report* report,
                             //It's pretty hard to add tile possibilities back in.
                             //Much easier is to recompute them from scratch based on *all* neighbors.
                             ResetCellPossibilities(outsidePos, outsideCell, report);
-                            for (const auto& [neighborPos, sideTowardsNeighbor] : GetNeighbors(outsidePos))
+                            for (const auto& neighborData : GetNeighbors(outsidePos))
+                            {
+                                Vector3i neighborPos;
+                                Directions3D sideTowardsNeighbor;
+                                std::tie(neighborPos, sideTowardsNeighbor) = neighborData;
                                 if (Cells.IsIndexValid(neighborPos))
                                     ApplyFilter(neighborPos, outsidePos, GetOpposite(sideTowardsNeighbor), report);
+                            }
                         }
                     }
                 }
@@ -186,9 +197,14 @@ void Grid::ClearCells(const Region3i& region, Report* report,
         const auto& cell = Cells[cellPos];
         assert(cell.IsSet());
 
-        for (const auto& [neighborPos, sideTowardsNeighbor] : GetNeighbors(cellPos))
+        for (const auto& neighborData : GetNeighbors(cellPos))
+        {
+            Vector3i neighborPos;
+            Directions3D sideTowardsNeighbor;
+            std::tie(neighborPos, sideTowardsNeighbor) = neighborData;
             if (region.Contains(neighborPos) && Cells.IsIndexValid(neighborPos))
                 ApplyFilter(cellPos, neighborPos, sideTowardsNeighbor, report);
+        }
     }
 }
 void Grid::ClearCell(const Vector3i& cellPos, Report* report,

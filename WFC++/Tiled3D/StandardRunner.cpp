@@ -117,7 +117,7 @@ Vector3i StandardRunner::PickNextCellToSet()
 
     //Pick one cell randomly.
     iter = cellPriorities.begin();
-    auto idx = std::uniform_int_distribution<int>(0, cellPriorities.GetSize() - 1)(Rand);
+    auto idx = std::uniform_int_distribution<int>(0, (int)cellPriorities.GetSize() - 1)(Rand);
     std::advance(iter, idx);
     return iter->first;
 }
@@ -158,17 +158,16 @@ bool StandardRunner::Tick()
         {
             Vector3i cellPos;
             for (int i = 0; i < 3; ++i)
-                cellPos[i] = std::uniform_int_distribution(0, Grid.Cells.GetDimensions()[i] - 1)(Rand);
+                cellPos[i] = std::uniform_int_distribution<int>(0, Grid.Cells.GetDimensions()[i] - 1)(Rand);
             nextCells.Add(cellPos);
         }
     }
 
     //Pick the highest-priority cell.
     Vector3i cellPos = PickNextCellToSet();
-    auto [tileIdx, tilePermutation] = RandomTile(std::span(
-        &Grid.PossiblePermutations[{ 0, cellPos }],
-        Grid.InputTiles.GetSize()
-    ));
+    TileIdx tileIdx;
+    Transform3D tilePermutation;
+    std::tie(tileIdx, tilePermutation) = RandomTile(&Grid.PossiblePermutations[{ 0, cellPos }]);
     Set(cellPos, tileIdx, tilePermutation);
 
     return false;
@@ -181,14 +180,14 @@ bool StandardRunner::TickN(int n)
     return false;
 }
 
-std::tuple<TileIdx, Transform3D> StandardRunner::RandomTile(const std::span<TransformSet>& allowedPerTile)
+std::tuple<TileIdx, Transform3D> StandardRunner::RandomTile(const TransformSet* allowedPerTile)
 {
     //Pick a tile.
     buffer_randomTile_distribution.Clear();
     for (int tileI = 0; tileI < buffer_randomTile_distribution.GetSize(); ++tileI)
         buffer_randomTile_distribution.PushBack(allowedPerTile[tileI].Size());
-    std::discrete_distribution tileDistribution(buffer_randomTile_distribution.begin(),
-                                                buffer_randomTile_distribution.end());
+    std::discrete_distribution<int> tileDistribution(buffer_randomTile_distribution.begin(),
+                                                     buffer_randomTile_distribution.end());
     int chosenTileI = tileDistribution(Rand);
 
     //Pick a permutation for the tile.
@@ -197,8 +196,8 @@ std::tuple<TileIdx, Transform3D> StandardRunner::RandomTile(const std::span<Tran
     std::fill(buffer_randomTile_distribution.begin(), buffer_randomTile_distribution.end(), 0);
     for (Transform3D tr : permutations)
         buffer_randomTile_distribution[TransformSet::ToBitIdx(tr)] = 1;
-    std::discrete_distribution permDistribution(buffer_randomTile_distribution.begin(),
-                                                buffer_randomTile_distribution.end());
+    std::discrete_distribution<int> permDistribution(buffer_randomTile_distribution.begin(),
+                                                     buffer_randomTile_distribution.end());
     int chosenTransformI = permDistribution(Rand);
 
     return std::make_tuple((TileIdx)chosenTileI, TransformSet::FromBit(chosenTransformI));
