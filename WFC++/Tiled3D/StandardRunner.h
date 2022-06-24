@@ -1,6 +1,7 @@
 #pragma once
 
 #include <span>
+#include <tuple>
 #include "Grid.h"
 
 namespace WFC::Tiled3D
@@ -92,13 +93,25 @@ namespace WFC::Tiled3D
         //Returns whether the algorithm is finished.
         bool TickN(int n);
 
+        void Reset()
+        {
+            Grid.ClearCells(Region3i(Grid.Cells.GetDimensions()));
+            report.Clear();
+            nextCells.Clear();
+            unsolvableCells.Clear();
+        }
+        //TODO: Another overload that takes new 'constants'.
+
 
         StandardRunner(const List<Tile>& inputTiles, const Vector3i& gridSize,
+                       const Dictionary<Vector3i, std::tuple<TileIdx, Transform3D>>* constants = nullptr,
                        PRNG rand = PRNG(std::random_device()()))
             : Grid(inputTiles, gridSize), Rand(rand),
               History(gridSize, { })
         {
-
+            if (constants != nullptr)
+                for (const auto& [cellPos, tileData] : *constants)
+                    Set(cellPos, std::get<0>(tileData), std::get<1>(tileData));
         }
 
 

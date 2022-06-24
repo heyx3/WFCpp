@@ -790,24 +790,26 @@ SUITE(WFC_Tiled3D)
 
     TEST(StandardRunner)
     {
+        //Use two permutations of a single tile,
+        //    which are compatible along Z but not X or Y,
+        //    ensuring that each Z-level uses all one permutation.
+        TransformSet usedTransforms;
+        usedTransforms.Add(Transform3D{ });
+        usedTransforms.Add(Transform3D{ false, Rotations3D::AxisZ_90 });
+        StandardRunner state(OneTileArmy(usedTransforms), {4, 5, 6});
+
         //StandardRunner uses <random> to generate numbers.
         //Run the test many times to cover a broad range of possible outcomes.
         const int N_TESTS =
             #ifdef _DEBUG
-                100000
+                20000
             #else
-                400000
+                200000
             #endif
         ;
         for (int i = 0; i < N_TESTS; ++i)
         {
-            //Use two permutations of a single tile,
-            //    which are compatible along Z but not X or Y,
-            //    ensuring that each Z-level uses all one permutation.
-            TransformSet usedTransforms;
-            usedTransforms.Add(Transform3D{ });
-            usedTransforms.Add(Transform3D{ false, Rotations3D::AxisZ_90 });
-            StandardRunner state(OneTileArmy(usedTransforms), {4, 5, 6});
+            state.Reset();
 
             //Tick once, and check that one cell is set.
             bool isFinished = state.Tick();
@@ -855,6 +857,8 @@ SUITE(WFC_Tiled3D)
                     setCellPos == originalCellPos.MoreY() ||
                     setCellPos == originalCellPos.LessZ() ||
                     setCellPos == originalCellPos.MoreZ());
+
+            //TODO: Set a cell that makes the grid unsolvable, then watch it clear.
         }
     }
 }
@@ -862,5 +866,6 @@ SUITE(WFC_Tiled3D)
 
 int main(int, const char* [])
 {
+    std::cout << "Running..." << std::endl;
     return UnitTest::RunAllTests();
 }
