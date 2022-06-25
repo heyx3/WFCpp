@@ -4,8 +4,7 @@
 #include <tuple>
 #include <algorithm>
 
-#include "InputData.h"
-#include "../Array4D.hpp"
+#include "Tile.hpp"
 
 namespace WFC
 {

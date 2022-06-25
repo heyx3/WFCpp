@@ -262,7 +262,6 @@ del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
     <ClInclude Include="WFC++\List.hpp" />
     <ClInclude Include="WFC++\Tiled3D\StandardRunner.h" />
     <ClInclude Include="WFC++\WFCppStreamPrinting.hpp" />
-    <ClInclude Include="WFC++\Tiled3D\InputData.h" />
     <ClInclude Include="WFC++\Tiled3D\Grid.h" />
     <ClInclude Include="WFC++\Tiled3D\Tile.hpp" />
     <ClInclude Include="WFC++\Tiled3D\TilePermutator.h" />
@@ -286,7 +285,6 @@ del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
     <ClCompile Include="WFC++\Simple\InputData.cpp" />
     <ClCompile Include="WFC++\Simple\Pattern.cpp" />
     <ClCompile Include="WFC++\Simple\State.cpp" />
-    <ClCompile Include="WFC++\Tiled3D\InputData.cpp" />
     <ClCompile Include="WFC++\Tiled3D\Grid.cpp" />
     <ClCompile Include="WFC++\Tiled3D\StandardRunner.cpp" />
     <ClCompile Include="WFC++\Tiled3D\TilePermutator.cpp" />

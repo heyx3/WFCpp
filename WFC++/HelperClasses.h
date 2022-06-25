@@ -3,6 +3,7 @@
 #include "Nullable.hpp"
 #include "Array2D.hpp"
 #include "Array3D.hpp"
+#include "Array4D.hpp"
 #include "List.hpp"
 #include "Set.hpp"
 #include "Dictionary.hpp"

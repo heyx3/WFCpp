@@ -57,9 +57,6 @@
     <ClInclude Include="WFC++\Tiled3D\Transform3D.h">
       <Filter>Generator Classes\Tiled3D</Filter>
     </ClInclude>
-    <ClInclude Include="WFC++\Tiled3D\InputData.h">
-      <Filter>Generator Classes\Tiled3D</Filter>
-    </ClInclude>
     <ClInclude Include="WFC++\Tiled3D\Tile.hpp">
       <Filter>Generator Classes\Tiled3D</Filter>
     </ClInclude>
@@ -120,9 +117,6 @@
       <Filter>Generator Classes\Tiled</Filter>
     </ClCompile>
     <ClCompile Include="WFC++\Tiled3D\Transform3D.cpp">
-      <Filter>Generator Classes\Tiled3D</Filter>
-    </ClCompile>
-    <ClCompile Include="WFC++\Tiled3D\InputData.cpp">
       <Filter>Generator Classes\Tiled3D</Filter>
     </ClCompile>
     <ClCompile Include="WFC++\Tiled3D\Grid.cpp">
