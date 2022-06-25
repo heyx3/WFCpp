@@ -101,6 +101,7 @@ namespace Tiled3D
             nextCells.Clear();
             unsolvableCells.Clear();
         }
+        void Reset(const Dictionary<Vector3i, std::tuple<TileIdx, Transform3D>>& constants);
         //TODO: Another overload that takes new 'constants'.
 
 
@@ -128,7 +129,8 @@ namespace Tiled3D
         List<int> buffer_randomTile_distribution;
 
         void ClearAround(const Vector3i& centerCellPos);
-        void Set(const Vector3i& cellPos, TileIdx tile, Transform3D permutation);
+        void Set(const Vector3i& cellPos, TileIdx tile, Transform3D permutation,
+                 bool makeImmutable = false);
 
         Vector3i PickNextCellToSet();
 

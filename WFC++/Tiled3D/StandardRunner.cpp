@@ -45,6 +45,18 @@ float StandardRunner::GetPriority(const Vector3i& cellPos)
 }
 
 
+void StandardRunner::Reset(const Dictionary<Vector3i, std::tuple<TileIdx, Transform3D>>& constants)
+{
+    Reset();
+    for (const auto& constant : constants)
+    {
+        Vector3i cellPos = std::get<0>(constant);
+        TileIdx tileIdx = std::get<0>(std::get<1>(constant));
+        Transform3D tilePermutation = std::get<1>(std::get<1>(constant));
+        Set(cellPos, tileIdx, tilePermutation, true);
+    }
+}
+
 void StandardRunner::ClearAround(const Vector3i& centerCellPos)
 {
     auto region = GetClearRegion(centerCellPos);
@@ -72,10 +84,12 @@ void StandardRunner::ClearAround(const Vector3i& centerCellPos)
                 History[cellPos].BaseTemperature += TempIncreases[xI][yI][zI];
             }
 }
-void StandardRunner::Set(const Vector3i& cellPos, TileIdx tile, Transform3D permutation)
+void StandardRunner::Set(const Vector3i& cellPos, TileIdx tile, Transform3D permutation,
+                         bool makeImmutable)
 {
     report.Clear();
-    Grid.SetCell(cellPos, tile, permutation, &report);
+    Grid.SetCell(cellPos, tile, permutation, &report,
+                 makeImmutable, !makeImmutable);
     nextCells.Erase(cellPos);
     unsolvableCells.Erase(cellPos);
 

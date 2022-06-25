@@ -788,7 +788,7 @@ SUITE(WFC_Tiled3D)
                 CHECK(!report.GotBoring.Contains(cell));
     }
 
-    TEST(StandardRunner)
+    TEST(StandardRunnerTick)
     {
         //Use two permutations of a single tile,
         //    which are compatible along Z but not X or Y,
@@ -833,9 +833,10 @@ SUITE(WFC_Tiled3D)
             CHECK_EQUAL(1, nSet);
 
             //Tick again, and check that the new set cell is a neighbor of the previous one.
+            isFinished = state.Tick();
+            CHECK(!isFinished);
             Vector3i originalCellPos = setCellPos;
             nSet = 0;
-            state.Tick();
             for (Vector3i cellPos : Region3i(state.Grid.Cells.GetDimensions()))
             {
                 const auto& cell = state.Grid.Cells[cellPos];
@@ -861,11 +862,65 @@ SUITE(WFC_Tiled3D)
             //TODO: Set a cell that makes the grid unsolvable, then watch it clear.
         }
     }
+    TEST(StandardRunnerTickN)
+    {
+        //Use two permutations of a single tile,
+        //    which are compatible along Z but not X or Y,
+        //    ensuring that each Z-level uses all one permutation.
+        //Add a third incompatible permutation just to make sure it never appears.
+        TransformSet usedTransforms;
+        usedTransforms.Add(Transform3D{ });
+        usedTransforms.Add(Transform3D{ false, Rotations3D::AxisZ_90 });
+        usedTransforms.Add(Transform3D{ false, Rotations3D::AxisY_90 }); //The incompatible one.
+        StandardRunner state(OneTileArmy(usedTransforms), { 4, 5, 6 });
+
+        //Set one tile on each Z-slice.
+        Dictionary<Vector3i, std::tuple<TileIdx, Transform3D>> constants;
+        constants[{ 2, 2, 0 }] = std::make_tuple((TileIdx)0, Transform3D{ });
+        constants[{ 2, 2, 2 }] = std::make_tuple((TileIdx)0, Transform3D{ });
+        constants[{ 2, 2, 4 }] = std::make_tuple((TileIdx)0, Transform3D{ });
+        constants[{ 2, 2, 1 }] = std::make_tuple((TileIdx)0, Transform3D{ false, Rotations3D::AxisZ_90 });
+        constants[{ 2, 2, 3 }] = std::make_tuple((TileIdx)0, Transform3D{ false, Rotations3D::AxisZ_90 });
+        constants[{ 2, 2, 5 }] = std::make_tuple((TileIdx)0, Transform3D{ false, Rotations3D::AxisZ_90 });
+        state.Reset(constants);
+
+        //Run until the whole grid is solved.
+        //The number of iterations needed is simple to calculate,
+        //    as the grid can only be solved one way.
+        int nLeft = state.Grid.Cells.GetNumbElements() - 6;
+        for (int i = 0; i < nLeft - 1; ++i)
+        {
+            auto didEnd = state.Tick();
+            CHECK(!didEnd);
+        }
+        //Finish the last tile.
+        auto didEnd = state.Tick();
+        CHECK(!didEnd);
+        //Tick once more to detect that the algorithm is finished.
+        didEnd = state.Tick();
+        CHECK(didEnd);
+
+        //Check the chosen tiles on each Z-slice.
+        for (int z = 0; z < state.Grid.Cells.GetDepth(); ++z)
+        {
+            const auto& expectedCell = state.Grid.Cells[{ 2, 2, z }];
+            for (int y = 0; y < state.Grid.Cells.GetHeight(); ++y)
+            {
+                for (int x = 0; x < state.Grid.Cells.GetWidth(); ++x)
+                {
+                    const auto& cell = state.Grid.Cells[{ x, y, z }];
+                    CHECK(cell.IsSet());
+                    CHECK_EQUAL(expectedCell.ChosenTile, cell.ChosenTile);
+                    CHECK_EQUAL(expectedCell.ChosenPermutation, cell.ChosenPermutation);
+                }
+            }
+        }
+    }
 }
 
 
 int main(int, const char* [])
 {
-    std::cout << "Running..." << std::endl;
+    std::cout << "Running tests..." << std::endl;
     return UnitTest::RunAllTests();
 }

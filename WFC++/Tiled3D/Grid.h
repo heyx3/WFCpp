@@ -144,7 +144,7 @@ namespace WFC
             //    but you can configure it to use only a subset of them.
             Grid(const List<Tile>& inputTiles, const Vector3i& outputSize);
 
-            //Sets up this State for another run.
+            //Sets up this instance for another run.
             void Reset();
 
             
