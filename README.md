@@ -2,7 +2,7 @@
 
 ![A demo of the Unreal 4 plugin](https://i.imgur.com/vkABeE1.gif)
 
-A C++ library for the [WaveFunctionCollapse](https://github.com/mxgmn/WaveFunctionCollapse) algorithm, plus an optional command-line interface.
+A C++ library for the [WaveFunctionCollapse](https://github.com/mxgmn/WaveFunctionCollapse) algorithm, plus various utilities for running it.
 
 For more explanation of the algorithm itself, you can read this project's source or check out [EasyWFC](https://github.com/heyx3/EasyWFC), whose behavior should be identical to this project (except for the PRNG).
 
