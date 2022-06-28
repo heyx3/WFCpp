@@ -66,7 +66,7 @@ Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_fail
 	auto& chosenPixel = Output[chosenPixelPos];
 
 	//Pick a color at random for the pixel to have.
-	Pixel chosenColor;
+	Pixel chosenColor = -1; //Dummy value to keep the compiler hapy
 	//If there's only one possible color, this is easy.
 	if (chosenPixel.ColorFrequencies.GetSize() == 1)
 	{

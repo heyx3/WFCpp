@@ -1,11 +1,13 @@
 #pragma once
 
-#include "Platform.h"
-#include "EnumFlags.h"
-
 #include <assert.h>
 #include <iterator>
 #include <math.h>
+
+#include "Platform.h"
+#include "EnumFlags.h"
+#include "WFCMath.h"
+
 
 
 namespace WFC
@@ -53,11 +55,7 @@ namespace WFC
 
 		//Gets the hash value for a vector instance.
 		//Enables this class to be used for std collections that use hashes.
-		inline unsigned int operator()(const Vector2i& v) const
-		{
-			int i = v.GetHashcode();
-			return *((unsigned int*)(&i));
-		}
+		inline uint32_t operator()(const Vector2i& v) const { return v.GetHashcode(); }
 
 
 		int x;
@@ -91,8 +89,13 @@ namespace WFC
 
 		Vector2i operator-() const { return Vector2i(-x, -y); }
 
-		bool operator==(const Vector2i& v) const { return (x == v.x) && (y == v.y); }
-		bool operator!=(const Vector2i& v) const { return (x != v.x) || (y != v.y); }
+		bool operator==(const Vector2i& v) const
+		{
+			static_assert(sizeof(Vector2i) == 2 * sizeof(int),
+						  "Vector2i has some byte padding");
+			return memcmp(this, &v, sizeof(Vector2i)) == 0;
+		}
+		bool operator!=(const Vector2i& v) const { return !operator==(v); }
 
 
 		Vector2i LessX() const { return Vector2i(x - 1, y); }
@@ -106,7 +109,19 @@ namespace WFC
 		//    assuming the "pivot" is halfway between the origin and "size".
 		Vector2i Transform(Transformations trnsf, Vector2i size) const;
 
-		int GetHashcode() const { return (x * 73856093) ^ (y * 19349663); }
+		uint32_t GetHashcode() const
+		{
+			//This seems to be a significant bottleneck, so I spent some time thinking
+			//    and searching for a fast way to hash integers.
+			//Reference: https://stackoverflow.com/questions/30032950/creating-a-hash-seed-value-from-2-integers-fast
+			//It works better with high bits than low ones,
+			//    so I bitwise-invert the components before using them.
+			int a = ~x,
+				b = ~y;
+			a ^= b;
+			a = (a << 24) + (a * 0x193);
+			return a;
+		}
 	};
 
 
@@ -178,4 +193,21 @@ namespace WFC
 			return const_iterator(*this, Vector2i(MinInclusive.x, MaxExclusive.y));
 		}
 	};
+}
+
+template<>
+inline WFC::Vector2i WFC::Math::Max<WFC::Vector2i>(Vector2i a, Vector2i b)
+{
+	Vector2i x;
+	for (int i = 0; i < 2; ++i)
+		x[i] = Max(a[i], b[i]);
+	return x;
+}
+template<>
+inline WFC::Vector2i WFC::Math::Min<WFC::Vector2i>(Vector2i a, Vector2i b)
+{
+	Vector2i x;
+	for (int i = 0; i < 2; ++i)
+		x[i] = Min(a[i], b[i]);
+	return x;
 }

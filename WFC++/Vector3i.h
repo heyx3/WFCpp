@@ -1,17 +1,16 @@
 #pragma once
 
-#include "Platform.h"
-#include "EnumFlags.h"
-
 #include <assert.h>
 #include <iterator>
 #include <math.h>
 
+#include "Platform.h"
+#include "EnumFlags.h"
+#include "Vector2i.h"
+
 
 namespace WFC
 {
-    //NOTE: By convention, the positive Y axis points UPWARD (unlike Vector2i).
-
 	//A 3D integer coordinate.
 	struct WFC_API Vector3i
 	{
@@ -19,11 +18,7 @@ namespace WFC
 
 		//Gets the hash value for a vector instance.
 		//Enables this class to be used for std collections that use hashes.
-		inline unsigned int operator()(const Vector3i& v) const
-		{
-			int i = v.GetHashcode();
-			return *((unsigned int*)(&i));
-		}
+		inline uint32_t operator()(const Vector3i& v) const { return v.GetHashcode(); }
 
         static inline Vector3i Zero() { return Vector3i(); }
 
@@ -33,6 +28,8 @@ namespace WFC
 
 		Vector3i() : Vector3i(0, 0, 0) { }
 		Vector3i(int X, int Y, int Z) : x(X), y(Y), z(Z) { }
+		Vector3i(const Vector2i& xy, int Z) : x(xy.x), y(xy.y), z(Z) { }
+		Vector3i(int X, const Vector2i& yz) : x(X), y(yz.x), z(yz.y) { }
 
 
         //Access each component with 0, 1, or 2.
@@ -42,9 +39,9 @@ namespace WFC
 
 
         Vector3i& operator+=(const Vector3i& other) { x += other.x; y += other.y; z += other.z; return *this; }
-        Vector3i& operator-=(const Vector3i& other) { x -= other.x; y -= other.y; z += other.z; return *this; }
+        Vector3i& operator-=(const Vector3i& other) { x -= other.x; y -= other.y; z -= other.z; return *this; }
         Vector3i& operator*=(int i) { x *= i; y *= i; z *= i; return *this; }
-        Vector3i& operator/=(int i) { x /= i; y /= i; z *= i; return *this; }
+        Vector3i& operator/=(int i) { x /= i; y /= i; z /= i; return *this; }
 
 		Vector3i operator+(const Vector3i& other) const { return Vector3i(x + other.x, y + other.y, z + other.z); }
 		Vector3i operator-(const Vector3i& other) const { return Vector3i(x - other.x, y - other.y, z - other.z); }
@@ -58,8 +55,13 @@ namespace WFC
 
 		Vector3i operator-() const { return Vector3i(-x, -y, -z); }
 
-		bool operator==(const Vector3i& v) const { return (x == v.x) & (y == v.y) & (z == v.z); }
-		bool operator!=(const Vector3i& v) const { return (x != v.x) | (y != v.y) | (z != v.z); }
+		bool operator==(const Vector3i& v) const
+		{
+			static_assert(sizeof(Vector3i) == 3 * sizeof(int),
+						  "Vector3i has some byte padding");
+			return memcmp(this, &v, sizeof(Vector3i)) == 0;
+		}
+		bool operator!=(const Vector3i& v) const { return !operator==(v); }
 
 
 		Vector3i LessX() const { return Vector3i(x - 1, y, z); }
@@ -69,7 +71,10 @@ namespace WFC
         Vector3i LessZ() const { return Vector3i(x, y, z - 1); }
         Vector3i MoreZ() const { return Vector3i(x, y, z + 1); }
 
-		int GetHashcode() const { return (x * 73856093) ^ (y * 19349663) ^ (z * 6869627); }
+		uint32_t GetHashcode() const
+		{
+			return Vector2i(Vector2i(x, y).GetHashcode(), z).GetHashcode();
+		}
 	};
 
 
@@ -148,4 +153,21 @@ namespace WFC
 			return const_iterator(*this, Vector3i(MinInclusive.x, MinInclusive.y, MaxExclusive.z));
 		}
 	};
+}
+
+template<>
+inline WFC::Vector3i WFC::Math::Max<WFC::Vector3i>(Vector3i a, Vector3i b)
+{
+	Vector3i x;
+	for (int i = 0; i < 3; ++i)
+		x[i] = Max(a[i], b[i]);
+	return x;
+}
+template<>
+inline WFC::Vector3i WFC::Math::Min<WFC::Vector3i>(Vector3i a, Vector3i b)
+{
+	Vector3i x;
+	for (int i = 0; i < 3; ++i)
+		x[i] = Min(a[i], b[i]);
+	return x;
 }

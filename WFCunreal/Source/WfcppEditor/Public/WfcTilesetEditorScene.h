@@ -48,11 +48,11 @@ private:
         WFC::Tiled3D::Directions3D Dir;
         
         UBoxComponent* Shape;
-        TStaticArray<FacePointViz, WFC_N_FACE_POINTS> Points;
+        TStaticArray<FacePointViz, WFC::Tiled3D::N_FACE_POINTS> Points;
     };
     void InitializeFaceViz(FaceViz& inOutData);
 
-    TStaticArray<FaceViz, N_DIRECTIONS3D> faces;
+    TStaticArray<FaceViz, WFC::Tiled3D::N_DIRECTIONS_3D> faces;
     TArray<UActorComponent*> chosenTileViz;
     UObject* chosenTileData;
 };

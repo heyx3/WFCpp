@@ -57,6 +57,9 @@ namespace WFC
             return sum;
         }
 
+		const auto& Unwrap() const { return dict; }
+		auto& Unwrap() { return dict; }
+
         //Iterators for ranged-for loops.
         //We can't use "auto" for the return type here because it breaks SWIG.
         typename std::unordered_map<TKey, TValue, Hasher>::const_iterator begin() const { return dict.begin(); }

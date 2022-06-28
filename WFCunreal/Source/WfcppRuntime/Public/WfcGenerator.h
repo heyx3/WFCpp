@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Tiled3D/State.h"
+#include "Tiled3D/StandardRunner.h"
 #include "WfcTileset.h"
 
 #include "WfcGenerator.generated.h"
@@ -9,12 +9,7 @@
 UENUM(BlueprintType)
 enum class WfcSimState : uint8
 {
-    Off, Running,
-    Succeeded,
-	
-    //One or more grid cells cannot be solved given their neighbors,
-    //    and "clearing" is turned off.
-    Failed
+    Off, Running, Finished
 };
 
 
@@ -25,16 +20,13 @@ class UWfcGenerator : public UObject
     GENERATED_BODY()
 public:
 
+    //TODO: Make the tileset and grid size constant over this generator's lifetime, so it can re-use memory between runs.
+
     UFUNCTION(BlueprintCallable, BlueprintPure, Category="WFC/Algorithm", meta=(CompactNodeTitle="Status"))
     WfcSimState GetStatus() const { return status; }
 	
     UFUNCTION(BlueprintCallable, BlueprintPure, Category="WFC/Algorithm", meta=(CompactNodeTitle="Running?"))
     bool IsRunning() const { return GetStatus() == WfcSimState::Running; }
-
-    //Gets the grid cells that WFC considered unsolvable.
-    //Only applicable if grid clearing is turned off.
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category="WFC/Algorithm")
-    const TArray<FIntVector>& GetFailures() const { return failures; }
 
     //Returns a progress indicator from 0 to 1.
     UFUNCTION(BlueprintCallable, BlueprintPure, Category="WFC/Algorithm")
@@ -84,17 +76,13 @@ public:
 
 	
 private:
+    UPROPERTY()
+    const UWfcTileset* tileset;
+    
 	WfcSimState status = WfcSimState::Off;
-	TOptional<WFC::Tiled3D::State> state;
-
-	//Arrays used for storing failure data.
-	WFC::List<WFC::Vector3i> failuresBuffer;
-	TArray<FIntVector> failures;
+	TOptional<WFC::Tiled3D::StandardRunner> state;
 
 	//Arrays used to build sim inputs on startup.
 	WFC::List<WFC::Tiled3D::Tile> wfcTileInputs;
-	WFC::Tiled3D::InputData wfcInput;
-
-	//Arrays used to translate the output of WFC back into Unreal.
-	TMap<WFC::Tiled3D::TileID, TTuple<WFC::Tiled3D::Transform3D, UObject*, WfcTileID>> tilesByID;
+    TArray<WfcTileID> wfcTileIDs;
 };

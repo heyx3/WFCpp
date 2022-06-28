@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="TestTilesets.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\UnitTestLibrary\UnitTest++\AssertException.cpp">
+      <Filter>UnitTest++ Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UnitTestLibrary\UnitTest++\Checks.cpp">
+      <Filter>UnitTest++ Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UnitTestLibrary\UnitTest++\CompositeTestReporter.cpp">
+      <Filter>UnitTest++ Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UnitTestLibrary\UnitTest++\CurrentTest.cpp">
+      <Filter>UnitTest++ Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UnitTestLibrary\UnitTest++\DeferredTestReporter.cpp">
+      <Filter>UnitTest++ Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UnitTestLibrary\UnitTest++\DeferredTestResult.cpp">
+      <Filter>UnitTest++ Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UnitTestLibrary\UnitTest++\MemoryOutStream.cpp">
+      <Filter>UnitTest++ Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UnitTestLibrary\UnitTest++\ReportAssert.cpp">
+      <Filter>UnitTest++ Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UnitTestLibrary\UnitTest++\RequiredCheckException.cpp">
+      <Filter>UnitTest++ Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UnitTestLibrary\UnitTest++\RequiredCheckTestReporter.cpp">
+      <Filter>UnitTest++ Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UnitTestLibrary\UnitTest++\Test.cpp">
+      <Filter>UnitTest++ Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UnitTestLibrary\UnitTest++\TestDetails.cpp">
+      <Filter>UnitTest++ Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UnitTestLibrary\UnitTest++\TestList.cpp">
+      <Filter>UnitTest++ Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UnitTestLibrary\UnitTest++\TestReporter.cpp">
+      <Filter>UnitTest++ Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UnitTestLibrary\UnitTest++\TestReporterStdout.cpp">
+      <Filter>UnitTest++ Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UnitTestLibrary\UnitTest++\TestResults.cpp">
+      <Filter>UnitTest++ Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UnitTestLibrary\UnitTest++\TestRunner.cpp">
+      <Filter>UnitTest++ Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UnitTestLibrary\UnitTest++\ThrowingTestReporter.cpp">
+      <Filter>UnitTest++ Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UnitTestLibrary\UnitTest++\TimeConstraint.cpp">
+      <Filter>UnitTest++ Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UnitTestLibrary\UnitTest++\XmlTestReporter.cpp">
+      <Filter>UnitTest++ Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UnitTestLibrary\UnitTest++\Win32\TimeHelpers.cpp">
+      <Filter>UnitTest++ Library\Win32</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="UnitTest++ Library">
+      <UniqueIdentifier>{fea83501-8c38-466a-9c36-5d8ae1357e89}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UnitTest++ Library\Win32">
+      <UniqueIdentifier>{6d6be4bd-74d4-4a3d-8d24-3dfd2b21e72a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

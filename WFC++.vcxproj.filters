@@ -57,17 +57,27 @@
     <ClInclude Include="WFC++\Tiled3D\Transform3D.h">
       <Filter>Generator Classes\Tiled3D</Filter>
     </ClInclude>
-    <ClInclude Include="WFC++\Tiled3D\InputData.h">
-      <Filter>Generator Classes\Tiled3D</Filter>
-    </ClInclude>
     <ClInclude Include="WFC++\Tiled3D\Tile.hpp">
       <Filter>Generator Classes\Tiled3D</Filter>
     </ClInclude>
-    <ClInclude Include="WFC++\Tiled3D\State.h">
+    <ClInclude Include="WFC++\Tiled3D\Grid.h">
       <Filter>Generator Classes\Tiled3D</Filter>
     </ClInclude>
     <ClInclude Include="WFC++\Tiled3D\TilePermutator.h">
       <Filter>Generator Classes\Tiled3D</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\Array4D.hpp">
+      <Filter>Helper Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\Vector4i.h">
+      <Filter>Helper Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\WFCppStreamPrinting.hpp" />
+    <ClInclude Include="WFC++\Tiled3D\StandardRunner.h">
+      <Filter>Generator Classes\Tiled3D</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\xoshiro.hpp">
+      <Filter>Helper Classes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -85,9 +95,6 @@
     </Filter>
     <Filter Include="Generator Classes\Tiled3D">
       <UniqueIdentifier>{121f403f-0d14-4448-92fb-0d22215d6e55}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SWIG">
-      <UniqueIdentifier>{a1837f65-220b-4011-9d6f-c22577144144}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -112,28 +119,17 @@
     <ClCompile Include="WFC++\Tiled\TilePermutator.cpp">
       <Filter>Generator Classes\Tiled</Filter>
     </ClCompile>
-    <ClCompile Include="WFC++\Vector3i.cpp">
-      <Filter>Helper Classes</Filter>
-    </ClCompile>
     <ClCompile Include="WFC++\Tiled3D\Transform3D.cpp">
       <Filter>Generator Classes\Tiled3D</Filter>
     </ClCompile>
-    <ClCompile Include="WFC++\SWIG\wfc_wrap.cpp">
-      <Filter>SWIG</Filter>
-    </ClCompile>
-    <ClCompile Include="WFC++\Tiled3D\InputData.cpp">
-      <Filter>Generator Classes\Tiled3D</Filter>
-    </ClCompile>
-    <ClCompile Include="WFC++\Tiled3D\State.cpp">
+    <ClCompile Include="WFC++\Tiled3D\Grid.cpp">
       <Filter>Generator Classes\Tiled3D</Filter>
     </ClCompile>
     <ClCompile Include="WFC++\Tiled3D\TilePermutator.cpp">
       <Filter>Generator Classes\Tiled3D</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="WFC++\SWIG\SWIG_build.i">
-      <Filter>SWIG</Filter>
-    </CustomBuild>
+    <ClCompile Include="WFC++\Tiled3D\StandardRunner.cpp">
+      <Filter>Generator Classes\Tiled3D</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

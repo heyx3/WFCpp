@@ -142,13 +142,13 @@ FWfcTilesetEditorScene::FWfcTilesetEditorScene(ConstructionValues cvs)
     SetFloorVisibility(false);
     
     //Set up the visualization of each face.
-    for (int i = 0; i < N_DIRECTIONS3D; ++i)
+    for (int i = 0; i < WFC::Tiled3D::N_DIRECTIONS_3D; ++i)
     {
         auto face = static_cast<WFC::Tiled3D::Directions3D>(i);
         faces[i].Dir = face;
         InitializeFaceViz(faces[i]);
 
-        for (int j = 0; j < WFC_N_FACE_POINTS; ++j)
+        for (int j = 0; j < WFC::Tiled3D::N_FACE_POINTS; ++j)
         {
             auto& cornerField = faces[i].Points[j];
             cornerField.CornerType = static_cast<WFC::Tiled3D::FacePoints>(j);

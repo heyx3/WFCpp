@@ -8,7 +8,8 @@
 
 namespace WFC
 {
-    //TODO: Convert to unsigned ints. Will require Vector2i and Vector3i to be templated.
+    //TODO: Convert to unsigned ints? Will require Vector2i and Vector3i to be templated.
+	//TODO: Use vector<> for backing, or else things like default-construction won't be handled right.
 
 	template<class ArrayType>
 	//Wraps a contiguous heap-allocated one-dimensional array
@@ -29,7 +30,7 @@ namespace WFC
 			height = aHeight;
             depth = aDepth;
 
-			arrayVals = new ArrayType[width * height * depth];
+			arrayVals = new ArrayType[GetNumbElements()];
 		}
 		//Creates a new Array3D without initializing any of the values.
 		Array3D(Vector3i size) : Array3D(size.x, size.y, size.z) { }
@@ -40,12 +41,10 @@ namespace WFC
 			height = aHeight;
             depth = aDepth;
 
-			arrayVals = new ArrayType[width * height];
+			arrayVals = new ArrayType[GetNumbElements()];
 
-			for (int i = 0; i < width * height; ++i)
-			{
+			for (int i = 0; i < GetNumbElements(); ++i)
 				arrayVals[i] = defaultValue;
-			}
 		}
 		Array3D(Vector3i size, const ArrayType& defaultValue) : Array3D(size.x, size.y, size.z, defaultValue) { }
 
@@ -79,10 +78,9 @@ namespace WFC
             width = other.width;
             height = other.height;
             depth = other.depth;
-            arrayVals = new ArrayType[width * height * depth];
+            arrayVals = new ArrayType[GetNumbElements()];
 
-            size_t size = (size_t)(width * height * depth);
-            for (size_t i = 0; i < size; ++i)
+            for (size_t i = 0; i < (size_t)GetNumbElements(); ++i)
                 arrayVals[i] = other.arrayVals[i];
 
             return *this;
@@ -99,12 +97,12 @@ namespace WFC
 
 		ArrayType& operator[](const Vector3i& l)
         {
-            assert(Region3i(GetDimensions()).Contains(l));
+			assert(IsIndexValid(l));
             return arrayVals[GetIndex(l.x, l.y, l.z)];
         }
 		const ArrayType& operator[](const Vector3i& l) const
         {
-            assert(Region3i(GetDimensions()).Contains(l));
+			assert(IsIndexValid(l));
             return arrayVals[GetIndex(l.x, l.y, l.z)];
         }
 
@@ -117,6 +115,7 @@ namespace WFC
         inline int GetDepth() const { return depth; }
 		//Gets the size of this array along each axis.
 		Vector3i GetDimensions() const { return Vector3i(width, height, depth); }
+		bool IsIndexValid(const Vector3i& idx) const { return Region3i(GetDimensions()).Contains(idx); }
 
 
 		//Resets this array to the given size and leaves its elements uninitialized.
@@ -125,7 +124,7 @@ namespace WFC
 		void Reset(int _width, int _height, int _depth)
 		{
 			//Only resize if the current array does not have the same number of elements.
-			if ((width * height * depth) != (_width * _height * _depth))
+			if (GetNumbElements() != (_width * _height * _depth))
 			{
 				if (arrayVals != nullptr)
 				    delete[] arrayVals;
@@ -176,8 +175,7 @@ namespace WFC
 		//Fills every element with the given value.
 		void Fill(const ArrayType& value)
 		{
-            int size = width * height * depth;
-			for (int i = 0; i < size; ++i)
+			for (int i = 0; i < GetNumbElements(); ++i)
 				arrayVals[i] = value;
 		}
 		//Copies the given elements to this array.
@@ -187,7 +185,7 @@ namespace WFC
 		void Fill(const ArrayType* values, bool useMemcpy)
 		{
 			if (useMemcpy)
-				memcpy(arrayVals, values, width * height * depth * sizeof(ArrayType));
+				memcpy(arrayVals, values, GetNumbElements() * sizeof(ArrayType));
 			else for (int i = 0; i < GetNumbElements(); ++i)
 				arrayVals[i] = values[i];
 		}
@@ -208,14 +206,14 @@ namespace WFC
 		//Assumes the given array is the same size as this one.
 		void MemCopyInto(ArrayType* outValues) const
 		{
-			memcpy(outValues, arrayVals, width * height * depth * sizeof(ArrayType));
+			memcpy(outValues, arrayVals, GetNumbElements() * sizeof(ArrayType));
 		}
 		//Copies this array into the given one using the assignment operator for each value.
 		//Assumes it is the same size as this array.
 		//Use this instead of "MemCopyInto" if the items are too complex to just copy their byte-data over.
 		void CopyInto(ArrayType* outValues) const
 		{
-			for (int i = 0; i < width * height; ++i)
+			for (int i = 0; i < GetNumbElements(); ++i)
 				outValues[i] = arrayVals[i];
 		}
 
