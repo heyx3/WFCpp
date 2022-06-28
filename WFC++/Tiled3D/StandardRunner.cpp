@@ -138,6 +138,8 @@ Vector3i StandardRunner::PickNextCellToSet()
 
 bool StandardRunner::Tick()
 {
+    CurrentTimestamp += 1;
+
     //If cells are unsolvable, clear them.
     bool hasUnsolvable = unsolvableCells.GetSize() > 0;
     for (const Vector3i& cellPos : unsolvableCells)
@@ -196,22 +198,24 @@ bool StandardRunner::TickN(int n)
 
 std::tuple<TileIdx, Transform3D> StandardRunner::RandomTile(const TransformSet* allowedPerTile)
 {
+    auto& distributionBuffer = buffer_randomTile_distribution;
+
     //Pick a tile.
-    buffer_randomTile_distribution.Clear();
-    for (int tileI = 0; tileI < buffer_randomTile_distribution.GetSize(); ++tileI)
-        buffer_randomTile_distribution.PushBack(allowedPerTile[tileI].Size());
-    std::discrete_distribution<int> tileDistribution(buffer_randomTile_distribution.begin(),
-                                                     buffer_randomTile_distribution.end());
+    distributionBuffer.Clear();
+    for (int tileI = 0; tileI < Grid.InputTiles.GetSize(); ++tileI)
+        distributionBuffer.PushBack(allowedPerTile[tileI].Size() * Grid.InputTiles[tileI].Weight);
+    std::discrete_distribution<int> tileDistribution(distributionBuffer.begin(),
+                                                     distributionBuffer.end());
     int chosenTileI = tileDistribution(Rand);
 
     //Pick a permutation for the tile.
     const auto& permutations = allowedPerTile[chosenTileI];
-    buffer_randomTile_distribution.Resize((size_t)N_ROTATIONS_3D * 2);
-    std::fill(buffer_randomTile_distribution.begin(), buffer_randomTile_distribution.end(), 0);
+    distributionBuffer.Resize((size_t)N_ROTATIONS_3D * 2);
+    std::fill(distributionBuffer.begin(), distributionBuffer.end(), 0);
     for (Transform3D tr : permutations)
-        buffer_randomTile_distribution[TransformSet::ToBitIdx(tr)] = 1;
-    std::discrete_distribution<int> permDistribution(buffer_randomTile_distribution.begin(),
-                                                     buffer_randomTile_distribution.end());
+        distributionBuffer[TransformSet::ToBitIdx(tr)] = 1;
+    std::discrete_distribution<int> permDistribution(distributionBuffer.begin(),
+                                                     distributionBuffer.end());
     int chosenTransformI = permDistribution(Rand);
 
     return std::make_tuple((TileIdx)chosenTileI, TransformSet::FromBit(chosenTransformI));

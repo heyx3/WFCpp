@@ -76,6 +76,9 @@
     <ClInclude Include="WFC++\Tiled3D\StandardRunner.h">
       <Filter>Generator Classes\Tiled3D</Filter>
     </ClInclude>
+    <ClInclude Include="WFC++\xoshiro.hpp">
+      <Filter>Helper Classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Helper Classes">

@@ -20,21 +20,18 @@ namespace WFC
         void Add(const Set<T, Hasher>& set2) { set.insert(set2.set.begin(), set2.set.end()); }
 
         bool Erase(const T& t) { return set.erase(t) > 0; }
-        void Erase(const Set<T, Hasher>& t) { set.erase(t.begin(), t.end()); }
+        void Erase(const Set<T, Hasher>& ts) { for (const T& el : ts) set.erase(el); }
 
         bool Contains(const T& t) const { return set.find(t) != set.end(); }
         void Clear() { set.clear(); }
 
         //Iterators for ranged-for loops.
-        //We can't use "auto" for the return type here because it breaks SWIG.
-        typename std::unordered_set<T, Hasher>::const_iterator begin() const { return set.begin(); }
-        typename std::unordered_set<T, Hasher>::iterator       begin()       { return set.begin(); }
-        typename std::unordered_set<T, Hasher>::const_iterator end()   const { return set.end(); }
-        typename std::unordered_set<T, Hasher>::iterator       end()         { return set.end(); }
-
+        auto begin() const { return set.begin(); }
+        auto begin()       { return set.begin(); }
+        auto end()   const { return set.end(); }
+        auto end()         { return set.end(); }
 
     private:
-
         std::unordered_set<T, Hasher> set;
     };
 }

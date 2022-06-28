@@ -280,6 +280,7 @@ del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
     <ClInclude Include="WFC++\Tiled\TilePermutator.h" />
     <ClInclude Include="WFC++\Vector2i.h" />
     <ClInclude Include="WFC++\Vector3i.h" />
+    <ClInclude Include="WFC++\xoshiro.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WFC++\Simple\InputData.cpp" />
