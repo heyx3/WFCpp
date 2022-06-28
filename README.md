@@ -1,6 +1,6 @@
 # WFCpp
 
-![A demo of the Unreal 4 plugin](https://imgur.com/a/nZUnr9j)
+![A demo of the Unreal 4 plugin](https://i.imgur.com/fZ3fEJm.gif)
 
 A C++ library for the [WaveFunctionCollapse](https://github.com/mxgmn/WaveFunctionCollapse) algorithm, plus an optional command-line interface.
 
