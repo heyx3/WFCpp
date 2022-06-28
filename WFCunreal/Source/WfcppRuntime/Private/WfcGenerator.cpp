@@ -25,7 +25,7 @@ float UWfcGenerator::GetProgress() const
 }
 
 bool UWfcGenerator::GetCell(const FIntVector& cellPos,
-				    		WfcTileID& out_tileIdx,
+				    		WfcTileID& out_tileID,
 				    		UObject*& out_tileData,
 						    FWFC_Transform3D& out_tileTransform) const
 {
@@ -40,15 +40,15 @@ bool UWfcGenerator::GetCell(const FIntVector& cellPos,
 
 	if (cell.IsSet())
 	{
-	    out_tileIdx = cell.ChosenTile;
-	    out_tileData = tileset->Tiles[out_tileIdx].Data;
+	    out_tileID = wfcTileIDs[cell.ChosenTile];
+	    out_tileData = tileset->Tiles[out_tileID].Data;
 	    out_tileTransform = { static_cast<WFC_Rotations3D>(cell.ChosenPermutation.Rot),
 	                          cell.ChosenPermutation.Invert };
 		return true;
 	}
 	else
 	{
-		out_tileIdx = -1;
+		out_tileID = -1;
 		out_tileData = nullptr;
 		out_tileTransform = { WFC_Rotations3D::None, false };
 		return false;
@@ -66,6 +66,7 @@ void UWfcGenerator::Start(const UWfcTileset* tiles,
 	checkf(seed <= std::numeric_limits<uint32_t>().max(),
 	       TEXT("Seed value is more than the max of %i: %i"),
 	       std::numeric_limits<uint32_t>().max(), seed);
+    checkf(tileset->Tiles.Num() > 0, TEXT("Must have at least 1 tile in the tileset!"))
 
 	//Clean up from any previous runs.
 	if (IsRunning())
@@ -85,10 +86,13 @@ void UWfcGenerator::Start(const UWfcTileset* tiles,
 
     //Convert each serialized UE4 tile into a WFC library tile.
     wfcTileInputs.Clear();
+    wfcTileIDs.Empty();
     TSet<FWFC_Transform3D> buffer_supportedTransforms;
     for (const auto& tile : tiles->Tiles)
     {
-        WFC::Tiled3D::Tile wfcTile{ {  } };
+        wfcTileIDs.Add(tile.Key);
+        wfcTileInputs.PushBack({ { } });
+        auto& wfcTile = wfcTileInputs.GetBack();
         
         wfcTile.Weight = static_cast<uint32_t>(tile.Value.WeightU32);
 

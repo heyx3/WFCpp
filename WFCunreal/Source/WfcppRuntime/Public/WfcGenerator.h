@@ -84,4 +84,5 @@ private:
 
 	//Arrays used to build sim inputs on startup.
 	WFC::List<WFC::Tiled3D::Tile> wfcTileInputs;
+    TArray<WfcTileID> wfcTileIDs;
 };
