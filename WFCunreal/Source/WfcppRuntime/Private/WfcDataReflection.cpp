@@ -36,7 +36,7 @@ FTransform FWFC_Transform3D::ToFTransform() const
         WFC_CASE(CornerBBA_120, -1, -1, 1, -120);
         WFC_CASE(CornerBBA_240, -1, -1, 1, -240);
 
-        default: check(false); return FTransform();
+        default: return FTransform();
     }
 
     auto scale = FVector::OneVector * (Invert ? -1 : 1);
