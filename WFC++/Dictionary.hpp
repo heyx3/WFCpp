@@ -21,6 +21,7 @@ namespace WFC
 
 		TValue& operator[](const TKey& key) { return dict[key]; }
 		const TValue& operator[](const TKey& key) const { return dict.at(key); }
+	    TValue& At(const TKey& key) { return dict.at(key); } //Needed for the debugger, it can't recognize subscript operators
 
 		const TValue* TryGet(const TKey& key) const
 		{

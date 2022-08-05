@@ -1,7 +1,9 @@
 #pragma once
 
 #include <tuple>
+
 #include "Grid.h"
+
 
 namespace WFC
 {
@@ -134,7 +136,9 @@ namespace Tiled3D
 
         Vector3i PickNextCellToSet();
 
-        std::tuple<TileIdx, Transform3D> RandomTile(const TransformSet* allowedPerTile);
+        //Attempts to pick a random tile, given the allowed permutations of each tile.
+        //Returns the random selection, or nothing if there were no eligible tiles.
+        WFC::Nullable<std::tuple<TileIdx, Transform3D>> RandomTile(const TransformSet* allowedPerTile);
     };
 }
 }

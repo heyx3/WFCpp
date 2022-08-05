@@ -75,6 +75,7 @@ namespace WFC
 
         T& operator[](size_t i) { return vec[i]; }
         const T& operator[](size_t i) const { return vec[i]; }
+	    T& At(size_t i) { return vec[i]; } //Needed for the debugger, it can't recognize subscript operators
 
         T& GetBack() { return vec[vec.size() - 1]; }
         const T& GetBack() const { return vec[vec.size() - 1]; }

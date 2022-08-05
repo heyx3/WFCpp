@@ -916,6 +916,8 @@ SUITE(WFC_Tiled3D)
             }
         }
     }
+
+    //TODO: Test with more complex tilesets, look for a stack corruption bug
 }
 
 

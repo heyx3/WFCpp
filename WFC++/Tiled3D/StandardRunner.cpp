@@ -163,7 +163,7 @@ bool StandardRunner::Tick()
             else if (cell.NPossibilities < Grid.NPermutedTiles)
                 nextCells.Add(cellPos);
         }
-        
+
         //If every cell was set, then the algorithm is done.
         if (nSetCells == Grid.Cells.GetNumbElements())
         {
@@ -183,8 +183,16 @@ bool StandardRunner::Tick()
     Vector3i cellPos = PickNextCellToSet();
     TileIdx tileIdx;
     Transform3D tilePermutation;
-    std::tie(tileIdx, tilePermutation) = RandomTile(&Grid.PossiblePermutations[{ 0, cellPos }]);
-    Set(cellPos, tileIdx, tilePermutation);
+    auto tryRandomTile = RandomTile(&Grid.PossiblePermutations[{ 0, cellPos }]);
+    if (tryRandomTile.HasValue)
+    {
+        std::tie(tileIdx, tilePermutation) = tryRandomTile.Value;
+        Set(cellPos, tileIdx, tilePermutation);
+    }
+    else
+    {
+        unsolvableCells.Add(cellPos);
+    }
 
     return false;
 }
@@ -196,7 +204,7 @@ bool StandardRunner::TickN(int n)
     return false;
 }
 
-std::tuple<TileIdx, Transform3D> StandardRunner::RandomTile(const TransformSet* allowedPerTile)
+WFC::Nullable<std::tuple<TileIdx, Transform3D>> StandardRunner::RandomTile(const TransformSet* allowedPerTile)
 {
     auto& distributionBuffer = buffer_randomTile_distribution;
 
@@ -204,12 +212,17 @@ std::tuple<TileIdx, Transform3D> StandardRunner::RandomTile(const TransformSet* 
     distributionBuffer.Clear();
     for (int tileI = 0; tileI < Grid.InputTiles.GetSize(); ++tileI)
         distributionBuffer.PushBack(allowedPerTile[tileI].Size() * Grid.InputTiles[tileI].Weight);
+    //If all tiles have weight 0, then none are possible.
+    if (std::all_of(distributionBuffer.begin(), distributionBuffer.end(),
+                    [](int i) { return i == 0; }))
+        return { };
     std::discrete_distribution<int> tileDistribution(distributionBuffer.begin(),
                                                      distributionBuffer.end());
     int chosenTileI = tileDistribution(Rand);
 
     //Pick a permutation for the tile.
     const auto& permutations = allowedPerTile[chosenTileI];
+    assert(permutations.Size() > 0);
     distributionBuffer.Resize((size_t)N_ROTATIONS_3D * 2);
     std::fill(distributionBuffer.begin(), distributionBuffer.end(), 0);
     for (Transform3D tr : permutations)
