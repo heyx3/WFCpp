@@ -25,7 +25,7 @@ namespace WFC
             //The state of an output cell.
             struct WFC_API CellState
             {
-                TileIdx ChosenTile = -1;
+                TileIdx ChosenTile = TileIdx_INVALID;
                 Transform3D ChosenPermutation = Transform3D{};
 
                 //Some tiles are given by the user, and this algorithm has to work around them.
@@ -38,7 +38,7 @@ namespace WFC
                 uint16_t NPossibilities = 0;
 
 
-                bool IsSet() const { return ChosenTile != (TileIdx)(-1); }
+                bool IsSet() const { return ChosenTile != TileIdx_INVALID; }
             };
 
             //A record of what happened during some action.
