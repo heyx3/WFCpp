@@ -14,8 +14,8 @@ Grid::Grid(const List<Tile>& inputTiles, const Vector3i& outputSize)
       Cells(outputSize),
       PossiblePermutations({ (int)inputTiles.GetSize(), outputSize })
 {
-    assert(inputTiles.GetSize() < (TileIdx)(-1)); //The last index is reserved for [null]
-                
+    assert(inputTiles.GetSize() < TileIdx_INVALID); //The last index is reserved for [null]
+
     //Set up FaceIndices.
     int32_t nextID = 0;
     for (const auto& tile : InputTiles)
@@ -292,7 +292,7 @@ void Grid::ResetCellPossibilities(const Vector3i& cellPos, CellState& cell, Repo
     if (cell.NPossibilities == NPermutedTiles)
         return;
 
-    cell.ChosenTile = -1;
+    cell.ChosenTile = TileIdx_INVALID;
     cell.NPossibilities = NPermutedTiles;
 
     if (report)

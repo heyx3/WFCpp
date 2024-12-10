@@ -8,9 +8,10 @@ namespace WFC
     namespace Tiled3D
     {
         //Unique identifiers for each tile permutation.
+        //TODO: This is way too close to 'TileIdx', rename one of the two and look for bugs from conflation.
         using TileID = uint_fast32_t;
-        const TileID TileID_INVALID = -1,
-                     TileID_FIRST_VALID = 0;
+        constexpr TileID TileID_INVALID = std::numeric_limits<TileID>::max(),
+                         TileID_FIRST_VALID = 0;
 
         //A single item in a tileset.
         struct WFC_API Tile

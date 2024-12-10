@@ -4,6 +4,7 @@
 #include <array>
 #include <inttypes.h>
 #include <exception>
+#include <cstdio>
 
 
 //To debug heap memory corruption, `#define WFCPP_CHECK_MEMORY 1` before including this library.
@@ -11,15 +12,12 @@
 //It defaults to `fprintf(stderr, ...)`.
 //Then you can call `DEBUGMEM_Validate()` on an instance to check the padding bits for corruption.
 
-//DEBUG: Turn memory check off explicitly. Associated static_assert is further down.
-#define WFCPP_CHECK_MEMORY 0
-
 //For Intellisense, act as if memory debugging is always on.
 #if !defined(WFCPP_CHECK_MEMORY) && (defined(__INTELLISENSE__) || defined(__RESHARPER__))
     #define WFCPP_CHECK_MEMORY 1
 #endif
 
-//By default, disable memory debugging.
+//By default, only enable memory debugging in debug builds.
 #if !defined(WFCPP_CHECK_MEMORY)
     #if defined(NDEBUG)
         #define WFCPP_CHECK_MEMORY 0
@@ -33,8 +31,6 @@
     #define WFCPP_CHECK_MEMORY_ERROR(s, ...) \
         fprintf(stderr, "WFCPP: heap corruption detected! " s, ##__VA_ARGS__)
 #endif
-
-static_assert(!WFCPP_CHECK_MEMORY);
 
 namespace WFC::DEBUGMEM
 {

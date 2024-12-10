@@ -874,7 +874,13 @@ SUITE(WFC_Tiled3D)
         usedTransforms.Add(Transform3D{ false, Rotations3D::AxisZ_90 });
         usedTransforms.Add(Transform3D{ false, Rotations3D::AxisY_90 }); //The incompatible one.
         //Use a really big world grid to do some stress- and performance-testing.
-        StandardRunner state(OneTileArmy(usedTransforms), { 50, 50, 50 });
+        StandardRunner state(OneTileArmy(usedTransforms),
+            #ifdef _DEBUG
+                { 10, 10, 10 }
+            #else
+                { 50, 75, 100 }
+            #endif
+        );
 
         //Set one tile on each Z-slice.
         Dictionary<Vector3i, std::tuple<TileIdx, Transform3D>> constants;
@@ -889,14 +895,14 @@ SUITE(WFC_Tiled3D)
         //Run until the whole grid is solved.
         //The number of iterations needed is simple to calculate,
         //    as the grid can only be solved one way.
-        std::cout << "Running slow test...\n";
+        std::cout << "    (running slow test..";
         int nLeft = state.Grid.Cells.GetNumbElements() - 6;
         for (int i = 0; i < nLeft - 1; ++i)
         {
             auto didEnd = state.Tick();
             CHECK(!didEnd);
         }
-        std::cout << "Slow test finished!\n";
+        std::cout << ". finished!)\n";
         //Finish the last tile.
         auto didEnd = state.Tick();
         CHECK(!didEnd);

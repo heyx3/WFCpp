@@ -133,7 +133,7 @@ Vector3i StandardRunner::PickNextCellToSet()
         }
     );
     cellPriorities.GetUnderlying().erase(newEndIterator, cellPriorities.end());
-    assert(cellPriorities.GetSize() > 1);
+    assert(cellPriorities.GetSize() > 0);
 
     //Randomly choose one max-priority cell.
     return std::get<0>(cellPriorities[

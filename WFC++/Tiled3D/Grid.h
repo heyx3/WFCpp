@@ -3,6 +3,7 @@
 #include <array>
 #include <tuple>
 #include <algorithm>
+#include <limits>
 
 #include "Tile.hpp"
 
@@ -13,7 +14,7 @@ namespace WFC
     namespace Tiled3D
     {
         using TileIdx = uint16_t;
-        const TileIdx TileIdx_INVALID = 0xffff;
+        constexpr TileIdx TileIdx_INVALID = std::numeric_limits<TileIdx>::max();
 
         //A 3D space which tiles can be placed in.
         class WFC_API Grid
@@ -27,7 +28,7 @@ namespace WFC
             {
                 WFCPP_MEMORY_CHECK_HEADER(16, "CellState struct");
                 
-                TileIdx ChosenTile = -1;
+                TileIdx ChosenTile = TileIdx_INVALID;
                 Transform3D ChosenPermutation = Transform3D{};
 
                 //Some tiles are given by the user, and this algorithm has to work around them.
@@ -54,7 +55,7 @@ namespace WFC
                     #endif
                 }
 
-                bool IsSet() const { return ChosenTile != (TileIdx)(-1); }
+                bool IsSet() const { return ChosenTile != TileIdx_INVALID; }
 
                 WFCPP_MEMORY_CHECK_FOOTER(16);
             };
