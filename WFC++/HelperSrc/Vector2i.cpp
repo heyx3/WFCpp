@@ -1,4 +1,4 @@
-#include "Vector2i.h"
+#include "../Vector2i.h"
 
 using namespace WFC;
 

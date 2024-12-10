@@ -610,8 +610,8 @@ SUITE(WFC_Tiled3D)
         Grid state(OneTileArmy(usedTransforms), { 4, 4, 4 });
         Grid::Report report;
 
-        //Set a cell in the min corner with no transform, and check the effects.
-        //Horizontally, the neighbors should be locked into using the null permutation.
+        //Set a cell in the min corner with the identity transform, and check the effects.
+        //Horizontally, the neighbors should be locked into using the same permutation.
         //Vertically, the neighbors could still be any permutation,
         //    as the Z face is very symmetrical.
         state.SetCell({ 0, 0, 0 }, 0, { }, &report, true, false);
@@ -844,7 +844,8 @@ SUITE(WFC_Tiled3D)
                 {
                     nSet += 1;
                     CHECK_EQUAL(0, cell.ChosenTile);
-                    CHECK(cell.ChosenPermutation ==
+
+                    REQUIRE CHECK(cell.ChosenPermutation ==
                           state.Grid.Cells[originalCellPos].ChosenPermutation);
 
                     if (cellPos != originalCellPos)
@@ -872,7 +873,8 @@ SUITE(WFC_Tiled3D)
         usedTransforms.Add(Transform3D{ });
         usedTransforms.Add(Transform3D{ false, Rotations3D::AxisZ_90 });
         usedTransforms.Add(Transform3D{ false, Rotations3D::AxisY_90 }); //The incompatible one.
-        StandardRunner state(OneTileArmy(usedTransforms), { 4, 5, 6 });
+        //Use a really big world grid to do some stress- and performance-testing.
+        StandardRunner state(OneTileArmy(usedTransforms), { 50, 50, 50 });
 
         //Set one tile on each Z-slice.
         Dictionary<Vector3i, std::tuple<TileIdx, Transform3D>> constants;
@@ -887,12 +889,14 @@ SUITE(WFC_Tiled3D)
         //Run until the whole grid is solved.
         //The number of iterations needed is simple to calculate,
         //    as the grid can only be solved one way.
+        std::cout << "Running slow test...\n";
         int nLeft = state.Grid.Cells.GetNumbElements() - 6;
         for (int i = 0; i < nLeft - 1; ++i)
         {
             auto didEnd = state.Tick();
             CHECK(!didEnd);
         }
+        std::cout << "Slow test finished!\n";
         //Finish the last tile.
         auto didEnd = state.Tick();
         CHECK(!didEnd);
@@ -903,7 +907,7 @@ SUITE(WFC_Tiled3D)
         //Check the chosen tiles on each Z-slice.
         for (int z = 0; z < state.Grid.Cells.GetDepth(); ++z)
         {
-            const auto& expectedCell = state.Grid.Cells[{ 2, 2, z }];
+            const auto& expectedCell = state.Grid.Cells[{ 0, 0, z }];
             for (int y = 0; y < state.Grid.Cells.GetHeight(); ++y)
             {
                 for (int x = 0; x < state.Grid.Cells.GetWidth(); ++x)

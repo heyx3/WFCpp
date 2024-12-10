@@ -63,7 +63,7 @@ void UWfcGenerator::Start(const UWfcTileset* tiles,
     tileset = tiles;
     
 	checkf(seed >= 0, TEXT("Seed value is less than 0: %i"), seed);
-	checkf(seed <= std::numeric_limits<uint32_t>().max(),
+	checkf(seed <= static_cast<int64_t>(std::numeric_limits<uint32_t>().max()),
 	       TEXT("Seed value is more than the max of %i: %i"),
 	       std::numeric_limits<uint32_t>().max(), seed);
     checkf(tileset->Tiles.Num() > 0, TEXT("Must have at least 1 tile in the tileset!"))
@@ -91,8 +91,7 @@ void UWfcGenerator::Start(const UWfcTileset* tiles,
     for (const auto& tile : tiles->Tiles)
     {
         wfcTileIDs.Add(tile.Key);
-        wfcTileInputs.PushBack({ { } });
-        auto& wfcTile = wfcTileInputs.GetBack();
+        auto& wfcTile = wfcTileInputs.PushBack({ { } });
         
         wfcTile.Weight = static_cast<uint32_t>(tile.Value.WeightU32);
 
@@ -116,7 +115,7 @@ void UWfcGenerator::Start(const UWfcTileset* tiles,
             {
                 auto localCorner = static_cast<WFC::Tiled3D::FacePoints>(pointI);
                 auto prototypeCorner = assetFace.GetPrototypeCorner(localCorner);
-                auto cornerID = prototype.GetPoint(prototypeCorner);
+                auto cornerID = prototype.GetPointSymmetry(prototypeCorner);
 
                 //Convert the 0-3 symmetry value stored in the asset,
                 //    into a unique index across all tile faces.

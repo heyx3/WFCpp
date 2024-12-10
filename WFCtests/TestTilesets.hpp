@@ -39,22 +39,21 @@ namespace Tilesets
         template<typename... Transforms>
         inline List<Tile> OneTileArmy(Transforms... transforms)
         {
-            return List<Tile> {
-                {
-                    //Faces:
-                    { {
-                        //Remember point ordering: AA, AB, BA, BB
-                        { MinX, { 0, 1, 1, 2 } }, //MinX
-                        { MaxX, { 0, 1, 1, 2 } }, //MaxX
-                        { MinY, { 4, 5, 6, 7 } }, //MinY
-                        { MaxY, { 4, 5, 6, 7 } }, //MaxY
-                        { MinZ, { 3, 3, 3, 3 } }, //MinZ
-                        { MaxZ, { 3, 3, 3, 3 } }  //MaxZ
-                    } },
-                    TransformSet::Combine(transforms...),
-                    uint32_t{100}
-                }
-            };
+            auto permutations = TransformSet::Combine(transforms...);
+            List<Tile> output;
+            auto& tile = output.PushBack(WFC::Tiled3D::Tile{ });
+
+            //Remember point ordering: AA, AB, BA, BB
+            tile.Data.Faces[0] = { MinX, { 0, 1, 1, 2 } };
+            tile.Data.Faces[1] = { MaxX, { 0, 1, 1, 2 } };
+            tile.Data.Faces[2] = { MinY, { 4, 5, 6, 7 } };
+            tile.Data.Faces[3] = { MaxY, { 4, 5, 6, 7 } };
+            tile.Data.Faces[4] = { MinZ, { 3, 3, 3, 3 } };
+            tile.Data.Faces[5] = { MaxZ, { 3, 3, 3, 3 } };
+            tile.Permutations = permutations;
+            tile.Weight = 100;
+
+            return output;
         }
 
         //TODO: 2 tiles that line up with each other in strange face pairings

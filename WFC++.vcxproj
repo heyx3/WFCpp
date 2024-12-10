@@ -93,9 +93,9 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_WINDLL;WFC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WINDLL;WFC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)\%(RelativeDir)\%(Filename).obj</ObjectFileName>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <DisableSpecificWarnings>4251;4984</DisableSpecificWarnings>
     </ClCompile>
     <PostBuildEvent>
@@ -131,9 +131,9 @@ del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_WINDLL;WFC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WINDLL;WFC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)\%(RelativeDir)\%(Filename).obj</ObjectFileName>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <DisableSpecificWarnings>4251;4984</DisableSpecificWarnings>
     </ClCompile>
     <PostBuildEvent>
@@ -171,9 +171,9 @@ del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_WINDLL;WFC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_WINDLL;WFC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)\%(RelativeDir)\%(Filename).obj</ObjectFileName>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <DisableSpecificWarnings>4251;4984</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -215,10 +215,11 @@ del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_WINDLL;WFC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_WINDLL;WFC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)\%(RelativeDir)\%(Filename).obj</ObjectFileName>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <DisableSpecificWarnings>4251;4984</DisableSpecificWarnings>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -260,6 +261,7 @@ del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
     <ClInclude Include="WFC++\EnumFlags.h" />
     <ClInclude Include="WFC++\HelperClasses.h" />
     <ClInclude Include="WFC++\List.hpp" />
+    <ClInclude Include="WFC++\MemoryChecks.h" />
     <ClInclude Include="WFC++\Tiled3D\StandardRunner.h" />
     <ClInclude Include="WFC++\WFCppStreamPrinting.hpp" />
     <ClInclude Include="WFC++\Tiled3D\Grid.h" />
@@ -283,6 +285,7 @@ del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
     <ClInclude Include="WFC++\xoshiro.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="WFC++\HelperSrc\Vector2i.cpp" />
     <ClCompile Include="WFC++\Simple\InputData.cpp" />
     <ClCompile Include="WFC++\Simple\Pattern.cpp" />
     <ClCompile Include="WFC++\Simple\State.cpp" />
@@ -293,7 +296,6 @@ del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
     <ClCompile Include="WFC++\Tiled\InputData.cpp" />
     <ClCompile Include="WFC++\Tiled\State.cpp" />
     <ClCompile Include="WFC++\Tiled\TilePermutator.cpp" />
-    <ClCompile Include="WFC++\Vector2i.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

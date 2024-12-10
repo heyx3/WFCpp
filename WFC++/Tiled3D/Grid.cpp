@@ -8,10 +8,11 @@ using namespace WFC::Tiled3D;
 
 
 Grid::Grid(const List<Tile>& inputTiles, const Vector3i& outputSize)
-    : InputTiles(inputTiles), Cells(outputSize),
-      PossiblePermutations({ (int)inputTiles.GetSize(), outputSize }),
+    : InputTiles(inputTiles),
       NPermutedTiles(std::accumulate(InputTiles.begin(), InputTiles.end(),
-                                     0, [](int sum, const Tile& tile) { return sum + tile.Permutations.Size(); }))
+                                     0, [](int sum, const Tile& tile) { return sum + tile.Permutations.Size(); })),
+      Cells(outputSize),
+      PossiblePermutations({ (int)inputTiles.GetSize(), outputSize })
 {
     assert(inputTiles.GetSize() < (TileIdx)(-1)); //The last index is reserved for [null]
                 
@@ -36,6 +37,7 @@ Grid::Grid(const List<Tile>& inputTiles, const Vector3i& outputSize)
                 matches.Add(transform);
             }
 
+    DEBUGMEM_ValidateAll();
     Reset();
 }
 
@@ -50,12 +52,16 @@ void Grid::Reset()
     for (int tileI = 0; tileI < InputTiles.GetSize(); ++tileI)
         for (const Vector3i& cellPos : Region3i(Cells.GetDimensions()))
             PossiblePermutations[Vector4i(tileI, cellPos)] = InputTiles[tileI].Permutations;
+
+    DEBUGMEM_ValidateAll();
 }
 
 
 bool Grid::IsLegalPlacement(const Vector3i& cellPos,
                             TileIdx tileIdx, Transform3D tilePermutation) const
 {
+    DEBUGMEM_ValidateAll();
+
     for (const auto& neighborData : GetNeighbors(cellPos))
     {
         Vector3i neighborPos;
@@ -100,6 +106,8 @@ void Grid::SetCell(const Vector3i& pos, TileIdx tile, Transform3D tilePermutatio
     for (const auto& neighborData : GetNeighbors(pos))
         if (Cells.IsIndexValid(std::get<0>(neighborData)))
             ApplyFilter(pos, std::get<0>(neighborData), std::get<1>(neighborData), report);
+
+    DEBUGMEM_ValidateAll();
 }
 
 
@@ -169,7 +177,7 @@ void Grid::ClearCells(const Region3i& region, Report* report,
 
                             auto sideTowardsOutside = Tiled3D::MakeDirection3D(side == 0, axis);
 
-                            ApplyFilter(clearedPos, outsidePos, sideTowardsOutside, report);
+                            ApplyFilter(outsidePos, clearedPos, GetOpposite(sideTowardsOutside), report);
                         }
                         //Otherwise, the outside cell needs to recompute *its* possibilities
                         //    because the cleared cell may have opened them back up.
@@ -191,6 +199,8 @@ void Grid::ClearCells(const Region3i& region, Report* report,
                 }
     }
 
+    DEBUGMEM_ValidateAll();
+
     //Any immutable/uncleared cells will affect their newly-cleared neighbors.
     for (const Vector3i& cellPos : unclearedCellsInRegion)
     {
@@ -206,6 +216,8 @@ void Grid::ClearCells(const Region3i& region, Report* report,
                 ApplyFilter(cellPos, neighborPos, sideTowardsNeighbor, report);
         }
     }
+
+    DEBUGMEM_ValidateAll();
 }
 void Grid::ClearCell(const Vector3i& cellPos, Report* report,
                      bool isChangeableAfterwards)
@@ -219,6 +231,7 @@ void Grid::ApplyFilter(const Vector3i& cellPos,
                        Report* report)
 {
     auto& cell = Cells[cellPos];
+    cell.DEBUGMEM_Validate();
     if (cell.IsSet())
         return;
 
@@ -255,6 +268,8 @@ void Grid::ApplyFilter(const Vector3i& cellPos,
         if (report)
             report->GotInteresting.Add(cellPos);
     }
+
+    DEBUGMEM_ValidateAll();
 }
 void Grid::ApplyFilter(const Vector3i& cellPos,
                        const Vector3i& neighborPos,
@@ -281,8 +296,10 @@ void Grid::ResetCellPossibilities(const Vector3i& cellPos, CellState& cell, Repo
     cell.NPossibilities = NPermutedTiles;
 
     if (report)
-        report->GotBoring.Add(cellPos);
+        report->GotBoring.PushBack(cellPos);
 
     for (int tileI = 0; tileI < InputTiles.GetSize(); ++tileI)
         PossiblePermutations[{tileI, cellPos}] = InputTiles[tileI].Permutations;
+
+    DEBUGMEM_ValidateAll();
 }

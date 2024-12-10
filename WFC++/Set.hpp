@@ -21,6 +21,7 @@ namespace WFC
 
         bool Erase(const T& t) { return set.erase(t) > 0; }
         void Erase(const Set<T, Hasher>& ts) { for (const T& el : ts) set.erase(el); }
+        void Erase(const List<T>& ts) { for (const T& el : ts) set.erase(el); }
 
         bool Contains(const T& t) const { return set.find(t) != set.end(); }
         void Clear() { set.clear(); }

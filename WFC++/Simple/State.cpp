@@ -78,12 +78,12 @@ Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_fail
 	{
 		//Get a list of values and corresponding weights.
 		std::vector<Pixel> colors(chosenPixel.ColorFrequencies.GetSize());
-		std::vector<size_t> weights(chosenPixel.ColorFrequencies.GetSize());
+		std::vector<double> weights(chosenPixel.ColorFrequencies.GetSize());
 		size_t index = 0;
         for (const auto& colAndWeight : chosenPixel.ColorFrequencies)
         {
             colors[index] = colAndWeight.first;
-            weights[index] = colAndWeight.second;
+            weights[index] = static_cast<double>(colAndWeight.second);
             index += 1;
         }
 
@@ -227,7 +227,7 @@ void State::RecalculatePixelChances(Vector2i pixelPos)
             Vector2i patternPos = pixelPos - patternMinCorner;
             Pixel patternColor = pattern[patternPos];
 
-            size_t index = badColors.IndexOf(
+            auto index = badColors.IndexOf(
                 [&patternColor](const Pixel& p) { return p == patternColor; });
             if (index == -1 && pattern.DoesFit(patternMinCorner, *this))
                 pixel.ColorFrequencies[patternColor] += pattern.Frequency;

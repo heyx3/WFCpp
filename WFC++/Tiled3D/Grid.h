@@ -25,6 +25,8 @@ namespace WFC
             //The state of an output cell.
             struct WFC_API CellState
             {
+                WFCPP_MEMORY_CHECK_HEADER(16, "CellState struct");
+                
                 TileIdx ChosenTile = -1;
                 Transform3D ChosenPermutation = Transform3D{};
 
@@ -37,8 +39,24 @@ namespace WFC
                 //A value of 1 means that it's set, OR that it only has one possiblity left.
                 uint16_t NPossibilities = 0;
 
+                //Constructors written explicitly so we can insert breakpoints as needed.
+                CellState() { }
+                CellState(TileIdx chosenTile, Transform3D chosenPermutation, bool isChangeable, uint16_t nPossibilities)
+                    #if !(UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT)
+                        : ChosenTile(chosenTile), ChosenPermutation(chosenPermutation), IsChangeable(isChangeable), NPossibilities(nPossibilities)
+                    #endif
+                {
+                    #if UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
+                        ChosenTile = chosenTile;
+                        ChosenPermutation = chosenPermutation;
+                        IsChangeable = isChangeable;
+                        NPossibilities = nPossibilities;
+                    #endif
+                }
 
                 bool IsSet() const { return ChosenTile != (TileIdx)(-1); }
+
+                WFCPP_MEMORY_CHECK_FOOTER(16);
             };
 
             //A record of what happened during some action.
@@ -49,7 +67,7 @@ namespace WFC
                 //    and 'GotUnsolvable' should supercede 'GotInteresting'.
 
                 //Cells that no longer have any contraints on their tile options.
-                Set<Vector3i> GotBoring;
+                List<Vector3i> GotBoring;
                 //Cells that have fewer possible options now.
                 Set<Vector3i> GotInteresting;
                 //Cells that now have zero options for tile placement.
@@ -60,27 +78,6 @@ namespace WFC
                     GotInteresting.Clear();
                     GotBoring.Clear();
                     GotUnsolvable.Clear();
-                }
-
-                template<typename Func>
-                void ForeachBoringCell(Func toDo)
-                {
-                    for (const auto& p : GotBoring)
-                        if (!GotInteresting.Contains(p) && !GotUnsolvable.Contains(p))
-                            toDo(p);
-                }
-                template<typename Func>
-                void ForeachInterestingCell(Func toDo)
-                {
-                    for (const auto& p : GotInteresting)
-                        if (!GotUnsolvable.Contains(p))
-                            toDo(p);
-                }
-                template<typename Func>
-                void ForeachUnsolvableCell(Func toDo)
-                {
-                    for (const auto& p : GotUnsolvable)
-                        toDo(p);
                 }
             };
 
@@ -94,6 +91,19 @@ namespace WFC
             //    stores which tile permutations contain that face.
             //You can get the index for a FacePermutation with 'FaceIndices'.
             const Array2D<TransformSet>& GetMatchingFaces() const { return MatchingFaces; }
+            inline void DEBUGMEM_ValidateInputs() const
+            {
+                //Note: iterate with indices as much as possible so it's clearer in the debugger where validation is failing.
+                for (int i = 0; i < InputTiles.GetSize(); ++i)
+                    InputTiles[i].DEBUGMEM_Validate();
+                for (const auto& faceAndIdx : GetFaceIndices())
+                    faceAndIdx.first.DEBUGMEM_Validate();
+                for (Vector2i idx : Region2i(GetMatchingFaces().GetDimensions()))
+                {
+                    const auto& data = GetMatchingFaces()[idx];
+                    data.DEBUGMEM_Validate();
+                }
+            }
             
             //The output data.
             //While these fields are exposed publicly,
@@ -106,6 +116,22 @@ namespace WFC
             //NOTE: after a cell is set, its entry here no longer gets updated,
             //    so you should check whether a cell is set before paying attention to this data.
             Array4D<TransformSet> PossiblePermutations;
+            void DEBUGMEM_ValidateOutputs() const
+            {
+                //Note: iterate with indices as much as possible so it's clearer in the debugger where validation is failing.
+                for (Vector3i idx : Region3i(Cells.GetDimensions()))
+                    Cells[idx].DEBUGMEM_Validate();
+                for (Vector4i idx : Region4i(PossiblePermutations.GetDimensions()))
+                    PossiblePermutations[idx].DEBUGMEM_Validate();
+            }
+
+            void DEBUGMEM_ValidateAll() const
+            {
+                #if WFCPP_CHECK_MEMORY
+                    DEBUGMEM_ValidateInputs();
+                    DEBUGMEM_ValidateOutputs();
+                #endif
+            }
 
             //TODO: "Policies". Such as:
             //  * BoundaryPolicy (e.x. wrapping, clamping, or assuming a specific edge face)
@@ -115,7 +141,7 @@ namespace WFC
             //TOOD: Data about which pointIDs are "friends"
 
             //The simulation settings:
-            //TODO: These shouldn't be publicly non-const, as changing them effects tile possibilities. But don't overdo it, this will be refactored out eventually
+            //TODO: These shouldn't be publicly non-const, as changing them affects tile possibilities. But don't overdo it, this will be refactored out eventually
             bool IsPeriodicX = false,
                  IsPeriodicY = false,
                  IsPeriodicZ = false;

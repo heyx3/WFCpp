@@ -15,6 +15,8 @@ namespace WFC
         //A single item in a tileset.
         struct WFC_API Tile
         {
+            WFCPP_MEMORY_CHECK_HEADER(16, "Tile struct");
+            
             //Information about the faces of this tile.
             CubePermutation Data;
 
@@ -26,6 +28,14 @@ namespace WFC
             //The default weight is chosen by convention to be 100
             //    so that there's plenty of room to be given a weight under the default.
             uint32_t Weight = 100;
+
+            WFCPP_MEMORY_CHECK_FOOTER(16, "Tile struct");
+            inline void DEBUGMEM_ValidateAll()
+            {
+                DEBUGMEM_Validate();
+                Data.DEBUGMEM_ValidateAll();
+                Permutations.DEBUGMEM_Validate();
+            }
         };
     }
 }

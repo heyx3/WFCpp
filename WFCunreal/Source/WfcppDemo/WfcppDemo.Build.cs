@@ -7,17 +7,12 @@ public class WfcppDemo : ModuleRules
 	public WfcppDemo(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+		CppStandard = CppStandardVersion.Cpp17;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "WfcppRuntime" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 		
-		PrivateIncludePaths.AddRange(new string[] {
-			"../../WFC++",
-			"../../WFC++/Tiled3D"
-		});
-		PrivateDefinitions.Add("WFC_STATIC=1");
-
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 		

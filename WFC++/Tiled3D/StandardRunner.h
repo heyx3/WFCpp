@@ -1,6 +1,7 @@
 #pragma once
 
 #include <tuple>
+#include <random>
 
 #include "Grid.h"
 
@@ -110,8 +111,7 @@ namespace Tiled3D
         StandardRunner(const List<Tile>& inputTiles, const Vector3i& gridSize,
                        const Dictionary<Vector3i, std::tuple<TileIdx, Transform3D>>* constants = nullptr,
                        PRNG rand = PRNG(std::random_device()()))
-            : Grid(inputTiles, gridSize), Rand(rand),
-              History(gridSize, { })
+            : History(gridSize, { }), Rand(rand), Grid(inputTiles, gridSize)
         {
             if (constants != nullptr)
                 for (const auto& constant : *constants)
@@ -127,8 +127,8 @@ namespace Tiled3D
     private:
         Grid::Report report;
         Set<Vector3i> nextCells, unsolvableCells;
-        Dictionary<Vector3i, float> buffer_pickCell_priorities;
-        List<int> buffer_randomTile_distribution;
+        List<std::tuple<Vector3i, float>> buffer_pickCell_options;
+        List<float> buffer_randomTile_weights;
 
         void ClearAround(const Vector3i& centerCellPos);
         void Set(const Vector3i& cellPos, TileIdx tile, Transform3D permutation,

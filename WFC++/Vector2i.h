@@ -116,6 +116,9 @@ namespace WFC
 			//Reference: https://stackoverflow.com/questions/30032950/creating-a-hash-seed-value-from-2-integers-fast
 			//It works better with high bits than low ones,
 			//    so I bitwise-invert the components before using them.
+
+			//UPDATE: I'm starting to think the real bottleneck was elsewhere in the Dictionary which performs this hash.
+
 			int a = ~x,
 				b = ~y;
 			a ^= b;

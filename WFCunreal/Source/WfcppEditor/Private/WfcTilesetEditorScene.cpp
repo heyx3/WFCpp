@@ -51,7 +51,7 @@ namespace
     auto ConvertVec(const WFC::Vector3i& v) { return FVector(v.x, v.y, v.z); }
 
     FString MakePointLabel(WFC::Tiled3D::FacePoints corner,
-                           TOptional<PointID> symmetry = TOptional<PointID>())
+                           TOptional<PointSymmetry> symmetry = TOptional<PointSymmetry>())
     {
         const auto* cornerText = TEXT("ERROR");
         switch (corner)
@@ -68,10 +68,10 @@ namespace
         const auto* symmetryText = TEXT("ERROR2");
         switch (symmetry.GetValue())
         {
-            case PointID::a: symmetryText = TEXT("a"); break;
-            case PointID::b: symmetryText = TEXT("b"); break;
-            case PointID::c: symmetryText = TEXT("c"); break;
-            case PointID::d: symmetryText = TEXT("d"); break;
+            case PointSymmetry::a: symmetryText = TEXT("a"); break;
+            case PointSymmetry::b: symmetryText = TEXT("b"); break;
+            case PointSymmetry::c: symmetryText = TEXT("c"); break;
+            case PointSymmetry::d: symmetryText = TEXT("d"); break;
             default: check(false);
         }
 
@@ -236,7 +236,7 @@ void FWfcTilesetEditorScene::Refresh(const UWfcTileset* tileset, TOptional<WfcTi
             if (tileset != nullptr && tile.IsSet() && assetFacePrototype != nullptr)
             {
                 auto prototypeCornerType = assetFace->GetPrototypeCorner(point.CornerType);
-                auto pointSymmetry = assetFacePrototype->GetPoint(prototypeCornerType);
+                auto pointSymmetry = assetFacePrototype->GetPointSymmetry(prototypeCornerType);
                 auto text = MakePointLabel(point.CornerType, pointSymmetry);
                 
                 point.Label->SetText(FText::FromString(MakePointLabel(point.CornerType, pointSymmetry)));

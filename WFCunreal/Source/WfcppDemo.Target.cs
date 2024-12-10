@@ -9,6 +9,7 @@ public class WfcppDemoTarget : TargetRules
 	{
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
+		CppStandard = CppStandardVersion.Cpp17;
 		ExtraModuleNames.AddRange( new string[] { "WfcppDemo", "WfcppRuntime" } );
 	}
 }

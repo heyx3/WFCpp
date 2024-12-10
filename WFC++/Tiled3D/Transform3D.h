@@ -1,9 +1,10 @@
 #pragma once
 
-#include "../Platform.h"
 #include <stdint.h> //TODO: Why? remove this
 #include <utility>
 #include <array>
+
+#include "../Platform.h"
 
 #include "../Vector2i.h"
 #include "../Vector3i.h"
@@ -17,7 +18,7 @@ namespace WFC
         //Each type of face should have its own unique PointIDs --
         //    anywhere from 1 to 4, depending on the face's symmetry.
         //Four of these, can uniquely identify a face permutation.
-        using PointID = uint_fast32_t;
+        using PointID = std::uint_fast32_t;
 
 
         //Note that we're assuming a left-handed coordinate system.
@@ -99,16 +100,29 @@ namespace WFC
         }
 
 
-
         //A specific permutation of a face, on a specific side of the cube.
         struct WFC_API FacePermutation
         {
+            WFCPP_MEMORY_CHECK_HEADER(16, "FacePermutation struct");
+
             //The side of the cube this face is on.
             Directions3D Side;
 
             //The four points of this face. Indexed with the "FacePoints" enum.
             //Two faces can line up against each other if their corresponding points match.
-            PointID Points[N_FACE_POINTS];
+            std::array<PointID, N_FACE_POINTS> Points;
+
+            FacePermutation() : FacePermutation(Directions3D::MinX) { }
+            FacePermutation(Directions3D side) : Side(side)
+            {
+                for (int i = 0; i < N_FACE_POINTS; ++i)
+                    Points[i] = static_cast<PointID>(-1);
+            }
+            FacePermutation(Directions3D side, const std::array<PointID, N_FACE_POINTS>& facePoints)
+                : Side(side), Points(facePoints)
+            {
+            }
+
 
             //Gets the matching face on the opposite side.
             FacePermutation Flipped() const
@@ -136,13 +150,16 @@ namespace WFC
 
             inline bool operator==(const FacePermutation& f2) const
             {
-                static_assert(sizeof(Points) == sizeof(PointID) * 4,
+                static_assert(sizeof(Points) == sizeof(PointID) * N_FACE_POINTS,
                               "memcmp() will be broken if this fails");
                 return (Side == f2.Side) &&
-                       (memcmp(Points, f2.Points, sizeof(PointID) * 4) == 0);
+                       (memcmp(Points.data(), f2.Points.data(), sizeof(PointID) * N_FACE_POINTS) == 0);
             }
             inline bool operator!=(const FacePermutation& f2) const { return !(operator==(f2)); }
             #pragma endregion
+
+
+            WFCPP_MEMORY_CHECK_FOOTER(16);
         };
 
 
@@ -183,13 +200,37 @@ namespace WFC
         //The faces of a cube, with memory of how they have been transformed.
         struct WFC_API CubePermutation
         {
+            WFCPP_MEMORY_CHECK_HEADER(16, "CubePermutation struct");
+
             //The faces of this cube.
             //Their positions in the array are based on the original un-transformed cube --
             //    e.x. Faces[Directions::MinX] is the face that STARTED as the MinX face.
-            FacePermutation Faces[N_DIRECTIONS_3D];
+            std::array<FacePermutation, N_DIRECTIONS_3D> Faces;
+
+            CubePermutation()
+                : CubePermutation(FacePermutation(Directions3D::MinX), FacePermutation{ Directions3D::MaxX },
+                                  FacePermutation{ Directions3D::MinY }, FacePermutation{ Directions3D::MaxY },
+                                  FacePermutation{ Directions3D::MinZ }, FacePermutation{ Directions3D::MaxZ })
+            {
+
+            }
+            CubePermutation(FacePermutation minX, FacePermutation maxX,
+                            FacePermutation minY, FacePermutation maxY,
+                            FacePermutation minZ, FacePermutation maxZ)
+                : Faces{ minX, maxX, minY, maxY, minZ, maxZ }
+            {
+            }
 
             //Gets the index in "Faces" for the face currently facing the given direction.
             uint_fast8_t GetFace(Directions3D dir) const;
+
+            WFCPP_MEMORY_CHECK_FOOTER(16);
+            inline void DEBUGMEM_ValidateAll()
+            {
+                DEBUGMEM_Validate();
+                for (const auto& facePermutation : Faces)
+                    facePermutation.DEBUGMEM_Validate();
+            }
         };
 
 
@@ -216,7 +257,7 @@ namespace WFC
 
             inline Transform3D Inverse() const
             {
-                //This is actually quite simple, because you can consider
+                //This is actually quite simple because you can consider
                 //    the inversion and rotation separately.
 
                 static const std::array<Rotations3D, N_ROTATIONS_3D> rotLookup = {
@@ -265,6 +306,7 @@ namespace WFC
                                        Transform3D transform,
                                        Directions3D sideAfterTransform)
         {
+            //TODO: Seems like a small bottleneck is in here; try keeping a memoized table of transform+sideAfter => originalSide.
             auto originalSide = transform.Inverse().ApplyToSide(sideAfterTransform);
             auto newFace = transform.ApplyToFace(cubeBeforeTransform.Faces[originalSide]);
             assert(newFace.Side == sideAfterTransform);
@@ -292,6 +334,9 @@ namespace WFC
             //TODO: Move to its own file.
         {
         public:
+            
+            WFCPP_MEMORY_CHECK_HEADER(16, "TransformSet struct");
+            
             static const uint_fast8_t BIT_COUNT = N_ROTATIONS_3D * 2;
             
             using BitsType = Math::SmallestUInt<BIT_COUNT>;
@@ -520,6 +565,9 @@ namespace WFC
         private:
             BitsType bits = 0;
             uint_fast8_t nBits = 0;
+
+        public:
+            WFCPP_MEMORY_CHECK_FOOTER(16);
         };
     }
 }

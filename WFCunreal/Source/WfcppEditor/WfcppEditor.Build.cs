@@ -4,6 +4,7 @@ public class WfcppEditor : ModuleRules
 	public WfcppEditor(ReadOnlyTargetRules target) : base(target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+		CppStandard = CppStandardVersion.Cpp17;
 		
 		PublicDependencyModuleNames.AddRange(new [] {
 			"Core", "CoreUObject",
@@ -27,17 +28,5 @@ public class WfcppEditor : ModuleRules
 		DynamicallyLoadedModuleNames.AddRange(new[] {
 			"AssetTools"
 		});
-		
-		PublicIncludePaths.AddRange(new [] {
-			"WfcppEditor/Public",
-			"WfcppRuntime/Public"
-		});
-		PrivateIncludePaths.AddRange(new [] {
-			"WfcppEditor/Private",
-			"../../WFC++",
-			"../../WFC++/Tiled3D"
-		});
-		
-		PrivateDefinitions.Add("WFC_STATIC=1");
 	}
 }

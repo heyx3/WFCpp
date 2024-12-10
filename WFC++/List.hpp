@@ -16,28 +16,7 @@ namespace WFC
         List() { }
 
         explicit List(int size) : vec(size) { }
-        explicit List(const T& first) { vec.push_back(first); }
-        explicit List(const T& first, const T& second) { vec.push_back(first); vec.push_back(second); }
-        explicit List(const T& first, const T& second, const T& third)
-            { vec.push_back(first); vec.push_back(second); vec.push_back(third); }
-        explicit List(const T& first, const T& second, const T& third, const T& fourth)
-            { vec.push_back(first); vec.push_back(second); vec.push_back(third); vec.push_back(fourth); }
         List(std::initializer_list<T> list) : vec(list) { }
-
-        //Move operators:
-        List(List<T>&& from) : vec(std::move(from.vec)) { }
-        List<T>& operator=(List<T>&& from)
-        {
-            vec = std::move(from.vec);
-            return *this;
-        }
-        //Copy operators:
-        List(const List<T>& from) : vec(from.vec) { }
-        List<T>& operator=(const List<T>& from)
-        {
-            vec = from.vec;
-            return *this;
-        }
 
 
         size_t GetSize() const { return vec.size(); }
@@ -51,18 +30,20 @@ namespace WFC
         void Reserve(size_t n) { vec.reserve(n); }
 
         //Adds the given value to the end of this vector.
-        void PushBack(const T& value) { vec.push_back(value); }
+        T& PushBack(const T& value) { vec.push_back(value); return vec.back(); }
         //Adds the given value to the beginning of this vector.
-        void PushFront(const T& value) { Insert(0, value); }
+        T& PushFront(const T& value) { return Insert(0, value); }
 
         T PopBack() { T val = std::move(vec.back()); vec.pop_back(); return val; }
         T PopFront() { T val = std::move(vec[0]); vec.erase(vec.begin()); return val; }
-        void RemoveAt(size_t i) { vec.erase(vec.begin() + i); }
+        void RemoveAt(size_t i) { vec.erase(std::next(vec.begin(), i)); }
 
-        void Insert(size_t i, const T& value) { vec.insert(vec.begin() + i, value); }
-        void Insert(size_t i, const List<T>& elements) { vec.insert(vec.begin() + i, elements.begin(), elements.end()); }
+        T& Insert(size_t i, const T& value) { return *vec.insert(vec.begin() + i, value); }
+        T& Insert(size_t i, const List<T>& elements) { return *vec.insert(vec.begin() + i, elements.begin(), elements.end()); }
 
         void Clear() { vec.clear(); }
+
+        bool Contains(const T& t) { return std::find(begin(), end(), t) != end(); }
 
         template<typename Predicate>
         int IndexOf(Predicate p) const
@@ -86,6 +67,10 @@ namespace WFC
         typename std::vector<T>::iterator       begin()       { return vec.begin(); }
         typename std::vector<T>::const_iterator end()   const { return vec.end(); }
         typename std::vector<T>::iterator       end()         { return vec.end(); }
+
+        //Needed for performant algorithms.
+        auto& GetUnderlying() { return vec; }
+        const auto& GetUnderlying() const { return vec; }
 
     private:
 

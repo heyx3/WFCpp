@@ -17,7 +17,7 @@ namespace
     //For example, to see what happens to the MinX face
     //    when applying RotY90, use
     //    "Lookup_DirTransforms[MinX][RotY90]".
-    std::array<std::array<Directions3D, (size_t)N_ROTATIONS_3D>,
+    constexpr std::array<std::array<Directions3D, (size_t)N_ROTATIONS_3D>,
                N_DIRECTIONS_3D> Lookup_DirTransforms = { {
         #pragma region MinX
         {
@@ -357,7 +357,7 @@ FacePermutation Transform3D::ApplyToFace(FacePermutation face) const
     //For each point, figure out where it is now on the new face.
     //Swap the point ID's accordingly.
     std::array<PointID, N_FACE_POINTS> oldPointIDs, newPointIDs;
-    memcpy(oldPointIDs.data(), face.Points, sizeof(PointID) * oldPointIDs.size());
+    oldPointIDs = face.Points;
     memset(newPointIDs.data(), 0xff, sizeof(PointID) * newPointIDs.size()); //Initialize the data to -1 so that
                                                                             //    it stands out if one stays uninitialized.
     for (smallU_t pI = 0; pI < N_FACE_POINTS; ++pI)
@@ -371,10 +371,10 @@ FacePermutation Transform3D::ApplyToFace(FacePermutation face) const
     }
     //Double-check that every old point mapped to a unique new point.
     for (PointID newID : newPointIDs)
-        assert(newID != (PointID)0 - (PointID)1);
+        assert(newID != ~PointID{ 0 });
 
     //Output the mapped face data.
-    memcpy(face.Points, newPointIDs.data(), sizeof(PointID) * newPointIDs.size());
+    face.Points = newPointIDs;
     face.Side = newSide;
     return face;
 }

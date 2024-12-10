@@ -64,7 +64,7 @@ void StandardRunner::ClearAround(const Vector3i& centerCellPos)
     Grid.ClearCells(region, &report);
 
     //Process the report.
-    //Note that the order is important, these collections aren't mutually exclusive.
+    //Note that the order is important; the report's collections aren't mutually exclusive.
     nextCells.Erase(report.GotBoring);
     nextCells.Add(report.GotInteresting);
     assert(report.GotUnsolvable.GetSize() == 0); //Removing tiles shouldn't make
@@ -107,33 +107,38 @@ void StandardRunner::Set(const Vector3i& cellPos, TileIdx tile, Transform3D perm
 
 Vector3i StandardRunner::PickNextCellToSet()
 {
-    //Assign a priority to each cell under consideration.
-    buffer_pickCell_priorities.Clear();
-    auto& cellPriorities = buffer_pickCell_priorities;
+    assert(nextCells.GetSize() > 0);
 
+    //Assign a priority to each cell under consideration.
+    buffer_pickCell_options.Clear();
+    buffer_pickCell_options.Reserve(nextCells.GetSize());
+    auto& cellPriorities = buffer_pickCell_options;
+
+    //Get each cell's priority and add it to the candidate list.
+    //Also track the current highest-priority.
     float maxPriority = std::numeric_limits<float>().lowest();
     for (const Vector3i& cellPos : nextCells)
     {
         float priority = GetPriority(cellPos);
-        cellPriorities[cellPos] = priority;
+        cellPriorities.GetUnderlying().emplace_back(cellPos, priority);
         maxPriority = Math::Max(maxPriority, priority);
     }
 
     //Filter out the cells of less-than-max priority.
-    auto iter = cellPriorities.begin();
-    while (iter != cellPriorities.end())
-    {
-        if (iter->second < maxPriority)
-            iter = cellPriorities.Unwrap().erase(iter);
-        else
-            ++iter;
-    }
+    auto newEndIterator = std::remove_if(
+        cellPriorities.begin(), cellPriorities.end(),
+        [maxPriority](const std::tuple<Vector3i, float>& option)
+        {
+            return std::get<1>(option) < maxPriority;
+        }
+    );
+    cellPriorities.GetUnderlying().erase(newEndIterator, cellPriorities.end());
+    assert(cellPriorities.GetSize() > 1);
 
-    //Pick one cell randomly.
-    iter = cellPriorities.begin();
-    auto idx = std::uniform_int_distribution<int>(0, (int)cellPriorities.GetSize() - 1)(Rand);
-    std::advance(iter, idx);
-    return iter->first;
+    //Randomly choose one max-priority cell.
+    return std::get<0>(cellPriorities[
+        std::uniform_int_distribution<int>(0, static_cast<int>(cellPriorities.GetSize() - 1))(Rand)
+    ]);
 }
 
 bool StandardRunner::Tick()
@@ -206,30 +211,27 @@ bool StandardRunner::TickN(int n)
 
 WFC::Nullable<std::tuple<TileIdx, Transform3D>> StandardRunner::RandomTile(const TransformSet* allowedPerTile)
 {
-    auto& distributionBuffer = buffer_randomTile_distribution;
+    auto& distributionWeights = buffer_randomTile_weights;
 
-    //Pick a tile.
-    distributionBuffer.Clear();
+    //Pick a tile, weighting them by their number of possible permutations
+    //     (and of course the user's own weights).
+    distributionWeights.Clear();
     for (int tileI = 0; tileI < Grid.InputTiles.GetSize(); ++tileI)
-        distributionBuffer.PushBack(allowedPerTile[tileI].Size() * Grid.InputTiles[tileI].Weight);
-    //If all tiles have weight 0, then none are possible.
-    if (std::all_of(distributionBuffer.begin(), distributionBuffer.end(),
-                    [](int i) { return i == 0; }))
+        distributionWeights.PushBack(static_cast<float>(allowedPerTile[tileI].Size() * Grid.InputTiles[tileI].Weight));
+    int chosenTileI = PickWeightedRandomIndex(Rand, distributionWeights);
+    if (chosenTileI < 0)
         return { };
-    std::discrete_distribution<int> tileDistribution(distributionBuffer.begin(),
-                                                     distributionBuffer.end());
-    int chosenTileI = tileDistribution(Rand);
 
     //Pick a permutation for the tile.
     const auto& permutations = allowedPerTile[chosenTileI];
     assert(permutations.Size() > 0);
-    distributionBuffer.Resize((size_t)N_ROTATIONS_3D * 2);
-    std::fill(distributionBuffer.begin(), distributionBuffer.end(), 0);
+    distributionWeights.Resize(static_cast<size_t>(N_ROTATIONS_3D * 2));
+    std::fill(distributionWeights.begin(), distributionWeights.end(), 0);
     for (Transform3D tr : permutations)
-        distributionBuffer[TransformSet::ToBitIdx(tr)] = 1;
-    std::discrete_distribution<int> permDistribution(distributionBuffer.begin(),
-                                                     distributionBuffer.end());
-    int chosenTransformI = permDistribution(Rand);
+        distributionWeights[TransformSet::ToBitIdx(tr)] = 1;
+    int chosenTransformI = PickWeightedRandomIndex(Rand, distributionWeights);
+    assert(chosenTransformI >= 0);
+
 
     return std::make_tuple((TileIdx)chosenTileI, TransformSet::FromBit(chosenTransformI));
 }
