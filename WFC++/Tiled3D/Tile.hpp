@@ -30,7 +30,7 @@ namespace WFC
             //    so that there's plenty of room to be given a weight under the default.
             uint32_t Weight = 100;
 
-            WFCPP_MEMORY_CHECK_FOOTER(16, "Tile struct");
+            WFCPP_MEMORY_CHECK_FOOTER(16);
             inline void DEBUGMEM_ValidateAll()
             {
                 DEBUGMEM_Validate();

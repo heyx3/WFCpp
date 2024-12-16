@@ -10,10 +10,9 @@ public class WfcppRuntime : ModuleRules
 		CppStandard = CppStandardVersion.Cpp17;
 		
 		PublicDependencyModuleNames.AddRange(new string[] {
+			"Core", "CoreUObject", "Engine"
 		});
 		PrivateDependencyModuleNames.AddRange(new string[] {
-			"Core", "CoreUObject",
-			"Engine", "InputCore"
 		});
 
 		//Compile the WFC cpp files as part of this module.

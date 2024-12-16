@@ -187,14 +187,7 @@ mkdir "$(TargetDir)include"
 
 REM Move headers to "include" directory
 xcopy "$(ProjectDir)WFC++\*.h" "$(TargetDir)include" /sy
-xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy
-
-REM Move relevant Cpp files to Unreal Source directory
-set UNREAL_WFC_DIR=$(SolutionDir)WFCunreal\Source\WfcppRuntime\Private\WFCpp
-xcopy "$(ProjectDir)WFC++\*.cpp" "%UNREAL_WFC_DIR%\" /sy
-del /q "%UNREAL_WFC_DIR%\Simple"
-del /q "%UNREAL_WFC_DIR%\SWIG"
-del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
+xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy headers to build folder, and source to Unreal</Message>
@@ -232,14 +225,7 @@ mkdir "$(TargetDir)include"
 
 REM Move headers to "include" directory
 xcopy "$(ProjectDir)WFC++\*.h" "$(TargetDir)include" /sy
-xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy
-
-REM Move relevant Cpp files to Unreal Source directory
-set UNREAL_WFC_DIR=$(SolutionDir)WFCunreal\Source\WfcppRuntime\Private\WFCpp
-xcopy "$(ProjectDir)WFC++\*.cpp" "%UNREAL_WFC_DIR%\" /sy
-del /q "%UNREAL_WFC_DIR%\Simple"
-del /q "%UNREAL_WFC_DIR%\SWIG"
-del /q "%UNREAL_WFC_DIR%\Tiled"</Command>
+xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy headers to build folder, and source to Unreal</Message>

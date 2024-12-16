@@ -390,6 +390,8 @@ namespace WFC
                 }
                 return set;
             }
+            #pragma warning( push )
+            #pragma warning( disable: 4499 ) //Warning about use of 'static' below, but that's needed for Unreal 4/C++17
             template<> static TransformSet Combine<TransformSet>(const TransformSet& set) { return set; }
             template<> static TransformSet Combine<Transform3D>(const Transform3D& transf)
             {
@@ -405,6 +407,7 @@ namespace WFC
                 tRest.Add(tFirst);
                 return tRest;
             }
+            #pragma warning( pop )
 
 
             uint_fast8_t Size() const { return nBits; }

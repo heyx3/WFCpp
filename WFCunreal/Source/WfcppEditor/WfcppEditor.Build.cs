@@ -9,8 +9,7 @@ public class WfcppEditor : ModuleRules
 		PublicDependencyModuleNames.AddRange(new [] {
 			"Core", "CoreUObject",
 			"Engine", "InputCore",
-			"UnrealEd",
-			"WfcppRuntime"
+			"UnrealEd", "WfcppRuntime"
 		});
 		PrivateDependencyModuleNames.AddRange(new string[] {
 			"Json", "Slate", "SlateCore", "EditorStyle", "EditorWidgets",
