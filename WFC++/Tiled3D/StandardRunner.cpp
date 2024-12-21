@@ -83,7 +83,7 @@ void StandardRunner::ClearAround(const Vector3i& centerCellPos)
     {
         Vector3i lookupIdx = Vector3i{ 2, 2, 2 } - (gridRegion.MaxExclusive - cellPos - 1);
         auto tempIncrease = TempIncreases[lookupIdx.x][lookupIdx.y][lookupIdx.z];
-        History[Grid.FilterPos(lookupIdx)].BaseTemperature += tempIncrease;
+        History[Grid.FilterPos(cellPos)].BaseTemperature += tempIncrease;
     }
 }
 void StandardRunner::Set(const Vector3i& cellPos, TileIdx tile, Transform3D permutation,
