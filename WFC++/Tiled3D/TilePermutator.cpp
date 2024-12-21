@@ -41,7 +41,7 @@ TilePermutator::TilePermutator(const List<Tile>& originalTiles,
     }
 
     //Make each permutation.
-    assert(!Contains(permutationsToUse, Transform3D()));
+    WFCPP_ASSERT(!Contains(permutationsToUse, Transform3D()));
     for (auto permutation : permutationsToUse)
     {
         for (TileID parentID = 0; parentID < (TileID)nOriginalTiles; ++parentID)

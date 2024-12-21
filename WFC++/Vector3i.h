@@ -71,6 +71,9 @@ namespace WFC
         Vector3i LessZ() const { return Vector3i(x, y, z - 1); }
         Vector3i MoreZ() const { return Vector3i(x, y, z + 1); }
 
+		Vector3i Min(const Vector3i& b) const { return { std::min(x, b.x), std::min(y, b.y), std::min(z, b.z) }; }
+		Vector3i Max(const Vector3i& b) const { return { std::max(x, b.x), std::max(y, b.y), std::max(z, b.z) }; }
+
 		uint32_t GetHashcode() const
 		{
 			return Vector2i(Vector2i(x, y).GetHashcode(), z).GetHashcode();

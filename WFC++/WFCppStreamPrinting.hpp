@@ -36,7 +36,7 @@ inline std::ostream& operator<<(std::ostream& cout, WFC::Tiled3D::FacePoints p)
         case AB: return (cout << "AB");
         case BA: return (cout << "BA");
         case BB: return (cout << "BB");
-        default: assert(false); return (cout << "?" << (int)p << "");
+        default: WFCPP_ASSERT(false); return (cout << "?" << (int)p << "");
     }
 }
 inline std::ostream& operator<<(std::ostream& cout, WFC::Tiled3D::Directions3D d)
@@ -51,7 +51,7 @@ inline std::ostream& operator<<(std::ostream& cout, WFC::Tiled3D::Directions3D d
         case MaxY: return (cout << "+Y");
         case MinZ: return (cout << "-Z");
         case MaxZ: return (cout << "+Z");
-        default: assert(false); return (cout << "?" << (int)d << "");
+        default: WFCPP_ASSERT(false); return (cout << "?" << (int)d << "");
     }
 }
 inline std::ostream& operator<<(std::ostream& cout, WFC::Tiled3D::Rotations3D r)
@@ -84,7 +84,7 @@ inline std::ostream& operator<<(std::ostream& cout, WFC::Tiled3D::Rotations3D r)
         case Rotations3D::CornerBAA_240: return (cout << "CornerBAA_240");
         case Rotations3D::CornerBBA_120: return (cout << "CornerBBA_120");
         case Rotations3D::CornerBBA_240: return (cout << "CornerBBA_240");
-        default: assert(false); return (cout << "?" << (int)r << "");
+        default: WFCPP_ASSERT(false); return (cout << "?" << (int)r << "");
     }
 }
 inline std::ostream& operator<<(std::ostream& cout, WFC::Tiled3D::Transform3D tr)

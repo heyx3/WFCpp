@@ -76,7 +76,7 @@ TilePermutator::TilePermutator(const List<Tile>& originalTiles,
     }
 
     //Make each permutation.
-    assert(!_permutations.Contains(Transformations::None));
+    WFCPP_ASSERT(!_permutations.Contains(Transformations::None));
     for (Transformations tr : permutations)
     {
         for (TileID parentID = 0; parentID < (TileID)nOriginalTiles; ++parentID)
@@ -117,7 +117,7 @@ TilePermutator::TilePermutator(const List<Tile>& originalTiles,
             #undef EDGES
 
                 default:
-                    assert(false);
+                    WFCPP_ASSERT(false);
             }
 
             //Register the tile.

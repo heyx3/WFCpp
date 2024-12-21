@@ -73,7 +73,7 @@ namespace WFC
         {
             switch (dir)
             {
-                default: assert(false);
+                default: WFCPP_ASSERT(false);
 
                 case Directions3D::MinX: return Vector3i(-1, 0, 0);
                 case Directions3D::MaxX: return Vector3i(1, 0, 0);
@@ -309,7 +309,7 @@ namespace WFC
             //TODO: Seems like a small bottleneck is in here; try keeping a memoized table of transform+sideAfter => originalSide.
             auto originalSide = transform.Inverse().ApplyToSide(sideAfterTransform);
             auto newFace = transform.ApplyToFace(cubeBeforeTransform.Faces[originalSide]);
-            assert(newFace.Side == sideAfterTransform);
+            WFCPP_ASSERT(newFace.Side == sideAfterTransform);
             return newFace;
         }
 
@@ -348,9 +348,6 @@ namespace WFC
                                       USED_BITS = ALL >> (N_TYPE_BITS - BIT_COUNT),
                                       UNINVERTED_BITS = USED_BITS >> FIRST_INVERT_BIT_IDX,
                                       INVERTED_BITS = USED_BITS & (~UNINVERTED_BITS);
-
-            //Efficiently clears a contiguous array of transform sets.
-            static void ClearRow(TransformSet* first, size_t count) { std::memset(first, 0, count * sizeof(TransformSet)); }
 
 
             //Gets the index of the bit for this transform.
@@ -448,7 +445,7 @@ namespace WFC
                 bits |= set.bits;
                 nBits = Math::CountBits(bits);
 
-                assert(nBits >= prevNBits);
+                WFCPP_ASSERT(nBits >= prevNBits);
                 return nBits - prevNBits;
             }
             //Removes the given elements from this set.
@@ -460,7 +457,7 @@ namespace WFC
                 bits &= ~(set.bits);
                 nBits = Math::CountBits(bits);
 
-                assert(nBits <= prevNBits);
+                WFCPP_ASSERT(nBits <= prevNBits);
                 return prevNBits - nBits;
             }
             //Removes all elements of this set except for those in the given one.
@@ -472,7 +469,7 @@ namespace WFC
                 bits &= set.bits;
                 nBits = Math::CountBits(bits);
 
-                assert(nBits <= prevNBits);
+                WFCPP_ASSERT(nBits <= prevNBits);
                 return prevNBits - nBits;
             }
 

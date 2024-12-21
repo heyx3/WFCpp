@@ -198,7 +198,7 @@ uint_fast8_t CubePermutation::GetFace(Directions3D dir) const
             return i;
 
     //Couldn't find that face!?
-    assert(false);
+    WFCPP_ASSERT(false);
     return -1;
 }
 
@@ -299,7 +299,7 @@ Vector3i Transform3D::ApplyToPos(Vector3i pos, Vector3i max) const
             pos = Vector3i(iPos.z, pos.x, iPos.y);
             break;
 
-        default: assert(false); break;
+        default: WFCPP_ASSERT(false); break;
     }
 
     return pos;
@@ -371,7 +371,7 @@ FacePermutation Transform3D::ApplyToFace(FacePermutation face) const
     }
     //Double-check that every old point mapped to a unique new point.
     for (PointID newID : newPointIDs)
-        assert(newID != ~PointID{ 0 });
+        WFCPP_ASSERT(newID != ~PointID{ 0 });
 
     //Output the mapped face data.
     face.Points = newPointIDs;

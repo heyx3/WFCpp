@@ -247,7 +247,7 @@ xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
     <ClInclude Include="WFC++\EnumFlags.h" />
     <ClInclude Include="WFC++\HelperClasses.h" />
     <ClInclude Include="WFC++\List.hpp" />
-    <ClInclude Include="WFC++\MemoryChecks.h" />
+    <ClInclude Include="WFC++\MemoryChecks.inl" />
     <ClInclude Include="WFC++\Tiled3D\StandardRunner.h" />
     <ClInclude Include="WFC++\WFCppStreamPrinting.hpp" />
     <ClInclude Include="WFC++\Tiled3D\Grid.h" />

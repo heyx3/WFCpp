@@ -59,6 +59,6 @@ namespace WFC
             if (remainingBudget <= 0)
                 return i;
         }
-        return weights.GetSize() - 1;
+        return static_cast<size_t>(weights.GetSize() - 1);
     }
 }

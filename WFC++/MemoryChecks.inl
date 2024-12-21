@@ -28,8 +28,10 @@
 
 //Make sure there is an error handler.
 #if WFCPP_CHECK_MEMORY && !defined(WFCPP_CHECK_MEMORY_ERROR)
-    #define WFCPP_CHECK_MEMORY_ERROR(s, ...) \
-        fprintf(stderr, "WFCPP: heap corruption detected! " s, ##__VA_ARGS__)
+    #define WFCPP_CHECK_MEMORY_ERROR(s, ...) { \
+        fprintf(stderr, "WFCPP: heap corruption detected! " s "\n", ##__VA_ARGS__); \
+        fflush(stderr); \
+    }
 #endif
 
 namespace WFC::DEBUGMEM

@@ -14,7 +14,7 @@ Grid::Grid(const List<Tile>& inputTiles, const Vector3i& outputSize)
       Cells(outputSize),
       PossiblePermutations({ (int)inputTiles.GetSize(), outputSize })
 {
-    assert(inputTiles.GetSize() < TileIdx_INVALID); //The last index is reserved for [null]
+    WFCPP_ASSERT(inputTiles.GetSize() < TileIdx_INVALID); //The last index is reserved for [null]
 
     //Set up FaceIndices.
     int32_t nextID = 0;
@@ -90,7 +90,7 @@ void Grid::SetCell(const Vector3i& pos, TileIdx tile, Transform3D tilePermutatio
                    Report* report, bool doubleCheckLegalFit, bool canBeChangedInFuture)
 {
     if (doubleCheckLegalFit)
-        assert(IsLegalPlacement(pos, tile, tilePermutation));
+        WFCPP_ASSERT(IsLegalPlacement(pos, tile, tilePermutation));
 
     //If the cell is being *replaced* rather than going from unset to set,
     //    then neighbor data is harder to update seamlessly because
@@ -134,8 +134,9 @@ void Grid::ClearCells(const Region3i& region, Report* report,
         else
         {
             cell.IsChangeable |= clearedImmutableCellsAreMutableNow;
-            cell.ChosenPermutation = { }; //Not important, but it keeps unset cells
-                                          //    consistent for debugging
+            #if !defined(NDEBUG)
+                cell.ChosenPermutation = { }; //Give unset cells a standardized value.
+            #endif
             ResetCellPossibilities(cellPos, cell, report);
         }
     }
@@ -205,7 +206,7 @@ void Grid::ClearCells(const Region3i& region, Report* report,
     for (const Vector3i& cellPos : unclearedCellsInRegion)
     {
         const auto& cell = Cells[cellPos];
-        assert(cell.IsSet());
+        WFCPP_ASSERT(cell.IsSet());
 
         for (const auto& neighborData : GetNeighbors(cellPos))
         {
@@ -238,8 +239,8 @@ void Grid::ApplyFilter(const Vector3i& cellPos,
     //It's possible, if uncommon, that a tileset has no match for a particular face.
     if (!FaceIndices.Contains(face))
     {
-        TransformSet::ClearRow(&PossiblePermutations[{0, cellPos}],
-                               InputTiles.GetSize());
+        for (int i = 0; i < InputTiles.GetSize(); ++i)
+            PossiblePermutations[{ i, cellPos }] = { };
         cell.NPossibilities = 0;
     }
     else
@@ -247,11 +248,11 @@ void Grid::ApplyFilter(const Vector3i& cellPos,
         auto faceIdx = FaceIndices[face];
         for (int tileI = 0; tileI < InputTiles.GetSize(); ++tileI)
         {
-            const auto& supported = MatchingFaces[{tileI, faceIdx}];
-            auto& available = PossiblePermutations[{tileI, cellPos}];
+            const auto& supported = MatchingFaces[{ tileI, faceIdx }];
+            auto& available = PossiblePermutations[{ tileI, cellPos }];
             auto nChoicesLost = available.Intersect(supported);
 
-            assert(nChoicesLost <= cell.NPossibilities);
+            WFCPP_ASSERT(nChoicesLost <= cell.NPossibilities);
             cell.NPossibilities -= nChoicesLost;
         }
     }

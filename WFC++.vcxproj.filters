@@ -79,7 +79,7 @@
     <ClInclude Include="WFC++\xoshiro.hpp">
       <Filter>Helper Classes</Filter>
     </ClInclude>
-    <ClInclude Include="WFC++\MemoryChecks.h">
+    <ClInclude Include="WFC++\MemoryChecks.inl">
       <Filter>Helper Classes</Filter>
     </ClInclude>
   </ItemGroup>

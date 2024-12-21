@@ -860,7 +860,7 @@ SUITE(WFC_Tiled3D)
                     setCellPos == originalCellPos.LessZ() ||
                     setCellPos == originalCellPos.MoreZ());
 
-            //TODO: Set a cell that makes the grid unsolvable, then watch it clear.
+            //TODO: Clear an area, set a cell that makes the grid unsolvable, then test that another clear happens soon. Finally, test that it eventually completes the grid after clearing.
         }
     }
     TEST(StandardRunnerTickN)
@@ -895,7 +895,7 @@ SUITE(WFC_Tiled3D)
         //Run until the whole grid is solved.
         //The number of iterations needed is simple to calculate,
         //    as the grid can only be solved one way.
-        std::cout << "    (running slow test..";
+        std::cout << "    (running a slow test..";
         int nLeft = state.Grid.Cells.GetNumbElements() - 6;
         for (int i = 0; i < nLeft - 1; ++i)
         {
@@ -913,7 +913,7 @@ SUITE(WFC_Tiled3D)
         //Check the chosen tiles on each Z-slice.
         for (int z = 0; z < state.Grid.Cells.GetDepth(); ++z)
         {
-            const auto& expectedCell = state.Grid.Cells[{ 0, 0, z }];
+            const auto& expectedCell = state.Grid.Cells[{ 2, 2, z }];
             for (int y = 0; y < state.Grid.Cells.GetHeight(); ++y)
             {
                 for (int x = 0; x < state.Grid.Cells.GetWidth(); ++x)
@@ -927,7 +927,61 @@ SUITE(WFC_Tiled3D)
         }
     }
 
-    //TODO: Test with more complex tilesets, look for a stack corruption bug
+    TEST(StandardRunnerTricky1)
+    {
+        //Use a large world grid and tile-set to do more thorough tests.
+        //TODO: This isn't complex enough; we need it to clear sometimes
+        StandardRunner state(
+            OneTileArmy(TransformSet::Combine(
+                Transform3D{ false, Rotations3D::None },
+                Transform3D{ false, Rotations3D::AxisY_90 },
+                Transform3D{ false, Rotations3D::AxisZ_180},
+                Transform3D{ false, Rotations3D::AxisY_270 },
+
+                Transform3D{ true, Rotations3D::None },
+                Transform3D{ true, Rotations3D::AxisY_90 },
+                Transform3D{ true, Rotations3D::AxisZ_180 },
+                Transform3D{ true, Rotations3D::AxisY_270 },
+
+                Transform3D{ false, Rotations3D::CornerAAA_120 },
+                Transform3D{ false, Rotations3D::CornerAAA_240 }
+            )),
+            #ifdef _DEBUG
+                { 4, 4, 100 }
+            #else
+                { 50, 75, 100 }
+            #endif
+            , nullptr, { 0xabababab43430001 }
+        );
+        state.Reset();
+
+        //Run until the whole grid is solved.
+        std::cout << "    (running a slow test..";
+        bool isFinished = false;
+        while (!isFinished)
+        {
+            isFinished = state.Tick();
+        }
+        std::cout << ". finished!)\n";
+    }
+
+    //Before using the SymmetricRods tileset, run a trivial test to make sure it's defined correctly.
+    TEST(SymmetricRodsIsValid)
+    {
+        auto tileset = SymmetricRods::Create(Transform3D{ false, Rotations3D::None });
+
+        StandardRunner state(
+            tileset.Tiles, { 8, 8, 8 },
+            nullptr, { 0xffeeffddfba23423 }
+        );
+        state.Reset();
+
+        bool finished = state.TickN(10000);
+        CHECK(finished);
+
+        //TODO: Check the result is valid, using 'tileset.FaceGroups'.
+    }
+    //TODO: Test SymmetricRods while putting a constant tile C into the center, and check that it's never cleared.
 }
 
 

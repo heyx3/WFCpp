@@ -27,8 +27,8 @@ namespace Tiled3D
             float BaseTemperature = 0.0f;
             //A "timestamp" of how recently the cell has been unsolvable.
             //This has an implicit cooling effect on the temperature.
-            //The special value ~0 (all bits set) means it's never been unsolvable.
-            uint32_t LastUnsolvedTime = 0;
+            //The special value -1 (all bits set) means it's never been unsolvable.
+            uint32_t LastUnsolvedTime = static_cast<uint32_t>(-1);
         };
         static const uint32_t NEVER_UNSOLVED_TIMESTAMP = -1;
 
@@ -62,14 +62,9 @@ namespace Tiled3D
         //The decrease in cell temperature per-tick.
         float CoolOffRate = 0.1f;
         //A jump down in temperature when a cell gets set.
-        float CoolOffFromSetting = 0.0f; //Default value of 0 because I'm not actually sure
-                                         //    it creates a better outcome.
+        float CoolOffFromSetting = 0.0f;
+        //    Default value of 0 because I'm not actually sure it creates a better outcome.
 
-        //The effect of temperature on a cell's priority for getting set.
-        //A value of 1 means "no effect",
-        //    and larger values make the temperature more important.
-        float TemperaturePriority = 1.0f;
-        
         //The influence of temperature on how soon a cell should be set.
         //Note that temperature is usually the size of small integers.
         float PriorityWeightTemperature = 0.2f;
@@ -78,7 +73,6 @@ namespace Tiled3D
         float PriorityWeightEntropy = 0.8f;
 
         PRNG Rand;
-
 
         Grid Grid;
 
@@ -100,6 +94,7 @@ namespace Tiled3D
         void Reset()
         {
             Grid.ClearCells(Region3i(Grid.Cells.GetDimensions()));
+            History.Fill({ });
             report.Clear();
             nextCells.Clear();
             unsolvableCells.Clear();

@@ -55,4 +55,7 @@
 
 
 //Forcefully include debugging headers here so that all files will see them.
-#include "MemoryChecks.h"
+#if !defined(WFCPP_ASSERT)
+    #define WFCPP_ASSERT(c, ...) assert(c)
+#endif
+#include "MemoryChecks.inl"

@@ -49,9 +49,12 @@ namespace WFC
 		Array3D(Vector3i size, const ArrayType& defaultValue) : Array3D(size.x, size.y, size.z, defaultValue) { }
 
 		//Move operator.
-		Array3D(Array3D&& toMove) : arrayVals(nullptr) { *this = std::move(toMove); }
-		Array3D& operator=(Array3D&& toMove)
+		Array3D(Array3D&& toMove) noexcept : arrayVals(nullptr) { *this = std::move(toMove); }
+		Array3D& operator=(Array3D&& toMove) noexcept
 		{
+			if (&toMove == this)
+				return *this;
+
 			if (arrayVals != nullptr)
 				delete[] arrayVals;
 
@@ -72,6 +75,9 @@ namespace WFC
 		Array3D(const Array3D<ArrayType>& copy) { *this = copy; }
         Array3D& operator=(const Array3D<ArrayType>& other)
         {
+			if (&other == this)
+				return *this;
+
             if (arrayVals != nullptr)
                 delete[] arrayVals;
 
@@ -81,7 +87,10 @@ namespace WFC
             arrayVals = new ArrayType[GetNumbElements()];
 
             for (size_t i = 0; i < (size_t)GetNumbElements(); ++i)
-                arrayVals[i] = other.arrayVals[i];
+			{
+				WFCPP_ASSERT(i < other.GetNumbElements());
+				arrayVals[i] = other.arrayVals[i];
+			}
 
             return *this;
         }
@@ -97,12 +106,12 @@ namespace WFC
 
 		ArrayType& operator[](const Vector3i& l)
         {
-			assert(IsIndexValid(l));
+			WFCPP_ASSERT(IsIndexValid(l));
             return arrayVals[GetIndex(l.x, l.y, l.z)];
         }
 		const ArrayType& operator[](const Vector3i& l) const
         {
-			assert(IsIndexValid(l));
+			WFCPP_ASSERT(IsIndexValid(l));
             return arrayVals[GetIndex(l.x, l.y, l.z)];
         }
 
