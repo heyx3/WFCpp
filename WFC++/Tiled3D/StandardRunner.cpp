@@ -28,7 +28,13 @@ Region3i StandardRunner::GetClearRegion(const Vector3i& cell) const
     //The minimum radius is 1.
     //Can't make the cell solvable without removing its neighbors!
     WFCPP_ASSERT(temperature >= 0);
-    int32_t radius = 1 + (int32_t)temperature;
+    int32_t radius;
+    if (ClearRegionGrowthRateT <= 0)
+        radius = 1;
+    else if (ClearRegionGrowthRateT >= 1)
+        radius = 1 + (int32_t)temperature;
+    else
+        radius = 1 + std::pow(temperature, ClearRegionGrowthRateT);
 
     //Turn the radius into a rectangular area.
     Vector3i areaMin = Math::Max(Vector3i::Zero(), cell - radius),

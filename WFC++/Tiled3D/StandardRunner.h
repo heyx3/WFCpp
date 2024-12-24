@@ -62,8 +62,11 @@ namespace Tiled3D
         //The decrease in cell temperature per-tick.
         float CoolOffRate = 0.1f;
         //A jump down in temperature when a cell gets set.
+        //Default value of 0 because I'm not actually sure it creates a better outcome.
         float CoolOffFromSetting = 0.0f;
-        //    Default value of 0 because I'm not actually sure it creates a better outcome.
+        //From 0 to 1, how fast the clear region increases around tiles that have already been cleared a lot.
+        //Use a low value for tilesets with many small errors that need limited clearing.
+        float ClearRegionGrowthRateT = 0.5f;
 
         //The influence of temperature on how soon a cell should be set.
         //Note that temperature is usually the size of small integers.
