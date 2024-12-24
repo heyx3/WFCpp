@@ -256,9 +256,9 @@ void PrintOutput(const WFC::Simple::State& state, std::ostream& stream)
         auto& pixel = state.Output[pos];
 
         std::string elementStr;
-        if (pixel.Value.HasValue)
+        if (pixel.Value.has_value())
         {
-            elementStr = std::to_string(pixel.Value.Value);
+            elementStr = std::to_string(*pixel.Value);
         }
         else if (pixel.ColorFrequencies.GetSize() == 0)
         {
@@ -350,11 +350,11 @@ int main(int argc, char* argv[])
     {
         iterationCount += 1;
         nIterations -= 1;
-        WFC::Nullable<bool> result = wfcState.Iterate(changedPos, failedPoses);
+        auto result = wfcState.Iterate(changedPos, failedPoses);
 
-        if (result.HasValue)
+        if (result.has_value())
         {
-            if (result.Value)
+            if (*result)
             {
                 if (!shellMode)
                     std::cout << "Finished! Took " << iterationCount << " iterations.\n\n";

@@ -289,10 +289,10 @@ int main(int argc, char* argv[])
 
     //Run the algorithm.
     std::cerr << "Running at most " << outData.NIterations << " iterations of algorithm...\n";
-    WFC::Nullable<bool> isFinished;
+    std::optional<bool> isFinished;
     WFC::List<WFC::Vector2i> failedPoses;
     size_t iterI = 0;
-    while (iterI < outData.NIterations && !isFinished.HasValue)
+    while (iterI < outData.NIterations && !isFinished.has_value())
     {
         isFinished = algoState.Iterate(failedPoses);
 
@@ -302,7 +302,7 @@ int main(int argc, char* argv[])
     }
 
     //Output the result.
-    if (!isFinished.HasValue)
+    if (!isFinished.has_value())
     {
         std::cerr << "Ran out of iterations before finishing!\n";
 
@@ -310,7 +310,7 @@ int main(int argc, char* argv[])
             std::cout << (unsigned char)0;
         return 15;
     }
-    else if (isFinished.Value)
+    else if (*isFinished)
     {
         std::cerr << "Completed successfully in " << iterI << " iterations! Writing result...\n";
 
@@ -349,7 +349,7 @@ int main(int argc, char* argv[])
                 int tpX = pX % (int)inputData.Width;
 
                 //Get the pixel array of the original, un-transformed version of this tile.
-                auto tileID = algoState.Output[WFC::Vector2i(tX, tY)].Value.Value;
+                auto tileID = *algoState.Output[WFC::Vector2i(tX, tY)].Value;
                 auto tileParentID = algoTilePermutator.GetTileRoot(tileID);
                 const auto& parentTile = tiles[tileParentID];
                 const auto& tilePixels = tiles[tileParentID].Pixels;

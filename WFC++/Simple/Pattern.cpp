@@ -50,7 +50,7 @@ bool Pattern::DoesFit(Vector2i outputMinCorner, const State& outputState) const
 
 		Pixel inputPixel = input->GetPixel(inputPos, InputDataTransform);
 		auto tryPixel = outputState[outputPos];
-		if (tryPixel != nullptr && tryPixel->Value.HasValue && tryPixel->Value.Value != inputPixel)
+		if (tryPixel != nullptr && tryPixel->Value.has_value() && tryPixel->Value.value() != inputPixel)
 			return false;
 	}
 

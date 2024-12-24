@@ -197,9 +197,9 @@ bool StandardRunner::Tick()
     TileIdx tileIdx;
     Transform3D tilePermutation;
     auto tryRandomTile = RandomTile(&Grid.PossiblePermutations[{ 0, cellPos }]);
-    if (tryRandomTile.HasValue)
+    if (tryRandomTile.has_value())
     {
-        std::tie(tileIdx, tilePermutation) = tryRandomTile.Value;
+        std::tie(tileIdx, tilePermutation) = *tryRandomTile;
         Set(cellPos, tileIdx, tilePermutation);
     }
     else
@@ -217,7 +217,7 @@ bool StandardRunner::TickN(int n)
     return false;
 }
 
-WFC::Nullable<std::tuple<TileIdx, Transform3D>> StandardRunner::RandomTile(const TransformSet* allowedPerTile)
+std::optional<std::tuple<TileIdx, Transform3D>> StandardRunner::RandomTile(const TransformSet* allowedPerTile)
 {
     auto& distributionWeights = buffer_randomTile_weights;
 

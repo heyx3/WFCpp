@@ -23,7 +23,7 @@ void State::Reset(Vector2i newOutputSize)
 	}
 }
 
-Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_failedAt)
+std::optional<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_failedAt)
 {
 	//Get the pixels that are closest to being certain.
 	List<Vector2i> lowestEntropyPixelPoses;
@@ -51,7 +51,7 @@ Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_fail
                 RecalculatePixelChances(affectedPos);
 
             out_changedPos = Vector2i(-1, -1);
-            return Nullable<bool>();
+			return std::nullopt;
 		}
 		else
 		{
@@ -95,7 +95,7 @@ Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_fail
 	//Finally set the pixel and wait for the next iteration.
 	SetPixel(chosenPixelPos, chosenColor);
     out_changedPos = chosenPixelPos;
-	return Nullable<bool>();
+	return std::nullopt;
 }
 
 void State::SetPixel(Vector2i pixelPos, Pixel value)
@@ -122,7 +122,7 @@ Region2i State::ClearArea(Vector2i center)
 	{
 		auto tryPixel = operator[](posToClear);
 		if (tryPixel != nullptr)
-			tryPixel->Value = Nullable<Pixel>();
+			tryPixel->Value = std::nullopt;
 	}
 
 	return Region2i(regionToClear.MinInclusive - Input.MaxPatternSize + 1,
@@ -140,7 +140,7 @@ void State::GetBestPixels(List<Vector2i>& outValues) const
 	for (Vector2i outputPos : Region2i(Output.GetDimensions()))
 	{
 		auto& pixel = Output[outputPos];
-		if (!pixel.Value.HasValue)
+		if (!pixel.Value.has_value())
 		{
             size_t pixelEntropy = pixel.ColorFrequencies.Sum<size_t>(
                 [](const size_t& weight) { return weight; });
@@ -171,7 +171,7 @@ void State::RecalculatePixelChances(Vector2i pixelPos)
 
 	//If the position is outside the output, or the pixel is already set,
 	//    nothing needs to be done.
-	if (!outputRegion.Contains(pixelPos) || Output[pixelPos].Value.HasValue)
+	if (!outputRegion.Contains(pixelPos) || Output[pixelPos].Value.has_value())
 		return;
 
 	auto& pixel = Output[pixelPos];
@@ -208,7 +208,7 @@ void State::RecalculatePixelChances(Vector2i pixelPos)
         }
 
         //Undo the color placement.
-        Output[pixelPos].Value = Nullable<Pixel>();
+        Output[pixelPos].Value = std::nullopt;
     }
 
 	//Check which patterns can be applied at which positions around this pixel.

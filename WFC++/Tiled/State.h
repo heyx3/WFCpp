@@ -20,14 +20,14 @@ namespace WFC
 		    {
 		    public:
 			    //The chosen tile, if it exists yet.
-			    Nullable<TileID> Value;
+				std::optional<TileID> Value;
                 //The different tiles this one might become.
                 //If a tile has been chosen, this set will only have one element.
                 TileIDSet PossibleTiles;
                 //Whether this tile can be cleared out when the algorithm needs to back up.
                 bool IsDeletable = true;
 
-                bool IsSet() const { return Value.HasValue; }
+                bool IsSet() const { return Value.has_value(); }
 		    };
 
 
@@ -88,13 +88,13 @@ namespace WFC
             //Runs one iteration. Returns true (success), false (failure), or null (not done yet).
             //If the algorithm failed, "out_failedAt" will contain
             //    the positions that the algorithm failed at.
-            Nullable<bool> Iterate(List<Vector2i>& out_failedAt) { Vector2i _; return Iterate(_, out_failedAt); }
+			std::optional<bool> Iterate(List<Vector2i>& out_failedAt) { Vector2i _; return Iterate(_, out_failedAt); }
             //Runs one iteration. Returns true (success), false (failure), or null (not done yet).
             //If the algorithm failed, "out_failedAt" will contain
             //    the positions that the algorithm failed at.
             //After running, "out_changedPos" contains the coordinate of the tile that was changed,
             //    assuming the algorithm didn't fail.
-            Nullable<bool> Iterate(Vector2i& out_changedPos, List<Vector2i>& out_failedAt);
+			std::optional<bool> Iterate(Vector2i& out_changedPos, List<Vector2i>& out_failedAt);
 		
 		    //Sets the given space to use the given tile.
 		    //Re-calculates the status of neighboring tiles to take this into account.

@@ -19,12 +19,12 @@ void State::Reset(Vector2i newOutputSize)
     for (Vector2i pos : Region2i(Output.GetDimensions()))
     {
         auto& oTile = Output[pos];
-        oTile.Value = Nullable<TileID>();
+        oTile.Value = std::nullopt;
         oTile.PossibleTiles = allTileIDs;
     }
 }
 
-Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_failedAt)
+std::optional<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_failedAt)
 {
     //Define some useful data.
     auto& outputArray = Output;
@@ -55,7 +55,7 @@ Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_fail
                 RecalculateTileChances(affectedPos);
 
             out_changedPos = Vector2i(-1, -1);
-            return Nullable<bool>();
+            return std::nullopt;
 		}
 		else
 		{
@@ -102,7 +102,7 @@ Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_fail
 	SetTile(chosenTilePos, chosenTileID);
     out_changedPos = chosenTilePos;
 
-	return Nullable<bool>();
+	return std::nullopt;
 }
 
 void State::SetTile(Vector2i tilePos, TileID value, bool permanent)
@@ -154,7 +154,7 @@ void State::ClearArea(Vector2i center, Set<Vector2i>& out_affectedPoses)
             auto& tile = Output[posToClear];
             if (tile.IsDeletable)
             {
-                tile.Value = Nullable<TileID>();
+                tile.Value = std::nullopt;
                 tile.PossibleTiles = allTileIDs;
             }
             else
@@ -249,7 +249,7 @@ void State::RecalculateTileChances(Vector2i tilePos)
         const auto* neighborTileOutput = (*this)[tilePos + GetEdgeDirection(edge)];
         if (neighborTileOutput == nullptr || !neighborTileOutput->IsSet())
             continue;
-        const auto& neighborTile = Input.GetTiles()[neighborTileOutput->Value.Value];
+        const auto& neighborTile = Input.GetTiles()[*neighborTileOutput->Value];
 
         //Get all tiles that fit the neighbor tile at this edge.
         EdgeDirs neighborEdge = GetOppositeEdge(edge);

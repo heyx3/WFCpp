@@ -256,7 +256,6 @@ xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
     <ClInclude Include="WFC++\Tiled3D\Transform3D.h" />
     <ClInclude Include="WFC++\Vector4i.h" />
     <ClInclude Include="WFC++\WFCMath.h" />
-    <ClInclude Include="WFC++\Nullable.hpp" />
     <ClInclude Include="WFC++\Platform.h" />
     <ClInclude Include="WFC++\Set.hpp" />
     <ClInclude Include="WFC++\Simple\InputData.h" />
