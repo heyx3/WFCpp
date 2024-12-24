@@ -44,7 +44,7 @@ namespace WFC
 
             //Given an original tile, gets all permutations that came from it.
             //Note that the return value includes the original un-transformed tile.
-            inline const std::vector<TileID>& GetMyPermutations(TileID original) const { return *permutationsPerParent.TryGet(original); }
+            inline const std::vector<TileID>& GetMyPermutations(TileID original) const { return permutationsPerParent.at(original); }
 
 
         private:
@@ -59,7 +59,7 @@ namespace WFC
             };
             std::vector<ParentData> tileParents;
 
-            Dictionary<TileID, std::vector<TileID>, std::hash<TileID>> permutationsPerParent;
+            std::unordered_map<TileID, std::vector<TileID>> permutationsPerParent;
         };
     }
 }

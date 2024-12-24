@@ -48,9 +48,6 @@ namespace WFC
 
 		    //Gets the hash value for the given instance.
 		    size_t GetHashcode() const;
-		    //Gets the hash value for the given instance.
-		    //Enables this class to be used as a key in Dictionary<> or std::unordered_map<>.
-		    size_t operator()(const Pattern& v) const { return v.GetHashcode(); }
 
 		    //Gets whether this pattern is functionally identical to the given one.
 		    bool HasSameData(const Pattern& p) const;
@@ -60,4 +57,12 @@ namespace WFC
 		    bool DoesFit(Vector2i outputMinCorner, const State& outputState) const;
 	    };
     }
-    }
+}
+
+template<> struct std::hash<WFC::Simple::Pattern>
+{
+	size_t operator()(const WFC::Simple::Pattern& p) const
+	{
+		return p.GetHashcode();
+	}
+};

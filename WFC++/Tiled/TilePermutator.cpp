@@ -42,10 +42,11 @@ TilePermutator::TilePermutator(const std::vector<Tile>& originalTiles,
         {
             nextEdgeID = std::max({ nextEdgeID, edgePair.first, edgePair.second });
 
-            if (edgeReflections.Contains(edgePair.second))
+            if (edgeReflections.contains(edgePair.second))
             {
                 //Make sure both edges refer to each other.
-                if (*edgeReflections.TryGet(edgePair.second) != edgePair.first)
+                auto found = edgeReflections.find(edgePair.second);
+                if (found == edgeReflections.end() || found->second != edgePair.first)
                 {
                     outErrorCode = ErrorCodes::InvalidReflectionMap;
                     return;
@@ -63,7 +64,7 @@ TilePermutator::TilePermutator(const std::vector<Tile>& originalTiles,
         {
             for (EdgeID edge : tile.Edges)
             {
-                if (!edgeReflections.Contains(edge))
+                if (!edgeReflections.contains(edge))
                 {
                     EdgeID refEdge = nextEdgeID;
                     nextEdgeID += 1;
@@ -131,7 +132,7 @@ TilePermutator::TilePermutator(const std::vector<Tile>& originalTiles,
 
 const TileID TilePermutator::GetTileChild(TileID original, Transformations permutation) const
 {
-    for (auto childID : tilePermutations[original])
+    for (auto childID : tilePermutations.at(original))
         if (tileParents[childID].MyTransform == permutation)
             return childID;
 

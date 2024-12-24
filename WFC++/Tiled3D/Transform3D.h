@@ -8,6 +8,7 @@
 
 #include "../Vector2i.h"
 #include "../Vector3i.h"
+#include "../Vector4i.h"
 #include "../WFCMath.h"
 
 namespace WFC
@@ -136,27 +137,39 @@ namespace WFC
                 return copy;
             }
 
-            #pragma region Hashing/equality-testing
-            //Gets the hash value for an instance.
-            //Allows this type to be used as a Dictionary<> key.
-            inline uint32_t operator()(const FacePermutation& f) const
+
+            inline uint32_t GetHashCode() const
             {
-                //Use the Vector3i hasher since it already exists.
+                size_t h = GetHashcodeLarge();
+
                 return Vector2i(
-                    Vector2i(Points[0] * Side, Points[1] * Side).GetHashcode(),
-                    Vector2i(Points[2] + Side, Points[3] - Side).GetHashcode()
+                    static_cast<int32_t>(h >> 32),
+                    static_cast<int32_t>(h & 0xffffffff)
                 ).GetHashcode();
+            }
+            inline uint64_t GetHashcodeLarge() const
+            {
+                size_t a = Vector4i(
+                    static_cast<int32_t>(Points[0]),
+                    static_cast<int32_t>(Points[1]),
+                    static_cast<int32_t>(Points[2]),
+                    static_cast<int32_t>(Points[3])
+                ).GetHashcodeLarge();
+
+                size_t b = Vector2i(
+                    static_cast<int32_t>(Side),
+                    ~static_cast<int32_t>(Side)
+                ).GetHashcodeLarge();
+
+                return a ^ b;
             }
 
             inline bool operator==(const FacePermutation& f2) const
             {
-                static_assert(sizeof(Points) == sizeof(PointID) * N_FACE_POINTS,
-                              "memcmp() will be broken if this fails");
-                return (Side == f2.Side) &&
-                       (memcmp(Points.data(), f2.Points.data(), sizeof(PointID) * N_FACE_POINTS) == 0);
+                return Side == f2.Side &&
+                       std::equal(Points.begin(), Points.end(), f2.Points.begin());
             }
             inline bool operator!=(const FacePermutation& f2) const { return !(operator==(f2)); }
-            #pragma endregion
 
 
             WFCPP_MEMORY_CHECK_FOOTER(16);
@@ -291,13 +304,25 @@ namespace WFC
             }
 
             //Generates a perfect, unique hash code for this instance.
-            using HashType = uint_fast16_t;
-            HashType GetHash() const
+            using HashType = uint_fast8_t;
+            HashType GetID() const
             {
                 static_assert(sizeof(Rotations3D) == 1, "Rotations3D changed size! Update this hash function");
                 HashType field1 = static_cast<HashType>(Rot),
-                         field2 = (Invert ? HashType{1} : HashType{0}) << HashType{8};
-                return (uint8_t)Rot | ((Invert ? 1 : 0) << 8);
+                         field2 = (Invert ? HashType{1} : HashType{0}) << HashType{5};
+                return field1 | field2;
+            }
+            //Mixes the perfect, unique hash code in order to provide a more even bit distribution.
+            uint32_t GetHashcode() const
+            {
+                auto h = static_cast<uint32_t>(GetID());
+
+                //Source on mixing: https://stackoverflow.com/a/12996028
+                h = ((h >> 16) ^ h) * 0x45d9f3b;
+                h = ((h >> 16) ^ h) * 0x45d9f3b;
+                h = (h >> 16) ^ h;
+
+                return h;
             }
         };
 
@@ -571,3 +596,25 @@ namespace WFC
         };
     }
 }
+
+template<> struct std::hash<WFC::Tiled3D::Transform3D>
+{
+    size_t operator()(const WFC::Tiled3D::Transform3D& t) const
+    {
+        uint32_t h = t.GetHashcode();
+        if constexpr (std::is_same_v<size_t, uint64_t>)
+            return (static_cast<uint64_t>(h) << 32) | h;
+        else
+            return static_cast<size_t>(h);
+    }
+};
+template<> struct std::hash<WFC::Tiled3D::FacePermutation>
+{
+    size_t operator()(const WFC::Tiled3D::FacePermutation& f) const
+    {
+        if constexpr (std::is_same_v<size_t, uint64_t>)
+            return f.GetHashcodeLarge();
+        else
+            return static_cast<size_t>(f.GetHashCode());
+    }
+};

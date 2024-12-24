@@ -5,8 +5,8 @@
 #include "Array2D.hpp"
 #include "Array3D.hpp"
 #include "Array4D.hpp"
-#include "Set.hpp"
-#include "Dictionary.hpp"
+#include <unordered_set>
+#include <unordered_map>
 #include "EnumFlags.h"
 #include "xoshiro.hpp"
 
@@ -27,9 +27,9 @@ namespace WFC
     //Returns a random index from the 'weights' list, using its elements as random weights.
     //Returns -1 if there are no elements or your weights don't sum to a positive number.
     template<typename Weight, typename Rng, typename WeightsAllocator>
-    int PickWeightedRandomIndex(Rng& rng,
-                                std::vector<Weight, WeightsAllocator>& weights,
-                                Weight cachedTotalWeight = -1)
+    ptrdiff_t PickWeightedRandomIndex(Rng& rng,
+                                      std::vector<Weight, WeightsAllocator>& weights,
+                                      Weight cachedTotalWeight = -1)
     {
         if (weights.size() < 1)
             return -1;
@@ -61,6 +61,6 @@ namespace WFC
             if (remainingBudget <= 0)
                 return i;
         }
-        return static_cast<size_t>(weights.size() - 1);
+        return static_cast<ptrdiff_t>(weights.size()) - 1;
     }
 }

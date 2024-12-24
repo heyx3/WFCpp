@@ -8,7 +8,7 @@ namespace WFC
 {
     namespace Simple
     {
-        using PixelFrequencyLookup = Dictionary<Pixel, size_t, std::hash<Pixel>>;
+        using PixelFrequencyLookup = std::unordered_map<Pixel, size_t>;
 
         //TODO: Support diagonal reflections.
 

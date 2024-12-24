@@ -113,7 +113,7 @@ namespace WFC
 		    //The size of the area to clear is determined by the "ClearSize" field.
             //Adds the cleared tiles and any adjacent ones to "out_affectedPoses".
 		    //Assumes that ClearSize is greater than 0.
-            void ClearArea(Vector2i center, Set<Vector2i>& out_affectedPoses);
+            void ClearArea(Vector2i center, std::unordered_set<Vector2i>& out_affectedPoses);
 
 		    //Gets all output tiles with the fewest number of possible states.
 		    //Ignores any tiles whose value is already set.

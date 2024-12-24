@@ -30,7 +30,7 @@ TilePermutator::TilePermutator(const std::vector<Tile>& originalTiles,
     : tiles(originalTiles), nOriginalTiles(originalTiles.size())
 {
     //Reserve space in various collections.
-    permutationsPerParent.Reserve(nOriginalTiles);
+    permutationsPerParent.reserve(nOriginalTiles);
     tileParents.reserve(nOriginalTiles * permutationsToUse.size());
 
     //Fill in the original tiles' "parent" data to point to themselves.
@@ -65,7 +65,7 @@ TilePermutator::TilePermutator(const std::vector<Tile>& originalTiles,
 
 TileID TilePermutator::FindPermutation(TileID original, Transform3D permutation) const
 {
-    for (auto childID : permutationsPerParent[original])
+    for (auto childID : permutationsPerParent.at(original))
         if (tileParents[childID].MyTransform == permutation)
             return childID;
 

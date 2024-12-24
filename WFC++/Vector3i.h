@@ -16,10 +16,6 @@ namespace WFC
 	{
 	public:
 
-		//Gets the hash value for a vector instance.
-		//Enables this class to be used for std collections that use hashes.
-		inline uint32_t operator()(const Vector3i& v) const { return v.GetHashcode(); }
-
         static inline Vector3i Zero() { return Vector3i(); }
 
 
@@ -77,6 +73,11 @@ namespace WFC
 		uint32_t GetHashcode() const
 		{
 			return Vector2i(Vector2i(x, y).GetHashcode(), z).GetHashcode();
+		}
+		size_t GetHashcodeLarge() const
+		{
+			return Vector2i(x, y).GetHashcodeLarge() ^
+				   Vector2i(y, z).GetHashcodeLarge();
 		}
 	};
 
@@ -174,3 +175,17 @@ inline WFC::Vector3i WFC::Math::Min<WFC::Vector3i>(Vector3i a, Vector3i b)
 		x[i] = Min(a[i], b[i]);
 	return x;
 }
+
+
+template<> struct std::hash<WFC::Vector3i>
+{
+	size_t operator()(const WFC::Vector3i& v) const { return v.GetHashcodeLarge(); }
+};
+template<> struct std::hash<WFC::Region3i>
+{
+	size_t operator()(const WFC::Region3i& r) const {
+		size_t x = r.MinInclusive.GetHashcodeLarge(),
+			   y = r.MaxExclusive.GetHashcodeLarge();
+		return x ^ y; //TODO: Probably a better way to mix bits.
+	}
+};

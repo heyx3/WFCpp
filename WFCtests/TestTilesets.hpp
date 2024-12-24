@@ -70,20 +70,26 @@ namespace Tilesets
 
                 bool operator==(SRFace f) const { return Tile == f.Tile && Face == f.Face; }
 
-                //Gets the hash value for an instance.
-                //Allows this type to be used as a Dictionary<> key.
-                inline uint32_t operator()(const SRFace& f) const
+                uint32_t GetHashcode() const
                 {
-                    return Vector2i(static_cast<int>(f.Tile), static_cast<int>(f.Face)).GetHashcode();
+                    return Vector2i{ Tile, Face }.GetHashcode();
                 }
+
             };
+            #pragma region std::hash support
+            } } }
+            template<> struct std::hash<Tilesets::Tiled3D::SymmetricRods::SRFace> {
+                size_t operator()(const Tilesets::Tiled3D::SymmetricRods::SRFace& f) const { return f.GetHashcode(); }
+            };
+            namespace Tilesets { namespace Tiled3D { namespace SymmetricRods {
+            #pragma endregion
 
             struct SRSet
             {
                 //The input tiles.
                 std::vector<Tile> Tiles;
                 //Which faces match each other (before permutations).
-                std::vector<Set<SRFace>> FaceGroups;
+                std::vector<std::unordered_set<SRFace>> FaceGroups;
             };
 
             template<typename... Transforms>
@@ -94,13 +100,13 @@ namespace Tilesets
                 auto permutations = TransformSet::Combine(transforms...);
                 SRSet output;
 
-                output.Tiles.push_back({ });
-                output.Tiles.push_back({ });
-                output.Tiles.push_back({ });
+                output.Tiles.emplace_back();
+                output.Tiles.emplace_back();
+                output.Tiles.emplace_back();
 
-                output.FaceGroups.push_back({ });
-                output.FaceGroups.push_back({ });
-                output.FaceGroups.push_back({ });
+                output.FaceGroups.emplace_back();
+                output.FaceGroups.emplace_back();
+                output.FaceGroups.emplace_back();
                 
                 using Corners = std::array<PointID, N_FACE_POINTS>;
                 std::vector<Corners> points{
@@ -112,7 +118,7 @@ namespace Tilesets
                 auto setFace = [&](int tile, Directions3D face, int pointsIdx)
                 {
                     output.Tiles[tile].Data.Faces[face] = { face, points[pointsIdx] };
-                    output.FaceGroups[pointsIdx].Add({ static_cast<TileIdx>(tile), face });
+                    output.FaceGroups[pointsIdx].emplace(static_cast<TileIdx>(tile), face);
                 };
 
                 setFace(0, Directions3D::MinX, 1);

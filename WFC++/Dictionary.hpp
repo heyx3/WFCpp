@@ -7,7 +7,7 @@
 
 namespace WFC
 {
-	template<typename TKey, typename TValue, typename Hasher = TKey>
+	template<typename TKey, typename TValue>
 	//A wrapper around std::unordered_map so that it can cross DLL boundaries.
 	class Dictionary
 	{
@@ -33,7 +33,7 @@ namespace WFC
 		}
 		TValue* TryGet(const TKey& key)
 		{
-			return (TValue*)((const Dictionary<TKey, TValue, Hasher>*)this)->TryGet(key);
+			return (TValue*)((const Dictionary<TKey, TValue>*)this)->TryGet(key);
 		}
 
 		const TValue& Get(const TKey& key, const TValue& valIfNotFound) const
@@ -45,7 +45,7 @@ namespace WFC
 		}
 		TValue& Get(const TKey& key, const TValue& valIfNotFound)
 		{
-			return (TValue&)((const Dictionary<TKey, TValue, Hasher>*)this)->Get(key, valIfNotFound);
+			return (TValue&)((const Dictionary<TKey, TValue>*)this)->Get(key, valIfNotFound);
 		}
 
         template<typename NumberType>
@@ -63,13 +63,13 @@ namespace WFC
 
         //Iterators for ranged-for loops.
         //We can't use "auto" for the return type here because it breaks SWIG.
-        typename std::unordered_map<TKey, TValue, Hasher>::const_iterator begin() const { return dict.begin(); }
-        typename std::unordered_map<TKey, TValue, Hasher>::iterator       begin()       { return dict.begin(); }
-        typename std::unordered_map<TKey, TValue, Hasher>::const_iterator end()   const { return dict.end(); }
-        typename std::unordered_map<TKey, TValue, Hasher>::iterator       end()         { return dict.end(); }
+        typename std::unordered_map<TKey, TValue>::const_iterator begin() const { return dict.begin(); }
+        typename std::unordered_map<TKey, TValue>::iterator       begin()       { return dict.begin(); }
+        typename std::unordered_map<TKey, TValue>::const_iterator end()   const { return dict.end(); }
+        typename std::unordered_map<TKey, TValue>::iterator       end()         { return dict.end(); }
 
 	private:
 
-		std::unordered_map<TKey, TValue, Hasher> dict;
+		std::unordered_map<TKey, TValue> dict;
 	};
 }

@@ -78,7 +78,11 @@ bool Grid::IsLegalPlacement(const Vector3i& cellPos,
                                         neighborSide);
             auto myRequiredFace = neighborFace.Flipped();
 
-            if (!MatchingFaces[{ tileIdx, FaceIndices[myRequiredFace] }].Contains(tilePermutation))
+            auto faceIndex = FaceIndices.at(myRequiredFace);
+            Vector2i faceLookup{ tileIdx, faceIndex };
+            const auto& faces = MatchingFaces[faceLookup];
+            bool hasFace = faces.Contains(tilePermutation);
+            if (!hasFace)
                 return false;
         }
     }
@@ -116,7 +120,7 @@ void Grid::ClearCells(const Region3i& region, Report* report,
                       bool clearedImmutableCellsAreMutableNow)
 {
     //Use a buffer to track the uncleared cells in the region.
-    buffer_clearCells_leftovers.Clear();
+    buffer_clearCells_leftovers.clear();
     auto& unclearedCellsInRegion = buffer_clearCells_leftovers;
 
     //Clear the cells.
@@ -129,7 +133,7 @@ void Grid::ClearCells(const Region3i& region, Report* report,
         {
             //It's not likely for a cell to be immutable and unset, but it's possible.
             if (cell.IsSet())
-                unclearedCellsInRegion.Add(cellPos);
+                unclearedCellsInRegion.insert(cellPos);
         }
         else
         {
@@ -237,7 +241,7 @@ void Grid::ApplyFilter(const Vector3i& cellPos,
         return;
 
     //It's possible, if uncommon, that a tileset has no match for a particular face.
-    if (!FaceIndices.Contains(face))
+    if (!FaceIndices.contains(face))
     {
         for (int i = 0; i < InputTiles.size(); ++i)
             PossiblePermutations[{ i, cellPos }] = { };
@@ -261,13 +265,13 @@ void Grid::ApplyFilter(const Vector3i& cellPos,
     if (cell.NPossibilities < 1)
     {
         if (report)
-            report->GotUnsolvable.Add(cellPos);
+            report->GotUnsolvable.insert(cellPos);
     }
     //Otherwise, it's a candidate of interest since it just had some possibilities narrowed down.
     else
     {
         if (report)
-            report->GotInteresting.Add(cellPos);
+            report->GotInteresting.insert(cellPos);
     }
 
     DEBUGMEM_ValidateAll();

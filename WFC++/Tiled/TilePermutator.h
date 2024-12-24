@@ -8,7 +8,7 @@ namespace WFC
     namespace Tiled
     {
         //Maps an edge to its reflected version.
-        using EdgeReflectionMap = Dictionary<EdgeID, EdgeID, std::hash<EdgeID>>;
+        using EdgeReflectionMap = std::unordered_map<EdgeID, EdgeID>;
 
         //Generates permutations of tiles,
         //    and tracks which tiles are "children" of an original one.
@@ -61,13 +61,13 @@ namespace WFC
 
             //Given a root tile, gets all permutations that came from it.
             //Note that the return value includes the original, as the "None" permutation.
-            inline const std::vector<TileID>& GetPermutations(TileID original) const { return *tilePermutations.TryGet(original); }
+            inline const std::vector<TileID>& GetPermutations(TileID original) const { return tilePermutations.at(original); }
             //Given a root tile and a permutation, finds that "child" tile.
             const TileID GetTileChild(TileID original, Transformations permutation) const;
 
             //Assuming that at least one reflection permutation was used,
             //    this function maps the given edge to its reflected version.
-            inline const EdgeID GetReflectedEdge(EdgeID e) const { return *edgeReflections.TryGet(e); }
+            inline const EdgeID GetReflectedEdge(EdgeID e) const { return edgeReflections.at(e); }
             
 
         private:
@@ -82,7 +82,7 @@ namespace WFC
             };
             std::vector<ParentData> tileParents;
 
-            Dictionary<TileID, std::vector<TileID>, std::hash<TileID>> tilePermutations;
+            std::unordered_map<TileID, std::vector<TileID>> tilePermutations;
 
             EdgeReflectionMap edgeReflections;
         };

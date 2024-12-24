@@ -26,7 +26,7 @@ InputData::InputData(const std::vector<Tile>& _tiles)
         for (uint8_t edgeI = 0; edgeI < 4; ++edgeI)
         {
             auto key = EdgeInstance(tile.Edges[edgeI], (EdgeDirs)edgeI);
-            matchingEdges[key].Add(tileID);
+            matchingEdges[key].insert(tileID);
         }
     }
 }

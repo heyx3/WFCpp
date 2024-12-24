@@ -15,11 +15,6 @@ namespace WFC
 	struct WFC_API Vector4i
 	{
 	public:
-
-		//Gets the hash value for a vector instance.
-		//Enables this class to be used for std collections that use hashes.
-		inline uint32_t operator()(const Vector4i& v) const { return v.GetHashcode(); }
-
         static inline Vector4i Zero() { return Vector4i(); }
 
 
@@ -76,8 +71,18 @@ namespace WFC
 		uint32_t GetHashcode() const
 		{
 			auto a = Vector2i(x, y).GetHashcode(),
-				 b = Vector2i(x, y ).GetHashcode();
+				 b = Vector2i(z, w).GetHashcode();
 			return Vector2i(static_cast<int32_t>(a), static_cast<int32_t>(b)).GetHashcode();
+		}
+		size_t GetHashcodeLarge() const
+		{
+			size_t a = Vector2i{ x, y }.GetHashcodeLarge(),
+				   b = Vector2i{ z, w }.GetHashcodeLarge();
+			//Make sure the bits of 'a' and 'b' are mixed well by re-hashing them.
+			size_t c = Vector2i{ static_cast<int32_t>(a >> 32), static_cast<int32_t>(b & 0xffffffff) }.GetHashcodeLarge(),
+				   d = Vector2i{ static_cast<int32_t>(a & 0xffffffff), static_cast<int32_t>(b >> 32) }.GetHashcodeLarge();
+
+			return c ^ d;
 		}
 	};
 
@@ -183,3 +188,23 @@ inline WFC::Vector4i WFC::Math::Min<WFC::Vector4i>(Vector4i a, Vector4i b)
 		x[i] = Min(a[i], b[i]);
 	return x;
 }
+
+template<> struct std::hash<WFC::Vector4i>
+{
+	size_t operator()(const WFC::Vector4i& v) const { return v.GetHashcodeLarge(); }
+};
+template<> struct std::hash<WFC::Region4i>
+{
+	size_t operator()(const WFC::Region4i& r) const {
+		//Hash min and max into 128 bits,
+		//    then map those to a Vector4i and hash that.
+		size_t a = r.MinInclusive.GetHashcodeLarge(),
+			   b = r.MaxExclusive.GetHashcodeLarge();
+		return std::hash<WFC::Vector4i>{}({
+			static_cast<int32_t>(a >> 32),
+			static_cast<int32_t>(a & 0xffffffff),
+			static_cast<int32_t>(b >> 32),
+			static_cast<int32_t>(b & 0xffffffff)
+		});
+	}
+};

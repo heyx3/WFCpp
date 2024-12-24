@@ -260,7 +260,7 @@ void PrintOutput(const WFC::Simple::State& state, std::ostream& stream)
         {
             elementStr = std::to_string(*pixel.Value);
         }
-        else if (pixel.ColorFrequencies.GetSize() == 0)
+        else if (pixel.ColorFrequencies.size() == 0)
         {
             elementStr = "x";
         }

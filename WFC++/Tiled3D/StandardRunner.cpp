@@ -34,7 +34,7 @@ Region3i StandardRunner::GetClearRegion(const Vector3i& cell) const
     else if (ClearRegionGrowthRateT >= 1)
         radius = 1 + (int32_t)temperature;
     else
-        radius = 1 + std::pow(temperature, ClearRegionGrowthRateT);
+        radius = 1 + (int32_t)std::pow(temperature, ClearRegionGrowthRateT);
 
     //Turn the radius into a rectangular area.
     Vector3i areaMin = Math::Max(Vector3i::Zero(), cell - radius),
@@ -51,7 +51,7 @@ float StandardRunner::GetPriority(const Vector3i& cellPos)
 }
 
 
-void StandardRunner::Reset(const Dictionary<Vector3i, std::tuple<TileIdx, Transform3D>>& constants)
+void StandardRunner::Reset(const std::unordered_map<Vector3i, std::tuple<TileIdx, Transform3D>>& constants)
 {
     Reset();
     for (const auto& constant : constants)
@@ -71,10 +71,11 @@ void StandardRunner::ClearAround(const Vector3i& centerCellPos)
 
     //Process the report.
     //Note that the order is important; the report's collections aren't mutually exclusive.
-    nextCells.Erase(report.GotBoring);
-    nextCells.Add(report.GotInteresting);
-    WFCPP_ASSERT(report.GotUnsolvable.GetSize() == 0); //Removing tiles shouldn't make
-                                                       //    something unsolvable.
+    for (const auto& c : report.GotBoring)
+        nextCells.erase(c);
+    for (const auto& c : report.GotInteresting)
+        nextCells.insert(c);
+    WFCPP_ASSERT(report.GotUnsolvable.size() == 0); //Removing tiles shouldn't make something unsolvable.
 
     //Update the unsolvable cell.
     auto& cellHistory = History[centerCellPos];
@@ -98,15 +99,20 @@ void StandardRunner::Set(const Vector3i& cellPos, TileIdx tile, Transform3D perm
     report.Clear();
     Grid.SetCell(cellPos, tile, permutation, &report,
                  makeImmutable, !makeImmutable);
-    nextCells.Erase(cellPos);
-    unsolvableCells.Erase(cellPos);
+    nextCells.erase(cellPos);
+    unsolvableCells.erase(cellPos);
 
     //Process the report.
-    //Note that the order is important, these collections aren't mutually exclusive.
-    nextCells.Erase(report.GotBoring);
-    nextCells.Add(report.GotInteresting);
-    unsolvableCells.Add(report.GotUnsolvable);
-    nextCells.Erase(report.GotUnsolvable);
+    //Note that the order is important; these collections aren't mutually exclusive.
+    for (const auto& c : report.GotBoring)
+        nextCells.erase(c);
+    for (const auto& c : report.GotInteresting)
+        nextCells.insert(c);
+    for (const auto& c : report.GotUnsolvable)
+    {
+        unsolvableCells.insert(c);
+        nextCells.erase(c);
+    }
 
     //Update the cell history.
     auto& history = History[cellPos];
@@ -115,11 +121,11 @@ void StandardRunner::Set(const Vector3i& cellPos, TileIdx tile, Transform3D perm
 
 Vector3i StandardRunner::PickNextCellToSet()
 {
-    WFCPP_ASSERT(nextCells.GetSize() > 0);
+    WFCPP_ASSERT(nextCells.size() > 0);
 
     //Assign a priority to each cell under consideration.
     buffer_pickCell_options.clear();
-    buffer_pickCell_options.reserve(nextCells.GetSize());
+    buffer_pickCell_options.reserve(nextCells.size());
     auto& cellPriorities = buffer_pickCell_options;
 
     //Get each cell's priority and add it to the candidate list.
@@ -154,16 +160,16 @@ bool StandardRunner::Tick()
     CurrentTimestamp += 1;
 
     //If cells are unsolvable, clear them.
-    bool hasUnsolvable = unsolvableCells.GetSize() > 0;
+    bool hasUnsolvable = unsolvableCells.size() > 0;
     for (const Vector3i& cellPos : unsolvableCells)
         ClearAround(cellPos);
-    unsolvableCells.Clear();
+    unsolvableCells.clear();
     if (hasUnsolvable)
     {
         return false;
     }
     //If there's no search frontier, re-scan the grid for options.
-    else if (nextCells.GetSize() == 0)
+    else if (nextCells.size() == 0)
     {
         //Look for any cells with less than full range of possibilities,
         //    and track how many are set.
@@ -174,7 +180,7 @@ bool StandardRunner::Tick()
             if (cell.IsSet())
                 nSetCells += 1;
             else if (cell.NPossibilities < Grid.NPermutedTiles)
-                nextCells.Add(cellPos);
+                nextCells.insert(cellPos);
         }
 
         //If every cell was set, then the algorithm is done.
@@ -183,12 +189,12 @@ bool StandardRunner::Tick()
             return true;
         }
         //If all cells have an equal chance to be set, then pick one at random.
-        else if (nextCells.GetSize() == 0)
+        else if (nextCells.size() == 0)
         {
             Vector3i cellPos;
             for (int i = 0; i < 3; ++i)
                 cellPos[i] = std::uniform_int_distribution<int>(0, Grid.Cells.GetDimensions()[i] - 1)(Rand);
-            nextCells.Add(cellPos);
+            nextCells.insert(cellPos);
         }
     }
 
@@ -204,7 +210,7 @@ bool StandardRunner::Tick()
     }
     else
     {
-        unsolvableCells.Add(cellPos);
+        unsolvableCells.insert(cellPos);
     }
 
     return false;
@@ -226,7 +232,7 @@ std::optional<std::tuple<TileIdx, Transform3D>> StandardRunner::RandomTile(const
     distributionWeights.clear();
     for (int tileI = 0; tileI < Grid.InputTiles.size(); ++tileI)
         distributionWeights.push_back(static_cast<float>(allowedPerTile[tileI].Size() * Grid.InputTiles[tileI].Weight));
-    int chosenTileI = PickWeightedRandomIndex(Rand, distributionWeights);
+    auto chosenTileI = PickWeightedRandomIndex(Rand, distributionWeights);
     if (chosenTileI < 0)
         return { };
 
@@ -241,5 +247,8 @@ std::optional<std::tuple<TileIdx, Transform3D>> StandardRunner::RandomTile(const
     WFCPP_ASSERT(chosenTransformI >= 0);
 
 
-    return std::make_tuple((TileIdx)chosenTileI, TransformSet::FromBit(chosenTransformI));
+    return std::make_tuple(
+        static_cast<TileIdx>(chosenTileI),
+        TransformSet::FromBit(chosenTransformI)
+    );
 }

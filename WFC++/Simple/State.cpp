@@ -34,17 +34,17 @@ std::optional<bool> State::Iterate(Vector2i& out_changedPos, std::vector<Vector2
 		return true;
 
 	//If any pixels are impossible to solve, handle it.
-	size_t nColorChoices = Output[lowestEntropyPixelPoses[0]].ColorFrequencies.GetSize();
+	size_t nColorChoices = Output[lowestEntropyPixelPoses[0]].ColorFrequencies.size();
 	if (nColorChoices == 0)
 	{
 		//Either clear out the violating pixels, or give up.
 		if (ViolationClearSize > 0)
 		{
             //Clear all violating pixels, and collect all positions that will be affected by this.
-            std::unordered_set<Vector2i, Vector2i> affectedPoses;
+            std::unordered_set<Vector2i> affectedPoses;
 			for (size_t i = 0; i < lowestEntropyPixelPoses.size(); ++i)
 				for (Vector2i affectedPos : ClearArea(lowestEntropyPixelPoses[i]))
-                    affectedPoses.emplace(affectedPos);
+                    affectedPoses.insert(affectedPos);
 
             //Recalculate positions that will be affected by this.
             for (Vector2i affectedPos : affectedPoses)
@@ -68,7 +68,7 @@ std::optional<bool> State::Iterate(Vector2i& out_changedPos, std::vector<Vector2
 	//Pick a color at random for the pixel to have.
 	Pixel chosenColor = -1; //Dummy value to keep the compiler hapy
 	//If there's only one possible color, this is easy.
-	if (chosenPixel.ColorFrequencies.GetSize() == 1)
+	if (chosenPixel.ColorFrequencies.size() == 1)
 	{
         for (const auto& kvp : chosenPixel.ColorFrequencies)
             chosenColor = kvp.first;
@@ -77,8 +77,8 @@ std::optional<bool> State::Iterate(Vector2i& out_changedPos, std::vector<Vector2
 	else
 	{
 		//Get a list of values and corresponding weights.
-		std::vector<Pixel> colors(chosenPixel.ColorFrequencies.GetSize());
-		std::vector<double> weights(chosenPixel.ColorFrequencies.GetSize());
+		std::vector<Pixel> colors(chosenPixel.ColorFrequencies.size());
+		std::vector<double> weights(chosenPixel.ColorFrequencies.size());
 		size_t index = 0;
         for (const auto& colAndWeight : chosenPixel.ColorFrequencies)
         {
@@ -142,8 +142,11 @@ void State::GetBestPixels(std::vector<Vector2i>& outValues) const
 		auto& pixel = Output[outputPos];
 		if (!pixel.Value.has_value())
 		{
-            size_t pixelEntropy = pixel.ColorFrequencies.Sum<size_t>(
-                [](const size_t& weight) { return weight; });
+			size_t pixelEntropy = std::accumulate(
+				pixel.ColorFrequencies.begin(), pixel.ColorFrequencies.end(),
+				size_t{ 0 },
+				[&](size_t sum, const auto& entry) { return sum + entry.second; }
+			);
 
 			//If it's less than the current minimum, we've found a new minimum.
 			if (pixelEntropy < minEntropy)
@@ -212,7 +215,7 @@ void State::RecalculatePixelChances(Vector2i pixelPos)
     }
 
 	//Check which patterns can be applied at which positions around this pixel.
-    pixel.ColorFrequencies.Clear();
+    pixel.ColorFrequencies.clear();
     for (size_t patternI = 0; patternI < Input.GetPatterns().size(); ++patternI)
     {
         //Try placing this pattern everywhere that touches the pixel.

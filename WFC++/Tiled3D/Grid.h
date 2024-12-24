@@ -70,15 +70,15 @@ namespace WFC
                 //Cells that no longer have any contraints on their tile options.
                 std::vector<Vector3i> GotBoring;
                 //Cells that have fewer possible options now.
-                Set<Vector3i> GotInteresting;
+                std::unordered_set<Vector3i> GotInteresting;
                 //Cells that now have zero options for tile placement.
-                Set<Vector3i> GotUnsolvable;
+                std::unordered_set<Vector3i> GotUnsolvable;
 
                 void Clear()
                 {
-                    GotInteresting.Clear();
+                    GotInteresting.clear();
                     GotBoring.clear();
-                    GotUnsolvable.Clear();
+                    GotUnsolvable.clear();
                 }
             };
 
@@ -87,7 +87,7 @@ namespace WFC
             const std::vector<Tile> InputTiles;
             const int NPermutedTiles;
             //Assigns a unique, contiguous, 0-based index to every face that appears in the tileset.
-            const Dictionary<FacePermutation, int32_t>& GetFaceIndices() const { return FaceIndices; }
+            const std::unordered_map<FacePermutation, int32_t>& GetFaceIndices() const { return FaceIndices; }
             //For each input tile (X) and FacePermutation (Y),
             //    stores which tile permutations contain that face.
             //You can get the index for a FacePermutation with 'FaceIndices'.
@@ -233,10 +233,10 @@ namespace WFC
             void ResetCellPossibilities(const Vector3i& cellPos, CellState& cell, Report* report);
 
 
-            Dictionary<FacePermutation, int32_t> FaceIndices;
+            std::unordered_map<FacePermutation, int32_t> FaceIndices;
             Array2D<TransformSet> MatchingFaces;
 
-            Set<Vector3i> buffer_clearCells_leftovers;
+            std::unordered_set<Vector3i> buffer_clearCells_leftovers;
         };
     }
 }

@@ -179,10 +179,10 @@ std::tuple<WFCT::TilePermutator, WFCT::InputData>
     if (permutatorErrCode != WFCT::TilePermutator::ErrorCodes::NoError)
     {
         outErrCode = permutatorErrCode + 100;
-        return { permutator, WFCT::InputData(algoOriginalTiles) };
+        return { std::move(permutator), WFCT::InputData(algoOriginalTiles) };
     }
     
-    return { permutator, WFCT::InputData(permutator.GetTiles()) };
+    return { std::move(permutator), WFCT::InputData(permutator.GetTiles()) };
 }
 
 

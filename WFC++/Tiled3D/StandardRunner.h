@@ -99,15 +99,15 @@ namespace Tiled3D
             Grid.ClearCells(Region3i(Grid.Cells.GetDimensions()));
             History.Fill({ });
             report.Clear();
-            nextCells.Clear();
-            unsolvableCells.Clear();
+            nextCells.clear();
+            unsolvableCells.clear();
         }
-        void Reset(const Dictionary<Vector3i, std::tuple<TileIdx, Transform3D>>& constants);
+        void Reset(const std::unordered_map<Vector3i, std::tuple<TileIdx, Transform3D>>& constants);
         //TODO: Another overload that takes new 'constants'.
 
 
         StandardRunner(const std::vector<Tile>& inputTiles, const Vector3i& gridSize,
-                       const Dictionary<Vector3i, std::tuple<TileIdx, Transform3D>>* constants = nullptr,
+                       const std::unordered_map<Vector3i, std::tuple<TileIdx, Transform3D>>* constants = nullptr,
                        PRNG rand = PRNG(std::random_device()()))
             : History(gridSize, { }), Rand(rand), Grid(inputTiles, gridSize)
         {
@@ -124,7 +124,7 @@ namespace Tiled3D
 
     private:
         Grid::Report report;
-        Set<Vector3i> nextCells, unsolvableCells;
+        std::unordered_set<Vector3i> nextCells, unsolvableCells;
         std::vector<std::tuple<Vector3i, float>> buffer_pickCell_options;
         std::vector<float> buffer_randomTile_weights;
 

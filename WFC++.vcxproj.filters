@@ -10,9 +10,6 @@
     <ClInclude Include="WFC++\Dictionary.hpp">
       <Filter>Helper Classes</Filter>
     </ClInclude>
-    <ClInclude Include="WFC++\List.hpp">
-      <Filter>Helper Classes</Filter>
-    </ClInclude>
     <ClInclude Include="WFC++\HelperClasses.h" />
     <ClInclude Include="WFC++\Platform.h" />
     <ClInclude Include="WFC++\Simple\InputData.h">
