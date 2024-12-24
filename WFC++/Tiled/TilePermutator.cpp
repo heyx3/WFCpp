@@ -6,21 +6,21 @@ using namespace WFC::Tiled;
 
 TilePermutator::ErrorCodes dummyErrorCodeVar;
 
-TilePermutator::TilePermutator() : TilePermutator(List<Tile>(), 0, dummyErrorCodeVar) { }
+TilePermutator::TilePermutator() : TilePermutator(std::vector<Tile>(), 0, dummyErrorCodeVar) { }
 
-TilePermutator::TilePermutator(const List<Tile>& originalTiles,
+TilePermutator::TilePermutator(const std::vector<Tile>& originalTiles,
                                TransformationFlags _permutations,
                                ErrorCodes& outErrorCode,
                                const EdgeReflectionMap* reflectedEdges)
-    : tiles(originalTiles), nOriginalTiles(originalTiles.GetSize())
+    : tiles(originalTiles), nOriginalTiles(originalTiles.size())
 {
     outErrorCode = ErrorCodes::NoError;
 
     //Fill the original tiles' "parent" data to point to themselves.
-    for (TileID parentID = 0; parentID < (TileID)originalTiles.GetSize(); ++parentID)
+    for (TileID parentID = 0; parentID < (TileID)originalTiles.size(); ++parentID)
     {
-        tileParents.PushBack(ParentData{ parentID, Transformations::None });
-        tilePermutations[parentID].PushBack(parentID);
+        tileParents.push_back(ParentData{ parentID, Transformations::None });
+        tilePermutations[parentID].push_back(parentID);
     }
 
     //Set up the edge reflection map.
@@ -28,7 +28,7 @@ TilePermutator::TilePermutator(const List<Tile>& originalTiles,
         edgeReflections = *reflectedEdges;
 
     //Check through all requested permutation types.
-    List<Transformations> permutations;
+    std::vector<Transformations> permutations;
     _permutations.Enumerate(permutations);
 
     //If any of the permutations is a reflection, make sure every edge has a reflected version.
@@ -121,10 +121,10 @@ TilePermutator::TilePermutator(const List<Tile>& originalTiles,
             }
 
             //Register the tile.
-            TileID childID = (TileID)tiles.GetSize();
-            tiles.PushBack(childTile);
-            tileParents.PushBack(ParentData{ parentID, tr });
-            tilePermutations[parentID].PushBack(childID);
+            TileID childID = (TileID)tiles.size();
+            tiles.push_back(childTile);
+            tileParents.push_back(ParentData{ parentID, tr });
+            tilePermutations[parentID].push_back(childID);
         }
     }
 }

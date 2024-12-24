@@ -151,7 +151,7 @@ std::tuple<WFCT::TilePermutator, WFCT::InputData>
                   int& outErrCode)
 {
     //Convert the tile data into WFC's data format.
-    WFC::List<WFCT::Tile> algoOriginalTiles;
+    std::vector<WFCT::Tile> algoOriginalTiles;
     for (size_t i = 0; i < tileFiles.size(); ++i)
     {
         const auto& tileFile = tileFiles[i];
@@ -163,7 +163,7 @@ std::tuple<WFCT::TilePermutator, WFCT::InputData>
         for (int edgeI = 0; edgeI < 4; ++edgeI)
             tile.Edges[edgeI] = tileset.EdgeIDsByName.at(tileFile.Edges[edgeI]);
 
-        algoOriginalTiles.PushBack(tile);
+        algoOriginalTiles.push_back(tile);
     }
 
     //Convert the edge data into WFC's data format.
@@ -290,7 +290,7 @@ int main(int argc, char* argv[])
     //Run the algorithm.
     std::cerr << "Running at most " << outData.NIterations << " iterations of algorithm...\n";
     std::optional<bool> isFinished;
-    WFC::List<WFC::Vector2i> failedPoses;
+    std::vector<WFC::Vector2i> failedPoses;
     size_t iterI = 0;
     while (iterI < outData.NIterations && !isFinished.has_value())
     {

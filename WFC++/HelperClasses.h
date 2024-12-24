@@ -1,10 +1,10 @@
 #pragma once
 
 #include <optional>
+#include <vector>
 #include "Array2D.hpp"
 #include "Array3D.hpp"
 #include "Array4D.hpp"
-#include "List.hpp"
 #include "Set.hpp"
 #include "Dictionary.hpp"
 #include "EnumFlags.h"
@@ -26,10 +26,12 @@ namespace WFC
 
     //Returns a random index from the 'weights' list, using its elements as random weights.
     //Returns -1 if there are no elements or your weights don't sum to a positive number.
-    template<typename Weight, typename Rng>
-    int PickWeightedRandomIndex(Rng& rng, List<Weight>& weights, Weight cachedTotalWeight = -1)
+    template<typename Weight, typename Rng, typename WeightsAllocator>
+    int PickWeightedRandomIndex(Rng& rng,
+                                std::vector<Weight, WeightsAllocator>& weights,
+                                Weight cachedTotalWeight = -1)
     {
-        if (weights.GetSize() < 1)
+        if (weights.size() < 1)
             return -1;
 
         //Generate a random float from 0 to the total weight, then use that as a "budget"
@@ -53,12 +55,12 @@ namespace WFC
         Weight remainingBudget = std::uniform_real_distribution<Weight>(0, totalWeight)(rng);
         //Due to floating-point error we may run off the end of the weights array;
         //    plus once we pass the second-to-last element we already know what the answer will be.
-        for (int i = 0; i < weights.GetSize() - 1; ++i)
+        for (int i = 0; i < weights.size() - 1; ++i)
         {
             remainingBudget -= weights[i];
             if (remainingBudget <= 0)
                 return i;
         }
-        return static_cast<size_t>(weights.GetSize() - 1);
+        return static_cast<size_t>(weights.size() - 1);
     }
 }

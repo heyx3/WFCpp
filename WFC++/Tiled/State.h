@@ -88,13 +88,13 @@ namespace WFC
             //Runs one iteration. Returns true (success), false (failure), or null (not done yet).
             //If the algorithm failed, "out_failedAt" will contain
             //    the positions that the algorithm failed at.
-			std::optional<bool> Iterate(List<Vector2i>& out_failedAt) { Vector2i _; return Iterate(_, out_failedAt); }
+			std::optional<bool> Iterate(std::vector<Vector2i>& out_failedAt) { Vector2i _; return Iterate(_, out_failedAt); }
             //Runs one iteration. Returns true (success), false (failure), or null (not done yet).
             //If the algorithm failed, "out_failedAt" will contain
             //    the positions that the algorithm failed at.
             //After running, "out_changedPos" contains the coordinate of the tile that was changed,
             //    assuming the algorithm didn't fail.
-			std::optional<bool> Iterate(Vector2i& out_changedPos, List<Vector2i>& out_failedAt);
+			std::optional<bool> Iterate(Vector2i& out_changedPos, std::vector<Vector2i>& out_failedAt);
 		
 		    //Sets the given space to use the given tile.
 		    //Re-calculates the status of neighboring tiles to take this into account.
@@ -117,7 +117,7 @@ namespace WFC
 
 		    //Gets all output tiles with the fewest number of possible states.
 		    //Ignores any tiles whose value is already set.
-		    void GetBestTiles(List<Vector2i>& outValues) const;
+		    void GetBestTiles(std::vector<Vector2i>& outValues) const;
 
 		    //If the given output tile is unset,
 		    //    this function recalculates that space's "PossibleTiles" field.

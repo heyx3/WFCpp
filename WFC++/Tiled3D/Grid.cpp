@@ -7,14 +7,14 @@ using namespace WFC::Math;
 using namespace WFC::Tiled3D;
 
 
-Grid::Grid(const List<Tile>& inputTiles, const Vector3i& outputSize)
+Grid::Grid(const std::vector<Tile>& inputTiles, const Vector3i& outputSize)
     : InputTiles(inputTiles),
       NPermutedTiles(std::accumulate(InputTiles.begin(), InputTiles.end(),
                                      0, [](int sum, const Tile& tile) { return sum + tile.Permutations.Size(); })),
       Cells(outputSize),
-      PossiblePermutations({ (int)inputTiles.GetSize(), outputSize })
+      PossiblePermutations({ (int)inputTiles.size(), outputSize })
 {
-    WFCPP_ASSERT(inputTiles.GetSize() < TileIdx_INVALID); //The last index is reserved for [null]
+    WFCPP_ASSERT(inputTiles.size() < TileIdx_INVALID); //The last index is reserved for [null]
 
     //Set up FaceIndices.
     int32_t nextID = 0;
@@ -25,9 +25,9 @@ Grid::Grid(const List<Tile>& inputTiles, const Vector3i& outputSize)
     int32_t nFacePermutations = nextID;
 
     //Set up MatchingFaces.
-    MatchingFaces = Array2D<TransformSet>((int)InputTiles.GetSize(), nFacePermutations,
+    MatchingFaces = Array2D<TransformSet>((int)InputTiles.size(), nFacePermutations,
                                           TransformSet());
-    for (int tileI = 0; tileI < (int)InputTiles.GetSize(); ++tileI)
+    for (int tileI = 0; tileI < (int)InputTiles.size(); ++tileI)
         for (const auto& transform : InputTiles[tileI].Permutations)
             for (const auto& face : InputTiles[tileI].Data.Faces)
             {
@@ -49,7 +49,7 @@ void Grid::Reset()
     Cells.Fill(startingCellData);
 
     //Set up PossiblePermutations.
-    for (int tileI = 0; tileI < InputTiles.GetSize(); ++tileI)
+    for (int tileI = 0; tileI < InputTiles.size(); ++tileI)
         for (const Vector3i& cellPos : Region3i(Cells.GetDimensions()))
             PossiblePermutations[Vector4i(tileI, cellPos)] = InputTiles[tileI].Permutations;
 
@@ -239,14 +239,14 @@ void Grid::ApplyFilter(const Vector3i& cellPos,
     //It's possible, if uncommon, that a tileset has no match for a particular face.
     if (!FaceIndices.Contains(face))
     {
-        for (int i = 0; i < InputTiles.GetSize(); ++i)
+        for (int i = 0; i < InputTiles.size(); ++i)
             PossiblePermutations[{ i, cellPos }] = { };
         cell.NPossibilities = 0;
     }
     else
     {
         auto faceIdx = FaceIndices[face];
-        for (int tileI = 0; tileI < InputTiles.GetSize(); ++tileI)
+        for (int tileI = 0; tileI < InputTiles.size(); ++tileI)
         {
             const auto& supported = MatchingFaces[{ tileI, faceIdx }];
             auto& available = PossiblePermutations[{ tileI, cellPos }];
@@ -297,9 +297,9 @@ void Grid::ResetCellPossibilities(const Vector3i& cellPos, CellState& cell, Repo
     cell.NPossibilities = NPermutedTiles;
 
     if (report)
-        report->GotBoring.PushBack(cellPos);
+        report->GotBoring.push_back(cellPos);
 
-    for (int tileI = 0; tileI < InputTiles.GetSize(); ++tileI)
+    for (int tileI = 0; tileI < InputTiles.size(); ++tileI)
         PossiblePermutations[{tileI, cellPos}] = InputTiles[tileI].Permutations;
 
     DEBUGMEM_ValidateAll();

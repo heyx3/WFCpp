@@ -344,7 +344,7 @@ int main(int argc, char* argv[])
     //Run the generator loop.
     int errorCode = 0;
     WFC::Vector2i changedPos;
-    WFC::List<WFC::Vector2i> failedPoses;
+    std::vector<WFC::Vector2i> failedPoses;
     size_t iterationCount = 0;
     while (nIterations > 0)
     {
@@ -365,7 +365,7 @@ int main(int argc, char* argv[])
                 if (!shellMode)
                 {
                     std::cout << "Failed at the following output pixels:\n";
-                    for (size_t i = 0; i < failedPoses.GetSize(); ++i)
+                    for (size_t i = 0; i < failedPoses.size(); ++i)
                         std::cout << "{" << failedPoses[i].x << "," << failedPoses[i].y << "} ";
                     std::cout << "\n\n";
                 }

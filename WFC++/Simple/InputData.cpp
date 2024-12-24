@@ -114,33 +114,33 @@ InputData::InputData(const Array2D<Pixel>& pixelData, Vector2i patternSize,
 		for (Vector2i transfPos : Region2i(maxPos))
 		{
 			Region2i patternRange(transfPos, transfPos + transfPatternSize);
-			patterns.PushBack(Pattern(*this, transf, patternRange));
+			patterns.push_back(Pattern(*this, transf, patternRange));
 		}
 	}
 
 	//Remove duplicate patterns.
 	//Hash the patterns for quicker comparisons.
-	List<size_t> patternHashes;
-	patternHashes.Resize(patterns.GetSize());
-	for (size_t i = 0; i < patterns.GetSize(); ++i)
+	std::vector<size_t> patternHashes;
+	patternHashes.resize(patterns.size());
+	for (size_t i = 0; i < patterns.size(); ++i)
 		patternHashes[i] = patterns[i].GetHashcode();
-	for (size_t i = 0; i < patterns.GetSize(); ++i)
+	for (size_t i = 0; i < patterns.size(); ++i)
 	{
-		for (size_t j = i + 1; j < patterns.GetSize(); ++j)
+		for (size_t j = i + 1; j < patterns.size(); ++j)
 		{
 			if (patternHashes[i] == patternHashes[j] && patterns[i].HasSameData(patterns[j]))
 			{
 				patterns[i].Frequency += 1;
 
-				patterns.RemoveAt(j);
-				patternHashes.RemoveAt(j);
+				patterns.erase(patterns.begin() + j);
+				patternHashes.erase(patternHashes.begin() + j);
 				j -= 1;
 			}
 		}
 	}
 
     //Count the pixel frequencies.
-    for (size_t i = 0; i < patterns.GetSize(); ++i)
+    for (size_t i = 0; i < patterns.size(); ++i)
     {
         auto& pattern = patterns[i];
         for (Vector2i patternPos : Region2i(pattern.InputDataRegion.GetSize()))

@@ -20,8 +20,8 @@ namespace WFC
         void Add(const Set<T, Hasher>& set2) { set.insert(set2.set.begin(), set2.set.end()); }
 
         bool Erase(const T& t) { return set.erase(t) > 0; }
-        void Erase(const Set<T, Hasher>& ts) { for (const T& el : ts) set.erase(el); }
-        void Erase(const List<T>& ts) { for (const T& el : ts) set.erase(el); }
+        template<typename Range>
+        void Erase(const Range& elements) { for (const T& el : elements) set.erase(el); }
 
         bool Contains(const T& t) const { return set.find(t) != set.end(); }
         void Clear() { set.clear(); }

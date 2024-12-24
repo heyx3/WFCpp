@@ -74,13 +74,13 @@ namespace WFC
             //Runs one iteration. Returns true (success), false (failure), or null (not done yet).
             //If the algorithm failed, "out_failedAt" will contain
             //    the positions that the algorithm failed at.
-			std::optional<bool> Iterate(List<Vector2i>& out_failedAt) { Vector2i _; return Iterate(_, out_failedAt); }
+			std::optional<bool> Iterate(std::vector<Vector2i>& out_failedAt) { Vector2i _; return Iterate(_, out_failedAt); }
             //Runs one iteration. Returns true (success), false (failure), or null (not done yet).
             //If the algorithm failed, "out_failedAt" will contain
             //    the positions that the algorithm failed at.
             //After running, "out_changedPos" contains the pixel that was changed,
             //    assuming the algorithm didn't fail.
-			std::optional<bool> Iterate(Vector2i& out_changedPos, List<Vector2i>& out_failedAt);
+			std::optional<bool> Iterate(Vector2i& out_changedPos, std::vector<Vector2i>& out_failedAt);
 		
 		    //Sets the given pixel to have the given value.
 		    //Updates the status of neighboring pixels to take this into account.
@@ -106,7 +106,7 @@ namespace WFC
 
 		    //Gets all output pixels with the fewest number of possible colors.
 		    //Ignores any pixels whose color is already set.
-		    void GetBestPixels(List<Vector2i>& outValues) const;
+		    void GetBestPixels(std::vector<Vector2i>& outValues) const;
 
 		    //If the given output pixel is unset,
 		    //    this function recalculates that pixel's "ColorFrequencies" field.

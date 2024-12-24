@@ -30,7 +30,7 @@ namespace WFC
             //Note that this instance takes ownership over the original root tiles.
             //The "reflectedEdges" parameter is only helpful if reflections are used,
             //    but isn't required (if none of your tiles' edges are already reflections of each other).
-            TilePermutator(const List<Tile>& originalTiles,
+            TilePermutator(const std::vector<Tile>& originalTiles,
                            TransformationFlags permutations,
                            ErrorCodes& outErrorCode,
                            const EdgeReflectionMap* reflectedEdges = nullptr);
@@ -42,11 +42,11 @@ namespace WFC
             //The first tiles in the "GetAllTiles()" are all these original tiles.
             inline const size_t GetNOriginalTiles() const { return nOriginalTiles; }
             //Gets the number of total tiles, including originals and permutations.
-            inline const size_t GetNAllTiles() const { return tiles.GetSize(); }
+            inline const size_t GetNAllTiles() const { return tiles.size(); }
 
             //Gets all tiles, including originals and permutations.
             //The originals are at the front of the list.
-            inline const List<Tile>& GetTiles() const { return tiles; }
+            inline const std::vector<Tile>& GetTiles() const { return tiles; }
             //Looks up the tile in the tile list.
             inline const Tile& GetTile(TileID id) const { return tiles[id]; }
 
@@ -61,7 +61,7 @@ namespace WFC
 
             //Given a root tile, gets all permutations that came from it.
             //Note that the return value includes the original, as the "None" permutation.
-            inline const List<TileID>& GetPermutations(TileID original) const { return *tilePermutations.TryGet(original); }
+            inline const std::vector<TileID>& GetPermutations(TileID original) const { return *tilePermutations.TryGet(original); }
             //Given a root tile and a permutation, finds that "child" tile.
             const TileID GetTileChild(TileID original, Transformations permutation) const;
 
@@ -72,7 +72,7 @@ namespace WFC
 
         private:
 
-            List<Tile> tiles;
+            std::vector<Tile> tiles;
             size_t nOriginalTiles;
 
             struct ParentData
@@ -80,9 +80,9 @@ namespace WFC
                 TileID ParentID;
                 Transformations MyTransform;
             };
-            List<ParentData> tileParents;
+            std::vector<ParentData> tileParents;
 
-            Dictionary<TileID, List<TileID>, std::hash<TileID>> tilePermutations;
+            Dictionary<TileID, std::vector<TileID>, std::hash<TileID>> tilePermutations;
 
             EdgeReflectionMap edgeReflections;
         };

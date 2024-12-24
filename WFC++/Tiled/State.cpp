@@ -11,7 +11,7 @@ void State::Reset(Vector2i newOutputSize)
 {
     //To start with, all output tiles will share the same chances of being anything.
     allTileIDs.Clear();
-    for (TileID id = 0; id < (TileID)Input.GetTiles().GetSize(); ++id)
+    for (TileID id = 0; id < (TileID)Input.GetTiles().size(); ++id)
         allTileIDs.Add(id);
 
 	//Re-initialize the output array.
@@ -24,18 +24,18 @@ void State::Reset(Vector2i newOutputSize)
     }
 }
 
-std::optional<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_failedAt)
+std::optional<bool> State::Iterate(Vector2i& out_changedPos, std::vector<Vector2i>& out_failedAt)
 {
     //Define some useful data.
     auto& outputArray = Output;
     Region2i outputRegion(Output.GetDimensions());
 
 	//Get the tiles that are closest to being certain.
-	List<Vector2i> lowestEntropyTilePoses;
+    std::vector<Vector2i> lowestEntropyTilePoses;
 	GetBestTiles(lowestEntropyTilePoses);
 
 	//If all tiles are aleady set, we're done.
-	if (lowestEntropyTilePoses.GetSize() == 0)
+	if (lowestEntropyTilePoses.size() == 0)
 		return true;
 
 	//If some tiles are impossible to solve, handle it.
@@ -68,7 +68,7 @@ std::optional<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out
     //The correct way to do this is with std::uniform_int_distribution,
     //    but that incurs a LOT of overhead.
     //In practice, the non-uniform distribution from the simpler "rng() % count" is unnoticeable.
-    size_t chosenTileI = rng() % lowestEntropyTilePoses.GetSize();
+    size_t chosenTileI = rng() % lowestEntropyTilePoses.size();
     auto chosenTilePos = lowestEntropyTilePoses[chosenTileI];
 	auto& chosenTile = Output[chosenTilePos];
 
@@ -84,13 +84,13 @@ std::optional<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out
 	else
 	{
         //Get a list of the values and of their corresonding weights.
-        List<TileID> optionValues;
-        List<uint32_t> optionWeights;
+        std::vector<TileID> optionValues;
+        std::vector<uint32_t> optionWeights;
         for (TileID tileOptionID : chosenTile.PossibleTiles)
         {
             const Tile& tileOption = Input.GetTiles()[tileOptionID];
-            optionValues.PushBack(tileOptionID);
-            optionWeights.PushBack(tileOption.Weight);
+            optionValues.push_back(tileOptionID);
+            optionWeights.push_back(tileOption.Weight);
         }
 
 		//Plug that into the RNG.
@@ -189,7 +189,7 @@ void State::ClearArea(Vector2i center, Set<Vector2i>& out_affectedPoses)
     }
 }
 
-void State::GetBestTiles(List<Vector2i>& outValues) const
+void State::GetBestTiles(std::vector<Vector2i>& outValues) const
 {
 	//Find the output spaces with the smallest "entropy",
 	//    where "entropy" is the sum of all the different tiles the pixel could still become.
@@ -210,13 +210,13 @@ void State::GetBestTiles(List<Vector2i>& outValues) const
 			if (thisEntropy < currentMinEntropy)
 			{
 				currentMinEntropy = thisEntropy;
-				outValues.Clear();
-				outValues.PushBack(outputPos);
+				outValues.clear();
+				outValues.push_back(outputPos);
 			}
 			//Otherwise, if it's equal to the current minimum, add it to the list.
 			else if (thisEntropy == currentMinEntropy)
 			{
-				outValues.PushBack(outputPos);
+				outValues.push_back(outputPos);
 			}
 		}
 	}

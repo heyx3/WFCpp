@@ -23,14 +23,14 @@ void State::Reset(Vector2i newOutputSize)
 	}
 }
 
-std::optional<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_failedAt)
+std::optional<bool> State::Iterate(Vector2i& out_changedPos, std::vector<Vector2i>& out_failedAt)
 {
 	//Get the pixels that are closest to being certain.
-	List<Vector2i> lowestEntropyPixelPoses;
+	std::vector<Vector2i> lowestEntropyPixelPoses;
 	GetBestPixels(lowestEntropyPixelPoses);
 
 	//If all pixels are aleady set, we're done.
-	if (lowestEntropyPixelPoses.GetSize() == 0)
+	if (lowestEntropyPixelPoses.size() == 0)
 		return true;
 
 	//If any pixels are impossible to solve, handle it.
@@ -42,7 +42,7 @@ std::optional<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out
 		{
             //Clear all violating pixels, and collect all positions that will be affected by this.
             std::unordered_set<Vector2i, Vector2i> affectedPoses;
-			for (size_t i = 0; i < lowestEntropyPixelPoses.GetSize(); ++i)
+			for (size_t i = 0; i < lowestEntropyPixelPoses.size(); ++i)
 				for (Vector2i affectedPos : ClearArea(lowestEntropyPixelPoses[i]))
                     affectedPoses.emplace(affectedPos);
 
@@ -61,7 +61,7 @@ std::optional<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out
 	}
 
 	//Pick one of these pixels at random to fill in.
-	std::uniform_int_distribution<size_t> pixelIndexRange(0, lowestEntropyPixelPoses.GetSize() - 1);
+	std::uniform_int_distribution<size_t> pixelIndexRange(0, lowestEntropyPixelPoses.size() - 1);
 	auto chosenPixelPos = lowestEntropyPixelPoses[pixelIndexRange(rng)];
 	auto& chosenPixel = Output[chosenPixelPos];
 
@@ -129,7 +129,7 @@ Region2i State::ClearArea(Vector2i center)
 				    regionToClear.MaxExclusive + Input.MaxPatternSize - 1);
 }
 
-void State::GetBestPixels(List<Vector2i>& outValues) const
+void State::GetBestPixels(std::vector<Vector2i>& outValues) const
 {
 	//Find the pixels with the smallest "entropy",
 	//    where "entropy" is the sum of all the different ways the pixel could be given a color
@@ -149,13 +149,13 @@ void State::GetBestPixels(List<Vector2i>& outValues) const
 			if (pixelEntropy < minEntropy)
 			{
 				minEntropy = pixelEntropy;
-				outValues.Clear();
-				outValues.PushBack(outputPos);
+				outValues.clear();
+				outValues.push_back(outputPos);
 			}
 			//Otherwise, we could still have found one with the SAME entropy.
 			else if (pixelEntropy == minEntropy)
 			{
-				outValues.PushBack(outputPos);
+				outValues.push_back(outputPos);
 			}
 		}
 	}
@@ -177,7 +177,7 @@ void State::RecalculatePixelChances(Vector2i pixelPos)
 	auto& pixel = Output[pixelPos];
 
 	//Find any colors that, if placed here, would cause a violation of the WFC constraint.
-	List<Pixel> badColors;
+	std::vector<Pixel> badColors;
     for (const auto& kvp : Input.GetPixelFrequencies())
     {
         auto color = kvp.first;
@@ -192,7 +192,7 @@ void State::RecalculatePixelChances(Vector2i pixelPos)
         for (Vector2i nearbyAffectedPixelPos : nearbyAffectedPixels)
         {
             bool passed = false;
-            for (size_t patternI = 0; patternI < inputData.GetPatterns().GetSize(); ++patternI)
+            for (size_t patternI = 0; patternI < inputData.GetPatterns().size(); ++patternI)
             {
                 if (inputData.GetPatterns()[patternI].DoesFit(nearbyAffectedPixelPos, *this))
                 {
@@ -202,7 +202,7 @@ void State::RecalculatePixelChances(Vector2i pixelPos)
             }
             if (!passed)
             {
-                badColors.PushBack(color);
+                badColors.push_back(color);
                 break;
             }
         }
@@ -213,7 +213,7 @@ void State::RecalculatePixelChances(Vector2i pixelPos)
 
 	//Check which patterns can be applied at which positions around this pixel.
     pixel.ColorFrequencies.Clear();
-    for (size_t patternI = 0; patternI < Input.GetPatterns().GetSize(); ++patternI)
+    for (size_t patternI = 0; patternI < Input.GetPatterns().size(); ++patternI)
     {
         //Try placing this pattern everywhere that touches the pixel.
 
@@ -227,9 +227,9 @@ void State::RecalculatePixelChances(Vector2i pixelPos)
             Vector2i patternPos = pixelPos - patternMinCorner;
             Pixel patternColor = pattern[patternPos];
 
-            auto index = badColors.IndexOf(
-                [&patternColor](const Pixel& p) { return p == patternColor; });
-            if (index == -1 && pattern.DoesFit(patternMinCorner, *this))
+			bool fits = std::any_of(badColors.begin(), badColors.end(),
+									[&patternColor](const Pixel& p) { return p == patternColor; });
+            if (fits && pattern.DoesFit(patternMinCorner, *this))
                 pixel.ColorFrequencies[patternColor] += pattern.Frequency;
         }
     }

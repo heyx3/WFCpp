@@ -548,7 +548,7 @@ SUITE(WFC_Tiled3D)
         //TODO: Add one permutation that doesn't affect the X faces.
         Grid grid(OneTileArmy(usedTransforms), { 1, 2, 3 });
 
-        CHECK_EQUAL(1, grid.InputTiles.GetSize());
+        CHECK_EQUAL(1, grid.InputTiles.size());
         CHECK_EQUAL(4, grid.NPermutedTiles);
 
         //The Z faces are entirely symmetrical, so the rotation/inversion
@@ -760,7 +760,7 @@ SUITE(WFC_Tiled3D)
         {
             CHECK(!grid.Cells[p].IsSet());
             CHECK(grid.Cells[p].IsChangeable);
-            CHECK(report.GotBoring.Contains(p));
+            CHECK(std::find(report.GotBoring.begin(), report.GotBoring.end(), p) != report.GotBoring.end());
         }
         
         //Now the entire grid is empty.
@@ -780,12 +780,12 @@ SUITE(WFC_Tiled3D)
         for (int y = min.y; y <= max.y; ++y)
             affectedCells.Add({ min.x - 1, y, 2 });
         //Now test that reality lines up with expectations.
-        CHECK_EQUAL(affectedCells.GetSize(), report.GotBoring.GetSize());
+        CHECK_EQUAL(affectedCells.GetSize(), report.GotBoring.size());
         for (Vector3i cell : affectedCells)
-            CHECK(report.GotBoring.Contains(cell));
+            CHECK(std::find(report.GotBoring.begin(), report.GotBoring.end(), cell) != report.GotBoring.end());
         for (Vector3i cell : Region3i(Vector3i(-1, -1, -1), grid.Cells.GetDimensions() + 1))
             if (!affectedCells.Contains(cell))
-                CHECK(!report.GotBoring.Contains(cell));
+                CHECK(std::find(report.GotBoring.begin(), report.GotBoring.end(), cell) == report.GotBoring.end());
     }
 
     TEST(StandardRunnerTick)

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "List.hpp"
+#include <vector>
 
 namespace WFC
 {
@@ -25,11 +25,12 @@ namespace WFC
         bool Contains(EnumType value) const { return (BitMask & ToMask(value)) != 0; }
 
         //Outputs all enum values this instance contains into the given list.
-        void Enumerate(List<EnumType>& outValues)
+        template<typename Allocator>
+        void Enumerate(std::vector<EnumType, Allocator>& outValues)
         {
             for (IntType i = 0; i < EnumValEnd; ++i)
                 if (Contains((EnumType)i))
-                    outValues.PushBack((EnumType)i);
+                    outValues.push_back((EnumType)i);
         }
 
         //Operators to add/remove flags.

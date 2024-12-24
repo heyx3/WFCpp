@@ -106,7 +106,7 @@ namespace Tiled3D
         //TODO: Another overload that takes new 'constants'.
 
 
-        StandardRunner(const List<Tile>& inputTiles, const Vector3i& gridSize,
+        StandardRunner(const std::vector<Tile>& inputTiles, const Vector3i& gridSize,
                        const Dictionary<Vector3i, std::tuple<TileIdx, Transform3D>>* constants = nullptr,
                        PRNG rand = PRNG(std::random_device()()))
             : History(gridSize, { }), Rand(rand), Grid(inputTiles, gridSize)
@@ -125,8 +125,8 @@ namespace Tiled3D
     private:
         Grid::Report report;
         Set<Vector3i> nextCells, unsolvableCells;
-        List<std::tuple<Vector3i, float>> buffer_pickCell_options;
-        List<float> buffer_randomTile_weights;
+        std::vector<std::tuple<Vector3i, float>> buffer_pickCell_options;
+        std::vector<float> buffer_randomTile_weights;
 
         void ClearAround(const Vector3i& centerCellPos);
         void Set(const Vector3i& cellPos, TileIdx tile, Transform3D permutation,

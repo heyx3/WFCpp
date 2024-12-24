@@ -44,11 +44,11 @@ namespace WFC
             };
 
 
-		    InputData(const List<Tile>& tiles);
-            InputData() : InputData(List<Tile>()) { }
+		    InputData(const std::vector<Tile>& tiles);
+            InputData() : InputData(std::vector<Tile>()) { }
 
 
-            inline const List<Tile>& GetTiles() const { return tiles; }
+            inline const std::vector<Tile>& GetTiles() const { return tiles; }
 
             //Gets all tiles that have the given edge type on the given side.
             inline const TileIDSet& GetTilesWithEdge(EdgeID type, EdgeDirs side) const
@@ -60,7 +60,7 @@ namespace WFC
 	    private:
 
             //All the tiles in the input data, including rotated/reflected permutations.
-            List<Tile> tiles;
+            std::vector<Tile> tiles;
 
             //A quick lookup of which tiles have a certain edge type in a certain direction.
             Dictionary<EdgeInstance, TileIDSet> matchingEdges;

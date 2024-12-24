@@ -68,7 +68,7 @@ namespace WFC
                 //    and 'GotUnsolvable' should supercede 'GotInteresting'.
 
                 //Cells that no longer have any contraints on their tile options.
-                List<Vector3i> GotBoring;
+                std::vector<Vector3i> GotBoring;
                 //Cells that have fewer possible options now.
                 Set<Vector3i> GotInteresting;
                 //Cells that now have zero options for tile placement.
@@ -77,14 +77,14 @@ namespace WFC
                 void Clear()
                 {
                     GotInteresting.Clear();
-                    GotBoring.Clear();
+                    GotBoring.clear();
                     GotUnsolvable.Clear();
                 }
             };
 
 
             //The input data:
-            const List<Tile> InputTiles;
+            const std::vector<Tile> InputTiles;
             const int NPermutedTiles;
             //Assigns a unique, contiguous, 0-based index to every face that appears in the tileset.
             const Dictionary<FacePermutation, int32_t>& GetFaceIndices() const { return FaceIndices; }
@@ -95,7 +95,7 @@ namespace WFC
             inline void DEBUGMEM_ValidateInputs() const
             {
                 //Note: iterate with indices as much as possible so it's clearer in the debugger where validation is failing.
-                for (int i = 0; i < InputTiles.GetSize(); ++i)
+                for (int i = 0; i < InputTiles.size(); ++i)
                     InputTiles[i].DEBUGMEM_Validate();
                 for (const auto& faceAndIdx : GetFaceIndices())
                     faceAndIdx.first.DEBUGMEM_Validate();
@@ -168,7 +168,7 @@ namespace WFC
             //Allocates a new state for the given tileset and grid size.
             //These will stay constant through the State's lifetime,
             //    but you can configure it to use only a subset of them.
-            Grid(const List<Tile>& inputTiles, const Vector3i& outputSize);
+            Grid(const std::vector<Tile>& inputTiles, const Vector3i& outputSize);
 
             //Sets up this instance for another run.
             void Reset();

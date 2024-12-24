@@ -118,8 +118,8 @@ Vector3i StandardRunner::PickNextCellToSet()
     WFCPP_ASSERT(nextCells.GetSize() > 0);
 
     //Assign a priority to each cell under consideration.
-    buffer_pickCell_options.Clear();
-    buffer_pickCell_options.Reserve(nextCells.GetSize());
+    buffer_pickCell_options.clear();
+    buffer_pickCell_options.reserve(nextCells.GetSize());
     auto& cellPriorities = buffer_pickCell_options;
 
     //Get each cell's priority and add it to the candidate list.
@@ -128,7 +128,7 @@ Vector3i StandardRunner::PickNextCellToSet()
     for (const Vector3i& cellPos : nextCells)
     {
         float priority = GetPriority(cellPos);
-        cellPriorities.GetUnderlying().emplace_back(cellPos, priority);
+        cellPriorities.emplace_back(cellPos, priority);
         maxPriority = Math::Max(maxPriority, priority);
     }
 
@@ -140,12 +140,12 @@ Vector3i StandardRunner::PickNextCellToSet()
             return std::get<1>(option) < maxPriority;
         }
     );
-    cellPriorities.GetUnderlying().erase(newEndIterator, cellPriorities.end());
-    WFCPP_ASSERT(cellPriorities.GetSize() > 0);
+    cellPriorities.erase(newEndIterator, cellPriorities.end());
+    WFCPP_ASSERT(cellPriorities.size() > 0);
 
     //Randomly choose one max-priority cell.
     return std::get<0>(cellPriorities[
-        std::uniform_int_distribution<int>(0, static_cast<int>(cellPriorities.GetSize() - 1))(Rand)
+        std::uniform_int_distribution<int>(0, static_cast<int>(cellPriorities.size() - 1))(Rand)
     ]);
 }
 
@@ -223,9 +223,9 @@ std::optional<std::tuple<TileIdx, Transform3D>> StandardRunner::RandomTile(const
 
     //Pick a tile, weighting them by their number of possible permutations
     //     (and of course the user's own weights).
-    distributionWeights.Clear();
-    for (int tileI = 0; tileI < Grid.InputTiles.GetSize(); ++tileI)
-        distributionWeights.PushBack(static_cast<float>(allowedPerTile[tileI].Size() * Grid.InputTiles[tileI].Weight));
+    distributionWeights.clear();
+    for (int tileI = 0; tileI < Grid.InputTiles.size(); ++tileI)
+        distributionWeights.push_back(static_cast<float>(allowedPerTile[tileI].Size() * Grid.InputTiles[tileI].Weight));
     int chosenTileI = PickWeightedRandomIndex(Rand, distributionWeights);
     if (chosenTileI < 0)
         return { };
@@ -233,7 +233,7 @@ std::optional<std::tuple<TileIdx, Transform3D>> StandardRunner::RandomTile(const
     //Pick a permutation for the tile.
     const auto& permutations = allowedPerTile[chosenTileI];
     WFCPP_ASSERT(permutations.Size() > 0);
-    distributionWeights.Resize(static_cast<size_t>(N_ROTATIONS_3D * 2));
+    distributionWeights.resize(static_cast<size_t>(N_ROTATIONS_3D * 2));
     std::fill(distributionWeights.begin(), distributionWeights.end(), 0.0f);
     for (Transform3D tr : permutations)
         distributionWeights[TransformSet::ToBitIdx(tr)] = 1;

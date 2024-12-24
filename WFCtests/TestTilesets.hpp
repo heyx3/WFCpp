@@ -37,11 +37,12 @@ namespace Tilesets
         //   * Y faces have no symmetries (each point has a different ID).
         //   * Z faces have total symmetry (you can use any transformation).
         template<typename... Transforms>
-        inline List<Tile> OneTileArmy(Transforms... transforms)
+        inline std::vector<Tile> OneTileArmy(Transforms... transforms)
         {
             auto permutations = TransformSet::Combine(transforms...);
-            List<Tile> output;
-            auto& tile = output.PushBack(WFC::Tiled3D::Tile{ });
+            std::vector<Tile> output;
+            output.push_back(WFC::Tiled3D::Tile{ });
+            auto& tile = output.back();
 
             //Remember point ordering: AA, AB, BA, BB
             tile.Data.Faces[0] = { MinX, { 0, 1, 1, 2 } };
@@ -80,9 +81,9 @@ namespace Tilesets
             struct SRSet
             {
                 //The input tiles.
-                List<Tile> Tiles;
+                std::vector<Tile> Tiles;
                 //Which faces match each other (before permutations).
-                List<Set<SRFace>> FaceGroups;
+                std::vector<Set<SRFace>> FaceGroups;
             };
 
             template<typename... Transforms>
@@ -93,13 +94,13 @@ namespace Tilesets
                 auto permutations = TransformSet::Combine(transforms...);
                 SRSet output;
 
-                output.Tiles.PushBack({ });
-                output.Tiles.PushBack({ });
-                output.Tiles.PushBack({ });
+                output.Tiles.push_back({ });
+                output.Tiles.push_back({ });
+                output.Tiles.push_back({ });
 
-                output.FaceGroups.PushBack({ });
-                output.FaceGroups.PushBack({ });
-                output.FaceGroups.PushBack({ });
+                output.FaceGroups.push_back({ });
+                output.FaceGroups.push_back({ });
+                output.FaceGroups.push_back({ });
                 
                 using Corners = std::array<PointID, N_FACE_POINTS>;
                 std::vector<Corners> points{

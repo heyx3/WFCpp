@@ -48,13 +48,13 @@ namespace WFC
 		    //Gets the number of times each pixel appears in this input data.
 		    const PixelFrequencyLookup& GetPixelFrequencies() const { return pixelFrequencies; }
 		    //Gets all patterns contained in this input data.
-		    const List<Pattern>& GetPatterns() const { return patterns; }
+		    const std::vector<Pattern>& GetPatterns() const { return patterns; }
 
 
 	    private:
 
 		    //All the patterns this instance contains.
-		    List<Pattern> patterns;
+			std::vector<Pattern> patterns;
 
 		    //The number of times each pixel appears in this input data.
 		    PixelFrequencyLookup pixelFrequencies;
