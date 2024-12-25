@@ -7,9 +7,6 @@
     <ClInclude Include="WFC++\Array2D.hpp">
       <Filter>Helper Classes</Filter>
     </ClInclude>
-    <ClInclude Include="WFC++\Dictionary.hpp">
-      <Filter>Helper Classes</Filter>
-    </ClInclude>
     <ClInclude Include="WFC++\HelperClasses.h" />
     <ClInclude Include="WFC++\Platform.h" />
     <ClInclude Include="WFC++\Simple\InputData.h">
@@ -29,9 +26,6 @@
     </ClInclude>
     <ClInclude Include="WFC++\Tiled\Tile.hpp">
       <Filter>Generator Classes\Tiled</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\Set.hpp">
-      <Filter>Helper Classes</Filter>
     </ClInclude>
     <ClInclude Include="WFC++\EnumFlags.h">
       <Filter>Helper Classes</Filter>

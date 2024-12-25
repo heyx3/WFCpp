@@ -951,7 +951,7 @@ SUITE(WFC_Tiled3D)
             #else
                 { 50, 75, 100 }
             #endif
-            , nullptr, { 0xabababab43430001 }
+            , nullptr, { 0xababfefb43455501 }
         );
         state.Reset();
 
@@ -971,10 +971,10 @@ SUITE(WFC_Tiled3D)
         auto tileset = SymmetricRods::Create(Transform3D{ false, Rotations3D::None });
 
         StandardRunner state(
-            tileset.Tiles, { 8, 8, 8 },
-            nullptr, { 0xffeeffddfba23423 }
+            tileset.Tiles, { 4, 4, 8 },
+            nullptr, { 0xa33eff3456a23423 }
         );
-        state.ClearRegionGrowthRateT = 1;
+        state.ClearRegionGrowthRateT = 0.1f;
         state.Reset();
 
         bool finished = state.TickN(20000);

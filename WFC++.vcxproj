@@ -243,7 +243,6 @@ xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
     <ClInclude Include="WFC++\Array2D.hpp" />
     <ClInclude Include="WFC++\Array3D.hpp" />
     <ClInclude Include="WFC++\Array4D.hpp" />
-    <ClInclude Include="WFC++\Dictionary.hpp" />
     <ClInclude Include="WFC++\EnumFlags.h" />
     <ClInclude Include="WFC++\HelperClasses.h" />
     <ClInclude Include="WFC++\MemoryChecks.inl" />
@@ -256,7 +255,6 @@ xcopy "$(ProjectDir)WFC++\*.hpp" "$(TargetDir)include" /sy</Command>
     <ClInclude Include="WFC++\Vector4i.h" />
     <ClInclude Include="WFC++\WFCMath.h" />
     <ClInclude Include="WFC++\Platform.h" />
-    <ClInclude Include="WFC++\Set.hpp" />
     <ClInclude Include="WFC++\Simple\InputData.h" />
     <ClInclude Include="WFC++\Simple\Pattern.h" />
     <ClInclude Include="WFC++\Simple\State.h" />
