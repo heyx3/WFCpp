@@ -34,9 +34,12 @@ namespace WFC
 		}
 
 		//Move operator.
-		Array4D(Array4D&& toMove) : arrayVals(nullptr) { *this = std::move(toMove); }
-		Array4D& operator=(Array4D&& toMove)
+		Array4D(Array4D&& toMove) noexcept : arrayVals(nullptr) { *this = std::move(toMove); }
+		Array4D& operator=(Array4D&& toMove) noexcept
 		{
+			if (&toMove == this)
+				return *this;
+
 			if (arrayVals != nullptr)
 				delete[] arrayVals;
 
@@ -53,6 +56,9 @@ namespace WFC
 		Array4D(const Array4D<ArrayType>& copy) { *this = copy; }
         Array4D& operator=(const Array4D<ArrayType>& other)
         {
+			if (&other == this)
+				return *this;
+
             if (arrayVals != nullptr)
                 delete[] arrayVals;
 
@@ -60,7 +66,10 @@ namespace WFC
             arrayVals = new ArrayType[GetNumbElements()];
 
             for (size_t i = 0; i < (size_t)GetNumbElements(); ++i)
-                arrayVals[i] = other.arrayVals[i];
+			{
+				WFCPP_ASSERT(i < other.GetNumbElements());
+				arrayVals[i] = other.arrayVals[i];
+			}
 
             return *this;
         }
@@ -76,12 +85,12 @@ namespace WFC
 
 		ArrayType& operator[](const Vector4i& l)
         {
-            assert(Region4i(GetDimensions()).Contains(l));
+			WFCPP_ASSERT(Region4i(GetDimensions()).Contains(l));
             return arrayVals[GetIndex(l.x, l.y, l.z, l.w)];
         }
 		const ArrayType& operator[](const Vector4i& l) const
         {
-            assert(Region4i(GetDimensions()).Contains(l));
+			WFCPP_ASSERT(Region4i(GetDimensions()).Contains(l));
             return arrayVals[GetIndex(l.x, l.y, l.z, l.w)];
         }
 

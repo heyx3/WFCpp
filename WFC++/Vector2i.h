@@ -52,14 +52,8 @@ namespace WFC
 	struct WFC_API Vector2i
 	{
 	public:
-
-		//Gets the hash value for a vector instance.
-		//Enables this class to be used for std collections that use hashes.
-		inline uint32_t operator()(const Vector2i& v) const { return v.GetHashcode(); }
-
-
-		int x;
-		int y;
+		int32_t x;
+		int32_t y;
 
 
 		Vector2i() : Vector2i(0, 0) { }
@@ -113,14 +107,37 @@ namespace WFC
 		{
 			//This seems to be a significant bottleneck, so I spent some time thinking
 			//    and searching for a fast way to hash integers.
+			//UPDATE: I think the real bottleneck was elsewhere in the collections which perform this hash.
+			//        Still a good idea to optimize hashing though; it's in the hot code loop.
+
 			//Reference: https://stackoverflow.com/questions/30032950/creating-a-hash-seed-value-from-2-integers-fast
-			//It works better with high bits than low ones,
-			//    so I bitwise-invert the components before using them.
-			int a = ~x,
-				b = ~y;
+
+			//This hash works better with high bits than low ones; rotate the component bits before using them.
+			int32_t a = (x << 16) | (x & 0xffff),
+					b = (y << 16) | (y & 0xffff);
+
 			a ^= b;
 			a = (a << 24) + (a * 0x193);
 			return a;
+		}
+		size_t GetHashcodeLarge() const
+		{
+			if constexpr (sizeof(size_t) == sizeof(uint64_t))
+			{
+				//We can get a perfect hash by zipping the bits together.
+				size_t h = (static_cast<size_t>(x) << 32) | static_cast<size_t>(y);
+
+				//However they might not have the best distribution, so we should still mix them.
+				//Source on mixing: https://stackoverflow.com/a/12996028
+				h = (h ^ (h >> 30)) * UINT64_C(0xbf58476d1ce4e5b9);
+				h = (h ^ (h >> 27)) * UINT64_C(0x94d049bb133111eb);
+				h = h ^ (h >> 31);
+
+				return h;
+			}
+
+			//For other bit sizes (not common), fall back to the 32-bit behavior.
+			return static_cast<size_t>(GetHashcode());
 		}
 	};
 
@@ -211,3 +228,17 @@ inline WFC::Vector2i WFC::Math::Min<WFC::Vector2i>(Vector2i a, Vector2i b)
 		x[i] = Min(a[i], b[i]);
 	return x;
 }
+
+template<> struct std::hash<WFC::Vector2i>
+{
+	size_t operator()(const WFC::Vector2i& v) const { return v.GetHashcodeLarge(); }
+};
+template<> struct std::hash<WFC::Region2i>
+{
+	size_t operator()(const WFC::Region2i& r) const {
+		return std::hash<WFC::Vector2i>{}({
+			static_cast<int32_t>(r.MinInclusive.GetHashcode()),
+			static_cast<int32_t>(r.MaxExclusive.GetHashcode())
+		});
+	}
+};

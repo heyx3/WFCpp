@@ -1,19 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="WFC++\Nullable.hpp">
-      <Filter>Helper Classes</Filter>
-    </ClInclude>
     <ClInclude Include="WFC++\Vector2i.h">
       <Filter>Helper Classes</Filter>
     </ClInclude>
     <ClInclude Include="WFC++\Array2D.hpp">
-      <Filter>Helper Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\Dictionary.hpp">
-      <Filter>Helper Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\List.hpp">
       <Filter>Helper Classes</Filter>
     </ClInclude>
     <ClInclude Include="WFC++\HelperClasses.h" />
@@ -35,9 +26,6 @@
     </ClInclude>
     <ClInclude Include="WFC++\Tiled\Tile.hpp">
       <Filter>Generator Classes\Tiled</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\Set.hpp">
-      <Filter>Helper Classes</Filter>
     </ClInclude>
     <ClInclude Include="WFC++\EnumFlags.h">
       <Filter>Helper Classes</Filter>
@@ -79,6 +67,9 @@
     <ClInclude Include="WFC++\xoshiro.hpp">
       <Filter>Helper Classes</Filter>
     </ClInclude>
+    <ClInclude Include="WFC++\MemoryChecks.inl">
+      <Filter>Helper Classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Helper Classes">
@@ -98,9 +89,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WFC++\Vector2i.cpp">
-      <Filter>Helper Classes</Filter>
-    </ClCompile>
     <ClCompile Include="WFC++\Simple\InputData.cpp">
       <Filter>Generator Classes\Simple</Filter>
     </ClCompile>
@@ -130,6 +118,9 @@
     </ClCompile>
     <ClCompile Include="WFC++\Tiled3D\StandardRunner.cpp">
       <Filter>Generator Classes\Tiled3D</Filter>
+    </ClCompile>
+    <ClCompile Include="WFC++\HelperSrc\Vector2i.cpp">
+      <Filter>Helper Classes</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

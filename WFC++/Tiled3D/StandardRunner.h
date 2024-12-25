@@ -1,7 +1,10 @@
 #pragma once
 
 #include <tuple>
+#include <random>
+
 #include "Grid.h"
+
 
 namespace WFC
 {
@@ -24,8 +27,8 @@ namespace Tiled3D
             float BaseTemperature = 0.0f;
             //A "timestamp" of how recently the cell has been unsolvable.
             //This has an implicit cooling effect on the temperature.
-            //The special value ~0 (all bits set) means it's never been unsolvable.
-            uint32_t LastUnsolvedTime = 0;
+            //The special value -1 (all bits set) means it's never been unsolvable.
+            uint32_t LastUnsolvedTime = static_cast<uint32_t>(-1);
         };
         static const uint32_t NEVER_UNSOLVED_TIMESTAMP = -1;
 
@@ -59,14 +62,12 @@ namespace Tiled3D
         //The decrease in cell temperature per-tick.
         float CoolOffRate = 0.1f;
         //A jump down in temperature when a cell gets set.
-        float CoolOffFromSetting = 0.0f; //Default value of 0 because I'm not actually sure
-                                         //    it creates a better outcome.
+        //Default value of 0 because I'm not actually sure it creates a better outcome.
+        float CoolOffFromSetting = 0.0f;
+        //From 0 to 1, how fast the clear region increases around tiles that have already been cleared a lot.
+        //Use a low value for tilesets with many small errors that need limited clearing.
+        float ClearRegionGrowthRateT = 0.5f;
 
-        //The effect of temperature on a cell's priority for getting set.
-        //A value of 1 means "no effect",
-        //    and larger values make the temperature more important.
-        float TemperaturePriority = 1.0f;
-        
         //The influence of temperature on how soon a cell should be set.
         //Note that temperature is usually the size of small integers.
         float PriorityWeightTemperature = 0.2f;
@@ -75,7 +76,6 @@ namespace Tiled3D
         float PriorityWeightEntropy = 0.8f;
 
         PRNG Rand;
-
 
         Grid Grid;
 
@@ -97,19 +97,19 @@ namespace Tiled3D
         void Reset()
         {
             Grid.ClearCells(Region3i(Grid.Cells.GetDimensions()));
+            History.Fill({ });
             report.Clear();
-            nextCells.Clear();
-            unsolvableCells.Clear();
+            nextCells.clear();
+            unsolvableCells.clear();
         }
-        void Reset(const Dictionary<Vector3i, std::tuple<TileIdx, Transform3D>>& constants);
+        void Reset(const std::unordered_map<Vector3i, std::tuple<TileIdx, Transform3D>>& constants);
         //TODO: Another overload that takes new 'constants'.
 
 
-        StandardRunner(const List<Tile>& inputTiles, const Vector3i& gridSize,
-                       const Dictionary<Vector3i, std::tuple<TileIdx, Transform3D>>* constants = nullptr,
+        StandardRunner(const std::vector<Tile>& inputTiles, const Vector3i& gridSize,
+                       const std::unordered_map<Vector3i, std::tuple<TileIdx, Transform3D>>* constants = nullptr,
                        PRNG rand = PRNG(std::random_device()()))
-            : Grid(inputTiles, gridSize), Rand(rand),
-              History(gridSize, { })
+            : History(gridSize, { }), Rand(rand), Grid(inputTiles, gridSize)
         {
             if (constants != nullptr)
                 for (const auto& constant : *constants)
@@ -124,9 +124,9 @@ namespace Tiled3D
 
     private:
         Grid::Report report;
-        Set<Vector3i> nextCells, unsolvableCells;
-        Dictionary<Vector3i, float> buffer_pickCell_priorities;
-        List<int> buffer_randomTile_distribution;
+        std::unordered_set<Vector3i> nextCells, unsolvableCells;
+        std::vector<std::tuple<Vector3i, float>> buffer_pickCell_options;
+        std::vector<float> buffer_randomTile_weights;
 
         void ClearAround(const Vector3i& centerCellPos);
         void Set(const Vector3i& cellPos, TileIdx tile, Transform3D permutation,
@@ -134,7 +134,9 @@ namespace Tiled3D
 
         Vector3i PickNextCellToSet();
 
-        std::tuple<TileIdx, Transform3D> RandomTile(const TransformSet* allowedPerTile);
+        //Attempts to pick a random tile, given the allowed permutations of each tile.
+        //Returns the random selection, or nothing if there were no eligible tiles.
+        std::optional<std::tuple<TileIdx, Transform3D>> RandomTile(const TransformSet* allowedPerTile);
     };
 }
 }

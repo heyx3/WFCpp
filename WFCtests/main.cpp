@@ -548,13 +548,13 @@ SUITE(WFC_Tiled3D)
         //TODO: Add one permutation that doesn't affect the X faces.
         Grid grid(OneTileArmy(usedTransforms), { 1, 2, 3 });
 
-        CHECK_EQUAL(1, grid.InputTiles.GetSize());
+        CHECK_EQUAL(1, grid.InputTiles.size());
         CHECK_EQUAL(4, grid.NPermutedTiles);
 
         //The Z faces are entirely symmetrical, so the rotation/inversion
         //    should not change them.
         //The same does not hold for the X or Y faces.
-        CHECK_EQUAL(2 + (4 * 4), grid.GetFaceIndices().GetSize());
+        CHECK_EQUAL(2 + (4 * 4), grid.GetFaceIndices().size());
 
         //Check that the input tile data transferred over correctly.
         CHECK_EQUAL(Vector4i{WFC_CONCAT(1, 1, 2, 3)}, grid.PossiblePermutations.GetDimensions());
@@ -563,7 +563,7 @@ SUITE(WFC_Tiled3D)
         for (const auto& tile : grid.InputTiles)
             for (const auto& originalFace : tile.Data.Faces)
                 for (auto transform : usedTransforms)
-                    CHECK(grid.GetFaceIndices().Contains(transform.ApplyToFace(originalFace)));
+                    CHECK(grid.GetFaceIndices().contains(transform.ApplyToFace(originalFace)));
 
         //Check the link between face permutations and available tiles.
         for (int faceI = 0; faceI < N_DIRECTIONS_3D; ++faceI)
@@ -575,7 +575,7 @@ SUITE(WFC_Tiled3D)
                 bool expectAllPermutationToMatch = (transformedFace.Side == MinZ) ||
                                                    (transformedFace.Side == MaxZ);
                 const auto& matchesToTransformedFace =
-                    grid.GetMatchingFaces()[{ 0, grid.GetFaceIndices()[transformedFace] }];
+                    grid.GetMatchingFaces()[{ 0, grid.GetFaceIndices().at(transformedFace) }];
 
                 TransformSet expectedMatches;
                 if (expectAllPermutationToMatch)
@@ -610,8 +610,8 @@ SUITE(WFC_Tiled3D)
         Grid state(OneTileArmy(usedTransforms), { 4, 4, 4 });
         Grid::Report report;
 
-        //Set a cell in the min corner with no transform, and check the effects.
-        //Horizontally, the neighbors should be locked into using the null permutation.
+        //Set a cell in the min corner with the identity transform, and check the effects.
+        //Horizontally, the neighbors should be locked into using the same permutation.
         //Vertically, the neighbors could still be any permutation,
         //    as the Z face is very symmetrical.
         state.SetCell({ 0, 0, 0 }, 0, { }, &report, true, false);
@@ -623,11 +623,11 @@ SUITE(WFC_Tiled3D)
         CHECK_EQUAL(1, minCell->NPossibilities);
         CHECK(minCell->IsSet());
         //Check algorithm state.
-        CHECK_EQUAL(0, report.GotUnsolvable.GetSize());
-        CHECK_EQUAL(3, report.GotInteresting.GetSize());
-        CHECK(report.GotInteresting.Contains({ 1, 0, 0 }));
-        CHECK(report.GotInteresting.Contains({ 0, 1, 0 }));
-        CHECK(report.GotInteresting.Contains({ 0, 0, 1 }));
+        CHECK_EQUAL(0, report.GotUnsolvable.size());
+        CHECK_EQUAL(3, report.GotInteresting.size());
+        CHECK(report.GotInteresting.contains({ 1, 0, 0 }));
+        CHECK(report.GotInteresting.contains({ 0, 1, 0 }));
+        CHECK(report.GotInteresting.contains({ 0, 0, 1 }));
         //Check the possible neighbor tiles.
         CHECK_EQUAL(TransformSet::Combine(Transform3D{ }),
                     state.PossiblePermutations[WFC_CONCAT({ 0, {1, 0, 0} })]);
@@ -643,12 +643,12 @@ SUITE(WFC_Tiled3D)
         report.Clear();
         state.SetCell({ 2, 0, 0 }, 0, { false, Rotations3D::AxisZ_90}, &report);
         CHECK(minCell->IsSet());
-        CHECK_EQUAL(1, report.GotUnsolvable.GetSize());
-        CHECK_EQUAL(3, report.GotInteresting.GetSize());
-        CHECK(report.GotInteresting.Contains({ 3, 0, 0 }));
-        CHECK(report.GotInteresting.Contains({ 2, 1, 0 }));
-        CHECK(report.GotInteresting.Contains({ 2, 0, 1 }));
-        CHECK(report.GotUnsolvable.Contains(WFC_CONCAT({ 1, 0, 0 })));
+        CHECK_EQUAL(1, report.GotUnsolvable.size());
+        CHECK_EQUAL(3, report.GotInteresting.size());
+        CHECK(report.GotInteresting.contains({ 3, 0, 0 }));
+        CHECK(report.GotInteresting.contains({ 2, 1, 0 }));
+        CHECK(report.GotInteresting.contains({ 2, 0, 1 }));
+        CHECK(report.GotUnsolvable.contains(WFC_CONCAT({ 1, 0, 0 })));
         CHECK(!state.Cells[WFC_CONCAT({ 1, 0, 0 })].IsSet());
         CHECK_EQUAL(0, state.Cells[WFC_CONCAT({ 1, 0, 0 })].NPossibilities);
         CHECK_EQUAL(TransformSet(), state.PossiblePermutations[WFC_CONCAT({ 0, { 1, 0, 0 } })]);
@@ -659,9 +659,9 @@ SUITE(WFC_Tiled3D)
         CHECK(minCell->IsSet());
         CHECK(!state.Cells[WFC_CONCAT({ 2, 0, 0 })].IsSet());
         CHECK(state.Cells[WFC_CONCAT({ 2, 0, 0 })].IsChangeable);
-        CHECK(report.GotInteresting.Contains({ 1, 0, 0 }));
-        CHECK_EQUAL(0, report.GotUnsolvable.GetSize());
-        CHECK_EQUAL(1, report.GotInteresting.GetSize());
+        CHECK(report.GotInteresting.contains({ 1, 0, 0 }));
+        CHECK_EQUAL(0, report.GotUnsolvable.size());
+        CHECK_EQUAL(1, report.GotInteresting.size());
         CHECK_EQUAL(1, state.Cells[WFC_CONCAT({ 1, 0, 0 })].NPossibilities);
         CHECK_EQUAL(TransformSet::Combine(Transform3D{ }),
                     state.PossiblePermutations[WFC_CONCAT({ 0, {1, 0, 0} })]);
@@ -679,12 +679,12 @@ SUITE(WFC_Tiled3D)
         CHECK_EQUAL(0, state.Cells[newCellPos].ChosenTile);
         CHECK_EQUAL(newCellTransform, state.Cells[newCellPos].ChosenPermutation);
         CHECK(state.Cells[newCellPos].IsChangeable);
-        CHECK(report.GotInteresting.Contains({ 2, 0, 1 }));
-        CHECK(report.GotInteresting.Contains({ 1, 1, 1 }));
-        CHECK(report.GotInteresting.Contains({ 1, 0, 2 }));
-        CHECK(!report.GotInteresting.Contains({ 1, 0, 0 })); // Because it's already set
-        CHECK(report.GotInteresting.Contains({ 0, 0, 1 }));
-        CHECK_EQUAL(4, report.GotInteresting.GetSize());
+        CHECK(report.GotInteresting.contains({ 2, 0, 1 }));
+        CHECK(report.GotInteresting.contains({ 1, 1, 1 }));
+        CHECK(report.GotInteresting.contains({ 1, 0, 2 }));
+        CHECK(!report.GotInteresting.contains({ 1, 0, 0 })); // Because it's already set
+        CHECK(report.GotInteresting.contains({ 0, 0, 1 }));
+        CHECK_EQUAL(4, report.GotInteresting.size());
         CHECK_EQUAL(1, state.Cells[newCellPos.LessX()].NPossibilities);
     }
     TEST(GridClearing)
@@ -713,8 +713,8 @@ SUITE(WFC_Tiled3D)
             CHECK_EQUAL(!isMutable(p), grid.Cells[p].IsSet());
         //The immutable Z layer means that the other Z layer stays interesting.
         for (Vector3i p : region)
-            CHECK_EQUAL(!grid.Cells[p].IsSet(), report.GotInteresting.Contains(p));
-        CHECK(report.GotInteresting.GetSize());
+            CHECK_EQUAL(!grid.Cells[p].IsSet(), report.GotInteresting.contains(p));
+        CHECK(report.GotInteresting.size());
 
         //Make sure their neighbors were updated (except for the neighbors of immutables).
         auto checkClearedNeighbor = [&](int x, int y, int z, int dirX, int dirY, int dirZ) {
@@ -760,32 +760,32 @@ SUITE(WFC_Tiled3D)
         {
             CHECK(!grid.Cells[p].IsSet());
             CHECK(grid.Cells[p].IsChangeable);
-            CHECK(report.GotBoring.Contains(p));
+            CHECK(std::find(report.GotBoring.begin(), report.GotBoring.end(), p) != report.GotBoring.end());
         }
         
         //Now the entire grid is empty.
-        CHECK_EQUAL(0, report.GotInteresting.GetSize());
-        CHECK_EQUAL(0, report.GotUnsolvable.GetSize());
+        CHECK_EQUAL(0, report.GotInteresting.size());
+        CHECK_EQUAL(0, report.GotUnsolvable.size());
 
         //Look for all the cells marked boring.
-        Set<Vector3i> affectedCells;
+        std::unordered_set<Vector3i> affectedCells;
         //The immutable Z-layer was affected, along with the layers above and below it.
         for (int x = min.x; x <= max.x; ++x)
             for (int y = min.y; y <= max.y; ++y)
                 for (int z = 1; z <= 3; ++z)
-                    affectedCells.Add({ x, y, z});
+                    affectedCells.insert({ x, y, z});
         //The perimeter of the Z-layer was affected as well.
         for (int x = min.x; x <= max.x; ++x)
-            affectedCells.Add({ x, min.y - 1, 2 });
+            affectedCells.insert({ x, min.y - 1, 2 });
         for (int y = min.y; y <= max.y; ++y)
-            affectedCells.Add({ min.x - 1, y, 2 });
+            affectedCells.insert({ min.x - 1, y, 2 });
         //Now test that reality lines up with expectations.
-        CHECK_EQUAL(affectedCells.GetSize(), report.GotBoring.GetSize());
+        CHECK_EQUAL(affectedCells.size(), report.GotBoring.size());
         for (Vector3i cell : affectedCells)
-            CHECK(report.GotBoring.Contains(cell));
+            CHECK(std::find(report.GotBoring.begin(), report.GotBoring.end(), cell) != report.GotBoring.end());
         for (Vector3i cell : Region3i(Vector3i(-1, -1, -1), grid.Cells.GetDimensions() + 1))
-            if (!affectedCells.Contains(cell))
-                CHECK(!report.GotBoring.Contains(cell));
+            if (!affectedCells.contains(cell))
+                CHECK(std::find(report.GotBoring.begin(), report.GotBoring.end(), cell) == report.GotBoring.end());
     }
 
     TEST(StandardRunnerTick)
@@ -844,7 +844,8 @@ SUITE(WFC_Tiled3D)
                 {
                     nSet += 1;
                     CHECK_EQUAL(0, cell.ChosenTile);
-                    CHECK(cell.ChosenPermutation ==
+
+                    REQUIRE CHECK(cell.ChosenPermutation ==
                           state.Grid.Cells[originalCellPos].ChosenPermutation);
 
                     if (cellPos != originalCellPos)
@@ -859,7 +860,7 @@ SUITE(WFC_Tiled3D)
                     setCellPos == originalCellPos.LessZ() ||
                     setCellPos == originalCellPos.MoreZ());
 
-            //TODO: Set a cell that makes the grid unsolvable, then watch it clear.
+            //TODO: Clear an area, set a cell that makes the grid unsolvable, then test that another clear happens soon. Finally, test that it eventually completes the grid after clearing.
         }
     }
     TEST(StandardRunnerTickN)
@@ -872,10 +873,17 @@ SUITE(WFC_Tiled3D)
         usedTransforms.Add(Transform3D{ });
         usedTransforms.Add(Transform3D{ false, Rotations3D::AxisZ_90 });
         usedTransforms.Add(Transform3D{ false, Rotations3D::AxisY_90 }); //The incompatible one.
-        StandardRunner state(OneTileArmy(usedTransforms), { 4, 5, 6 });
+        //Use a really big world grid to do some stress- and performance-testing.
+        StandardRunner state(OneTileArmy(usedTransforms),
+            #ifdef _DEBUG
+                { 10, 10, 10 }
+            #else
+                { 50, 75, 100 }
+            #endif
+        );
 
         //Set one tile on each Z-slice.
-        Dictionary<Vector3i, std::tuple<TileIdx, Transform3D>> constants;
+        std::unordered_map<Vector3i, std::tuple<TileIdx, Transform3D>> constants;
         constants[{ 2, 2, 0 }] = std::make_tuple((TileIdx)0, Transform3D{ });
         constants[{ 2, 2, 2 }] = std::make_tuple((TileIdx)0, Transform3D{ });
         constants[{ 2, 2, 4 }] = std::make_tuple((TileIdx)0, Transform3D{ });
@@ -887,12 +895,14 @@ SUITE(WFC_Tiled3D)
         //Run until the whole grid is solved.
         //The number of iterations needed is simple to calculate,
         //    as the grid can only be solved one way.
+        std::cout << "    (running a slow test..";
         int nLeft = state.Grid.Cells.GetNumbElements() - 6;
         for (int i = 0; i < nLeft - 1; ++i)
         {
             auto didEnd = state.Tick();
             CHECK(!didEnd);
         }
+        std::cout << ". finished!)\n";
         //Finish the last tile.
         auto didEnd = state.Tick();
         CHECK(!didEnd);
@@ -916,6 +926,63 @@ SUITE(WFC_Tiled3D)
             }
         }
     }
+
+    TEST(StandardRunnerTricky1)
+    {
+        //Use a large world grid and tile-set to do more thorough tests.
+        //TODO: This isn't complex enough; we need it to clear sometimes
+        StandardRunner state(
+            OneTileArmy(TransformSet::Combine(
+                Transform3D{ false, Rotations3D::None },
+                Transform3D{ false, Rotations3D::AxisY_90 },
+                Transform3D{ false, Rotations3D::AxisZ_180},
+                Transform3D{ false, Rotations3D::AxisY_270 },
+
+                Transform3D{ true, Rotations3D::None },
+                Transform3D{ true, Rotations3D::AxisY_90 },
+                Transform3D{ true, Rotations3D::AxisZ_180 },
+                Transform3D{ true, Rotations3D::AxisY_270 },
+
+                Transform3D{ false, Rotations3D::CornerAAA_120 },
+                Transform3D{ false, Rotations3D::CornerAAA_240 }
+            )),
+            #ifdef _DEBUG
+                { 4, 4, 100 }
+            #else
+                { 50, 75, 100 }
+            #endif
+            , nullptr, { 0xababfefb43455501 }
+        );
+        state.Reset();
+
+        //Run until the whole grid is solved.
+        std::cout << "    (running a slow test..";
+        bool isFinished = false;
+        while (!isFinished)
+        {
+            isFinished = state.Tick();
+        }
+        std::cout << ". finished!)\n";
+    }
+
+    //Before using the SymmetricRods tileset, run a trivial test to make sure it's defined correctly.
+    TEST(SymmetricRodsIsValid)
+    {
+        auto tileset = SymmetricRods::Create(Transform3D{ false, Rotations3D::None });
+
+        StandardRunner state(
+            tileset.Tiles, { 4, 4, 8 },
+            nullptr, { 0xa33eff3456a23423 }
+        );
+        state.ClearRegionGrowthRateT = 0.1f;
+        state.Reset();
+
+        bool finished = state.TickN(20000);
+        CHECK(finished);
+
+        //TODO: Check the result is valid, using 'tileset.FaceGroups'.
+    }
+    //TODO: Test SymmetricRods while putting a constant tile C into the center, and check that it's never cleared.
 }
 
 

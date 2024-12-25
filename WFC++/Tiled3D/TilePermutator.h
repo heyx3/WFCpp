@@ -14,18 +14,18 @@ namespace WFC
         public:
 
             TilePermutator();
-            TilePermutator(const List<Tile>& originalTiles,
-                           const List<List<Transform3D>>& tileSymmetries,
-                           const List<Transform3D>& permutations);
+            TilePermutator(const std::vector<Tile>& originalTiles,
+                           const std::vector<std::vector<Transform3D>>& tileSymmetries,
+                           const std::vector<Transform3D>& permutations);
 
             //Gets the number of original tiles that permutations were made from.
             inline const size_t GetNOriginalTiles() const { return nOriginalTiles; }
             //Gets the number of total tiles, including originals and permutations.
-            inline const size_t GetNAllTiles() const { return tiles.GetSize(); }
+            inline const size_t GetNAllTiles() const { return tiles.size(); }
 
             //Gets all tiles, including originals and permutations.
             //The originals are all at the front of the list.
-            inline const List<Tile>& GetTiles() const { return tiles; }
+            inline const std::vector<Tile>& GetTiles() const { return tiles; }
             //Gets the tile with the given ID.
             inline const Tile& GetTile(TileID id) const { return tiles[id]; }
 
@@ -44,12 +44,12 @@ namespace WFC
 
             //Given an original tile, gets all permutations that came from it.
             //Note that the return value includes the original un-transformed tile.
-            inline const List<TileID>& GetMyPermutations(TileID original) const { return *permutationsPerParent.TryGet(original); }
+            inline const std::vector<TileID>& GetMyPermutations(TileID original) const { return permutationsPerParent.at(original); }
 
 
         private:
 
-            List<Tile> tiles;
+            std::vector<Tile> tiles;
             size_t nOriginalTiles;
 
             struct ParentData
@@ -57,9 +57,9 @@ namespace WFC
                 TileID ParentID;
                 Transform3D MyTransform;
             };
-            List<ParentData> tileParents;
+            std::vector<ParentData> tileParents;
 
-            Dictionary<TileID, List<TileID>, std::hash<TileID>> permutationsPerParent;
+            std::unordered_map<TileID, std::vector<TileID>> permutationsPerParent;
         };
     }
 }

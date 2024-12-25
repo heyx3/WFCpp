@@ -256,11 +256,11 @@ void PrintOutput(const WFC::Simple::State& state, std::ostream& stream)
         auto& pixel = state.Output[pos];
 
         std::string elementStr;
-        if (pixel.Value.HasValue)
+        if (pixel.Value.has_value())
         {
-            elementStr = std::to_string(pixel.Value.Value);
+            elementStr = std::to_string(*pixel.Value);
         }
-        else if (pixel.ColorFrequencies.GetSize() == 0)
+        else if (pixel.ColorFrequencies.size() == 0)
         {
             elementStr = "x";
         }
@@ -344,17 +344,17 @@ int main(int argc, char* argv[])
     //Run the generator loop.
     int errorCode = 0;
     WFC::Vector2i changedPos;
-    WFC::List<WFC::Vector2i> failedPoses;
+    std::vector<WFC::Vector2i> failedPoses;
     size_t iterationCount = 0;
     while (nIterations > 0)
     {
         iterationCount += 1;
         nIterations -= 1;
-        WFC::Nullable<bool> result = wfcState.Iterate(changedPos, failedPoses);
+        auto result = wfcState.Iterate(changedPos, failedPoses);
 
-        if (result.HasValue)
+        if (result.has_value())
         {
-            if (result.Value)
+            if (*result)
             {
                 if (!shellMode)
                     std::cout << "Finished! Took " << iterationCount << " iterations.\n\n";
@@ -365,7 +365,7 @@ int main(int argc, char* argv[])
                 if (!shellMode)
                 {
                     std::cout << "Failed at the following output pixels:\n";
-                    for (size_t i = 0; i < failedPoses.GetSize(); ++i)
+                    for (size_t i = 0; i < failedPoses.size(); ++i)
                         std::cout << "{" << failedPoses[i].x << "," << failedPoses[i].y << "} ";
                     std::cout << "\n\n";
                 }

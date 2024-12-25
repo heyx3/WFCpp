@@ -12,7 +12,7 @@ float StandardRunner::GetTemperature(const Vector3i& cell) const
     //Apply a cooling effect over time.
     if (history.LastUnsolvedTime != NEVER_UNSOLVED_TIMESTAMP)
     {
-        assert(CurrentTimestamp >= history.LastUnsolvedTime); //Hopefully it's not from the future
+        WFCPP_ASSERT(CurrentTimestamp >= history.LastUnsolvedTime); //Hopefully it's not from the future
         auto elapsed = CurrentTimestamp - history.LastUnsolvedTime;
         temperature -= (elapsed * CoolOffRate);
         temperature = Math::Max(temperature, 0.0f);
@@ -27,12 +27,18 @@ Region3i StandardRunner::GetClearRegion(const Vector3i& cell) const
 
     //The minimum radius is 1.
     //Can't make the cell solvable without removing its neighbors!
-    assert(temperature > 0);
-    int32_t radius = 1 + (int32_t)temperature;
+    WFCPP_ASSERT(temperature >= 0);
+    int32_t radius;
+    if (ClearRegionGrowthRateT <= 0)
+        radius = 1;
+    else if (ClearRegionGrowthRateT >= 1)
+        radius = 1 + (int32_t)temperature;
+    else
+        radius = 1 + (int32_t)std::pow(temperature, ClearRegionGrowthRateT);
 
     //Turn the radius into a rectangular area.
     Vector3i areaMin = Math::Max(Vector3i::Zero(), cell - radius),
-        areaMax = Math::Min(History.GetDimensions(), cell + radius + 1);
+             areaMax = Math::Min(History.GetDimensions(), cell + radius + 1);
     return { areaMin, areaMax };
 }
 //Calculates the priority of handling a given cell.
@@ -45,7 +51,7 @@ float StandardRunner::GetPriority(const Vector3i& cellPos)
 }
 
 
-void StandardRunner::Reset(const Dictionary<Vector3i, std::tuple<TileIdx, Transform3D>>& constants)
+void StandardRunner::Reset(const std::unordered_map<Vector3i, std::tuple<TileIdx, Transform3D>>& constants)
 {
     Reset();
     for (const auto& constant : constants)
@@ -64,25 +70,28 @@ void StandardRunner::ClearAround(const Vector3i& centerCellPos)
     Grid.ClearCells(region, &report);
 
     //Process the report.
-    //Note that the order is important, these collections aren't mutually exclusive.
-    nextCells.Erase(report.GotBoring);
-    nextCells.Add(report.GotInteresting);
-    assert(report.GotUnsolvable.GetSize() == 0); //Removing tiles shouldn't make
-                                                 //    something unsolvable.
+    //Note that the order is important; the report's collections aren't mutually exclusive.
+    for (const auto& c : report.GotBoring)
+        nextCells.erase(c);
+    for (const auto& c : report.GotInteresting)
+        nextCells.insert(c);
+    WFCPP_ASSERT(report.GotUnsolvable.size() == 0); //Removing tiles shouldn't make something unsolvable.
 
     //Update the unsolvable cell.
     auto& cellHistory = History[centerCellPos];
     cellHistory.LastUnsolvedTime = CurrentTimestamp;
 
     //Update neighboring temperatures.
-    for (int xI = 0; xI < 2; ++xI)
-        for (int yI = 0; yI < 2; ++yI)
-            for (int zI = 0; zI < 2; ++zI)
-            {
-                auto cellPos = Grid.FilterPos(centerCellPos +
-                                              Vector3i(xI, yI, zI) - 1);
-                History[cellPos].BaseTemperature += TempIncreases[xI][yI][zI];
-            }
+    Region3i gridRegion{
+        (centerCellPos - 1).Max(       { 0, 0, 0 }        ),
+        (centerCellPos + 2).Min(Grid.Cells.GetDimensions())
+    };
+    for (Vector3i cellPos : gridRegion)
+    {
+        Vector3i lookupIdx = Vector3i{ 2, 2, 2 } - (gridRegion.MaxExclusive - cellPos - 1);
+        auto tempIncrease = TempIncreases[lookupIdx.x][lookupIdx.y][lookupIdx.z];
+        History[Grid.FilterPos(cellPos)].BaseTemperature += tempIncrease;
+    }
 }
 void StandardRunner::Set(const Vector3i& cellPos, TileIdx tile, Transform3D permutation,
                          bool makeImmutable)
@@ -90,15 +99,20 @@ void StandardRunner::Set(const Vector3i& cellPos, TileIdx tile, Transform3D perm
     report.Clear();
     Grid.SetCell(cellPos, tile, permutation, &report,
                  makeImmutable, !makeImmutable);
-    nextCells.Erase(cellPos);
-    unsolvableCells.Erase(cellPos);
+    nextCells.erase(cellPos);
+    unsolvableCells.erase(cellPos);
 
     //Process the report.
-    //Note that the order is important, these collections aren't mutually exclusive.
-    nextCells.Erase(report.GotBoring);
-    nextCells.Add(report.GotInteresting);
-    unsolvableCells.Add(report.GotUnsolvable);
-    nextCells.Erase(report.GotUnsolvable);
+    //Note that the order is important; these collections aren't mutually exclusive.
+    for (const auto& c : report.GotBoring)
+        nextCells.erase(c);
+    for (const auto& c : report.GotInteresting)
+        nextCells.insert(c);
+    for (const auto& c : report.GotUnsolvable)
+    {
+        unsolvableCells.insert(c);
+        nextCells.erase(c);
+    }
 
     //Update the cell history.
     auto& history = History[cellPos];
@@ -107,33 +121,38 @@ void StandardRunner::Set(const Vector3i& cellPos, TileIdx tile, Transform3D perm
 
 Vector3i StandardRunner::PickNextCellToSet()
 {
-    //Assign a priority to each cell under consideration.
-    buffer_pickCell_priorities.Clear();
-    auto& cellPriorities = buffer_pickCell_priorities;
+    WFCPP_ASSERT(nextCells.size() > 0);
 
+    //Assign a priority to each cell under consideration.
+    buffer_pickCell_options.clear();
+    buffer_pickCell_options.reserve(nextCells.size());
+    auto& cellPriorities = buffer_pickCell_options;
+
+    //Get each cell's priority and add it to the candidate list.
+    //Also track the current highest-priority.
     float maxPriority = std::numeric_limits<float>().lowest();
     for (const Vector3i& cellPos : nextCells)
     {
         float priority = GetPriority(cellPos);
-        cellPriorities[cellPos] = priority;
+        cellPriorities.emplace_back(cellPos, priority);
         maxPriority = Math::Max(maxPriority, priority);
     }
 
     //Filter out the cells of less-than-max priority.
-    auto iter = cellPriorities.begin();
-    while (iter != cellPriorities.end())
-    {
-        if (iter->second < maxPriority)
-            iter = cellPriorities.Unwrap().erase(iter);
-        else
-            ++iter;
-    }
+    auto newEndIterator = std::remove_if(
+        cellPriorities.begin(), cellPriorities.end(),
+        [maxPriority](const std::tuple<Vector3i, float>& option)
+        {
+            return std::get<1>(option) < maxPriority;
+        }
+    );
+    cellPriorities.erase(newEndIterator, cellPriorities.end());
+    WFCPP_ASSERT(cellPriorities.size() > 0);
 
-    //Pick one cell randomly.
-    iter = cellPriorities.begin();
-    auto idx = std::uniform_int_distribution<int>(0, (int)cellPriorities.GetSize() - 1)(Rand);
-    std::advance(iter, idx);
-    return iter->first;
+    //Randomly choose one max-priority cell.
+    return std::get<0>(cellPriorities[
+        std::uniform_int_distribution<int>(0, static_cast<int>(cellPriorities.size() - 1))(Rand)
+    ]);
 }
 
 bool StandardRunner::Tick()
@@ -141,16 +160,16 @@ bool StandardRunner::Tick()
     CurrentTimestamp += 1;
 
     //If cells are unsolvable, clear them.
-    bool hasUnsolvable = unsolvableCells.GetSize() > 0;
+    bool hasUnsolvable = unsolvableCells.size() > 0;
     for (const Vector3i& cellPos : unsolvableCells)
         ClearAround(cellPos);
-    unsolvableCells.Clear();
+    unsolvableCells.clear();
     if (hasUnsolvable)
     {
         return false;
     }
     //If there's no search frontier, re-scan the grid for options.
-    else if (nextCells.GetSize() == 0)
+    else if (nextCells.size() == 0)
     {
         //Look for any cells with less than full range of possibilities,
         //    and track how many are set.
@@ -161,21 +180,21 @@ bool StandardRunner::Tick()
             if (cell.IsSet())
                 nSetCells += 1;
             else if (cell.NPossibilities < Grid.NPermutedTiles)
-                nextCells.Add(cellPos);
+                nextCells.insert(cellPos);
         }
-        
+
         //If every cell was set, then the algorithm is done.
         if (nSetCells == Grid.Cells.GetNumbElements())
         {
             return true;
         }
         //If all cells have an equal chance to be set, then pick one at random.
-        else if (nextCells.GetSize() == 0)
+        else if (nextCells.size() == 0)
         {
             Vector3i cellPos;
             for (int i = 0; i < 3; ++i)
                 cellPos[i] = std::uniform_int_distribution<int>(0, Grid.Cells.GetDimensions()[i] - 1)(Rand);
-            nextCells.Add(cellPos);
+            nextCells.insert(cellPos);
         }
     }
 
@@ -183,8 +202,16 @@ bool StandardRunner::Tick()
     Vector3i cellPos = PickNextCellToSet();
     TileIdx tileIdx;
     Transform3D tilePermutation;
-    std::tie(tileIdx, tilePermutation) = RandomTile(&Grid.PossiblePermutations[{ 0, cellPos }]);
-    Set(cellPos, tileIdx, tilePermutation);
+    auto tryRandomTile = RandomTile(&Grid.PossiblePermutations[{ 0, cellPos }]);
+    if (tryRandomTile.has_value())
+    {
+        std::tie(tileIdx, tilePermutation) = *tryRandomTile;
+        Set(cellPos, tileIdx, tilePermutation);
+    }
+    else
+    {
+        unsolvableCells.insert(cellPos);
+    }
 
     return false;
 }
@@ -196,27 +223,32 @@ bool StandardRunner::TickN(int n)
     return false;
 }
 
-std::tuple<TileIdx, Transform3D> StandardRunner::RandomTile(const TransformSet* allowedPerTile)
+std::optional<std::tuple<TileIdx, Transform3D>> StandardRunner::RandomTile(const TransformSet* allowedPerTile)
 {
-    auto& distributionBuffer = buffer_randomTile_distribution;
+    auto& distributionWeights = buffer_randomTile_weights;
 
-    //Pick a tile.
-    distributionBuffer.Clear();
-    for (int tileI = 0; tileI < Grid.InputTiles.GetSize(); ++tileI)
-        distributionBuffer.PushBack(allowedPerTile[tileI].Size() * Grid.InputTiles[tileI].Weight);
-    std::discrete_distribution<int> tileDistribution(distributionBuffer.begin(),
-                                                     distributionBuffer.end());
-    int chosenTileI = tileDistribution(Rand);
+    //Pick a tile, weighting them by their number of possible permutations
+    //     (and of course the user's own weights).
+    distributionWeights.clear();
+    for (int tileI = 0; tileI < Grid.InputTiles.size(); ++tileI)
+        distributionWeights.push_back(static_cast<float>(allowedPerTile[tileI].Size() * Grid.InputTiles[tileI].Weight));
+    auto chosenTileI = PickWeightedRandomIndex(Rand, distributionWeights);
+    if (chosenTileI < 0)
+        return { };
 
     //Pick a permutation for the tile.
     const auto& permutations = allowedPerTile[chosenTileI];
-    distributionBuffer.Resize((size_t)N_ROTATIONS_3D * 2);
-    std::fill(distributionBuffer.begin(), distributionBuffer.end(), 0);
+    WFCPP_ASSERT(permutations.Size() > 0);
+    distributionWeights.resize(static_cast<size_t>(N_ROTATIONS_3D * 2));
+    std::fill(distributionWeights.begin(), distributionWeights.end(), 0.0f);
     for (Transform3D tr : permutations)
-        distributionBuffer[TransformSet::ToBitIdx(tr)] = 1;
-    std::discrete_distribution<int> permDistribution(distributionBuffer.begin(),
-                                                     distributionBuffer.end());
-    int chosenTransformI = permDistribution(Rand);
+        distributionWeights[TransformSet::ToBitIdx(tr)] = 1;
+    int chosenTransformI = PickWeightedRandomIndex(Rand, distributionWeights);
+    WFCPP_ASSERT(chosenTransformI >= 0);
 
-    return std::make_tuple((TileIdx)chosenTileI, TransformSet::FromBit(chosenTransformI));
+
+    return std::make_tuple(
+        static_cast<TileIdx>(chosenTileI),
+        TransformSet::FromBit(chosenTransformI)
+    );
 }

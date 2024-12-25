@@ -46,6 +46,9 @@ namespace WFC
 		Array2D(Array2D&& toMove) : arrayVals(nullptr) { *this = std::move(toMove); }
 		Array2D& operator=(Array2D&& toMove)
 		{
+			if (&toMove == this)
+				return *this;
+
 			if (arrayVals != nullptr)
 				delete[] arrayVals;
 
@@ -64,6 +67,9 @@ namespace WFC
 		Array2D(const Array2D<ArrayType>& copy) { *this = copy; }
         Array2D& operator=(const Array2D<ArrayType>& other)
         {
+			if (&other == this)
+				return *this;
+
             if (arrayVals != nullptr)
                 delete[] arrayVals;
 
@@ -72,8 +78,11 @@ namespace WFC
             arrayVals = new ArrayType[GetNumbElements()];
 
             size_t size = (size_t)(GetNumbElements());
-            for (size_t i = 0; i < size; ++i)
-                arrayVals[i] = other.arrayVals[i];
+			for (size_t i = 0; i < size; ++i)
+			{
+				WFCPP_ASSERT(i < other.GetNumbElements());
+				arrayVals[i] = other.arrayVals[i];
+			}
 
             return *this;
         }
@@ -89,12 +98,12 @@ namespace WFC
 
 		ArrayType& operator[](Vector2i l)
         {
-            assert(Region2i(GetDimensions()).Contains(l));
+			WFCPP_ASSERT(Region2i(GetDimensions()).Contains(l));
             return arrayVals[GetIndex(l.x, l.y)];
         }
 		const ArrayType& operator[](Vector2i l) const
         {
-            assert(Region2i(GetDimensions()).Contains(l));
+			WFCPP_ASSERT(Region2i(GetDimensions()).Contains(l));
             return arrayVals[GetIndex(l.x, l.y)];
         }
 
@@ -236,7 +245,7 @@ namespace WFC
 					});
 					break;
 
-				default: assert(false);
+				default: WFCPP_ASSERT(false);
 			}
 		}
 

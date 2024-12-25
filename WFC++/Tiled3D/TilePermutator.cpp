@@ -9,7 +9,7 @@ using namespace WFC::Tiled3D;
 namespace
 {
     template<typename T>
-    bool Contains(const List<T>& list, T t)
+    bool Contains(const std::vector<T>& list, T t)
     {
         for (const auto& t2 : list)
             if (t == t2)
@@ -20,28 +20,28 @@ namespace
 
 
 TilePermutator::TilePermutator()
-    : TilePermutator(List<Tile>(), List<List<Transform3D>>(), List<Transform3D>())
+    : TilePermutator(std::vector<Tile>(), std::vector<std::vector<Transform3D>>(), std::vector<Transform3D>())
 {
     
 }
-TilePermutator::TilePermutator(const List<Tile>& originalTiles,
-                               const List<List<Transform3D>>& tileSymmetries,
-                               const List<Transform3D>& permutationsToUse)
-    : tiles(originalTiles), nOriginalTiles(originalTiles.GetSize())
+TilePermutator::TilePermutator(const std::vector<Tile>& originalTiles,
+                               const std::vector<std::vector<Transform3D>>& tileSymmetries,
+                               const std::vector<Transform3D>& permutationsToUse)
+    : tiles(originalTiles), nOriginalTiles(originalTiles.size())
 {
     //Reserve space in various collections.
-    permutationsPerParent.Reserve(nOriginalTiles);
-    tileParents.Reserve(nOriginalTiles * permutationsToUse.GetSize());
+    permutationsPerParent.reserve(nOriginalTiles);
+    tileParents.reserve(nOriginalTiles * permutationsToUse.size());
 
     //Fill in the original tiles' "parent" data to point to themselves.
-    for (TileID parentID = 0; parentID < (TileID)originalTiles.GetSize(); ++parentID)
+    for (TileID parentID = 0; parentID < (TileID)originalTiles.size(); ++parentID)
     {
-        tileParents.PushBack(ParentData{ parentID, Transform3D() });
-        permutationsPerParent[parentID].PushBack(parentID);
+        tileParents.push_back(ParentData{ parentID, Transform3D() });
+        permutationsPerParent[parentID].push_back(parentID);
     }
 
     //Make each permutation.
-    assert(!Contains(permutationsToUse, Transform3D()));
+    WFCPP_ASSERT(!Contains(permutationsToUse, Transform3D()));
     for (auto permutation : permutationsToUse)
     {
         for (TileID parentID = 0; parentID < (TileID)nOriginalTiles; ++parentID)
@@ -55,17 +55,17 @@ TilePermutator::TilePermutator(const List<Tile>& originalTiles,
             childTile.Data = permutation.ApplyToCube(childTile.Data);
 
             //Register the permutation.
-            TileID childID = (TileID)tiles.GetSize();
-            tiles.PushBack(childTile);
-            tileParents.PushBack(ParentData{ parentID, permutation });
-            permutationsPerParent[parentID].PushBack(childID);
+            TileID childID = (TileID)tiles.size();
+            tiles.push_back(childTile);
+            tileParents.push_back(ParentData{ parentID, permutation });
+            permutationsPerParent[parentID].push_back(childID);
         }
     }
 }
 
 TileID TilePermutator::FindPermutation(TileID original, Transform3D permutation) const
 {
-    for (auto childID : permutationsPerParent[original])
+    for (auto childID : permutationsPerParent.at(original))
         if (tileParents[childID].MyTransform == permutation)
             return childID;
 

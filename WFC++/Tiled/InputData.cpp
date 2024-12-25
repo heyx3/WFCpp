@@ -15,18 +15,18 @@ namespace
 const TileIDSet InputData::EmptyTileSet;
 
 
-InputData::InputData(const List<Tile>& _tiles)
+InputData::InputData(const std::vector<Tile>& _tiles)
     : tiles(_tiles)
 
 {
     //Collect all tiles that fit each type of edge.
-    for (TileID tileID = 0; tileID < (TileID)tiles.GetSize(); ++tileID)
+    for (TileID tileID = 0; tileID < (TileID)tiles.size(); ++tileID)
     {
         const auto& tile = tiles[tileID];
         for (uint8_t edgeI = 0; edgeI < 4; ++edgeI)
         {
             auto key = EdgeInstance(tile.Edges[edgeI], (EdgeDirs)edgeI);
-            matchingEdges[key].Add(tileID);
+            matchingEdges[key].insert(tileID);
         }
     }
 }

@@ -1,4 +1,4 @@
-#include "Vector2i.h"
+#include "../Vector2i.h"
 
 using namespace WFC;
 
@@ -20,7 +20,7 @@ Transformations WFC::Invert(Transformations t)
 
 		case Transformations::None: return Transformations::None;
 
-		default: assert(false); return Transformations::None;
+		default: WFCPP_ASSERT(false); return Transformations::None;
 	}
 }
 bool WFC::WillSwapAxes(Transformations t)
@@ -39,7 +39,7 @@ bool WFC::WillSwapAxes(Transformations t)
         case Transformations::FlipDiag2:
             return true;
 
-        default: assert(false); return false;
+        default: WFCPP_ASSERT(false); return false;
     }
 }
 const char* WFC::ToString(Transformations t)
@@ -55,7 +55,7 @@ const char* WFC::ToString(Transformations t)
         case Transformations::FlipDiag2: return "FlipDiag2";
         case Transformations::None: return "None";
 
-        default: assert(false); return "UNKNOWN";
+        default: WFCPP_ASSERT(false); return "UNKNOWN";
     }
 }
 bool WFC::IsReflection(Transformations t)
@@ -74,7 +74,7 @@ bool WFC::IsReflection(Transformations t)
         case Transformations::FlipDiag2:
             return true;
 
-        default: assert(false); return false;
+        default: WFCPP_ASSERT(false); return false;
     }
 }
 
@@ -114,6 +114,6 @@ Vector2i Vector2i::Transform(Transformations trnsf, Vector2i size) const
 		case Transformations::None:
 			return *this;
 
-		default: assert(false); return *this;
+		default: WFCPP_ASSERT(false); return *this;
 	}
 }

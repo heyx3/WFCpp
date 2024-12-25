@@ -10,43 +10,43 @@ using namespace WFC::Tiled;
 void State::Reset(Vector2i newOutputSize)
 {
     //To start with, all output tiles will share the same chances of being anything.
-    allTileIDs.Clear();
-    for (TileID id = 0; id < (TileID)Input.GetTiles().GetSize(); ++id)
-        allTileIDs.Add(id);
+    allTileIDs.clear();
+    for (TileID id = 0; id < (TileID)Input.GetTiles().size(); ++id)
+        allTileIDs.insert(id);
 
 	//Re-initialize the output array.
     Output.Reset(newOutputSize.x, newOutputSize.y);
     for (Vector2i pos : Region2i(Output.GetDimensions()))
     {
         auto& oTile = Output[pos];
-        oTile.Value = Nullable<TileID>();
+        oTile.Value = std::nullopt;
         oTile.PossibleTiles = allTileIDs;
     }
 }
 
-Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_failedAt)
+std::optional<bool> State::Iterate(Vector2i& out_changedPos, std::vector<Vector2i>& out_failedAt)
 {
     //Define some useful data.
     auto& outputArray = Output;
     Region2i outputRegion(Output.GetDimensions());
 
 	//Get the tiles that are closest to being certain.
-	List<Vector2i> lowestEntropyTilePoses;
+    std::vector<Vector2i> lowestEntropyTilePoses;
 	GetBestTiles(lowestEntropyTilePoses);
 
 	//If all tiles are aleady set, we're done.
-	if (lowestEntropyTilePoses.GetSize() == 0)
+	if (lowestEntropyTilePoses.size() == 0)
 		return true;
 
 	//If some tiles are impossible to solve, handle it.
-	size_t entropy = Output[lowestEntropyTilePoses[0]].PossibleTiles.GetSize();
+	size_t entropy = Output[lowestEntropyTilePoses[0]].PossibleTiles.size();
 	if (entropy == 0)
 	{
 		//Either clear out the area to try again, or give up.
 		if (ClearSize > 0)
 		{
             //Clear the area.
-            Set<Vector2i> affectedPoses;
+            std::unordered_set<Vector2i> affectedPoses;
             for (const auto& tilePos : lowestEntropyTilePoses)
                 ClearArea(tilePos, affectedPoses);
 
@@ -55,7 +55,7 @@ Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_fail
                 RecalculateTileChances(affectedPos);
 
             out_changedPos = Vector2i(-1, -1);
-            return Nullable<bool>();
+            return std::nullopt;
 		}
 		else
 		{
@@ -68,14 +68,14 @@ Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_fail
     //The correct way to do this is with std::uniform_int_distribution,
     //    but that incurs a LOT of overhead.
     //In practice, the non-uniform distribution from the simpler "rng() % count" is unnoticeable.
-    size_t chosenTileI = rng() % lowestEntropyTilePoses.GetSize();
+    size_t chosenTileI = rng() % lowestEntropyTilePoses.size();
     auto chosenTilePos = lowestEntropyTilePoses[chosenTileI];
 	auto& chosenTile = Output[chosenTilePos];
 
 	//Pick a tile randomly, but based on their weights.
     TileID chosenTileID;
 	//If there's only one possible tile, this is easy.
-	if (chosenTile.PossibleTiles.GetSize() == 1)
+	if (chosenTile.PossibleTiles.size() == 1)
 	{
         for (auto tile : chosenTile.PossibleTiles)
             chosenTileID = tile;
@@ -84,13 +84,13 @@ Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_fail
 	else
 	{
         //Get a list of the values and of their corresonding weights.
-        List<TileID> optionValues;
-        List<uint32_t> optionWeights;
+        std::vector<TileID> optionValues;
+        std::vector<uint32_t> optionWeights;
         for (TileID tileOptionID : chosenTile.PossibleTiles)
         {
             const Tile& tileOption = Input.GetTiles()[tileOptionID];
-            optionValues.PushBack(tileOptionID);
-            optionWeights.PushBack(tileOption.Weight);
+            optionValues.push_back(tileOptionID);
+            optionWeights.push_back(tileOption.Weight);
         }
 
 		//Plug that into the RNG.
@@ -102,15 +102,15 @@ Nullable<bool> State::Iterate(Vector2i& out_changedPos, List<Vector2i>& out_fail
 	SetTile(chosenTilePos, chosenTileID);
     out_changedPos = chosenTilePos;
 
-	return Nullable<bool>();
+	return std::nullopt;
 }
 
 void State::SetTile(Vector2i tilePos, TileID value, bool permanent)
 {
     //Set the pixel.
     auto& outTile = Output[tilePos];
-    outTile.PossibleTiles.Clear();
-    outTile.PossibleTiles.Add(value);
+    outTile.PossibleTiles.clear();
+    outTile.PossibleTiles.insert(value);
     outTile.Value = value;
     outTile.IsDeletable = !permanent;
 
@@ -125,7 +125,7 @@ void State::SetTile(Vector2i tilePos, TileID value, bool permanent)
         RecalculateTileChances(Filter(tilePos.MoreY()));
 }
 
-void State::ClearArea(Vector2i center, Set<Vector2i>& out_affectedPoses)
+void State::ClearArea(Vector2i center, std::unordered_set<Vector2i>& out_affectedPoses)
 {
     //Calculate the region to be cleared.
     Region2i clearRegion(center - (int)ClearSize,
@@ -149,17 +149,17 @@ void State::ClearArea(Vector2i center, Set<Vector2i>& out_affectedPoses)
     for (auto posToClear : clearRegion)
     {
         posToClear = Filter(posToClear);
-        if (out_affectedPoses.Add(posToClear))
+        if (out_affectedPoses.insert(posToClear).second)
         {
             auto& tile = Output[posToClear];
             if (tile.IsDeletable)
             {
-                tile.Value = Nullable<TileID>();
+                tile.Value = std::nullopt;
                 tile.PossibleTiles = allTileIDs;
             }
             else
             {
-                out_affectedPoses.Erase(posToClear);
+                out_affectedPoses.erase(posToClear);
             }
         }
     }
@@ -175,21 +175,21 @@ void State::ClearArea(Vector2i center, Set<Vector2i>& out_affectedPoses)
     for (int y = clearRegion.MinInclusive.y; y < clearRegion.MaxExclusive.y; ++y)
     {
         if (allowMinX)
-            out_affectedPoses.Add(Filter(Vector2i(minEdge.x, y)));
+            out_affectedPoses.insert(Filter(Vector2i(minEdge.x, y)));
         if (allowMaxX)
-            out_affectedPoses.Add(Filter(Vector2i(maxEdge.x, y)));
+            out_affectedPoses.insert(Filter(Vector2i(maxEdge.x, y)));
     }
     //Top and bottom edges:
     for (int x = clearRegion.MinInclusive.x; x < clearRegion.MaxExclusive.x; ++x)
     {
         if (allowMinY)
-            out_affectedPoses.Add(Filter(Vector2i(x, minEdge.y)));
+            out_affectedPoses.insert(Filter(Vector2i(x, minEdge.y)));
         if (allowMaxY)
-            out_affectedPoses.Add(Filter(Vector2i(x, maxEdge.y)));
+            out_affectedPoses.insert(Filter(Vector2i(x, maxEdge.y)));
     }
 }
 
-void State::GetBestTiles(List<Vector2i>& outValues) const
+void State::GetBestTiles(std::vector<Vector2i>& outValues) const
 {
 	//Find the output spaces with the smallest "entropy",
 	//    where "entropy" is the sum of all the different tiles the pixel could still become.
@@ -204,19 +204,19 @@ void State::GetBestTiles(List<Vector2i>& outValues) const
 		if (!outTile.IsSet())
 		{
             //TODO: If a tile has a higher weight, it's more certain to happen. So scale each possible tile's entropy contribution inversely to its weight. This would imply making the entropy a float, but floating-point error is a problem here. So avoid floats by having InputData cache the max weight and do "PossibleTiles.Sum(tile => maxWeight + 1 - tile.Weight)".
-            size_t thisEntropy = outTile.PossibleTiles.GetSize();
+            size_t thisEntropy = outTile.PossibleTiles.size();
 
 			//If it's less than the current minimum, then we've found a new minimum.
 			if (thisEntropy < currentMinEntropy)
 			{
 				currentMinEntropy = thisEntropy;
-				outValues.Clear();
-				outValues.PushBack(outputPos);
+				outValues.clear();
+				outValues.push_back(outputPos);
 			}
 			//Otherwise, if it's equal to the current minimum, add it to the list.
 			else if (thisEntropy == currentMinEntropy)
 			{
-				outValues.PushBack(outputPos);
+				outValues.push_back(outputPos);
 			}
 		}
 	}
@@ -249,7 +249,7 @@ void State::RecalculateTileChances(Vector2i tilePos)
         const auto* neighborTileOutput = (*this)[tilePos + GetEdgeDirection(edge)];
         if (neighborTileOutput == nullptr || !neighborTileOutput->IsSet())
             continue;
-        const auto& neighborTile = Input.GetTiles()[neighborTileOutput->Value.Value];
+        const auto& neighborTile = Input.GetTiles()[*neighborTileOutput->Value];
 
         //Get all tiles that fit the neighbor tile at this edge.
         EdgeDirs neighborEdge = GetOppositeEdge(edge);
@@ -259,7 +259,7 @@ void State::RecalculateTileChances(Vector2i tilePos)
         //Remove tiles that don't exist in this set.
         tempTileIdSet = tile.PossibleTiles; //Making a copy
         for (TileID tileOptionID : tempTileIdSet)
-            if (!neighborMatches.Contains(tileOptionID))
-                tile.PossibleTiles.Erase(tileOptionID);
+            if (!neighborMatches.contains(tileOptionID))
+                tile.PossibleTiles.erase(tileOptionID);
     }
 }

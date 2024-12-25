@@ -28,7 +28,7 @@ namespace WFC
         {
             switch (e)
             {
-                default: assert(false);
+                default: WFCPP_ASSERT(false);
 
                 case EdgeDirs::MaxX: return Vector2i(1, 0);
                 case EdgeDirs::MaxY: return Vector2i(0, 1);
@@ -42,7 +42,7 @@ namespace WFC
         {
             switch (e)
             {
-                default: assert(false);
+                default: WFCPP_ASSERT(false);
 
                 case EdgeDirs::MinX: return EdgeDirs::MaxX;
                 case EdgeDirs::MaxX: return EdgeDirs::MinX;
