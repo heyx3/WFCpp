@@ -1,18 +1,19 @@
 # WFCpp
 
-![A demo of the Unreal 4 plugin](https://i.imgur.com/vkABeE1.gif)
+![A demo of the old Unreal 4 plugin](https://i.imgur.com/vkABeE1.gif)
 
-A C++ library for the [WaveFunctionCollapse](https://github.com/mxgmn/WaveFunctionCollapse) algorithm, plus various utilities for running it.
+A C++ library for the amazing [WaveFunctionCollapse](https://github.com/mxgmn/WaveFunctionCollapse) algorithm, plus various utilities for running it.
+Finally, there is an Unreal 5 plugin to integrate the `Tiled3D` part of the library with Unreal Engine.
 
 For more explanation of the algorithm itself, you can read this project's source or check out [EasyWFC](https://github.com/heyx3/EasyWFC), whose behavior should be identical to this project (except for the PRNG).
 
-The core library has a "Simple" version (for pixel art images), a "tiled" version (for tile-sets), and a "tiled 3D" version (for 3D tile-sets). The first two systems have corresponding command-line programs for playing with them. The 3D tile-set system is more complicated; it offers an Unreal Engine 4 plugin to facilitate its use.
+ The core library has a "Simple" version (for pixel art images), a "tiled" version (for tile-sets), and a "tiled 3D" version (for 3D tile-sets).
+ The first two systems have corresponding command-line programs for playing with them.
+ The 3D tile-set system is more complex and offers Unreal Engine 5 integration.
 
 ## Setup
 
 After cloning the repo, just open **WFC++.sln** in Visual Studio, set the platform to **x64**, and build. You may want to change the "startup project" to one of the command-line apps, if that's what you want to use.
-
-After building the "WFC++" project in **WFC++.sln**, relevant files will be automatically copied to the "WFCunreal" project for the "Tiled3D" system. That project will not work until you build WFC++.
 
 ## Structure
 
@@ -24,10 +25,10 @@ The actual algorithm code is in the WFC++ project. When built, it creates the .d
 
 The code files are split into the following categories, all of which are inside the `WFC` namespace:
 
-* "Helper Classes": Basic classes that make the code easier to read, and the library itself easier to use. This includes `List`, `Dictionary`, `Array2D`, `Vector2i`, `Region2i`, and `Nullable`.
+* "Helper Classes": Basic classes that make the code easier to read, and the library itself easier to use. This includes `Array2D`, `Vector2i`, and `Region2i`.
 * "Simple Generator": In the `WFC::Simple` namespace are objects for running the "simple" WFC algorithm, using an input image to generate an output image. The classes are `Pattern`, `InputData`, and `State`. The bulk of the algorithm is in `State`.
 * "Tiled Generator": In the `WFC::Tiled` namespace, are objects for running the "tiled" WFC algorithm. It is structured similar to the "Simple" generator, with `InputData` and `State` classes, plus some tile-specific helper classes like `Tile` and `TilePermutator`.
-* "Tiled3D Generator": In the `WFC::Tiled3D` namespace are classes for the 3D version of the "tile" generator. The algorithm itself is a simple extrapolation of the 2D version, but the input data is *much* more complicated. In particular, the ability to auto-generate rotated and flipped versions of the input data gets a lot more complicated in 3D. Whereas the 2D version asks you to assign an ID to each tile's 4 edges and provide some meta-data about tile symmetry and edge symmetry, the 3D version asks you to assign an ID to each *point* on each tile's 6 faces, so that each tile has 6 * 4 = 24 IDs. The symmetries of each face are implicit in these IDs, by giving multiple points the same ID so that the points aren't changed under certain transformations.
+* "Tiled3D Generator": In the `WFC::Tiled3D` namespace are classes for the 3D version of the "tile" generator. The algorithm itself is a simple extrapolation of the 2D version, but the input data is *much* more complicated. In particular, the ability to auto-generate rotated and flipped versions of the input data gets a lot more complicated in 3D. Whereas the 2D version asks you to assign an ID to each tile's 4 edges and provide some meta-data about tile symmetry and edge symmetry, the 3D version asks you to assign an ID to each *point* on each tile's 6 faces, giving each tile 6 * 4 = 24 IDs. The symmetries of each face are implicitly defined by giving multiple points the same ID so that the face isn't changed under certain transformations.
 * Extraneous files: *HelperClasses.h*, and *Platform.h*.
 
 ### WFCmd
@@ -42,19 +43,23 @@ The command-line interface for the "Tiled" WFC algorithm. Pulls all config data 
 
 ### WFCunreal
 
-An Unreal Engine 4 plugin is provided for the 3D version of the "Tiled" algorithm.
+This is an old version of the Unreal plugin, for UE4 and very unpolished (though it should work!)
+
+The UE5 version is a WIP.
 
 ## Tests
 
-Unit tests are based on the *UnitTest++*"* library, kept in the folder 'UnitTestLibrary'. I tried to make it a git submodule, but they're quite annoying to work with, so the library is pasted right into the repo.
+Unit tests use the *UnitTest++*"* library, kept in the folder 'UnitTestLibrary'.
+I tried to make it a git submodule, but they're quite annoying to work with so the library is pasted right into the repo.
 
-The actual unit tests are in the project *WFCtests*. Just run this project to run the unit tests.
+The actual unit tests are in the project *WFCtests*.
+Just run this project to run the unit tests.
 
 ## License
 
 MIT license; go crazy.
 
-Copyright 2017-2019 William A. Manning
+Copyright 2017-2024 William A. Manning
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
