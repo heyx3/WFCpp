@@ -614,7 +614,7 @@ SUITE(WFC_Tiled3D)
         //Horizontally, the neighbors should be locked into using the same permutation.
         //Vertically, the neighbors could still be any permutation,
         //    as the Z face is very symmetrical.
-        state.SetCell({ 0, 0, 0 }, 0, { }, &report, true, false);
+        state.SetCell({ 0, 0, 0 }, 0, { }, false, &report, true);
         auto* minCell = &state.Cells[{0, 0, 0}];
         //Check cell state.
         CHECK_EQUAL(false, minCell->IsChangeable);
@@ -641,7 +641,7 @@ SUITE(WFC_Tiled3D)
 
         //Set a second-neighbor of that cell, to make the cell in-between them unsolvable.
         report.Clear();
-        state.SetCell({ 2, 0, 0 }, 0, { false, Rotations3D::AxisZ_90}, &report);
+        state.SetCell({ 2, 0, 0 }, 0, { false, Rotations3D::AxisZ_90}, true, &report);
         CHECK(minCell->IsSet());
         CHECK_EQUAL(1, report.GotUnsolvable.size());
         CHECK_EQUAL(3, report.GotInteresting.size());
@@ -659,22 +659,22 @@ SUITE(WFC_Tiled3D)
         CHECK(minCell->IsSet());
         CHECK(!state.Cells[WFC_CONCAT({ 2, 0, 0 })].IsSet());
         CHECK(state.Cells[WFC_CONCAT({ 2, 0, 0 })].IsChangeable);
-        CHECK(report.GotInteresting.contains({ 1, 0, 0 }));
         CHECK_EQUAL(0, report.GotUnsolvable.size());
         CHECK_EQUAL(1, report.GotInteresting.size());
+        CHECK(report.GotInteresting.contains({ 1, 0, 0 }));
         CHECK_EQUAL(1, state.Cells[WFC_CONCAT({ 1, 0, 0 })].NPossibilities);
         CHECK_EQUAL(TransformSet::Combine(Transform3D{ }),
                     state.PossiblePermutations[WFC_CONCAT({ 0, {1, 0, 0} })]);
 
         //Set {1, 0, 0}, so tht the next test is more interesting.
         //Don't pass the Report instance either, to make sure that use-case is fine.
-        state.SetCell({ 1, 0, 0 }, 0, { });
+        state.SetCell({ 1, 0, 0 }, 0, { }, true);
 
         //Set {1, 0, 1} to use the 2nd permutation, then {0, 0, 1} goes from 2 possibilities to 1.
         Vector3i newCellPos{ 1, 0, 1 };
         Transform3D newCellTransform{ false, Rotations3D::AxisZ_90 };
         report.Clear();
-        state.SetCell(newCellPos, 0, newCellTransform, &report, true, true);
+        state.SetCell(newCellPos, 0, newCellTransform, true, &report, true);
         CHECK(state.Cells[newCellPos].IsSet());
         CHECK_EQUAL(0, state.Cells[newCellPos].ChosenTile);
         CHECK_EQUAL(newCellTransform, state.Cells[newCellPos].ChosenPermutation);
@@ -704,7 +704,7 @@ SUITE(WFC_Tiled3D)
         const Vector3i range = region.GetSize();
         std::function<bool(Vector3i)> isMutable = [](Vector3i p) { return p.z != 2; };
         for (Vector3i p : region)
-            grid.SetCell(p, 0, Transform3D{ }, nullptr, true, isMutable(p));
+            grid.SetCell(p, 0, Transform3D{ }, isMutable(p), nullptr, true);
 
         //Clear all but the immutable cells.
         report.Clear();

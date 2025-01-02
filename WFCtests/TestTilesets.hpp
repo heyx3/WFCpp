@@ -108,8 +108,7 @@ namespace Tilesets
                 output.FaceGroups.emplace_back();
                 output.FaceGroups.emplace_back();
                 
-                using Corners = std::array<PointID, N_FACE_POINTS>;
-                std::vector<Corners> points{
+                std::vector<FaceCorners> points{
                     { 1, 1, 1, 1 },
                     { 2, 2, 2, 2 },
                     { 3, 3, 3, 3 }

@@ -19,10 +19,10 @@
 
 //By default, only enable memory debugging in debug builds.
 #if !defined(WFCPP_CHECK_MEMORY)
-    #if defined(NDEBUG)
-        #define WFCPP_CHECK_MEMORY 0
-    #else
+    #if defined(WFCPP_DEBUG)
         #define WFCPP_CHECK_MEMORY 1
+    #else
+        #define WFCPP_CHECK_MEMORY 0
     #endif
 #endif
 

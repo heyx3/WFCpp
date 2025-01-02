@@ -59,7 +59,7 @@ void StandardRunner::Reset(const std::unordered_map<Vector3i, std::tuple<TileIdx
         Vector3i cellPos = std::get<0>(constant);
         TileIdx tileIdx = std::get<0>(std::get<1>(constant));
         Transform3D tilePermutation = std::get<1>(std::get<1>(constant));
-        Set(cellPos, tileIdx, tilePermutation, true);
+        SetCell(cellPos, tileIdx, tilePermutation, true);
     }
 }
 
@@ -93,12 +93,11 @@ void StandardRunner::ClearAround(const Vector3i& centerCellPos)
         History[Grid.FilterPos(cellPos)].BaseTemperature += tempIncrease;
     }
 }
-void StandardRunner::Set(const Vector3i& cellPos, TileIdx tile, Transform3D permutation,
-                         bool makeImmutable)
+void StandardRunner::SetCell(const Vector3i& cellPos, TileIdx tile, Transform3D permutation,
+                             bool makeImmutable)
 {
     report.Clear();
-    Grid.SetCell(cellPos, tile, permutation, &report,
-                 makeImmutable, !makeImmutable);
+    Grid.SetCell(cellPos, tile, permutation, !makeImmutable, &report, makeImmutable);
     nextCells.erase(cellPos);
     unsolvableCells.erase(cellPos);
 
@@ -117,6 +116,37 @@ void StandardRunner::Set(const Vector3i& cellPos, TileIdx tile, Transform3D perm
     //Update the cell history.
     auto& history = History[cellPos];
     history.BaseTemperature = Math::Max(0.0f, history.BaseTemperature - CoolOffFromSetting);
+}
+
+void StandardRunner::SetFaceConstraint(const Vector3i& cellPos, Directions3D cellFace,
+                                       const FaceCorners& facePermutation)
+{
+    report.Clear();
+    Grid.SetFace(cellPos, cellFace, facePermutation, &report);
+
+    //Process the report.
+    //Note that the order is important; these collections aren't mutually exclusive.
+    WFCPP_ASSERT(report.GotBoring.empty()); //Adding a constraint can't remove possibilities!
+    for (const auto& c : report.GotInteresting)
+        nextCells.insert(c);
+    for (const auto& c : report.GotUnsolvable)
+    {
+        unsolvableCells.insert(c);
+        nextCells.erase(c);
+    }
+}
+void StandardRunner::ClearFaceConstraint(const Vector3i& cellPos, Directions3D cellFace)
+{
+    report.Clear();
+    Grid.ClearFace(cellPos, cellFace, &report);
+
+    //Process the report.
+    //Note that the order is important; these collections aren't mutually exclusive.
+    for (const auto& c : report.GotBoring)
+        nextCells.erase(c);
+    for (const auto& c : report.GotInteresting)
+        nextCells.insert(c);
+    WFCPP_ASSERT(report.GotUnsolvable.empty()); //Removing a constraint can't cause impossible situations!
 }
 
 Vector3i StandardRunner::PickNextCellToSet()
@@ -206,7 +236,7 @@ bool StandardRunner::Tick()
     if (tryRandomTile.has_value())
     {
         std::tie(tileIdx, tilePermutation) = *tryRandomTile;
-        Set(cellPos, tileIdx, tilePermutation);
+        SetCell(cellPos, tileIdx, tilePermutation);
     }
     else
     {

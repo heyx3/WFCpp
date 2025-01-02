@@ -21,8 +21,6 @@ namespace WFC
         {
         public:
 
-            //TODO: Pull the heavy logic into the cpp.
-
             //The state of an output cell.
             struct WFC_API CellState
             {
@@ -138,11 +136,8 @@ namespace WFC
             //  * BoundaryPolicy (e.x. wrapping, clamping, or assuming a specific edge face)
             //  * SubsetPolicy (only allow some tiles/permutations in specific locations)
             //  * WeightPolicy (change the weights of tiles/permutations, possibly based on location)
-            //TODO: "Strategies" that actually run the algorithm with various techniques
-            //TOOD: Data about which pointIDs are "friends"
 
             //The simulation settings:
-            //TODO: These shouldn't be publicly non-const, as changing them affects tile possibilities. But don't overdo it, this will be refactored out eventually
             bool IsPeriodicX = false,
                  IsPeriodicY = false,
                  IsPeriodicZ = false;
@@ -163,6 +158,7 @@ namespace WFC
                     ),
                 };
             }
+            //NOTE: The above shouldn't be publicly non-const, as changing them affects tile possibilities, but this will be refactored out eventually anyway.
 
             
             //Allocates a new state for the given tileset and grid size.
@@ -179,9 +175,20 @@ namespace WFC
 
 
             //Overwrites the tile in the given cell (even if it was marked as not changeable).
-            void SetCell(const Vector3i& pos, TileIdx tile, Transform3D tilePermutation,
+            void SetCell(Vector3i pos, TileIdx tile, Transform3D tilePermutation,
+                         bool canBeChangedInFuture,
                          Report* report = nullptr,
-                         bool doubleCheckLegalFit = true, bool canBeChangedInFuture = true);
+                         bool assertLegalPlacement = true);
+            //Forces a particular grid face to fit a specific configuration.
+            //
+            //If either of the two cells along that face do not fit,
+            //     they will be cleared (even if they were marked as not changeable).
+            //
+            //This constraint will be permanent (until you remove it with 'ClearFace()');
+            //    it's not affected by cell clearing.
+            void SetFace(Vector3i pos, Directions3D dir,
+                         const FaceCorners& points,
+                         Report* report = nullptr);
 
             //Clears out the values of all cells in the given region.
             //Optionally, even cells marked "!IsChangeable" get cleared.
@@ -191,7 +198,12 @@ namespace WFC
             //Clears the given cell, even if it's marked as "!IsChangeable".
             //Optionally, even cells marked "!IsChangeable" get cleared.
             void ClearCell(const Vector3i& cellPos, Report* report = nullptr,
-                           bool isChangeableAfterwards = true);
+                           bool becomeMutable = true);
+            //Removes the constraint you previously placed on a specific cell face.
+            //If you didn't place a constraint, then nothing happens.
+            void ClearFace(Vector3i cell, Directions3D face, Report* report = nullptr);
+            //TODO: ClearFace(). Remember to clear both entries, on both sides of the face!
+
 
         private:
 
@@ -220,21 +232,50 @@ namespace WFC
             }
 
             //Removes tile options from the given cell that do not fit the given face.
-            void ApplyFilter(const Vector3i& cellPos,
-                             const FacePermutation& face,
+            void ApplyFilter(const Vector3i& cellPos, const FacePermutation& chosenFace,
+                             CellState& cell,
                              Report* report);
+            //Removes tile options from the given cell that do not fit the given face.
+            inline void ApplyFilter(const Vector3i& cellPos, const FacePermutation& chosenFace,
+                                    Report* report)
+            {
+                auto& cell = Cells[cellPos];
+                ApplyFilter(cellPos, chosenFace, cell, report);
+            }
             //Updates a given neighbor of a cell, based on the given cell (presumably set).
             void ApplyFilter(const Vector3i& cellPos,
                              const Vector3i& neighborPos,
                              Directions3D sideTowardsNeighbor,
                              Report* report);
 
+            //Clears a cell's possibilities, resetting it to *all* possible tiles, respecting any FaceConstraints.
             inline void ResetCellPossibilities(const Vector3i& cellPos, Report* report) { ResetCellPossibilities(cellPos, Cells[cellPos], report); }
             void ResetCellPossibilities(const Vector3i& cellPos, CellState& cell, Report* report);
 
+            //Recalculates a cell's current possible tiles.
+            //Does not bother passing it through the position filter, as it's assumed you already did this.
+            //
+            //This function should be called after potentially opening up new possibilities,
+            //    because finding those is actually harder than recomputing from scratch.
+            void RecalculateCellPossibilities(const Vector3i& cellPos, CellState& cell, Report* report);
+            void RecalculateCellPossibilities(const Vector3i& cellPos, Report* report)
+            {
+                if (!Cells.IsIndexValid(cellPos))
+                    return;
+                RecalculateCellPossibilities(cellPos, Cells[cellPos], report);
+            }
 
+
+            //Assigns a unique index to every kind of tile face that appears in the tileset.
             std::unordered_map<FacePermutation, int32_t> FaceIndices;
+
+            //For a tile X and face Y (see 'FaceIndices'),
+            //    caches all permutations of the tile which possess that face.
             Array2D<TransformSet> MatchingFaces;
+
+            //Hard-coded constraints for specific faces of specific grid cells.
+            //The key's W component is the face Direction3D.
+            std::unordered_map<Vector4i, FaceCorners> FaceConstraints;
 
             std::unordered_set<Vector3i> buffer_clearCells_leftovers;
         };

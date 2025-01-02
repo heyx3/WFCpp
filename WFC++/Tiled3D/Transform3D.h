@@ -74,8 +74,6 @@ namespace WFC
         {
             switch (dir)
             {
-                default: WFCPP_ASSERT(false);
-
                 case Directions3D::MinX: return Vector3i(-1, 0, 0);
                 case Directions3D::MaxX: return Vector3i(1, 0, 0);
 
@@ -84,6 +82,8 @@ namespace WFC
 
                 case Directions3D::MinZ: return Vector3i(0, 0, -1);
                 case Directions3D::MaxZ: return Vector3i(0, 0, 1);
+
+                default: WFCPP_ASSERT(false); return Vector3i(1, 0, 0);
             }
         }
         //Gets the axis the given direction is pointing in,
@@ -100,6 +100,9 @@ namespace WFC
                 std::swap(outPlane1, outPlane2);
         }
 
+        //Unique identifier for some face, by using a unique identifier for each corner.
+        //Indexed with the "FacePoints" enum.
+        using FaceCorners = std::array<PointID, N_FACE_POINTS>;
 
         //A specific permutation of a face, on a specific side of the cube.
         struct WFC_API FacePermutation
@@ -109,9 +112,8 @@ namespace WFC
             //The side of the cube this face is on.
             Directions3D Side;
 
-            //The four points of this face. Indexed with the "FacePoints" enum.
-            //Two faces can line up against each other if their corresponding points match.
-            std::array<PointID, N_FACE_POINTS> Points;
+            //Two faces line up against each other if they have opposite Side and their Points are identical.
+            FaceCorners Points;
 
             FacePermutation() : FacePermutation(Directions3D::MinX) { }
             FacePermutation(Directions3D side) : Side(side)
@@ -119,7 +121,7 @@ namespace WFC
                 for (int i = 0; i < N_FACE_POINTS; ++i)
                     Points[i] = static_cast<PointID>(-1);
             }
-            FacePermutation(Directions3D side, const std::array<PointID, N_FACE_POINTS>& facePoints)
+            FacePermutation(Directions3D side, const FaceCorners& facePoints)
                 : Side(side), Points(facePoints)
             {
             }

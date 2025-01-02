@@ -90,10 +90,13 @@ bool Grid::IsLegalPlacement(const Vector3i& cellPos,
     return true;
 }
 
-void Grid::SetCell(const Vector3i& pos, TileIdx tile, Transform3D tilePermutation,
-                   Report* report, bool doubleCheckLegalFit, bool canBeChangedInFuture)
+void Grid::SetCell(Vector3i pos, TileIdx tile, Transform3D tilePermutation,
+                   bool canBeChangedInFuture,
+                   Report* report, bool assertLegalPlacement)
 {
-    if (doubleCheckLegalFit)
+    pos = FilterPos(pos);
+
+    if (assertLegalPlacement)
         WFCPP_ASSERT(IsLegalPlacement(pos, tile, tilePermutation));
 
     //If the cell is being *replaced* rather than going from unset to set,
@@ -103,17 +106,68 @@ void Grid::SetCell(const Vector3i& pos, TileIdx tile, Transform3D tilePermutatio
     auto& cell = Cells[pos];
     if (cell.IsSet())
         ClearCells(Region3i(pos, pos + 1), report);
-
+    //Note that there's no chance of reallocation, so 'cell' is still valid!
     cell = { tile, tilePermutation, canBeChangedInFuture, 1 };
 
     //Update the neighbors.
-    for (const auto& neighborData : GetNeighbors(pos))
-        if (Cells.IsIndexValid(std::get<0>(neighborData)))
-            ApplyFilter(pos, std::get<0>(neighborData), std::get<1>(neighborData), report);
+    for (const auto& [neighborPos, faceTowardsNeighbor] : GetNeighbors(pos))
+        if (Cells.IsIndexValid(neighborPos))
+            ApplyFilter(pos, neighborPos, faceTowardsNeighbor, report);
 
     DEBUGMEM_ValidateAll();
 }
+void Grid::SetFace(Vector3i pos, Directions3D dir, const FaceCorners& points, Report* report)
+{
+    pos = FilterPos(pos);
+    WFCPP_ASSERT(Cells.IsIndexValid(pos));
 
+    auto neighborPos = FilterPos(pos + GetFaceDirection(dir));
+    bool hasNeighbor = Cells.IsIndexValid(neighborPos);
+
+    CellState* faceCells[2] = {
+        &Cells[pos],
+        (hasNeighbor ? &Cells[neighborPos] : nullptr)
+    };
+    Directions3D faceDirs[2] = {
+        dir,
+        GetOpposite(dir)
+    };
+    Vector3i faceCellIdcs[2] = {
+        pos, neighborPos
+    };
+
+    for (int i = 0; i < 2; ++i)
+    {
+        if (faceCells[i] == nullptr)
+            continue;
+        auto& cell = *faceCells[i];
+        auto faceDir = faceDirs[i];
+        auto facePos = faceCellIdcs[i];
+
+        bool needsFiltering;
+        if (cell.IsSet())
+        {
+            const auto& tile = InputTiles[cell.ChosenTile];
+            auto chosenFace = GetFace(cell.ChosenTile, cell.ChosenPermutation, faceDir);
+            if (chosenFace.Points != points)
+            {
+                ClearCell(facePos, report);
+                needsFiltering = true;
+            }
+            else
+            {
+                needsFiltering = false;
+            }
+        }
+        else
+        {
+            needsFiltering = true;
+        }
+
+        FaceConstraints[{ facePos, static_cast<int>(faceDir) }] = points;
+        ApplyFilter(facePos, faceDir, cell, report);
+    }
+}
 
 void Grid::ClearCells(const Region3i& region, Report* report,
                       bool includeImmutableCells,
@@ -138,7 +192,7 @@ void Grid::ClearCells(const Region3i& region, Report* report,
         else
         {
             cell.IsChangeable |= clearedImmutableCellsAreMutableNow;
-            #if !defined(NDEBUG)
+            #if defined(WFCPP_DEBUG)
                 cell.ChosenPermutation = { }; //Give unset cells a standardized value.
             #endif
             ResetCellPossibilities(cellPos, cell, report);
@@ -188,17 +242,7 @@ void Grid::ClearCells(const Region3i& region, Report* report,
                         //    because the cleared cell may have opened them back up.
                         else
                         {
-                            //It's pretty hard to add tile possibilities back in.
-                            //Much easier is to recompute them from scratch based on *all* neighbors.
-                            ResetCellPossibilities(outsidePos, outsideCell, report);
-                            for (const auto& neighborData : GetNeighbors(outsidePos))
-                            {
-                                Vector3i neighborPos;
-                                Directions3D sideTowardsNeighbor;
-                                std::tie(neighborPos, sideTowardsNeighbor) = neighborData;
-                                if (Cells.IsIndexValid(neighborPos))
-                                    ApplyFilter(neighborPos, outsidePos, GetOpposite(sideTowardsNeighbor), report);
-                            }
+                            RecalculateCellPossibilities(outsidePos, outsideCell, report);
                         }
                     }
                 }
@@ -225,17 +269,23 @@ void Grid::ClearCells(const Region3i& region, Report* report,
     DEBUGMEM_ValidateAll();
 }
 void Grid::ClearCell(const Vector3i& cellPos, Report* report,
-                     bool isChangeableAfterwards)
+                     bool becomeMutable)
 {
     ClearCells(Region3i(cellPos, cellPos + 1), report,
-               true, isChangeableAfterwards);
+               true, becomeMutable);
+}
+void Grid::ClearFace(Vector3i cellPos, Directions3D face, Report* report)
+{
+    cellPos = FilterPos(cellPos);
+    if (!Cells.IsIndexValid(cellPos) || FaceConstraints.find({ cellPos, face }) == FaceConstraints.end())
+        return;
+
+    RecalculateCellPossibilities(cellPos, Cells[cellPos], report);
 }
 
-void Grid::ApplyFilter(const Vector3i& cellPos,
-                       const FacePermutation& face,
-                       Report* report)
+void Grid::ApplyFilter(const Vector3i& cellPos, const FacePermutation& face,
+                       CellState& cell, Report* report)
 {
-    auto& cell = Cells[cellPos];
     cell.DEBUGMEM_Validate();
     if (cell.IsSet())
         return;
@@ -306,5 +356,30 @@ void Grid::ResetCellPossibilities(const Vector3i& cellPos, CellState& cell, Repo
     for (int tileI = 0; tileI < InputTiles.size(); ++tileI)
         PossiblePermutations[{tileI, cellPos}] = InputTiles[tileI].Permutations;
 
+    //Apply any relevant face constraints.
+    for (int dirI = 0; dirI < N_DIRECTIONS_3D; ++dirI)
+    {
+        auto constraint = FaceConstraints.find({ cellPos, dirI });
+        if (constraint != FaceConstraints.end())
+        {
+            FacePermutation constrainedFace{ static_cast<Directions3D>(dirI), constraint->second };
+            ApplyFilter(cellPos, constrainedFace, cell, report);
+        }
+    }
+
     DEBUGMEM_ValidateAll();
+}
+void Grid::RecalculateCellPossibilities(const Vector3i& cellPos, CellState& cell, Report* report)
+{
+    ResetCellPossibilities(cellPos, cell, report);
+
+    for (const auto& neighborData : GetNeighbors(cellPos))
+    {
+        Vector3i neighborPos;
+        Directions3D sideTowardsNeighbor;
+        std::tie(neighborPos, sideTowardsNeighbor) = neighborData;
+
+        if (Cells.IsIndexValid(neighborPos))
+            ApplyFilter(neighborPos, cellPos, GetOpposite(sideTowardsNeighbor), report);
+    }
 }
