@@ -1,126 +1,134 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="WFC++\Vector2i.h">
-      <Filter>Helper Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\Array2D.hpp">
-      <Filter>Helper Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\HelperClasses.h" />
-    <ClInclude Include="WFC++\Platform.h" />
-    <ClInclude Include="WFC++\Simple\InputData.h">
-      <Filter>Generator Classes\Simple</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\Simple\Pattern.h">
-      <Filter>Generator Classes\Simple</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\Simple\State.h">
-      <Filter>Generator Classes\Simple</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\Tiled\InputData.h">
-      <Filter>Generator Classes\Tiled</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\Tiled\State.h">
-      <Filter>Generator Classes\Tiled</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\Tiled\Tile.hpp">
-      <Filter>Generator Classes\Tiled</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\EnumFlags.h">
-      <Filter>Helper Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\Tiled\TilePermutator.h">
-      <Filter>Generator Classes\Tiled</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\Array3D.hpp">
-      <Filter>Helper Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\Vector3i.h">
-      <Filter>Helper Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\WFCMath.h">
-      <Filter>Helper Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\Tiled3D\Transform3D.h">
-      <Filter>Generator Classes\Tiled3D</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\Tiled3D\Tile.hpp">
-      <Filter>Generator Classes\Tiled3D</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\Tiled3D\Grid.h">
-      <Filter>Generator Classes\Tiled3D</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\Tiled3D\TilePermutator.h">
-      <Filter>Generator Classes\Tiled3D</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\Array4D.hpp">
-      <Filter>Helper Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\Vector4i.h">
-      <Filter>Helper Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\WFCppStreamPrinting.hpp" />
-    <ClInclude Include="WFC++\Tiled3D\StandardRunner.h">
-      <Filter>Generator Classes\Tiled3D</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\xoshiro.hpp">
-      <Filter>Helper Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="WFC++\MemoryChecks.inl">
-      <Filter>Helper Classes</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="Helper Classes">
-      <UniqueIdentifier>{88dc1f86-6eff-45d5-83cc-0818b797f611}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Generator Classes">
+    <Filter Include="Code">
       <UniqueIdentifier>{a9d77f97-4a85-4d0d-a950-cbc1b00ec7a1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Generator Classes\Simple">
-      <UniqueIdentifier>{765c03fd-88b1-4127-9294-4dab7529dd1c}</UniqueIdentifier>
+    <Filter Include="Code\Simple">
+      <UniqueIdentifier>{90ec1819-70a8-431b-87f1-6fd4f11f1f28}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Generator Classes\Tiled">
-      <UniqueIdentifier>{0269a151-36ad-4c76-b778-79c39a4f0a93}</UniqueIdentifier>
+    <Filter Include="Code\Tiled">
+      <UniqueIdentifier>{6304e3f0-dacc-4764-8c4a-3b65e2b98b89}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Generator Classes\Tiled3D">
-      <UniqueIdentifier>{121f403f-0d14-4448-92fb-0d22215d6e55}</UniqueIdentifier>
+    <Filter Include="Code\Tiled3D">
+      <UniqueIdentifier>{86a582e6-725f-42db-9a0c-04b00a99f9f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Helpers">
+      <UniqueIdentifier>{22566d73-54e8-4049-bb00-bb0f0a75d7f4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WFC++\Simple\InputData.cpp">
-      <Filter>Generator Classes\Simple</Filter>
+    <None Include="WFC++\include\MemoryChecks.inl">
+      <Filter>Code</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="WFC++\include\Platform.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\HelperClasses.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\Helpers\Vector3i.h">
+      <Filter>Code\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\Helpers\Vector4i.h">
+      <Filter>Code\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\Helpers\WFCMath.h">
+      <Filter>Code\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\Helpers\WFCppStreamPrinting.hpp">
+      <Filter>Code\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\Helpers\xoshiro.hpp">
+      <Filter>Code\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\Helpers\Array2D.hpp">
+      <Filter>Code\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\Helpers\Array3D.hpp">
+      <Filter>Code\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\Helpers\Array4D.hpp">
+      <Filter>Code\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\Helpers\EnumFlags.h">
+      <Filter>Code\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\Helpers\Vector2i.h">
+      <Filter>Code\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\Simple\State.h">
+      <Filter>Code\Simple</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\Simple\InputData.h">
+      <Filter>Code\Simple</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\Simple\Pattern.h">
+      <Filter>Code\Simple</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\Tiled\State.h">
+      <Filter>Code\Tiled</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\Tiled\TilePermutator.h">
+      <Filter>Code\Tiled</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\Tiled\Tile.hpp">
+      <Filter>Code\Tiled</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\Tiled\InputData.h">
+      <Filter>Code\Tiled</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\Tiled3D\StandardRunner.h">
+      <Filter>Code\Tiled3D</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\Tiled3D\TilePermutator.h">
+      <Filter>Code\Tiled3D</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\Tiled3D\Transform3D.h">
+      <Filter>Code\Tiled3D</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\Tiled3D\Tile.hpp">
+      <Filter>Code\Tiled3D</Filter>
+    </ClInclude>
+    <ClInclude Include="WFC++\include\Tiled3D\Grid.h">
+      <Filter>Code\Tiled3D</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="WFC++\src\Vector2i.cpp">
+      <Filter>Code\Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="WFC++\Simple\Pattern.cpp">
-      <Filter>Generator Classes\Simple</Filter>
+    <ClCompile Include="WFC++\src\Simple\Pattern.cpp">
+      <Filter>Code\Simple</Filter>
     </ClCompile>
-    <ClCompile Include="WFC++\Simple\State.cpp">
-      <Filter>Generator Classes\Simple</Filter>
+    <ClCompile Include="WFC++\src\Simple\State.cpp">
+      <Filter>Code\Simple</Filter>
     </ClCompile>
-    <ClCompile Include="WFC++\Tiled\InputData.cpp">
-      <Filter>Generator Classes\Tiled</Filter>
+    <ClCompile Include="WFC++\src\Simple\InputData.cpp">
+      <Filter>Code\Simple</Filter>
     </ClCompile>
-    <ClCompile Include="WFC++\Tiled\State.cpp">
-      <Filter>Generator Classes\Tiled</Filter>
+    <ClCompile Include="WFC++\src\Tiled\State.cpp">
+      <Filter>Code\Tiled</Filter>
     </ClCompile>
-    <ClCompile Include="WFC++\Tiled\TilePermutator.cpp">
-      <Filter>Generator Classes\Tiled</Filter>
+    <ClCompile Include="WFC++\src\Tiled\TilePermutator.cpp">
+      <Filter>Code\Tiled</Filter>
     </ClCompile>
-    <ClCompile Include="WFC++\Tiled3D\Transform3D.cpp">
-      <Filter>Generator Classes\Tiled3D</Filter>
+    <ClCompile Include="WFC++\src\Tiled\InputData.cpp">
+      <Filter>Code\Tiled</Filter>
     </ClCompile>
-    <ClCompile Include="WFC++\Tiled3D\Grid.cpp">
-      <Filter>Generator Classes\Tiled3D</Filter>
+    <ClCompile Include="WFC++\src\Tiled3D\TilePermutator.cpp">
+      <Filter>Code\Tiled3D</Filter>
     </ClCompile>
-    <ClCompile Include="WFC++\Tiled3D\TilePermutator.cpp">
-      <Filter>Generator Classes\Tiled3D</Filter>
+    <ClCompile Include="WFC++\src\Tiled3D\Transform3D.cpp">
+      <Filter>Code\Tiled3D</Filter>
     </ClCompile>
-    <ClCompile Include="WFC++\Tiled3D\StandardRunner.cpp">
-      <Filter>Generator Classes\Tiled3D</Filter>
+    <ClCompile Include="WFC++\src\Tiled3D\Grid.cpp">
+      <Filter>Code\Tiled3D</Filter>
     </ClCompile>
-    <ClCompile Include="WFC++\HelperSrc\Vector2i.cpp">
-      <Filter>Helper Classes</Filter>
+    <ClCompile Include="WFC++\src\Tiled3D\StandardRunner.cpp">
+      <Filter>Code\Tiled3D</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

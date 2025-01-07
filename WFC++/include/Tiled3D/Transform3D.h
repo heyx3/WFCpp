@@ -4,12 +4,12 @@
 #include <utility>
 #include <array>
 
-#include "../Platform.h"
+#include "Platform.h"
 
-#include "../Vector2i.h"
-#include "../Vector3i.h"
-#include "../Vector4i.h"
-#include "../WFCMath.h"
+#include "Helpers/Vector2i.h"
+#include "Helpers/Vector3i.h"
+#include "Helpers/Vector4i.h"
+#include "Helpers/WFCMath.h"
 
 namespace WFC
 {

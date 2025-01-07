@@ -1,4 +1,4 @@
-#include "TilePermutator.h"
+#include "Tiled3D/TilePermutator.h"
 #include <algorithm>
 
 using namespace WFC;

@@ -1,4 +1,4 @@
-#include "StandardRunner.h"
+#include "Tiled3D/StandardRunner.h"
 
 using namespace WFC;
 using namespace WFC::Math;
@@ -273,7 +273,7 @@ std::optional<std::tuple<TileIdx, Transform3D>> StandardRunner::RandomTile(const
     std::fill(distributionWeights.begin(), distributionWeights.end(), 0.0f);
     for (Transform3D tr : permutations)
         distributionWeights[TransformSet::ToBitIdx(tr)] = 1;
-    int chosenTransformI = PickWeightedRandomIndex(Rand, distributionWeights);
+    ptrdiff_t chosenTransformI = PickWeightedRandomIndex(Rand, distributionWeights);
     WFCPP_ASSERT(chosenTransformI >= 0);
 
 

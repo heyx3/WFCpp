@@ -1,8 +1,8 @@
-#include "Transform3D.h"
+#include "Tiled3D/Transform3D.h"
 
 #include <algorithm>
 
-#include "../Vector2i.h"
+#include "Helpers/Vector2i.h"
 
 
 using namespace WFC;

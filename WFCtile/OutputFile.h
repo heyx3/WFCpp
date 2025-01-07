@@ -4,7 +4,7 @@
 #include <numeric>
 
 #include "Utils.h"
-#include <Vector2i.h>
+#include <Helpers/Vector2i.h>
 
 #include <Tiled/TilePermutator.h>
 #include <Tiled/InputData.h>

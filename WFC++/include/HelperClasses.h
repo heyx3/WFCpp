@@ -2,13 +2,13 @@
 
 #include <optional>
 #include <vector>
-#include "Array2D.hpp"
-#include "Array3D.hpp"
-#include "Array4D.hpp"
+#include "Helpers/Array2D.hpp"
+#include "Helpers/Array3D.hpp"
+#include "Helpers/Array4D.hpp"
 #include <unordered_set>
 #include <unordered_map>
-#include "EnumFlags.h"
-#include "xoshiro.hpp"
+#include "Helpers/EnumFlags.h"
+#include "Helpers/xoshiro.hpp"
 
 #include <random>
 

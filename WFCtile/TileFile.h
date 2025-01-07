@@ -4,7 +4,7 @@
 #include <array>
 
 #include "Utils.h"
-#include <Array2D.hpp>
+#include <Helpers/Array2D.hpp>
 
 struct InputFile;
 
