@@ -151,7 +151,7 @@ void Grid::SetFace(Vector3i pos, Directions3D dir, const FaceCorners& points, Re
             auto chosenFace = GetFace(cell.ChosenTile, cell.ChosenPermutation, faceDir);
             if (chosenFace.Points != points)
             {
-                ClearCell(facePos, report);
+                ClearCell(facePos, report, false);
                 needsFiltering = true;
             }
             else
@@ -165,7 +165,8 @@ void Grid::SetFace(Vector3i pos, Directions3D dir, const FaceCorners& points, Re
         }
 
         FaceConstraints[{ facePos, static_cast<int>(faceDir) }] = points;
-        ApplyFilter(facePos, faceDir, cell, report);
+        if (needsFiltering)
+            ApplyFilter(facePos, { faceDir, points }, cell, report);
     }
 }
 

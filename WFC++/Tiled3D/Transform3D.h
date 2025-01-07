@@ -116,7 +116,7 @@ namespace WFC
             FaceCorners Points;
 
             FacePermutation() : FacePermutation(Directions3D::MinX) { }
-            FacePermutation(Directions3D side) : Side(side)
+            explicit FacePermutation(Directions3D side) : Side(side)
             {
                 for (int i = 0; i < N_FACE_POINTS; ++i)
                     Points[i] = static_cast<PointID>(-1);
