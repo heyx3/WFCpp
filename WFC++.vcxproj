@@ -48,6 +48,7 @@
     <ClInclude Include="WFC++\include\Tiled\TilePermutator.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="WFC++\src\Helpers\Vector2i.cpp" />
     <ClCompile Include="WFC++\src\Simple\InputData.cpp" />
     <ClCompile Include="WFC++\src\Simple\Pattern.cpp" />
     <ClCompile Include="WFC++\src\Simple\State.cpp" />
@@ -58,7 +59,6 @@
     <ClCompile Include="WFC++\src\Tiled\InputData.cpp" />
     <ClCompile Include="WFC++\src\Tiled\State.cpp" />
     <ClCompile Include="WFC++\src\Tiled\TilePermutator.cpp" />
-    <ClCompile Include="WFC++\src\Vector2i.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{38A88B72-ACE0-400E-AC82-677C89622B69}</ProjectGuid>

@@ -1,4 +1,4 @@
-#include "Tiled/InputData.h"
+#include "../../include/Tiled/InputData.h"
 
 #include <algorithm>
 

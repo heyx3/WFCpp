@@ -1,4 +1,4 @@
-#include "Tiled3D/StandardRunner.h"
+#include "../../include/Tiled3D/StandardRunner.h"
 
 using namespace WFC;
 using namespace WFC::Math;

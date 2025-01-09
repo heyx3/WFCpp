@@ -4,7 +4,7 @@
 #include <iterator>
 #include <math.h>
 
-#include "Platform.h"
+#include "../Platform.h"
 #include "EnumFlags.h"
 #include "Vector2i.h"
 

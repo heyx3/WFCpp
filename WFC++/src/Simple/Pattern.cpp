@@ -1,6 +1,6 @@
-#include "Simple/Pattern.h"
-#include "Simple/InputData.h"
-#include "Simple/State.h"
+#include "../../include/Simple/Pattern.h"
+#include "../../include/Simple/InputData.h"
+#include "../../include/Simple/State.h"
 
 using namespace WFC;
 using namespace WFC::Simple;

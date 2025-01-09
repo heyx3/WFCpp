@@ -97,9 +97,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WFC++\src\Vector2i.cpp">
-      <Filter>Code\Helpers</Filter>
-    </ClCompile>
     <ClCompile Include="WFC++\src\Simple\Pattern.cpp">
       <Filter>Code\Simple</Filter>
     </ClCompile>
@@ -129,6 +126,9 @@
     </ClCompile>
     <ClCompile Include="WFC++\src\Tiled3D\StandardRunner.cpp">
       <Filter>Code\Tiled3D</Filter>
+    </ClCompile>
+    <ClCompile Include="WFC++\src\Helpers\Vector2i.cpp">
+      <Filter>Code\Helpers</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

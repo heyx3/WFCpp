@@ -1,4 +1,4 @@
-#include "Tiled/State.h"
+#include "../../include/Tiled/State.h"
 
 #include <algorithm>
 

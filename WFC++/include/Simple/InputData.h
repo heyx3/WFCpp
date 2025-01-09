@@ -1,6 +1,6 @@
 #pragma once
 
-#include "HelperClasses.h"
+#include "../HelperClasses.h"
 #include "Pattern.h"
 
 

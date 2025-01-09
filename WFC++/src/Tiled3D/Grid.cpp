@@ -1,4 +1,4 @@
-#include "Tiled3D/Grid.h"
+#include "../../include/Tiled3D/Grid.h"
 
 #include <algorithm>
 

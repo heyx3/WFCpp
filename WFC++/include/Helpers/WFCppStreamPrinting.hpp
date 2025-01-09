@@ -4,9 +4,9 @@
 //But if you want to be able to print Tile3D structures to somewhere like cout,
 //    include this file.
 
-#include "Simple/State.h"
-#include "Tiled/State.h"
-#include "Tiled3D/Grid.h"
+#include "../Simple/State.h"
+#include "../Tiled/State.h"
+#include "../Tiled3D/Grid.h"
 
 #include <iomanip>
 #include <format>

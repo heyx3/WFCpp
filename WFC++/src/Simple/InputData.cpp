@@ -1,4 +1,4 @@
-#include "Simple/InputData.h"
+#include "../../include/Simple/InputData.h"
 
 using namespace WFC;
 using namespace WFC::Simple;
