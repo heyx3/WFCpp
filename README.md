@@ -3,13 +3,14 @@
 ![A demo of the old Unreal 4 plugin](https://i.imgur.com/vkABeE1.gif)
 
 A C++ library for the amazing [WaveFunctionCollapse](https://github.com/mxgmn/WaveFunctionCollapse) algorithm, plus various utilities for running it.
-Finally, there is an Unreal 5 plugin to integrate the `Tiled3D` part of the library with Unreal Engine.
+There is also [an Unreal 5 plugin](https://github.com/heyx3/WfcUnreal) (WIP) to integrate the `Tiled3D` module with Unreal Engine.
 
 For more explanation of the algorithm itself, you can read this project's source or check out [EasyWFC](https://github.com/heyx3/EasyWFC), whose behavior should be identical to this project (except for the PRNG).
 
- The core library has a "Simple" version (for pixel art images), a "tiled" version (for tile-sets), and a "tiled 3D" version (for 3D tile-sets).
- The first two systems have corresponding command-line programs for playing with them.
- The 3D tile-set system is more complex and offers Unreal Engine 5 integration.
+The core library has a "Simple" version (for pixel art images), a "tiled" version (for tile-sets), and a "tiled 3D" version (for 3D tile-sets).
+
+The first two systems have corresponding command-line programs for playing with them.
+The 3D tile-set system is more complex and only offers Unreal Engine 5 integration.
 
 ## Setup
 
@@ -17,11 +18,12 @@ After cloning the repo, just open **WFC++.sln** in Visual Studio, set the platfo
 
 ## Structure
 
-The project has one Visual C++ solution with four projects, plus an Unreal Engine 4 project:
+The project has one Visual C++ solution with four projects. The Unreal Engine plugin is kept in a different repo (linked above).
 
 ### WFC++
 
-The actual algorithm code is in the WFC++ project. When built, it creates the .dll, .lib, and .h/.hpp files in the "Build" folder.
+The *WFC++* project contains the actual algorithm code.
+When built (apart from Unreal) it creates the .dll, .lib, and .h/.hpp files in the "Build" folder.
 
 The code files are split into the following categories, all of which are inside the `WFC` namespace:
 
@@ -41,12 +43,6 @@ If the "-shellMode" flag is passed to the executable, nothing is output except f
 
 The command-line interface for the "Tiled" WFC algorithm. Pulls all config data from a folder containing text files. Outputs the result to stdout as either a simple binary format, or as a PGM image file. Refer to *main.cpp* for more documentation on how to interact with this program.
 
-### WFCunreal
-
-This is an old version of the Unreal plugin, for UE4 and very unpolished (though it should work!)
-
-The UE5 version is a WIP.
-
 ## Tests
 
 Unit tests use the *UnitTest++*"* library, kept in the folder 'UnitTestLibrary'.
@@ -59,7 +55,7 @@ Just run this project to run the unit tests.
 
 MIT license; go crazy.
 
-Copyright 2017-2024 William A. Manning
+Copyright 2017-2025 William A. Manning
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
