@@ -119,7 +119,7 @@ void StandardRunner::SetCell(const Vector3i& cellPos, TileIdx tile, Transform3D 
 }
 
 void StandardRunner::SetFaceConstraint(const Vector3i& cellPos, Directions3D cellFace,
-                                       const FaceCorners& facePermutation)
+                                       const FaceIdentifiers& facePermutation)
 {
     report.Clear();
     Grid.SetFace(cellPos, cellFace, facePermutation, &report);
@@ -276,9 +276,8 @@ std::optional<std::tuple<TileIdx, Transform3D>> StandardRunner::RandomTile(const
     ptrdiff_t chosenTransformI = PickWeightedRandomIndex(Rand, distributionWeights);
     WFCPP_ASSERT(chosenTransformI >= 0);
 
-
     return std::make_tuple(
         static_cast<TileIdx>(chosenTileI),
-        TransformSet::FromBit(chosenTransformI)
+        TransformSet::FromBit(static_cast<uint_fast8_t>(chosenTransformI))
     );
 }

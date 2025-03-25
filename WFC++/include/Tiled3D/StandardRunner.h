@@ -109,7 +109,7 @@ namespace Tiled3D
                      bool makeImmutable = false);
 
         void SetFaceConstraint(const Vector3i& cellPos, Directions3D cellFace,
-                               const FaceCorners& facePermutation);
+                               const FaceIdentifiers& facePermutation);
         void ClearFaceConstraint(const Vector3i& cellPos, Directions3D cellFace);
 
 

@@ -327,59 +327,92 @@ FacePermutation Transform3D::ApplyToFace(FacePermutation face) const
 
     //Get the world-space points on the input face.
     //Their components are 0 if on the min of that axis, and 1 if on the max.
-    std::array<Vector3i, 4> oldCornerPoses;
+    std::array<Vector3i, 4> oldCornerPoses, oldEdgePoses;
 
     //Build the points algorithmically to make my life simpler.
     {
-        //This face's axis has the same value for all four points.
+        //This face's axis has the same value for all points.
         smallU_t myAxisValue = IsMin(oldSide) ? 0 : 1;
         for (int i = 0; i < N_FACE_POINTS; ++i)
+        {
             oldCornerPoses[i][axisMainOld] = myAxisValue;
+            oldEdgePoses[i][axisMainOld] = myAxisValue;
+        }
 
-        //Fill in the "first" axis values.
+        //For the corners:
+        //   Fill in the "first" face axis values
         oldCornerPoses[FacePoints::AA][axisFace1Old] = 0;
         oldCornerPoses[FacePoints::AB][axisFace1Old] = 0;
         oldCornerPoses[FacePoints::BA][axisFace1Old] = 1;
         oldCornerPoses[FacePoints::BB][axisFace1Old] = 1;
-
-        //Fill in the "second" axis values.
+        //   Fill in the "second" face axis values
         oldCornerPoses[FacePoints::AA][axisFace2Old] = 0;
         oldCornerPoses[FacePoints::AB][axisFace2Old] = 1;
         oldCornerPoses[FacePoints::BA][axisFace2Old] = 0;
         oldCornerPoses[FacePoints::BB][axisFace2Old] = 1;
+        //For the edges (using 2 for the whole face and 1 for halfway along the edge):
+        //  Fill in the "first" face axis values
+        oldEdgePoses[FacePoints::AA][axisFace1Old] = 1;
+        oldEdgePoses[FacePoints::AB][axisFace1Old] = 1;
+        oldEdgePoses[FacePoints::BA][axisFace1Old] = 0;
+        oldEdgePoses[FacePoints::BB][axisFace1Old] = 2;
+        //  Fill in the "second" face axis values
+        oldEdgePoses[FacePoints::AA][axisFace2Old] = 0;
+        oldEdgePoses[FacePoints::AB][axisFace2Old] = 2;
+        oldEdgePoses[FacePoints::BA][axisFace2Old] = 1;
+        oldEdgePoses[FacePoints::BB][axisFace2Old] = 1;
     }
 
     //Apply this transform to the face points.
-    auto newCornerPoses = oldCornerPoses;
+    auto newCornerPoses = oldCornerPoses,
+         newEdgePoses = oldEdgePoses;
     for (auto& p : newCornerPoses)
         p = ApplyToPos(p, Vector3i(1, 1, 1));
+    for (auto& p : newEdgePoses)
+        p = ApplyToPos(p, Vector3i(2, 2, 2));
 
     //For each point, figure out where it is now on the new face.
     //Swap the point ID's accordingly.
-    FaceCorners oldPointIDs, newPointIDs;
-    oldPointIDs = face.Points;
+    FaceIdentifiers oldIDs, newIDs;
+    oldIDs = face.Points;
     #if defined(WFCPP_DEBUG)
         //Initialize the data to -1 so that
-        //    it stands out if one stays uninitialized.
-        memset(newPointIDs.data(), 0xff, sizeof(PointID) * newPointIDs.size());
+        //    it stands out if any is uninitialized.
+        memset(newIDs.Corners.data(), 0xff, sizeof(PointID) * newIDs.Corners.size());
+        memset(newIDs.Edges.data(), 0xff, sizeof(PointID) * newIDs.Edges.size());
     #endif
-    for (smallU_t pI = 0; pI < N_FACE_POINTS; ++pI)
+    for (smallU_t cornerI = 0; cornerI < N_FACE_POINTS; ++cornerI)
     {
-        Vector3i worldPos = newCornerPoses[pI];
+        Vector3i worldPos = newCornerPoses[cornerI];
         bool isAxis1Min = worldPos[axisFace1New] == 0,
              isAxis2Min = worldPos[axisFace2New] == 0;
 
-        auto place = MakeFacePoint(isAxis1Min, isAxis2Min);
-        newPointIDs[place] = oldPointIDs[pI];
+        auto place = MakeCornerFacePoint(isAxis1Min, isAxis2Min);
+        auto& outCorner = newIDs.Corners[place];
+        WFCPP_ASSERT(outCorner == ~PointID{ 0 });
+        outCorner = oldIDs.Corners[cornerI];
+    }
+    for (smallU_t edgeI = 0; edgeI < N_FACE_POINTS; ++edgeI)
+    {
+        Vector3i worldPos = newEdgePoses[edgeI];
+        bool isParallelToAxis1 = worldPos[axisFace1New] == 1,
+             isMinEdge = worldPos[isParallelToAxis1 ? axisFace2New : axisFace1New] == 0;
+
+        auto place = MakeEdgeFacePoint(isParallelToAxis1, isMinEdge);
+        auto& outEdge = newIDs.Edges[place];
+        WFCPP_ASSERT(outEdge == ~PointID{ 0 });
+        outEdge = oldIDs.Edges[edgeI];
     }
     #if defined(WFCPP_DEBUG)
         //Double-check that every old point mapped to a unique new point.
-        for (PointID newID : newPointIDs)
+        for (PointID newID : newIDs.Corners)
+            WFCPP_ASSERT(newID != ~PointID{ 0 });
+        for (PointID newID : newIDs.Edges)
             WFCPP_ASSERT(newID != ~PointID{ 0 });
     #endif
 
     //Output the mapped face data.
-    face.Points = newPointIDs;
+    face.Points = newIDs;
     face.Side = newSide;
     return face;
 }

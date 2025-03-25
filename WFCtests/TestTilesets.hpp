@@ -45,12 +45,12 @@ namespace Tilesets
             auto& tile = output.back();
 
             //Remember point ordering: AA, AB, BA, BB
-            tile.Data.Faces[0] = { MinX, { 0, 1, 1, 2 } };
-            tile.Data.Faces[1] = { MaxX, { 0, 1, 1, 2 } };
-            tile.Data.Faces[2] = { MinY, { 4, 5, 6, 7 } };
-            tile.Data.Faces[3] = { MaxY, { 4, 5, 6, 7 } };
-            tile.Data.Faces[4] = { MinZ, { 3, 3, 3, 3 } };
-            tile.Data.Faces[5] = { MaxZ, { 3, 3, 3, 3 } };
+            tile.Data.Faces[0] = { MinX, { { 0, 1, 1, 2 }, { 0, 0, 0, 0 } } };
+            tile.Data.Faces[1] = { MaxX, { { 0, 1, 1, 2 }, { 0, 0, 0, 0 } } };
+            tile.Data.Faces[2] = { MinY, { { 4, 5, 6, 7 }, { 0, 0, 0, 0 } } };
+            tile.Data.Faces[3] = { MaxY, { { 4, 5, 6, 7 }, { 0, 0, 0, 0 } } };
+            tile.Data.Faces[4] = { MinZ, { { 3, 3, 3, 3 }, { 0, 0, 0, 0 } } };
+            tile.Data.Faces[5] = { MaxZ, { { 3, 3, 3, 3 }, { 0, 0, 0, 0 } } };
             tile.Permutations = permutations;
             tile.Weight = 100;
 
@@ -108,10 +108,10 @@ namespace Tilesets
                 output.FaceGroups.emplace_back();
                 output.FaceGroups.emplace_back();
                 
-                std::vector<FaceCorners> points{
-                    { 1, 1, 1, 1 },
-                    { 2, 2, 2, 2 },
-                    { 3, 3, 3, 3 }
+                std::vector<FaceIdentifiers> points{
+                    { { 1, 1, 1, 1 }, { 0, 0, 0, 0 } },
+                    { { 2, 2, 2, 2 }, { 0, 0, 0, 0 } },
+                    { { 3, 3, 3, 3 }, { 0, 0, 0, 0 } }
                 };
 
                 auto setFace = [&](int tile, Directions3D face, int pointsIdx)

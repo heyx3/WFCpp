@@ -187,7 +187,7 @@ namespace WFC
             //This constraint will be permanent (until you remove it with 'ClearFace()');
             //    it's not affected by cell clearing.
             void SetFace(Vector3i pos, Directions3D dir,
-                         const FaceCorners& points,
+                         const FaceIdentifiers& points,
                          Report* report = nullptr);
 
             //Clears out the values of all cells in the given region.
@@ -275,7 +275,7 @@ namespace WFC
 
             //Hard-coded constraints for specific faces of specific grid cells.
             //The key's W component is the face Direction3D.
-            std::unordered_map<Vector4i, FaceCorners> FaceConstraints;
+            std::unordered_map<Vector4i, FaceIdentifiers> FaceConstraints;
 
             std::unordered_set<Vector3i> buffer_clearCells_leftovers;
         };

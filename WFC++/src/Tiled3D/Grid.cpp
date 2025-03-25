@@ -116,7 +116,7 @@ void Grid::SetCell(Vector3i pos, TileIdx tile, Transform3D tilePermutation,
 
     DEBUGMEM_ValidateAll();
 }
-void Grid::SetFace(Vector3i pos, Directions3D dir, const FaceCorners& points, Report* report)
+void Grid::SetFace(Vector3i pos, Directions3D dir, const FaceIdentifiers& points, Report* report)
 {
     pos = FilterPos(pos);
     WFCPP_ASSERT(Cells.IsIndexValid(pos));

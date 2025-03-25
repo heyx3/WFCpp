@@ -32,28 +32,53 @@ namespace WFC
         //Don't change them!
 
 
-        //The four points on a face, ordered based on world-space
-        //    to remove ambiguity.
-        //This ordering makes it easier to see if two opposite faces
-        //    will line up against each other.
+        //Unique identifiers for the four corners or edges of a face,
+        //     ordered in world-space to achieve trivial comparison of opposite faces.
+        //Axes are always ordered X->Y->Z, for example on the Y face axis 1 is X and axis 2 is Z.
+        //
+        //For the four corners, each letter puts you on the Min ('A') or Max ('B') of that face axis.
+        //For example on the X face, 'BA' means the 'MaxY-MinZ' corner.
+        //
+        //For the four edges, the first letter represents
+        //    the axis parallel to that edge, 1 ('A') or 2 ('B'),
+        //    while the second letter represents Min or Max side.
+        //E.g. on the Y face 'AB' means the {0, 0, 1}=>{1, 0, 1} edge
+        //    and 'BB' means the {1, 0, 0}=>{1, 0, 1} edge.
         enum WFC_API FacePoints
         {
-            //Specified as A for "min" or B for "max", for the two face axes.
-            //The axes are ordered X, Y, Z (e.x. the Y face's axes are ordered "XZ").
-            AA, AB, BA, BB
+            AA, AB,
+            BA, BB
         };
-        const int N_FACE_POINTS = 4;
+        constexpr int N_FACE_POINTS = 4;
+        template<typename T>
+        using PerFacePoint = std::array<T, N_FACE_POINTS>;
 
-        inline bool WFC_API IsFirstMin(FacePoints p) { return (uint_fast8_t)p / 2 == 0; }
-        inline bool WFC_API IsSecondMin(FacePoints p) { return (uint_fast8_t)p % 2 == 0; }
-        inline FacePoints WFC_API MakeFacePoint(bool axis1IsMin, bool axis2IsMin)
+        inline bool WFC_API IsCornerFirstAxisMin(FacePoints p) { return ((uint_fast8_t)p / 2) == 0; }
+        inline bool WFC_API IsCornerSecondAxisMin(FacePoints p) { return ((uint_fast8_t)p % 2) == 0; }
+        inline FacePoints WFC_API MakeCornerFacePoint(bool axis1IsMin, bool axis2IsMin)
         {
             return axis1IsMin ?
                        (axis2IsMin ? FacePoints::AA : FacePoints::AB) :
                        (axis2IsMin ? FacePoints::BA : FacePoints::BB);
         }
-        //Generates a vector with all components set to -1 or +1, representing a face point.
-        inline Vector2i WFC_API MakeFaceVector(FacePoints point) { return { (IsFirstMin(point) ? -1 : 1), (IsSecondMin(point) ? -1 : 1) }; }
+        //Generates a vector whose components are -1 or +1, representing a face corner.
+        inline Vector2i WFC_API MakeCornerFaceVector(FacePoints point) { return { (IsCornerFirstAxisMin(point) ? -1 : 1), (IsCornerSecondAxisMin(point) ? -1 : 1) }; }
+
+        inline bool WFC_API IsEdgeParallelToFirstAxis(FacePoints p) { return ((uint_fast8_t)p / 2) == 0; }
+        inline bool WFC_API IsEdgeOnMinSide(FacePoints p) { return ((uint_fast8_t)p % 2) == 0; }
+        inline FacePoints WFC_API MakeEdgeFacePoint(bool isParallelToAxis1, bool onMinSide)
+        {
+            return isParallelToAxis1 ?
+                       (onMinSide ? FacePoints::AA : FacePoints::AB) :
+                       (onMinSide ? FacePoints::BA : FacePoints::BB);
+        }
+        //Generates a vector with one component 0 and one component +/- 1, representing a face edge.
+        inline Vector2i WFC_API MakeEdgeFaceVector(FacePoints point)
+        {
+            Vector2i v;
+            v[IsEdgeParallelToFirstAxis(point) ? 1 : 0] = IsEdgeOnMinSide(point) ? -1 : 1;
+            return v;
+        }
 
 
         //The different axis directions/faces of a cube.
@@ -100,31 +125,79 @@ namespace WFC
                 std::swap(outPlane1, outPlane2);
         }
 
-        //Unique identifier for some face, by using a unique identifier for each corner.
-        //Indexed with the "FacePoints" enum.
-        using FaceCorners = std::array<PointID, N_FACE_POINTS>;
+        //Unique identifier for a face, including any symmetries implicit in the arrangement of corners and faces.
+        struct WFC_API FaceIdentifiers
+        {
+            WFCPP_MEMORY_CHECK_HEADER(8, "FaceIdentifiers struct");
+
+            //Unique identifiers for each corner, indexed with the 'FacePoints' enum.
+            PerFacePoint<PointID> Corners;
+            //Unique identifiers for each edge, indexed with the 'FacePoints' enum.
+            PerFacePoint<PointID> Edges;
+
+            FaceIdentifiers()
+            {
+                for (int i = 0; i < N_FACE_POINTS; ++i)
+                {
+                    Corners[i] = 0;
+                    Edges[i] = 0;
+                }
+            }
+            FaceIdentifiers(const PerFacePoint<PointID>& corners, const PerFacePoint<PointID>& edges)
+                : Corners(corners), Edges(edges) { }
+
+            inline uint32_t GetHashCode() const
+            {
+                size_t h = GetHashcodeLarge();
+
+                return Vector2i(
+                    static_cast<int32_t>(h >> 32),
+                    static_cast<int32_t>(h & 0xffffffff)
+                ).GetHashcode();
+            }
+            inline uint64_t GetHashcodeLarge() const
+            {
+                size_t a = Vector4i(
+                    static_cast<int32_t>(Corners[0]),
+                    static_cast<int32_t>(Corners[1]),
+                    static_cast<int32_t>(Corners[2]),
+                    static_cast<int32_t>(Corners[3])
+                ).GetHashcodeLarge();
+                size_t b = Vector4i(
+                    static_cast<int32_t>(Edges[0]),
+                    static_cast<int32_t>(Edges[1]),
+                    static_cast<int32_t>(Edges[2]),
+                    static_cast<int32_t>(Edges[3])
+                ).GetHashcodeLarge();
+
+                return a ^ b;
+            }
+
+            inline bool operator==(const FaceIdentifiers& f2) const
+            {
+                return std::equal(Corners.begin(), Corners.end(), f2.Corners.begin()) &&
+                       std::equal(Edges.begin(), Edges.end(), f2.Edges.begin());
+            }
+            inline bool operator!=(const FaceIdentifiers& f2) const { return !(operator==(f2)); }
+
+            
+            WFCPP_MEMORY_CHECK_FOOTER(8);
+        };
 
         //A specific permutation of a face, on a specific side of the cube.
+        //Two faces line up against each other if they have opposite Side and their Points are identical.
         struct WFC_API FacePermutation
         {
             WFCPP_MEMORY_CHECK_HEADER(16, "FacePermutation struct");
 
             //The side of the cube this face is on.
             Directions3D Side;
+            //The identifying edges/corners of this face,
+            //    implicitly carrying info about how this face got flipped/rotated.
+            FaceIdentifiers Points;
 
-            //Two faces line up against each other if they have opposite Side and their Points are identical.
-            FaceCorners Points;
-
-            FacePermutation() : FacePermutation(Directions3D::MinX) { }
-            explicit FacePermutation(Directions3D side) : Side(side)
-            {
-                for (int i = 0; i < N_FACE_POINTS; ++i)
-                    Points[i] = static_cast<PointID>(-1);
-            }
-            FacePermutation(Directions3D side, const FaceCorners& facePoints)
-                : Side(side), Points(facePoints)
-            {
-            }
+            FacePermutation(Directions3D side = Directions3D::MinX) : Side(side) { }
+            FacePermutation(Directions3D side, const FaceIdentifiers& points) : Side(side), Points(points) { }
 
 
             //Gets the matching face on the opposite side.
@@ -151,13 +224,7 @@ namespace WFC
             }
             inline uint64_t GetHashcodeLarge() const
             {
-                size_t a = Vector4i(
-                    static_cast<int32_t>(Points[0]),
-                    static_cast<int32_t>(Points[1]),
-                    static_cast<int32_t>(Points[2]),
-                    static_cast<int32_t>(Points[3])
-                ).GetHashcodeLarge();
-
+                size_t a = Points.GetHashcodeLarge();
                 size_t b = Vector2i(
                     static_cast<int32_t>(Side),
                     ~static_cast<int32_t>(Side)
@@ -168,13 +235,17 @@ namespace WFC
 
             inline bool operator==(const FacePermutation& f2) const
             {
-                return Side == f2.Side &&
-                       std::equal(Points.begin(), Points.end(), f2.Points.begin());
+                return Side == f2.Side && Points == f2.Points;
             }
             inline bool operator!=(const FacePermutation& f2) const { return !(operator==(f2)); }
 
 
             WFCPP_MEMORY_CHECK_FOOTER(16);
+            inline void DEBUGMEM_ValidateAll()
+            {
+                DEBUGMEM_Validate();
+                Points.DEBUGMEM_Validate();
+            }
         };
 
 
@@ -192,7 +263,7 @@ namespace WFC
             AxisZ_90, AxisZ_180, AxisZ_270,
 
             //Rotation by grabbing two opposite edges and rotating 180 degrees.
-            //Notated with the face that the edges are parallel to, and "a" or "b"
+            //Notated with the axis that the edges are parallel to, and "a" or "b"
             //    for "major diagonal" (i.e. one of the edges is an axis)
             //    or "minor diagonal" respectively.
             EdgesXa, EdgesXb,
@@ -223,15 +294,15 @@ namespace WFC
             std::array<FacePermutation, N_DIRECTIONS_3D> Faces;
 
             CubePermutation()
-                : CubePermutation(FacePermutation(Directions3D::MinX), FacePermutation{ Directions3D::MaxX },
+                : CubePermutation(FacePermutation{ Directions3D::MinX }, FacePermutation{ Directions3D::MaxX },
                                   FacePermutation{ Directions3D::MinY }, FacePermutation{ Directions3D::MaxY },
                                   FacePermutation{ Directions3D::MinZ }, FacePermutation{ Directions3D::MaxZ })
             {
 
             }
-            CubePermutation(FacePermutation minX, FacePermutation maxX,
-                            FacePermutation minY, FacePermutation maxY,
-                            FacePermutation minZ, FacePermutation maxZ)
+            CubePermutation(const FacePermutation& minX, const FacePermutation& maxX,
+                            const FacePermutation& minY, const FacePermutation& maxY,
+                            const FacePermutation& minZ, const FacePermutation& maxZ)
                 : Faces{ minX, maxX, minY, maxY, minZ, maxZ }
             {
             }
@@ -608,6 +679,16 @@ template<> struct std::hash<WFC::Tiled3D::Transform3D>
             return (static_cast<uint64_t>(h) << 32) | h;
         else
             return static_cast<size_t>(h);
+    }
+};
+template<> struct std::hash<WFC::Tiled3D::FaceIdentifiers>
+{
+    size_t operator()(const WFC::Tiled3D::FaceIdentifiers& i) const
+    {
+        if constexpr (std::is_same_v<size_t, uint64_t>)
+            return i.GetHashcodeLarge();
+        else
+            return static_cast<size_t>(i.GetHashCode());
     }
 };
 template<> struct std::hash<WFC::Tiled3D::FacePermutation>
