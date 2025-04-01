@@ -15,10 +15,10 @@ namespace WFC
     //NOTE: By convention, the positive Y axis points downward.
 
 	//Things that can be done to 2D integer vectors.
-    //Note that this set is completely closed -- any combination of these transformations
+    //This set is completely closed -- any combination of these transformations
     //    is equivalent to another one of these transformations.
-	//TODO: Make enum-class for better scoping.
 	enum WFC_API Transformations
+		//TODO: Make enum-class for better scoping.
 	{
         None,
 
@@ -26,7 +26,11 @@ namespace WFC
 		Rotate180,
 		Rotate270CW,
 
+		//Flip the horizontal component; leave the vertical component alone.
+		//In other words flip *across* the Y axis.
 		FlipX,
+		//Flip the vertical component; leave the horizontal component alone.
+		//In other words flip *across* the X axis.
 		FlipY,
 
         //Mirror along the primary diagonal, going from the min corner to the max corner.

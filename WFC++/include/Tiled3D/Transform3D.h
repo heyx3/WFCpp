@@ -44,6 +44,18 @@ namespace WFC
         //    while the second letter represents Min or Max side.
         //E.g. on the Y face 'AB' means the {0, 0, 1}=>{1, 0, 1} edge
         //    and 'BB' means the {1, 0, 0}=>{1, 0, 1} edge.
+    	//
+    	/* Refer to the diagram below:
+		    2
+		    AB ----- AB ----- BB
+		    |                  |
+		    |                  |
+		   BA                 BB
+		    |                  |
+		    |                  |
+		    AA ----- AA ----- BA 1
+		Origin
+		*/
         enum WFC_API FacePoints
         {
             AA, AB,
@@ -63,6 +75,11 @@ namespace WFC
         }
         //Generates a vector whose components are -1 or +1, representing a face corner.
         inline Vector2i WFC_API MakeCornerFaceVector(FacePoints point) { return { (IsCornerFirstAxisMin(point) ? -1 : 1), (IsCornerSecondAxisMin(point) ? -1 : 1) }; }
+    	//The inverse of 'MakeCornerFaceVector'.
+    	inline FacePoints WFC_API MakeCornerFacePoint(Vector2i faceVector)
+        {
+	        return MakeCornerFacePoint(faceVector.x < 0, faceVector.y < 0);
+        }
 
         inline bool WFC_API IsEdgeParallelToFirstAxis(FacePoints p) { return ((uint_fast8_t)p / 2) == 0; }
         inline bool WFC_API IsEdgeOnMinSide(FacePoints p) { return ((uint_fast8_t)p % 2) == 0; }
@@ -72,12 +89,21 @@ namespace WFC
                        (onMinSide ? FacePoints::AA : FacePoints::AB) :
                        (onMinSide ? FacePoints::BA : FacePoints::BB);
         }
-        //Generates a vector with one component 0 and one component +/- 1, representing a face edge.
+        //Generates a vector with one component 0 and one component +/- 1,
+        //    pointing towards the center of a given face edge.
         inline Vector2i WFC_API MakeEdgeFaceVector(FacePoints point)
         {
             Vector2i v;
             v[IsEdgeParallelToFirstAxis(point) ? 1 : 0] = IsEdgeOnMinSide(point) ? -1 : 1;
             return v;
+        }
+    	//The inverse of 'MakeEdgeFaceVector'. 
+    	inline FacePoints WFC_API MakeEdgeFacePoint(Vector2i vector)
+        {
+	        return MakeEdgeFacePoint(
+	        	vector.x == 0,
+	        	std::min(vector.x, vector.y) < 0
+	        );
         }
 
 
@@ -124,6 +150,13 @@ namespace WFC
             if (outPlane2 < outPlane1)
                 std::swap(outPlane1, outPlane2);
         }
+    	
+    	//Applies a 2D transformation to the given corner of the given face.
+    	//This transformation is from the point of view looking at this face on the rotation axis.
+    	WFC_API FacePoints TransformFaceCorner(FacePoints p, Directions3D dir, Transformations tr2D);
+    	//Applies a 2D transformation to the given edge of the given face.
+    	//This transformation is from the point of view looking at this face on the rotation axis.
+    	WFC_API FacePoints TransformFaceEdge(FacePoints p, Directions3D dir, Transformations tr2D);
 
         //Unique identifier for a face, including any symmetries implicit in the arrangement of corners and faces.
         struct WFC_API FaceIdentifiers
@@ -280,7 +313,7 @@ namespace WFC
             CornerBAA_120, CornerBAA_240,
             CornerBBA_120, CornerBBA_240,
         };
-        const uint_fast16_t N_ROTATIONS_3D = 24;
+        constexpr uint_fast16_t N_ROTATIONS_3D = 24;
 
 
         //The faces of a cube, with memory of how they have been transformed.
@@ -373,7 +406,7 @@ namespace WFC
                     Rotations3D::CornerBBA_120, //CornerBBA_240
                 };
 
-                return { Invert, rotLookup[(int)Rot] };
+                return { !Invert, rotLookup[(int)Rot] };
             }
 
             //Generates a perfect, unique hash code for this instance.

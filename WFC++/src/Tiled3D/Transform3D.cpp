@@ -422,3 +422,84 @@ CubePermutation Transform3D::ApplyToCube(CubePermutation cube) const
         face = ApplyToFace(face);
     return cube;
 }
+
+FacePoints WFC::Tiled3D::TransformFaceCorner(FacePoints p, Directions3D dir, Transformations tr2D)
+{
+    //Faces can be left-handed or right-handed.
+    //Flip our situation so we're always left-handed like the larger coordinate system.
+	switch (dir)
+	{
+		case Directions3D::MaxX:
+		case Directions3D::MinY:
+		case Directions3D::MaxZ:
+			return TransformFaceCorner(p, GetOpposite(dir), WFC::Invert(tr2D));
+		
+		case Directions3D::MinX:
+		case Directions3D::MaxY:
+		case Directions3D::MinZ:
+			break;
+		
+		default: check(false);
+	}
+
+	#define WFCPP_RETURN(aa, ab, ba, bb) switch (p) { \
+		case FacePoints::AA: return FacePoints::aa; \
+		case FacePoints::AB: return FacePoints::ab; \
+		case FacePoints::BA: return FacePoints::ba; \
+		case FacePoints::BB: return FacePoints::bb; \
+		default: check(false); return aa; \
+	}
+
+    switch (tr2D)
+    {
+		case Transformations::None: WFCPP_RETURN(AA, AB, BA, BB);
+		case Transformations::Rotate90CW: WFCPP_RETURN(AB, BB, AA, BA);
+		case Transformations::Rotate180: WFCPP_RETURN(BB, BA, AB, AA);
+		case Transformations::Rotate270CW: WFCPP_RETURN(BA, AA, BB, AB);
+		case Transformations::FlipX: WFCPP_RETURN(BA, BB, AA, AB);
+		case Transformations::FlipY: WFCPP_RETURN(AB, AA, BB, BA);
+		case Transformations::FlipDiag1: WFCPP_RETURN(AA, BA, AB, BB);
+		case Transformations::FlipDiag2: WFCPP_RETURN(BB, AB, BA, AA);
+		default: check(false); return p;
+    }
+}
+FacePoints WFC::Tiled3D::TransformFaceEdge(FacePoints p, Directions3D dir, Transformations tr2D)
+{
+    //Faces can be left-handed or right-handed.
+    //Flip our situation so we're always left-handed like the larger coordinate system.
+	switch (dir)
+	{
+		case Directions3D::MaxX:
+		case Directions3D::MinY:
+		case Directions3D::MaxZ:
+			return TransformFaceEdge(p, GetOpposite(dir), WFC::Invert(tr2D));
+		
+		case Directions3D::MinX:
+		case Directions3D::MaxY:
+		case Directions3D::MinZ:
+			break;
+		
+		default: check(false);
+	}
+
+	#define WFCPP_RETURN(aa, ab, ba, bb) switch (p) { \
+		case FacePoints::AA: return FacePoints::aa; \
+		case FacePoints::AB: return FacePoints::ab; \
+		case FacePoints::BA: return FacePoints::ba; \
+		case FacePoints::BB: return FacePoints::bb; \
+		default: check(false); return aa; \
+	}
+
+    switch (tr2D)
+    {
+		case Transformations::None: WFCPP_RETURN(AA, AB, BA, BB);
+		case Transformations::Rotate90CW: WFCPP_RETURN(BA, BB, AB, AA);
+		case Transformations::Rotate180: WFCPP_RETURN(AB, AA, BB, BA);
+		case Transformations::Rotate270CW: WFCPP_RETURN(BB, BA, AA, AB);
+		case Transformations::FlipX: WFCPP_RETURN(AA, AB, BB, BA);
+		case Transformations::FlipY: WFCPP_RETURN(AB, AA, BA, BB);
+		case Transformations::FlipDiag1: WFCPP_RETURN(BA, BB, AA, AB);
+		case Transformations::FlipDiag2: WFCPP_RETURN(BB, BA, AB, AA);
+		default: check(false); return p;
+    }
+}
