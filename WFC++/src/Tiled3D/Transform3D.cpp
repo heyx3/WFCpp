@@ -1,6 +1,7 @@
 #include "../../include/Tiled3D/Transform3D.h"
 
 #include <algorithm>
+#include <unordered_map>
 
 #include "../../include/Helpers/Vector2i.h"
 
@@ -423,6 +424,109 @@ CubePermutation Transform3D::ApplyToCube(CubePermutation cube) const
     return cube;
 }
 
+//Data object that precomputes all possible transform sequences.
+struct TransformApplicationCache
+{
+    std::array<Transform3D, N_TRANSFORMS * N_TRANSFORMS> cachedAnswers;
+    Transform3D& GetAnswer(const Transform3D& a, const Transform3D& b)
+    {
+        auto aID = TransformSet::ToBitIdx(a),
+             bID = TransformSet::ToBitIdx(b);
+        return cachedAnswers[aID + (bID * N_TRANSFORMS)];
+    }
+
+    TransformApplicationCache()
+    {
+        //Enumerating this is a nightmare -- 2304 cases!
+        //Instead, for each pair of transforms, apply them to the eight corner points,
+        //    and deduce the resulting transform by their final arrangement.
+
+        //Corner points are binary vectors: along each axis, 0 for min side and 1 for max side.
+        //Therefore a corner position can be represented with a 3-bit integer, from 0 to 7.
+        //Eight corners require 24 bits (and could be packed even smaller but it's not worth the effort).
+        using CornerPoints = std::array<Vector3i, 8>;
+        using CornersID = uint_fast32_t;
+        auto cornerPointsToID = [&](const CornerPoints& c) -> CornersID
+        {
+            CornersID output = 0;
+            for (CornersID i = 0; i < 8; ++i)
+            {
+                CornersID pointBits = 0;
+                for (CornersID axis = 0; axis < 3; ++axis)
+                    pointBits |= (c[i][axis]) << axis;
+
+                CornersID firstBit = (i * 3);
+                output |= pointBits << firstBit;
+            }
+            return output;
+        };
+        auto cornerPointsInitial = [&]() -> CornerPoints
+        {
+            CornerPoints output;
+            for (int cornerI = 0; cornerI < 8; ++cornerI)
+            {
+                //The specific ordering isn't important; just has to be the same every time.
+                output[cornerI] = {
+                    (cornerI % 2),     // 01010101
+                    (cornerI / 4),     // 00001111
+                    (cornerI / 2) % 2  // 00110011
+                };
+            }
+            return output;
+        };
+        auto cornerPointsTransform = [&](const CornerPoints& src, const Transform3D& tr) -> CornerPoints
+        {
+            CornerPoints dest;
+            for (int i = 0; i < 8; ++i)
+                dest[i] = tr.ApplyToPos(src[i], Vector3i{ 1, 1, 1 });
+            return dest;
+        };
+
+        //Define a mapping from corner arrangement to the transform that created it.
+        std::unordered_map<CornersID, Transform3D> transformByCornerArrangement;
+        for (int shouldInvert = 0; shouldInvert < 2; ++shouldInvert)
+        {
+            for (int rotID = 0; rotID < N_ROTATIONS_3D; ++rotID)
+            {
+                Transform3D tr{ shouldInvert == 1, static_cast<Rotations3D>(rotID) };
+                
+                auto transformedCorners = cornerPointsTransform(cornerPointsInitial(), tr);
+                auto cornersID = cornerPointsToID(transformedCorners);
+
+                assert(transformByCornerArrangement.find(cornersID) == transformByCornerArrangement.end());
+                transformByCornerArrangement[cornersID] = tr;
+            }
+        }
+
+        //Now check every possible combination of transforms.
+        for (int shouldInvert1 = 0; shouldInvert1 < 2; ++shouldInvert1)
+        {
+            for (int rotID1 = 0; rotID1 < N_ROTATIONS_3D; ++rotID1)
+            {
+                Transform3D tr1{ shouldInvert1 == 1, static_cast<Rotations3D>(rotID1) };
+                auto cornersTransformed1 = cornerPointsTransform(cornerPointsInitial(), tr1);
+
+                for (int shouldInvert2 = 0; shouldInvert2 < 2; ++shouldInvert2)
+                {
+                    for (int rotID2 = 0; rotID2 < N_ROTATIONS_3D; ++rotID2)
+                    {
+                        Transform3D tr2{ shouldInvert2 == 1, static_cast<Rotations3D>(rotID2) };
+                        auto cornersTransformedFinal = cornerPointsTransform(cornersTransformed1, tr2);
+
+                        Transform3D effectiveTr = transformByCornerArrangement.at(cornerPointsToID(cornersTransformedFinal));
+                        GetAnswer(tr1, tr2) = effectiveTr;
+                    }
+                }
+            }
+        }
+    }
+};
+Transform3D Transform3D::Then(const Transform3D& next) const
+{
+    static TransformApplicationCache cache;
+    return cache.GetAnswer(*this, next);
+}
+
 FacePoints WFC::Tiled3D::TransformFaceCorner(FacePoints p, Directions3D dir, Transformations tr2D)
 {
     //Faces can be left-handed or right-handed.
@@ -439,7 +543,7 @@ FacePoints WFC::Tiled3D::TransformFaceCorner(FacePoints p, Directions3D dir, Tra
 		case Directions3D::MinZ:
 			break;
 		
-		default: check(false);
+		default: assert(false);
 	}
 
 	#define WFCPP_RETURN(aa, ab, ba, bb) switch (p) { \
@@ -447,7 +551,7 @@ FacePoints WFC::Tiled3D::TransformFaceCorner(FacePoints p, Directions3D dir, Tra
 		case FacePoints::AB: return FacePoints::ab; \
 		case FacePoints::BA: return FacePoints::ba; \
 		case FacePoints::BB: return FacePoints::bb; \
-		default: check(false); return aa; \
+		default: assert(false); return aa; \
 	}
 
     switch (tr2D)
@@ -460,7 +564,7 @@ FacePoints WFC::Tiled3D::TransformFaceCorner(FacePoints p, Directions3D dir, Tra
 		case Transformations::FlipY: WFCPP_RETURN(AB, AA, BB, BA);
 		case Transformations::FlipDiag1: WFCPP_RETURN(AA, BA, AB, BB);
 		case Transformations::FlipDiag2: WFCPP_RETURN(BB, AB, BA, AA);
-		default: check(false); return p;
+		default: assert(false); return p;
     }
 }
 FacePoints WFC::Tiled3D::TransformFaceEdge(FacePoints p, Directions3D dir, Transformations tr2D)
@@ -479,7 +583,7 @@ FacePoints WFC::Tiled3D::TransformFaceEdge(FacePoints p, Directions3D dir, Trans
 		case Directions3D::MinZ:
 			break;
 		
-		default: check(false);
+		default: assert(false);
 	}
 
 	#define WFCPP_RETURN(aa, ab, ba, bb) switch (p) { \
@@ -487,7 +591,7 @@ FacePoints WFC::Tiled3D::TransformFaceEdge(FacePoints p, Directions3D dir, Trans
 		case FacePoints::AB: return FacePoints::ab; \
 		case FacePoints::BA: return FacePoints::ba; \
 		case FacePoints::BB: return FacePoints::bb; \
-		default: check(false); return aa; \
+		default: assert(false); return aa; \
 	}
 
     switch (tr2D)
@@ -500,6 +604,6 @@ FacePoints WFC::Tiled3D::TransformFaceEdge(FacePoints p, Directions3D dir, Trans
 		case Transformations::FlipY: WFCPP_RETURN(AB, AA, BA, BB);
 		case Transformations::FlipDiag1: WFCPP_RETURN(BA, BB, AA, AB);
 		case Transformations::FlipDiag2: WFCPP_RETURN(BB, BA, AB, AA);
-		default: check(false); return p;
+		default: assert(false); return p;
     }
 }

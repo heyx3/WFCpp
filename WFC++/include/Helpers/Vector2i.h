@@ -8,7 +8,8 @@
 #include "EnumFlags.h"
 #include "WFCMath.h"
 
-
+#pragma warning( push )
+#pragma warning( disable: 4702 )
 
 namespace WFC
 {
@@ -246,3 +247,5 @@ template<> struct std::hash<WFC::Region2i>
 		});
 	}
 };
+
+#pragma warning( pop )

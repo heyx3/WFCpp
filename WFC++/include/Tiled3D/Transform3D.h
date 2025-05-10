@@ -406,8 +406,10 @@ namespace WFC
                     Rotations3D::CornerBBA_120, //CornerBBA_240
                 };
 
-                return { !Invert, rotLookup[(int)Rot] };
+                return { Invert, rotLookup[(int)Rot] };
             }
+            //Applies the given transform after this one, and returns the resulting transform.
+            Transform3D Then(const Transform3D& tr2) const;
 
             //Generates a perfect, unique hash code for this instance.
             using HashType = uint_fast8_t;
@@ -431,6 +433,7 @@ namespace WFC
                 return h;
             }
         };
+        constexpr int N_TRANSFORMS = N_ROTATIONS_3D * 2;
 
         //Gets a specific face of a transformed cube.
         inline FacePermutation GetFace(CubePermutation cubeBeforeTransform,
@@ -468,7 +471,7 @@ namespace WFC
             
             WFCPP_MEMORY_CHECK_HEADER(16, "TransformSet struct");
             
-            static const uint_fast8_t BIT_COUNT = N_ROTATIONS_3D * 2;
+            static const uint_fast8_t BIT_COUNT = N_TRANSFORMS;
             
             using BitsType = Math::SmallestUInt<BIT_COUNT>;
             static constexpr BitsType ZERO = 0,
@@ -482,6 +485,7 @@ namespace WFC
 
 
             //Gets the index of the bit for this transform.
+            //This doubles as a unique index/perfect hash!
             static uint_fast8_t ToBitIdx(Transform3D tr)
             {
                 return (uint_fast8_t)tr.Rot +

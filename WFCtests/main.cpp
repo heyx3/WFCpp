@@ -383,8 +383,71 @@ SUITE(WFC_Tiled3D)
             }
     }
 
-    // NOTE: Tests of Tiled3D::GetFace() would be nice, but it's self-testing with asserts
-    //    so not high-priority.
+    TEST(TransformCombinations)
+    {
+        Transform3D identity{ };
+
+        //Do some comprehensive tautological tests on every possible transform.
+        for (int invert = 0; invert < 2; ++invert)
+            for (int rotI = 0; rotI < N_ROTATIONS_3D; ++rotI)
+            {
+                Transform3D forward = { invert == 1, (Rotations3D)rotI };
+
+                //Check that combining this transform and its inverse always leads to the identity.
+                auto inverse = forward.Inverse();
+                CHECK_EQUAL(forward.Then(inverse), identity);
+                CHECK_EQUAL(inverse.Then(forward), identity);
+
+                //Check that combining this transform with 4 90-degree rotations
+                //     always leads to the original transform again.
+                for (auto rot90 : std::to_array({ Transform3D{ false, Rotations3D::AxisX_90 },
+                                                  Transform3D{ false, Rotations3D::AxisY_90 },
+                                                  Transform3D{ false, Rotations3D::AxisZ_90 } }))
+                {
+                    CHECK_EQUAL(forward.Then(rot90).Then(rot90).Then(rot90).Then(rot90), forward);
+                    CHECK_EQUAL(identity.Then(rot90).Then(rot90).Then(rot90).Then(rot90).Then(forward), forward);
+
+                    auto rot270 = rot90.Inverse();
+                    CHECK_EQUAL(forward.Then(rot90).Then(rot270), forward);
+                    CHECK_EQUAL(identity.Then(rot90).Then(rot270).Then(forward), forward);
+                }
+                //Check that combining this transform with 3 120-degree rotations
+                //     always leads to the original transform again.
+                for (auto rot120 : std::to_array({ Transform3D{ false, Rotations3D::CornerAAA_120 },
+                                                   Transform3D{ false, Rotations3D::CornerABA_120 },
+                                                   Transform3D{ false, Rotations3D::CornerBAA_120 },
+                                                   Transform3D{ false, Rotations3D::CornerBBA_120 } }))
+                {
+                    CHECK_EQUAL(forward.Then(rot120).Then(rot120).Then(rot120), forward);
+                    CHECK_EQUAL(identity.Then(rot120).Then(rot120).Then(rot120).Then(forward), forward);
+
+                    auto rot240 = rot120.Inverse();
+                    CHECK_EQUAL(forward.Then(rot120).Then(rot240), forward);
+                    CHECK_EQUAL(identity.Then(rot120).Then(rot240).Then(forward), forward);
+                    CHECK_EQUAL(forward.Then(rot240).Then(rot120), forward);
+                    CHECK_EQUAL(identity.Then(rot240).Then(rot120).Then(forward), forward);
+                }
+                //Check that combining this transform with 2 180-degree rotations
+                //     always leads to the original transform again.
+                for (auto rot180 : std::to_array({ Transform3D{ false, Rotations3D::AxisX_180 },
+                                                   Transform3D{ false, Rotations3D::AxisY_180 },
+                                                   Transform3D{ false, Rotations3D::AxisZ_180 },
+                                                   Transform3D{ false, Rotations3D::EdgesXa },
+                                                   Transform3D{ false, Rotations3D::EdgesXb },
+                                                   Transform3D{ false, Rotations3D::EdgesYa },
+                                                   Transform3D{ false, Rotations3D::EdgesYb },
+                                                   Transform3D{ false, Rotations3D::EdgesZa },
+                                                   Transform3D{ false, Rotations3D::EdgesZb } }))
+                {
+                    CHECK_EQUAL(forward.Then(rot180).Then(rot180), forward);
+                    CHECK_EQUAL(identity.Then(rot180).Then(rot180).Then(forward), forward);
+                }
+            }
+
+    }
+
+    // NOTE: Tests of Tiled3D::GetFace() would be nice,
+    //     but the asserts practically make it self-testing so it's not high-priority.
 
     static const Transform3D setTransforms[] = {
         //Defined in their expected order.

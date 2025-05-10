@@ -269,7 +269,7 @@ std::optional<std::tuple<TileIdx, Transform3D>> StandardRunner::RandomTile(const
     //Pick a permutation for the tile.
     const auto& permutations = allowedPerTile[chosenTileI];
     WFCPP_ASSERT(permutations.Size() > 0);
-    distributionWeights.resize(static_cast<size_t>(N_ROTATIONS_3D * 2));
+    distributionWeights.resize(static_cast<size_t>(N_TRANSFORMS));
     std::fill(distributionWeights.begin(), distributionWeights.end(), 0.0f);
     for (Transform3D tr : permutations)
         distributionWeights[TransformSet::ToBitIdx(tr)] = 1;
