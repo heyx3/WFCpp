@@ -74,10 +74,20 @@ namespace WFC
 		{
 			return Vector2i(Vector2i(x, y).GetHashcode(), z).GetHashcode();
 		}
-		size_t GetHashcodeLarge() const
+		uint64_t GetHashcodeLarge() const
 		{
 			return Vector2i(x, y).GetHashcodeLarge() ^
 				   Vector2i(y, z).GetHashcodeLarge();
+		}
+		template<typename _ = size_t> //Templating is needed to static_assert(false) in the fallthrough case
+		size_t GetSTLHashcode() const
+		{
+			if constexpr (sizeof(size_t) == 4)
+				return static_cast<size_t>(GetHashcode());
+			else if constexpr (sizeof(size_t) == 8)
+				return static_cast<size_t>(GetHashcodeLarge());
+			else
+				static_assert(std::is_same_v<_, void>, "Unexpected hashcode type size");
 		}
 	};
 
@@ -179,13 +189,13 @@ inline WFC::Vector3i WFC::Math::Min<WFC::Vector3i>(Vector3i a, Vector3i b)
 
 template<> struct std::hash<WFC::Vector3i>
 {
-	size_t operator()(const WFC::Vector3i& v) const { return v.GetHashcodeLarge(); }
+	size_t operator()(const WFC::Vector3i& v) const { return v.GetSTLHashcode(); }
 };
 template<> struct std::hash<WFC::Region3i>
 {
 	size_t operator()(const WFC::Region3i& r) const {
-		size_t x = r.MinInclusive.GetHashcodeLarge(),
-			   y = r.MaxExclusive.GetHashcodeLarge();
+		size_t x = r.MinInclusive.GetSTLHashcode(),
+			   y = r.MaxExclusive.GetSTLHashcode();
 		return x ^ y; //TODO: Probably a better way to mix bits.
 	}
 };

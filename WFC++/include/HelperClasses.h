@@ -55,7 +55,7 @@ namespace WFC
         Weight remainingBudget = std::uniform_real_distribution<Weight>(0, totalWeight)(rng);
         //Due to floating-point error we may run off the end of the weights array;
         //    plus once we pass the second-to-last element we already know what the answer will be.
-        for (int i = 0; i < weights.size() - 1; ++i)
+        for (int i = 0; i < static_cast<int>(weights.size()) - 1; ++i)
         {
             remainingBudget -= weights[i];
             if (remainingBudget <= 0)

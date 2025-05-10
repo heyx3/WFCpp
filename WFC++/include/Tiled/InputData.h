@@ -31,7 +31,7 @@ namespace WFC
 template<> struct std::hash<WFC::Tiled::EdgeInstance>
 {
     size_t operator()(const WFC::Tiled::EdgeInstance& d) const {
-        return WFC::Vector2i(d.Type, d.Dir).GetHashcodeLarge();
+        return WFC::Vector2i(d.Type, d.Dir).GetSTLHashcode();
     }
 };
 

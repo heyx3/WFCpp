@@ -388,10 +388,17 @@ SUITE(WFC_Tiled3D)
         Transform3D identity{ };
 
         //Do some comprehensive tautological tests on every possible transform.
-        for (int invert = 0; invert < 2; ++invert)
-            for (int rotI = 0; rotI < N_ROTATIONS_3D; ++rotI)
+        for (int rotI = 0; rotI < N_ROTATIONS_3D; ++rotI)
+        {
+            auto rot = (Rotations3D)rotI;
+
+            //Check that inverting then rotating is the same as inverting+rotating.
+            CHECK_EQUAL((Transform3D{ true, Rotations3D::None }.Then(Transform3D{ false, rot })),
+                (Transform3D{ true, rot }));
+
+            for (int invert = 0; invert < 2; ++invert)
             {
-                Transform3D forward = { invert == 1, (Rotations3D)rotI };
+                Transform3D forward = { invert == 1, rot };
 
                 //Check that combining this transform and its inverse always leads to the identity.
                 auto inverse = forward.Inverse();
@@ -443,7 +450,13 @@ SUITE(WFC_Tiled3D)
                     CHECK_EQUAL(identity.Then(rot180).Then(rot180).Then(forward), forward);
                 }
             }
+        }
 
+        //Check specific cases that I worked out in my head.
+        CHECK_EQUAL((Transform3D{ false, Rotations3D::AxisX_90 }
+                      .Then(Transform3D{ false, Rotations3D::AxisX_180 })),
+                    (Transform3D{ false, Rotations3D::AxisX_270 }));
+        //TODO: Come up with some complex ones involving inversion; use Blender to visualize
     }
 
     // NOTE: Tests of Tiled3D::GetFace() would be nice,

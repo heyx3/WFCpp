@@ -191,6 +191,12 @@ namespace
     } };
 }
 
+Rotations3D CombineRotations(Rotations3D a, Rotations3D b)
+{
+    //We already have an efficient solution for transforms,
+    //     which are a superset of rotations.
+    return Transform3D{ false, a }.Then(Transform3D{ false, b }).Rot;
+}
 
 uint_fast8_t CubePermutation::GetFace(Directions3D dir) const
 {

@@ -74,15 +74,25 @@ namespace WFC
 				 b = Vector2i(z, w).GetHashcode();
 			return Vector2i(static_cast<int32_t>(a), static_cast<int32_t>(b)).GetHashcode();
 		}
-		size_t GetHashcodeLarge() const
+		uint64_t GetHashcodeLarge() const
 		{
-			size_t a = Vector2i{ x, y }.GetHashcodeLarge(),
-				   b = Vector2i{ z, w }.GetHashcodeLarge();
+			uint64_t a = Vector2i{ x, y }.GetHashcodeLarge(),
+				     b = Vector2i{ z, w }.GetHashcodeLarge();
 			//Make sure the bits of 'a' and 'b' are mixed well by re-hashing them.
-			size_t c = Vector2i{ static_cast<int32_t>(a >> 32), static_cast<int32_t>(b & 0xffffffff) }.GetHashcodeLarge(),
-				   d = Vector2i{ static_cast<int32_t>(a & 0xffffffff), static_cast<int32_t>(b >> 32) }.GetHashcodeLarge();
+			uint64_t c = Vector2i{ static_cast<int32_t>(a >> 32), static_cast<int32_t>(b & 0xffffffff) }.GetHashcodeLarge(),
+				     d = Vector2i{ static_cast<int32_t>(a & 0xffffffff), static_cast<int32_t>(b >> 32) }.GetHashcodeLarge();
 
 			return c ^ d;
+		}
+		template<typename _ = size_t> //Templating is needed to static_assert(false) in the fallthrough case
+		size_t GetSTLHashcode() const
+		{
+			if constexpr (sizeof(size_t) == 4)
+				return static_cast<size_t>(GetHashcode());
+			else if constexpr (sizeof(size_t) == 8)
+				return static_cast<size_t>(GetHashcodeLarge());
+			else
+				static_assert(std::is_same_v<_, void>, "Unexpected hashcode type size");
 		}
 	};
 
@@ -191,15 +201,15 @@ inline WFC::Vector4i WFC::Math::Min<WFC::Vector4i>(Vector4i a, Vector4i b)
 
 template<> struct std::hash<WFC::Vector4i>
 {
-	size_t operator()(const WFC::Vector4i& v) const { return v.GetHashcodeLarge(); }
+	size_t operator()(const WFC::Vector4i& v) const { return v.GetSTLHashcode(); }
 };
 template<> struct std::hash<WFC::Region4i>
 {
 	size_t operator()(const WFC::Region4i& r) const {
 		//Hash min and max into 128 bits,
 		//    then map those to a Vector4i and hash that.
-		size_t a = r.MinInclusive.GetHashcodeLarge(),
-			   b = r.MaxExclusive.GetHashcodeLarge();
+		uint64_t a = r.MinInclusive.GetHashcodeLarge(),
+			     b = r.MaxExclusive.GetHashcodeLarge();
 		return std::hash<WFC::Vector4i>{}({
 			static_cast<int32_t>(a >> 32),
 			static_cast<int32_t>(a & 0xffffffff),

@@ -260,7 +260,7 @@ std::optional<std::tuple<TileIdx, Transform3D>> StandardRunner::RandomTile(const
     //Pick a tile, weighting them by their number of possible permutations
     //     (and of course the user's own weights).
     distributionWeights.clear();
-    for (int tileI = 0; tileI < Grid.InputTiles.size(); ++tileI)
+    for (int tileI = 0; tileI < static_cast<int>(Grid.InputTiles.size()); ++tileI)
         distributionWeights.push_back(static_cast<float>(allowedPerTile[tileI].Size() * Grid.InputTiles[tileI].Weight));
     auto chosenTileI = PickWeightedRandomIndex(Rand, distributionWeights);
     if (chosenTileI < 0)

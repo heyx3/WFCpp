@@ -49,7 +49,7 @@ void Grid::Reset()
     Cells.Fill(startingCellData);
 
     //Set up PossiblePermutations.
-    for (int tileI = 0; tileI < InputTiles.size(); ++tileI)
+    for (int tileI = 0; tileI < static_cast<int>(InputTiles.size()); ++tileI)
         for (const Vector3i& cellPos : Region3i(Cells.GetDimensions()))
             PossiblePermutations[Vector4i(tileI, cellPos)] = InputTiles[tileI].Permutations;
 
@@ -294,14 +294,14 @@ void Grid::ApplyFilter(const Vector3i& cellPos, const FacePermutation& face,
     //It's possible, if uncommon, that a tileset has no match for a particular face.
     if (!FaceIndices.contains(face))
     {
-        for (int i = 0; i < InputTiles.size(); ++i)
+        for (int i = 0; i < static_cast<int>(InputTiles.size()); ++i)
             PossiblePermutations[{ i, cellPos }] = { };
         cell.NPossibilities = 0;
     }
     else
     {
         auto faceIdx = FaceIndices[face];
-        for (int tileI = 0; tileI < InputTiles.size(); ++tileI)
+        for (int tileI = 0; tileI < static_cast<int>(InputTiles.size()); ++tileI)
         {
             const auto& supported = MatchingFaces[{ tileI, faceIdx }];
             auto& available = PossiblePermutations[{ tileI, cellPos }];
@@ -354,11 +354,11 @@ void Grid::ResetCellPossibilities(const Vector3i& cellPos, CellState& cell, Repo
     if (report)
         report->GotBoring.push_back(cellPos);
 
-    for (int tileI = 0; tileI < InputTiles.size(); ++tileI)
+    for (int tileI = 0; tileI < static_cast<int>(InputTiles.size()); ++tileI)
         PossiblePermutations[{tileI, cellPos}] = InputTiles[tileI].Permutations;
 
     //Apply any relevant face constraints.
-    for (int dirI = 0; dirI < N_DIRECTIONS_3D; ++dirI)
+    for (int dirI = 0; dirI < static_cast<int>(N_DIRECTIONS_3D); ++dirI)
     {
         auto constraint = FaceConstraints.find({ cellPos, dirI });
         if (constraint != FaceConstraints.end())

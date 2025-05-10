@@ -181,7 +181,7 @@ namespace WFC
 
             inline uint32_t GetHashCode() const
             {
-                size_t h = GetHashcodeLarge();
+                uint64_t h = GetHashcodeLarge();
 
                 return Vector2i(
                     static_cast<int32_t>(h >> 32),
@@ -190,13 +190,13 @@ namespace WFC
             }
             inline uint64_t GetHashcodeLarge() const
             {
-                size_t a = Vector4i(
+                uint64_t a = Vector4i(
                     static_cast<int32_t>(Corners[0]),
                     static_cast<int32_t>(Corners[1]),
                     static_cast<int32_t>(Corners[2]),
                     static_cast<int32_t>(Corners[3])
                 ).GetHashcodeLarge();
-                size_t b = Vector4i(
+                uint64_t b = Vector4i(
                     static_cast<int32_t>(Edges[0]),
                     static_cast<int32_t>(Edges[1]),
                     static_cast<int32_t>(Edges[2]),
@@ -248,17 +248,12 @@ namespace WFC
 
             inline uint32_t GetHashCode() const
             {
-                size_t h = GetHashcodeLarge();
-
-                return Vector2i(
-                    static_cast<int32_t>(h >> 32),
-                    static_cast<int32_t>(h & 0xffffffff)
-                ).GetHashcode();
+                return Vector2i(Points.GetHashCode(), Side).GetHashcode();
             }
             inline uint64_t GetHashcodeLarge() const
             {
-                size_t a = Points.GetHashcodeLarge();
-                size_t b = Vector2i(
+                uint64_t a = Points.GetHashcodeLarge();
+                uint64_t b = Vector2i(
                     static_cast<int32_t>(Side),
                     ~static_cast<int32_t>(Side)
                 ).GetHashcodeLarge();
@@ -314,6 +309,7 @@ namespace WFC
             CornerBBA_120, CornerBBA_240,
         };
         constexpr uint_fast16_t N_ROTATIONS_3D = 24;
+        WFC_API Rotations3D CombineRotations(Rotations3D first, Rotations3D second);
 
 
         //The faces of a cube, with memory of how they have been transformed.

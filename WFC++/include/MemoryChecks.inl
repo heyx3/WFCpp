@@ -65,7 +65,7 @@ namespace WFC::DEBUGMEM
                     "Start of %s has corrupted padding value starting at byte %" PRId64 "! "
                         "It should be %#010x but it's %#010x",
                     HeaderMsgGetter(), firstFailedIdx * 4,
-                    TestValue, Data[firstFailedIdx]
+                    TestValue, Data[static_cast<size_t>(firstFailedIdx)]
                 );
                 throw std::exception{ };
             }

@@ -22,7 +22,7 @@ size_t Pattern::GetHashcode() const
 		hash = (hash * prime) + pixel;
 	}
 
-    return hash;
+    return static_cast<size_t>(hash);
 }
 
 bool Pattern::HasSameData(const Pattern& otherPattern) const

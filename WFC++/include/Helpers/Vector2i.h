@@ -125,24 +125,28 @@ namespace WFC
 			a = (a << 24) + (a * 0x193);
 			return a;
 		}
-		size_t GetHashcodeLarge() const
+		uint64_t GetHashcodeLarge() const
 		{
-			if constexpr (sizeof(size_t) == sizeof(uint64_t))
-			{
-				//We can get a perfect hash by zipping the bits together.
-				size_t h = (static_cast<size_t>(x) << 32) | static_cast<size_t>(y);
+			//We can get a perfect hash by zipping the 64 bits together.
+			uint64_t h = (static_cast<uint64_t>(x) << 32) | static_cast<uint64_t>(y);
 
-				//However they might not have the best distribution, so we should still mix them.
-				//Source on mixing: https://stackoverflow.com/a/12996028
-				h = (h ^ (h >> 30)) * UINT64_C(0xbf58476d1ce4e5b9);
-				h = (h ^ (h >> 27)) * UINT64_C(0x94d049bb133111eb);
-				h = h ^ (h >> 31);
+			//However they might not have the best distribution, so we should still mix them.
+			//Source on mixing: https://stackoverflow.com/a/12996028
+			h = (h ^ (h >> 30)) * UINT64_C(0xbf58476d1ce4e5b9);
+			h = (h ^ (h >> 27)) * UINT64_C(0x94d049bb133111eb);
+			h = h ^ (h >> 31);
 
-				return h;
-			}
-
-			//For other bit sizes (not common), fall back to the 32-bit behavior.
-			return static_cast<size_t>(GetHashcode());
+			return h;
+		}
+		template<typename _ = size_t> //Templating is needed to static_assert(false) in the fallthrough case
+		size_t GetSTLHashcode() const
+		{
+			if constexpr (sizeof(size_t) == 4)
+				return static_cast<size_t>(GetHashcode());
+			else if constexpr (sizeof(size_t) == 8)
+				return static_cast<size_t>(GetHashcodeLarge());
+			else
+				static_assert(std::is_same_v<_, void>, "Unexpected hashcode type size");
 		}
 	};
 
@@ -236,7 +240,7 @@ inline WFC::Vector2i WFC::Math::Min<WFC::Vector2i>(Vector2i a, Vector2i b)
 
 template<> struct std::hash<WFC::Vector2i>
 {
-	size_t operator()(const WFC::Vector2i& v) const { return v.GetHashcodeLarge(); }
+	size_t operator()(const WFC::Vector2i& v) const { return v.GetSTLHashcode(); }
 };
 template<> struct std::hash<WFC::Region2i>
 {

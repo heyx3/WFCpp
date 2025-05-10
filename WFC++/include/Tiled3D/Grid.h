@@ -93,7 +93,7 @@ namespace WFC
             inline void DEBUGMEM_ValidateInputs() const
             {
                 //Note: iterate with indices as much as possible so it's clearer in the debugger where validation is failing.
-                for (int i = 0; i < InputTiles.size(); ++i)
+                for (size_t i = 0; i < InputTiles.size(); ++i)
                     InputTiles[i].DEBUGMEM_Validate();
                 for (const auto& faceAndIdx : GetFaceIndices())
                     faceAndIdx.first.DEBUGMEM_Validate();
