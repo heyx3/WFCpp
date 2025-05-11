@@ -1,6 +1,7 @@
 #include "../../include/Tiled3D/Transform3D.h"
 
 #include <algorithm>
+#include <optional>
 #include <unordered_map>
 
 #include "../../include/Helpers/Vector2i.h"
@@ -612,4 +613,117 @@ FacePoints WFC::Tiled3D::TransformFaceEdge(FacePoints p, Directions3D dir, Trans
 		case Transformations::FlipDiag2: WFCPP_RETURN(BB, BA, AB, AA);
 		default: assert(false); return p;
     }
+}
+
+uint_fast8_t ImplicitTransformSet::PackFlags() const
+{
+    uint_fast8_t output = 0;
+
+    //Pack only the most fine-grained flags, but combined with the other coarse flags.
+    output |= (AllowInversion ? 0 : 1) << 0;
+    output |= ((AllowAxisXRots || AllowAxisRots || AllowAllRotations) ? 0 : 1) << 1;
+    output |= ((AllowAxisYRots || AllowAxisRots || AllowAllRotations) ? 0 : 1) << 2;
+    output |= ((AllowAxisZRots || AllowAxisRots || AllowAllRotations) ? 0 : 1) << 3;
+    output |= ((AllowCornerRots || AllowAllRotations) ? 0 : 1) << 4;
+    output |= ((AllowEdgeXRots || AllowEdgeRots || AllowAllRotations) ? 0 : 1) << 5;
+    output |= ((AllowEdgeYRots || AllowEdgeRots || AllowAllRotations) ? 0 : 1) << 6;
+    output |= ((AllowEdgeZRots || AllowEdgeRots || AllowAllRotations) ? 0 : 1) << 7;
+
+    return output;
+}
+TransformSet ImplicitTransformSet::GetExplicit() const
+{
+    //Memoize the set of allowed transforms given our implicit flags.
+    thread_local struct CachedResults
+    {
+        std::array<std::optional<TransformSet>, 255> ExplicitAllowedTransforms;
+        TransformSet GetResult(const ImplicitTransformSet& implicitSet)
+        {
+            auto id = implicitSet.PackFlags();
+            auto& cachedAnswer = ExplicitAllowedTransforms[id];
+
+            if (cachedAnswer.has_value())
+                return cachedAnswer.value();
+
+            //Generate the initial set of allowed transforms.
+            TransformSet initialSet; //Don't add the identity transform to this set; it's a waste of time.
+            if (implicitSet.AllowInversion)
+                initialSet.Add(Transform3D{ true, Rotations3D::None });
+            if (implicitSet.AllowAxisXRots || implicitSet.AllowAxisRots || implicitSet.AllowAllRotations)
+            {
+                initialSet.Add(Transform3D{ false, Rotations3D::AxisX_90 });
+                initialSet.Add(Transform3D{ false, Rotations3D::AxisX_180 });
+                initialSet.Add(Transform3D{ false, Rotations3D::AxisX_270 });
+            }
+            if (implicitSet.AllowAxisYRots || implicitSet.AllowAxisRots || implicitSet.AllowAllRotations)
+            {
+                initialSet.Add(Transform3D{ false, Rotations3D::AxisY_90 });
+                initialSet.Add(Transform3D{ false, Rotations3D::AxisY_180 });
+                initialSet.Add(Transform3D{ false, Rotations3D::AxisY_270 });
+            }
+            if (implicitSet.AllowAxisZRots || implicitSet.AllowAxisRots || implicitSet.AllowAllRotations)
+            {
+                initialSet.Add(Transform3D{ false, Rotations3D::AxisZ_90 });
+                initialSet.Add(Transform3D{ false, Rotations3D::AxisZ_180 });
+                initialSet.Add(Transform3D{ false, Rotations3D::AxisZ_270 });
+            }
+            if (implicitSet.AllowCornerRots || implicitSet.AllowAllRotations)
+            {
+                initialSet.Add(Transform3D{ false, Rotations3D::CornerAAA_120 });
+                initialSet.Add(Transform3D{ false, Rotations3D::CornerAAA_240 });
+                initialSet.Add(Transform3D{ false, Rotations3D::CornerBAA_120 });
+                initialSet.Add(Transform3D{ false, Rotations3D::CornerBAA_240 });
+                initialSet.Add(Transform3D{ false, Rotations3D::CornerABA_120 });
+                initialSet.Add(Transform3D{ false, Rotations3D::CornerABA_240 });
+                initialSet.Add(Transform3D{ false, Rotations3D::CornerBBA_120 });
+                initialSet.Add(Transform3D{ false, Rotations3D::CornerBBA_240 });
+            }
+            if (implicitSet.AllowEdgeXRots || implicitSet.AllowEdgeRots || implicitSet.AllowAllRotations)
+            {
+                initialSet.Add(Transform3D{ false, Rotations3D::EdgesXa });
+                initialSet.Add(Transform3D{ false, Rotations3D::EdgesXb });
+            }
+            if (implicitSet.AllowEdgeYRots || implicitSet.AllowEdgeRots || implicitSet.AllowAllRotations)
+            {
+                initialSet.Add(Transform3D{ false, Rotations3D::EdgesYa });
+                initialSet.Add(Transform3D{ false, Rotations3D::EdgesYb });
+            }
+            if (implicitSet.AllowEdgeZRots || implicitSet.AllowEdgeRots || implicitSet.AllowAllRotations)
+            {
+                initialSet.Add(Transform3D{ false, Rotations3D::EdgesZa });
+                initialSet.Add(Transform3D{ false, Rotations3D::EdgesZb });
+            }
+
+            //Iteratively extend the set of allowed transforms by applying every combination of allowed transform.
+            //As we discover new "composite" transforms, apply those to all the existing known ones.
+            TransformSet newSet = initialSet;
+            TransformSet finalSet = initialSet;
+            while (newSet.Size() > 0)
+            {
+                TransformSet baseSetForThisIteration = finalSet;
+                baseSetForThisIteration.Add(newSet);
+
+                TransformSet newSetForNextIteration = { };
+                for (auto existingTr : baseSetForThisIteration)
+                    for (auto newTr : newSet)
+                        for (auto compositeTr : std::to_array({ newTr.Then(existingTr), existingTr.Then(newTr) }))
+                            if (!finalSet.Add(compositeTr))
+                                newSetForNextIteration.Add(compositeTr);
+                newSet = newSetForNextIteration;
+            }
+            //Now add the identity transform (left out earlier to avoid wasted computation).
+            finalSet.Add(Transform3D{ });
+
+            cachedAnswer = finalSet;
+            return finalSet;
+        }
+    } cachedAllowedTransforms;
+
+    //Apply the memoized set of allowed transforms to our particular set of initial transforms.
+    TransformSet output;
+    for (auto b : cachedAllowedTransforms.GetResult(*this))
+        for (auto a : InitialTransforms)
+            output.Add(a.Then(b));
+
+    return output;
 }

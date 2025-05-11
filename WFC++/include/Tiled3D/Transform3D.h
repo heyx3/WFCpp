@@ -350,6 +350,7 @@ namespace WFC
 
 
         //Reprsents a transformation that can be done to a cube (while keeping it axis-aligned).
+        //The default/zero-constructor produces the identity transform.
         struct WFC_API Transform3D
         {
             //If true, this transform flips the cube along every axis before rotating.
@@ -459,15 +460,16 @@ namespace WFC
         //The rotations are ordered by their enum values.
         //Iteration order through this set is deterministic, based on the bit order.
         struct TransformSet
-            //Everything is kept inlined in the header, so
-            //    no WFC_API tag is needed on this struct.
+            //NOTE: static constexpr ints fail to compile for some reason when this class is marked WFC_API,
+            //     so everything is kept inlined in the header.
+            
             //TODO: Move to its own file.
         {
         public:
             
             WFCPP_MEMORY_CHECK_HEADER(16, "TransformSet struct");
             
-            static const uint_fast8_t BIT_COUNT = N_TRANSFORMS;
+            static constexpr uint_fast8_t BIT_COUNT = N_TRANSFORMS;
             
             using BitsType = Math::SmallestUInt<BIT_COUNT>;
             static constexpr BitsType ZERO = 0,
@@ -700,6 +702,42 @@ namespace WFC
         public:
             WFCPP_MEMORY_CHECK_FOOTER(16);
         };
+
+        //A group of parameters to help the user easily specify a large group of transforms.
+        //A small set of legal rotations/inversions are given
+        //     and then all possible combinations of these become part of the set.
+        //
+        //The default constructor sets all rotation/inversion flags to false
+        //     and leaves you with only the identity transform.
+        struct WFC_API ImplicitTransformSet
+        {
+            WFCPP_MEMORY_CHECK_HEADER(16, "ImplicitTransformSet struct");
+
+            TransformSet InitialTransforms = TransformSet::Combine(
+                Transform3D{ false, Rotations3D::None }
+            );
+
+            bool AllowInversion = false;
+            bool AllowAllRotations = false;
+            bool AllowAxisRots = false,
+                 AllowCornerRots = false,
+                 AllowEdgeRots = false;
+            bool AllowAxisXRots = false,
+                 AllowAxisYRots = false,
+                 AllowAxisZRots = false,
+                 AllowEdgeXRots = false,
+                 AllowEdgeYRots = false,
+                 AllowEdgeZRots = false;
+
+
+            TransformSet GetExplicit() const;
+
+        private:
+            uint_fast8_t PackFlags() const;
+
+        public:
+            WFCPP_MEMORY_CHECK_FOOTER(16);
+        };
     }
 }
 
@@ -732,5 +770,41 @@ template<> struct std::hash<WFC::Tiled3D::FacePermutation>
             return f.GetHashcodeLarge();
         else
             return static_cast<size_t>(f.GetHashCode());
+    }
+};
+template<> struct std::hash<WFC::Tiled3D::TransformSet>
+{
+    size_t operator()(const WFC::Tiled3D::TransformSet& s)
+    {
+        //If the bits representation fits directly into the hash-code type, then our job is easy.
+        if constexpr (WFC::Tiled3D::TransformSet::BIT_COUNT <= sizeof(size_t) * 8)
+            return static_cast<size_t>(s.Bits());
+        //If the bits are not more than twice as large as the hash-code type
+        //    (e.x. 32-bit system/hashes while the set is 64-bit), then combine the two halves of bits.
+        else if constexpr (sizeof(size_t) * 8 * 2 >= WFC::Tiled3D::TransformSet::BIT_COUNT)
+        {
+            auto bits = s.Bits();
+
+            auto fitSizeBytes = static_cast<decltype(bits)>(sizeof(size_t));
+            auto fitMask = static_cast<decltype(bits)>(~size_t{ 0 });
+
+            auto bitsHalves = std::to_array({
+                static_cast<size_t>(bits >> (fitSizeBytes * 8)),
+                static_cast<size_t>(bits & fitMask)
+            });
+            return bitsHalves[1] ^ bitsHalves[2];
+        }
+        //Other cases should basically never happen; no need to be clever about hashing them.
+        else
+        {
+            return static_cast<size_t>(s.Bits());
+        }
+    }
+};
+template<> struct std::hash<WFC::Tiled3D::ImplicitTransformSet>
+{
+    size_t operator()(const WFC::Tiled3D::ImplicitTransformSet& s)
+    {
+        return std::hash<WFC::Tiled3D::TransformSet>{}(s.GetExplicit());
     }
 };

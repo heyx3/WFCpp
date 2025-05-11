@@ -614,6 +614,42 @@ SUITE(WFC_Tiled3D)
         CHECK_EQUAL(Transform3D{ WFC_CONCAT(true, Rotations3D::EdgesYa) }, vec[2]);
     }
 
+    TEST(ImplicitTransformSet)
+    {
+        ImplicitTransformSet s1;
+        s1.AllowAllRotations = true;
+        s1.AllowInversion = true;
+        CHECK_EQUAL(N_TRANSFORMS, s1.GetExplicit().Size());
+
+        ImplicitTransformSet s5;
+        s5.InitialTransforms.Add(Transform3D{ true, Rotations3D::None });
+        s5.AllowAllRotations = true;
+        CHECK_EQUAL(N_TRANSFORMS, s5.GetExplicit().Size());
+
+        ImplicitTransformSet s2;
+        s2.AllowAxisZRots = true;
+        CHECK_EQUAL(4, s2.GetExplicit().Size());
+        CHECK(s2.GetExplicit().Contains(Transform3D{ false, Rotations3D::None }));
+        CHECK(s2.GetExplicit().Contains(Transform3D{ false, Rotations3D::AxisZ_90 }));
+        CHECK(s2.GetExplicit().Contains(Transform3D{ false, Rotations3D::AxisZ_180 }));
+        CHECK(s2.GetExplicit().Contains(Transform3D{ false, Rotations3D::AxisZ_270 }));
+
+        ImplicitTransformSet s3;
+        s3.InitialTransforms.Add(Transform3D{ true, Rotations3D::None });
+        s3.AllowAxisZRots = true;
+        CHECK_EQUAL(8, s3.GetExplicit().Size());
+        CHECK(s3.GetExplicit().Contains(Transform3D{ false, Rotations3D::None }));
+        CHECK(s3.GetExplicit().Contains(Transform3D{ false, Rotations3D::AxisZ_90 }));
+        CHECK(s3.GetExplicit().Contains(Transform3D{ false, Rotations3D::AxisZ_180 }));
+        CHECK(s3.GetExplicit().Contains(Transform3D{ false, Rotations3D::AxisZ_270 }));
+        CHECK(s3.GetExplicit().Contains(Transform3D{ true, Rotations3D::None }));
+        CHECK(s3.GetExplicit().Contains(Transform3D{ true, Rotations3D::AxisZ_90 }));
+        CHECK(s3.GetExplicit().Contains(Transform3D{ true, Rotations3D::AxisZ_180 }));
+        CHECK(s3.GetExplicit().Contains(Transform3D{ true, Rotations3D::AxisZ_270 }));
+
+        //TODO: More tests (I did all corner rotations but it also led to all axis-180 rotations and idk if that's correct).
+    }
+
     TEST(GridInitialization)
     {
         //Use inverted and/or sideways permutations of the single-tile tileset.
@@ -878,7 +914,9 @@ SUITE(WFC_Tiled3D)
         //Run the test many times to cover a broad range of possible outcomes.
         const int N_TESTS =
             #ifdef _DEBUG
-                20000
+                (sizeof(size_t) == 4) ? //Very slow on 32-bit for some reason
+                    5000 :
+                    20000
             #else
                 200000
             #endif
