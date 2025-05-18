@@ -2,6 +2,8 @@
 
 ![A demo of the old Unreal 4 plugin, now replaced with a better Unreal 5 one!](https://i.imgur.com/vkABeE1.gif)
 
+###### (this is a demo of the old Unreal 4 Tiled3D plugin; for a newer demo see [the plugin's own repo](https://github.com/heyx3/WfcUnreal))
+
 A C++ library for the amazing [WaveFunctionCollapse](https://github.com/mxgmn/WaveFunctionCollapse) algorithm, plus various utilities for running it.
 There is also [an Unreal 5 plugin](https://github.com/heyx3/WfcUnreal) to integrate the `Tiled3D` module with Unreal Engine.
 
