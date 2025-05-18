@@ -15,22 +15,20 @@ namespace WFC
 {
     namespace Tiled3D
     {
-        //Unique identifiers for points on a tile face.
-        //Each type of face should have its own unique PointIDs --
-        //    anywhere from 1 to 4, depending on the face's symmetry.
-        //Four of these, can uniquely identify a face permutation.
-        using PointID = std::uint_fast32_t;
-
-
         //Note that we're assuming a left-handed coordinate system.
-        //Conceptually, we visualize X as rightward, Z as forward, and Y as upwards.
+        //For visualization purposes we treat X as rightward, Z as forward, and Y as upwards.
         //This matches the coordinate system used by the Unity3D game engine.
-        //The Unreal engine's coordinate system is also left-handed (but with Z-up, X-forward).
+        //The Unreal engine's coordinate system is also left-handed but with Z-up, X-forward.
 
         //NOTE: most/all the enums below have a specific ordering
         //    that a number of functions and lookup tables rely on.
         //Don't change them!
 
+    	
+    	//Points on a tile face are uniquely identified with an integer ID.
+    	//The symmetries of a tile face come from assigning the same ID's to different points,
+    	//    to make those points functionally interchangeable.
+    	using PointID = std::uint_fast32_t;
 
         //Unique identifiers for the four corners or edges of a face,
         //     ordered in world-space to achieve trivial comparison of opposite faces.
@@ -149,6 +147,24 @@ namespace WFC
 
             if (outPlane2 < outPlane1)
                 std::swap(outPlane1, outPlane2);
+        }
+    	//Gets whether the given face has left-handed coordinates
+    	//    using the two face axes in our conventional ordering (see 'GetAxes()').
+    	inline bool IsFaceLeftHanded(Directions3D dir)
+        {
+	        switch (dir)
+			{
+				case Directions3D::MinX:
+				case Directions3D::MaxY:
+				case Directions3D::MinZ:
+					return true;
+				case Directions3D::MaxX:
+				case Directions3D::MinY:
+				case Directions3D::MaxZ:
+					return false;
+				
+				default: WFCPP_ASSERT(false);
+			}
         }
     	
     	//Applies a 2D transformation to the given corner of the given face.
@@ -432,17 +448,10 @@ namespace WFC
         };
         constexpr int N_TRANSFORMS = N_ROTATIONS_3D * 2;
 
-        //Gets a specific face of a transformed cube.
-        inline FacePermutation GetFace(CubePermutation cubeBeforeTransform,
-                                       Transform3D transform,
-                                       Directions3D sideAfterTransform)
-        {
-            //TODO: Seems like a small bottleneck is in here; try keeping a memoized table of transform+sideAfter => originalSide.
-            auto originalSide = transform.Inverse().ApplyToSide(sideAfterTransform);
-            auto newFace = transform.ApplyToFace(cubeBeforeTransform.Faces[originalSide]);
-            WFCPP_ASSERT(newFace.Side == sideAfterTransform);
-            return newFace;
-        }
+        //Gets the face data for a transformed cube.
+        WFC_API FacePermutation GetFace(CubePermutation cubeBeforeTransform,
+		                                Transform3D transform,
+		                                Directions3D sideAfterTransform);
 
         inline bool operator==(Transform3D t1, Transform3D t2)
         {
@@ -728,7 +737,7 @@ namespace WFC
                  AllowEdgeXRots = false,
                  AllowEdgeYRots = false,
                  AllowEdgeZRots = false;
-
+        	TransformSet SpecificAllowedTransforms;
 
             TransformSet GetExplicit() const;
 

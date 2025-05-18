@@ -431,6 +431,17 @@ CubePermutation Transform3D::ApplyToCube(CubePermutation cube) const
     return cube;
 }
 
+FacePermutation WFC::Tiled3D::GetFace(CubePermutation cubeBeforeTransform,
+									  Transform3D transform,
+									  Directions3D sideAfterTransform)
+{
+	//TODO: Seems like a small bottleneck is in here; try keeping a memoized table of transform+sideAfter => originalSide.
+	auto originalSide = transform.Inverse().ApplyToSide(sideAfterTransform);
+	auto newFace = transform.ApplyToFace(cubeBeforeTransform.Faces[originalSide]);
+	WFCPP_ASSERT(newFace.Side == sideAfterTransform);
+	return newFace;
+}
+
 //Data object that precomputes all possible transform sequences.
 struct TransformApplicationCache
 {
@@ -536,22 +547,8 @@ Transform3D Transform3D::Then(const Transform3D& next) const
 
 FacePoints WFC::Tiled3D::TransformFaceCorner(FacePoints p, Directions3D dir, Transformations tr2D)
 {
-    //Faces can be left-handed or right-handed.
-    //Flip our situation so we're always left-handed like the larger coordinate system.
-	switch (dir)
-	{
-		case Directions3D::MaxX:
-		case Directions3D::MinY:
-		case Directions3D::MaxZ:
-			return TransformFaceCorner(p, GetOpposite(dir), WFC::Invert(tr2D));
-		
-		case Directions3D::MinX:
-		case Directions3D::MaxY:
-		case Directions3D::MinZ:
-			break;
-		
-		default: assert(false);
-	}
+	if (!IsFaceLeftHanded(dir))
+		return TransformFaceCorner(p, GetOpposite(dir), WFC::Invert(tr2D));
 
 	#define WFCPP_RETURN(aa, ab, ba, bb) switch (p) { \
 		case FacePoints::AA: return FacePoints::aa; \
@@ -560,7 +557,6 @@ FacePoints WFC::Tiled3D::TransformFaceCorner(FacePoints p, Directions3D dir, Tra
 		case FacePoints::BB: return FacePoints::bb; \
 		default: assert(false); return aa; \
 	}
-
     switch (tr2D)
     {
 		case Transformations::None: WFCPP_RETURN(AA, AB, BA, BB);
@@ -576,22 +572,8 @@ FacePoints WFC::Tiled3D::TransformFaceCorner(FacePoints p, Directions3D dir, Tra
 }
 FacePoints WFC::Tiled3D::TransformFaceEdge(FacePoints p, Directions3D dir, Transformations tr2D)
 {
-    //Faces can be left-handed or right-handed.
-    //Flip our situation so we're always left-handed like the larger coordinate system.
-	switch (dir)
-	{
-		case Directions3D::MaxX:
-		case Directions3D::MinY:
-		case Directions3D::MaxZ:
-			return TransformFaceEdge(p, GetOpposite(dir), WFC::Invert(tr2D));
-		
-		case Directions3D::MinX:
-		case Directions3D::MaxY:
-		case Directions3D::MinZ:
-			break;
-		
-		default: assert(false);
-	}
+	if (!IsFaceLeftHanded(dir))
+		return TransformFaceEdge(p, GetOpposite(dir), WFC::Invert(tr2D));
 
 	#define WFCPP_RETURN(aa, ab, ba, bb) switch (p) { \
 		case FacePoints::AA: return FacePoints::aa; \
@@ -724,6 +706,9 @@ TransformSet ImplicitTransformSet::GetExplicit() const
     for (auto b : cachedAllowedTransforms.GetResult(*this))
         for (auto a : InitialTransforms)
             output.Add(a.Then(b));
+	for (auto b : SpecificAllowedTransforms)
+		for (auto a : InitialTransforms)
+			output.Add(a.Then(b));
 
     return output;
 }
