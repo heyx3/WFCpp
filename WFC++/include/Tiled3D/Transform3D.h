@@ -163,7 +163,7 @@ namespace WFC
 				case Directions3D::MaxZ:
 					return false;
 				
-				default: WFCPP_ASSERT(false);
+				default: WFCPP_ASSERT(false); return true;
 			}
         }
     	
