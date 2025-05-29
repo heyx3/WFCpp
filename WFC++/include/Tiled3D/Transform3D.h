@@ -374,6 +374,7 @@ namespace WFC
             //The rotation that is applied (AFTER the inversion, if applicable).
             Rotations3D Rot = Rotations3D::None;
 
+            inline bool IsIdentity() const { return !Invert && Rot == Rotations3D::None; }
 
             //Applies this transformation to the given 3D position.
             //By default centered around the origin, but you can provide a "max" value
