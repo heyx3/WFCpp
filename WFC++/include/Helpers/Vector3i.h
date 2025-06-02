@@ -112,6 +112,11 @@ namespace WFC
                    pos.z >= MinInclusive.z && pos.z < MaxExclusive.z;
 		}
 		Vector3i GetSize() const { return MaxExclusive - MinInclusive; }
+		int GetNumbElements() const
+		{
+			auto size = GetSize();
+			return (size.x * size.y * size.z);
+		}
 
         #pragma region const_iterator
 		//An std-style iterator over the region.

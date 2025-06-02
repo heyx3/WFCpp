@@ -910,6 +910,9 @@ SUITE(WFC_Tiled3D)
         usedTransforms.Add(Transform3D{ false, Rotations3D::AxisZ_90 });
         StandardRunner state(OneTileArmy(usedTransforms), {4, 5, 6});
 
+        //Disable randomness in the standard-runner.
+        state.PriorityWeightRandomness = 0;
+
         //StandardRunner uses <random> to generate numbers.
         //Run the test many times to cover a broad range of possible outcomes.
         const int N_TESTS =
@@ -996,6 +999,9 @@ SUITE(WFC_Tiled3D)
             #endif
         );
 
+        //Disable randomness in the standard-runner.
+        state.PriorityWeightRandomness = 0;
+
         //Set one tile on each Z-slice.
         std::unordered_map<Vector3i, std::tuple<TileIdx, Transform3D>> constants;
         constants[{ 2, 2, 0 }] = std::make_tuple((TileIdx)0, Transform3D{ });
@@ -1069,6 +1075,9 @@ SUITE(WFC_Tiled3D)
         );
         state.Reset();
 
+        //Disable randomness in the standard-runner.
+        state.PriorityWeightRandomness = 0;
+
         //Run until the whole grid is solved.
         std::cout << "    (running a slow test..";
         bool isFinished = false;
@@ -1089,6 +1098,7 @@ SUITE(WFC_Tiled3D)
             nullptr, { 0xa33eff3456a23423 }
         );
         state.ClearRegionGrowthRateT = 0.1f;
+        state.PriorityWeightRandomness = 0;
         state.Reset();
 
         bool finished = state.TickN(20000);

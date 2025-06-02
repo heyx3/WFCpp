@@ -65,7 +65,7 @@ namespace Tiled3D
         //Default value of 0 because I'm not actually sure it creates a better outcome.
         float CoolOffFromSetting = 0.0f;
         //From 0 to 1, how fast the clear region increases around tiles that have already been cleared a lot.
-        //Use a low value for tilesets with many small errors that need limited clearing.
+        //Use a low value for tilesets that produce many small errors requiring limited clearing.
         float ClearRegionGrowthRateT = 0.5f;
 
         //The influence of temperature on how soon a cell should be set.
@@ -74,6 +74,9 @@ namespace Tiled3D
         //The influence on a cell's 'NPermutations' value on how soon it should be set.
         //Note that the 'NPermutations' value is fed in as a float from 0 to 1.
         float PriorityWeightEntropy = 0.8f;
+        //The random fluctuations of a cell's chances of being set.
+        //This can cause lower-entropy cells to get set earlier than higher-entropy ones.
+        float PriorityWeightRandomness = 0.1f;
 
         PRNG Rand;
 
@@ -85,6 +88,7 @@ namespace Tiled3D
         //Calculates the area to clear around a given (presumably unsolvable) cell.
         Region3i GetClearRegion(const Vector3i& cell) const;
         //Calculates the priority of handling a given cell.
+        //Will be a bit randomized each time it's called.
         float GetPriority(const Vector3i& cellPos);
 
         //Runs one iteration of the algorithm.
@@ -115,7 +119,7 @@ namespace Tiled3D
 
         StandardRunner(const std::vector<Tile>& inputTiles, const Vector3i& gridSize,
                        const std::unordered_map<Vector3i, std::tuple<TileIdx, Transform3D>>* constants = nullptr,
-                       PRNG rand = PRNG(std::random_device()()))
+                       PRNG rand = { std::random_device{ }() })
             : History(gridSize, { }), Rand(rand), Grid(inputTiles, gridSize)
         {
             if (constants != nullptr)

@@ -20,7 +20,6 @@ float StandardRunner::GetTemperature(const Vector3i& cell) const
 
     return temperature;
 }
-//Calculates the area to clear around a given (presumably unsolvable) cell.
 Region3i StandardRunner::GetClearRegion(const Vector3i& cell) const
 {
     float temperature = GetTemperature(cell);
@@ -41,13 +40,13 @@ Region3i StandardRunner::GetClearRegion(const Vector3i& cell) const
              areaMax = Math::Min(History.GetDimensions(), cell + radius + 1);
     return { areaMin, areaMax };
 }
-//Calculates the priority of handling a given cell.
 float StandardRunner::GetPriority(const Vector3i& cellPos)
 {
     float entropy = 1.0f - ((float)Grid.Cells[cellPos].NPossibilities /
                               Grid.NPermutedTiles);
     return (PriorityWeightEntropy * entropy) +
-           (PriorityWeightTemperature * GetTemperature(cellPos));
+           (PriorityWeightTemperature * GetTemperature(cellPos)) +
+           (std::uniform_real_distribution<float>{0.0f, PriorityWeightRandomness}(Rand));
 }
 
 
@@ -167,6 +166,15 @@ Vector3i StandardRunner::PickNextCellToSet()
         cellPriorities.emplace_back(cellPos, priority);
         maxPriority = Math::Max(maxPriority, priority);
     }
+    //Sort the options, because 'nextCells' is a set and not ordered deterministically.
+    std::sort(cellPriorities.begin(), cellPriorities.end(),
+              [](const std::tuple<Vector3i, float>& a,
+                 const std::tuple<Vector3i, float>& b)
+    {
+        return std::get<0>(a).GetHashcode() <
+                std::get<0>(b).GetHashcode();
+    });
+
 
     //Filter out the cells of less-than-max priority.
     auto newEndIterator = std::remove_if(

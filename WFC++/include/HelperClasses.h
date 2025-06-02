@@ -15,8 +15,6 @@
 
 namespace WFC
 {
-    //Keep in mind WFC only samples the RNG like twice per iteration.
-    //We don't need something really tight like PCG.
     using PRNG = xoshiro256starstar64;
 
 
