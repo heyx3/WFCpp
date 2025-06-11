@@ -647,6 +647,12 @@ SUITE(WFC_Tiled3D)
         CHECK(s3.GetExplicit().Contains(Transform3D{ true, Rotations3D::AxisZ_180 }));
         CHECK(s3.GetExplicit().Contains(Transform3D{ true, Rotations3D::AxisZ_270 }));
 
+        ImplicitTransformSet s4;
+        s4.InitialTransforms.Add(Transform3D{ false, Rotations3D::AxisZ_90 });
+        CHECK_EQUAL(2, s4.GetExplicit().Size());
+        CHECK(s4.GetExplicit().Contains(Transform3D{ false, Rotations3D::None }));
+        CHECK(s4.GetExplicit().Contains(Transform3D{ false, Rotations3D::AxisZ_90 }));
+
         //TODO: More tests (I did all corner rotations but it also led to all axis-180 rotations and idk if that's correct).
     }
 

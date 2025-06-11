@@ -618,7 +618,7 @@ TransformSet ImplicitTransformSet::GetExplicit() const
     //Memoize the set of allowed transforms given our implicit flags.
     thread_local struct CachedResults
     {
-        std::array<std::optional<TransformSet>, 255> ExplicitAllowedTransforms;
+        std::array<std::optional<TransformSet>, 256> ExplicitAllowedTransforms;
         TransformSet GetResult(const ImplicitTransformSet& implicitSet)
         {
             auto id = implicitSet.PackFlags();
