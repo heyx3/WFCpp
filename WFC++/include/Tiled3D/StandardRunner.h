@@ -67,6 +67,18 @@ namespace Tiled3D
         //From 0 to 1, how fast the clear region increases around tiles that have already been cleared a lot.
         //Use a low value for tilesets that produce many small errors requiring limited clearing.
         float ClearRegionGrowthRateT = 0.5f;
+        
+        //If we get right back to an unsolvable state, we'll double the undo size and try again.
+        //After the undo size gets too big, we'll switch to clearing cell areas.
+        int InitialUnwindingCount = 4;
+        //If heuristics are telling us to do this many undo operations or more,
+        //    switch to clearing cells instead.
+        int MaxUnwindingCount = 64;
+        //Set to -1 when not in the middle of redoing some unwinding operations.
+        int CurrentUnwindingCount = -1;
+        //Tracks how long until we're finished redoing the last group of unwinding operations.
+        //Once this hits 0 we can reset the current unwinding count.
+        int PlacementsTillFinishedRewinding = -1;
 
         //The influence of temperature on how soon a cell should be set.
         //Note that temperature is usually the size of small integers.
@@ -76,7 +88,9 @@ namespace Tiled3D
         float PriorityWeightEntropy = 0.8f;
         //The random fluctuations of a cell's chances of being set.
         //This can cause lower-entropy cells to get set earlier than higher-entropy ones.
-        float PriorityWeightRandomness = 0.1f;
+        //However it does not play nicely with 'Unwinding' history,
+        //     because it reduces coherency in the action history.
+        float PriorityWeightRandomness = 0.0f;
 
         PRNG Rand;
 
@@ -111,6 +125,7 @@ namespace Tiled3D
         
         void SetCell(const Vector3i& cellPos, TileIdx tile, Transform3D permutation,
                      bool makeImmutable = false);
+        void UnwindCells(int nToUnwind);
 
         void SetFaceConstraint(const Vector3i& cellPos, Directions3D cellFace,
                                const FaceIdentifiers& facePermutation);
@@ -138,6 +153,7 @@ namespace Tiled3D
         std::unordered_set<Vector3i> nextCells, unsolvableCells;
         std::vector<std::tuple<Vector3i, float>> buffer_pickCell_options;
         std::vector<float> buffer_randomTile_weights;
+        std::unordered_map<Vector3i, int> buffer_unwindCells_originalNPossibilities;
 
         void ClearAround(const Vector3i& centerCellPos);
 

@@ -773,7 +773,7 @@ SUITE(WFC_Tiled3D)
         CHECK(state.Cells[WFC_CONCAT({ 2, 0, 0 })].IsChangeable);
         CHECK_EQUAL(0, report.GotUnsolvable.size());
         CHECK_EQUAL(1, report.GotInteresting.size());
-        CHECK(report.GotInteresting.contains({ 1, 0, 0 }));
+        CHECK(report.GotInteresting.contains({ 2, 0, 0 }));
         CHECK_EQUAL(1, state.Cells[WFC_CONCAT({ 1, 0, 0 })].NPossibilities);
         CHECK_EQUAL(TransformSet::Combine(Transform3D{ }),
                     state.PossiblePermutations[WFC_CONCAT({ 0, {1, 0, 0} })]);

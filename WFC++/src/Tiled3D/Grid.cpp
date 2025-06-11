@@ -53,9 +53,36 @@ void Grid::Reset()
         for (const Vector3i& cellPos : Region3i(Cells.GetDimensions()))
             PossiblePermutations[Vector4i(tileI, cellPos)] = InputTiles[tileI].Permutations;
 
+    //Clear history.
+    ActionHistory.clear();
+    StatePreActionHistory.clear();
+    //Make sure history buffers have enough space to remember the entire grid history.
+    ActionHistory.reserve(Cells.GetNumbElements());
+    StatePreActionHistory.reserve(Cells.GetNumbElements() * (N_DIRECTIONS_3D + 1) * InputTiles.size());
+
     DEBUGMEM_ValidateAll();
 }
 
+
+std::tuple<Vector3i, Vector3i, std::vector<TransformSet>::const_iterator, std::vector<TransformSet>::const_iterator>
+    Grid::ActionHistoryNeighborInfo(int cellHistoryIdx, int neighborI) const
+{
+    Vector3i srcCell = ActionHistory[cellHistoryIdx];
+
+    Vector3i neighborCell = srcCell;
+    auto [neighborAxis, neighborDir] = ActionHistoryNeighborsData(neighborI);
+    neighborCell[neighborAxis] += neighborDir;
+
+    int entriesPerNeighbor = static_cast<int>(InputTiles.size()),
+        entriesPerHistoryEntry = entriesPerNeighbor * (N_DIRECTIONS_3D + 1),
+        firstPossibilityIdx = (cellHistoryIdx * entriesPerHistoryEntry) + (neighborI * entriesPerNeighbor);
+    auto possibilities = std::span{ &StatePreActionHistory[firstPossibilityIdx],
+                                    static_cast<size_t>(entriesPerNeighbor) };
+
+    return std::make_tuple(srcCell, neighborCell,
+                           StatePreActionHistory.begin() + firstPossibilityIdx,
+                           StatePreActionHistory.begin() + firstPossibilityIdx + entriesPerNeighbor);
+}
 
 bool Grid::IsLegalPlacement(const Vector3i& cellPos,
                             TileIdx tileIdx, Transform3D tilePermutation) const
@@ -102,14 +129,32 @@ void Grid::SetCell(Vector3i pos, TileIdx tile, Transform3D tilePermutation,
     //If the cell is being *replaced* rather than going from unset to set,
     //    then neighbor data is harder to update seamlessly because
     //    it could add tile possibilities as well as remove them.
-    //The best and simplest option is to clear this cell as an intermediate step.
+    //The best and simplest option is to clear this cell so that setting it can only subtract possibliities.
     auto& cell = Cells[pos];
     if (cell.IsSet())
-        ClearCells(Region3i(pos, pos + 1), report);
+        ClearCell(pos, report, canBeChangedInFuture);
     //Note that there's no chance of reallocation, so 'cell' is still valid!
-    cell = { tile, tilePermutation, canBeChangedInFuture, 1 };
 
-    //Update the neighbors.
+    //Add this event to the action history, so it can be quickly undone later.
+    ActionHistory.push_back(pos);
+    for (int neighborI = 0; neighborI < N_DIRECTIONS_3D + 1; ++neighborI)
+    {
+        //Get the neighbor cell in our history ordering.
+        auto [neighborAxis, neighborDir] = ActionHistoryNeighborsData(neighborI);
+        auto neighborCellPos = pos;
+        neighborCellPos[neighborAxis] += neighborDir;
+        neighborCellPos = FilterPos(neighborCellPos);
+
+        if (Cells.IsIndexValid(neighborCellPos))
+            for (int inputTileI = 0; inputTileI < InputTiles.size(); ++inputTileI)
+                StatePreActionHistory.push_back(PossiblePermutations[Vector4i{ inputTileI, neighborCellPos }]);
+        else
+            for (int inputTileI = 0; inputTileI < InputTiles.size(); ++inputTileI)
+                StatePreActionHistory.emplace_back();
+    }
+
+    //Update the cell and its neighbors.
+    cell = { tile, tilePermutation, canBeChangedInFuture, 1 };
     for (const auto& [neighborPos, faceTowardsNeighbor] : GetNeighbors(pos))
         if (Cells.IsIndexValid(neighborPos))
             ApplyFilter(pos, neighborPos, faceTowardsNeighbor, report);
@@ -174,6 +219,31 @@ void Grid::ClearCells(const Region3i& region, Report* report,
                       bool includeImmutableCells,
                       bool clearedImmutableCellsAreMutableNow)
 {
+    //Special case: all cells in the clear region are on the top of the history stack,
+    //    allowing us to undo them more efficiently and without losing the rest of the grid's history.
+    int nCells = region.GetNumbElements();
+    if (ActionHistory.size() >= nCells)
+    {
+        bool allUnwindable = true;
+        for (int i = 0; i < nCells; ++i)
+        {
+            auto cellPos = ActionHistory[ActionHistory.size() - 1 - i];
+            if (!region.Contains(cellPos) || (!includeImmutableCells && !Cells[cellPos].IsChangeable))
+            {
+                allUnwindable = false;
+                break;
+            }
+        }
+        if (allUnwindable)
+        {
+            UnwindActionHistories(nCells, report);
+            return;
+        }
+    }
+    //If not for that special case, all cell-placement history will be invalidated.
+    ActionHistory.clear();
+    StatePreActionHistory.clear();
+
     //Use a buffer to track the uncleared cells in the region.
     buffer_clearCells_leftovers.clear();
     auto& unclearedCellsInRegion = buffer_clearCells_leftovers;
@@ -272,8 +342,7 @@ void Grid::ClearCells(const Region3i& region, Report* report,
 void Grid::ClearCell(const Vector3i& cellPos, Report* report,
                      bool becomeMutable)
 {
-    ClearCells(Region3i(cellPos, cellPos + 1), report,
-               true, becomeMutable);
+    ClearCells(Region3i(cellPos, cellPos + 1), report, true, becomeMutable);
 }
 void Grid::ClearFace(Vector3i cellPos, Directions3D face, Report* report)
 {
@@ -382,5 +451,90 @@ void Grid::RecalculateCellPossibilities(const Vector3i& cellPos, CellState& cell
 
         if (Cells.IsIndexValid(neighborPos))
             ApplyFilter(neighborPos, cellPos, GetOpposite(sideTowardsNeighbor), report);
+    }
+}
+
+void Grid::UnwindActionHistory(Report* report)
+{
+    WFCPP_ASSERT(!ActionHistory.empty());
+    WFCPP_ASSERT(StatePreActionHistory.size() == ActionHistory.size() * (N_DIRECTIONS_3D + 1) * InputTiles.size());
+
+    decltype(StatePreActionHistory)::const_iterator historyDataStart, historyDataEnd;
+    for (int neighborI = 0; neighborI < N_DIRECTIONS_3D + 1; ++neighborI)
+    {
+        auto [selfCell, neighborCellPos, neighborPermutationsStart, neighborPermutationsEnd] =
+            ActionHistoryNeighborInfo(static_cast<int>(ActionHistory.size() - 1), neighborI);
+        
+        if (neighborI == 0)
+            historyDataStart = neighborPermutationsStart;
+        else if (neighborI == N_DIRECTIONS_3D)
+            historyDataEnd = neighborPermutationsEnd;
+
+        if (Cells.IsIndexValid(neighborCellPos))
+        {
+            auto& neighborCell = Cells[neighborCellPos];
+
+            int originalNPossibilities = neighborCell.NPossibilities;
+            neighborCell.NPossibilities = 0;
+
+            for (int tileI = 0; tileI < InputTiles.size(); ++tileI)
+            {
+                auto possibilities = *(neighborPermutationsStart + tileI);
+                neighborCell.NPossibilities += possibilities.Size();
+
+                //TODO: Try memcpy-ing all tile permutations at once.
+                PossiblePermutations[Vector4i{ tileI, neighborCellPos }] = possibilities;
+            }
+
+            if (report)
+            {
+                if (neighborCell.NPossibilities == 0 && originalNPossibilities > 0)
+                    report->GotUnsolvable.insert(neighborCellPos);
+                else if (neighborCell.NPossibilities == NPermutedTiles && originalNPossibilities < NPermutedTiles)
+                    report->GotBoring.push_back(neighborCellPos);
+                else if (neighborCell.NPossibilities < originalNPossibilities)
+                    report->GotInteresting.insert(neighborCellPos);
+            }
+
+        }
+    }
+
+    //Unset the cell itself.
+    auto& cell = Cells[ActionHistory.back()];
+    cell = { TileIdx_INVALID, { }, cell.IsChangeable, cell.NPossibilities };
+    if (report)
+        report->GotInteresting.insert(ActionHistory.back());
+
+    ActionHistory.pop_back();
+    StatePreActionHistory.erase(historyDataStart, historyDataEnd);
+}
+void Grid::UnwindActionHistories(int n, Report* report)
+{
+    buffer_unwindCells_originalNPossibilities.clear();
+    auto& originalNPossibilitiesPerCell = buffer_unwindCells_originalNPossibilities;
+
+    for (int i = 0; i < n; ++i)
+    {
+        const auto& cellPos = ActionHistory.back();
+        if (report && !originalNPossibilitiesPerCell.contains(cellPos))
+            originalNPossibilitiesPerCell[cellPos] = Cells[cellPos].NPossibilities;
+
+        UnwindActionHistory(report);
+    }
+
+    //Straighten out any kinks in the report from undoing multiple actions.
+    if (report)
+    {
+        for (const auto& [cellPos, originalNPossibilities] : originalNPossibilitiesPerCell)
+        {
+            int newNPossibilities = Cells[cellPos].NPossibilities;
+            //If we ended up with some possibilities in this cell,
+            //     then it doesn't matter if it was unsolvable earlier.
+            //This fix probably isn't required, due to the fact that
+            //     the cell should also be in 'GotInteresting',
+            //     but leaving it in there screws up some sanity checks.
+            if (newNPossibilities > 0)
+                report->GotUnsolvable.erase(cellPos);
+        }
     }
 }

@@ -105,6 +105,8 @@ public:
 
         s3_ = rotl(s3_, b);
     }
+    //Added by billy: debug view of state data.
+    auto read_state() const { return std::make_tuple(s0_, s1_, s2_, s3_); }
 
     bool operator==(const xoshiro_x4& rhs)
     {

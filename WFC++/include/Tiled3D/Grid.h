@@ -4,6 +4,7 @@
 #include <tuple>
 #include <algorithm>
 #include <limits>
+#include <span>
 
 #include "Tile.hpp"
 
@@ -27,7 +28,7 @@ namespace WFC
                 WFCPP_MEMORY_CHECK_HEADER(16, "CellState struct");
                 
                 TileIdx ChosenTile = TileIdx_INVALID;
-                Transform3D ChosenPermutation = Transform3D{};
+                Transform3D ChosenPermutation = { };
 
                 //Some tiles are given by the user, and this algorithm has to work around them.
                 //Those tiles must not be cleared or otherwise manipulated.
@@ -115,6 +116,43 @@ namespace WFC
             //NOTE: after a cell is set, its entry here no longer gets updated,
             //    so you should check whether a cell is set before paying attention to this data.
             Array4D<TransformSet> PossiblePermutations;
+
+            //The record of cells that have been set.
+            //Each entry in here corresponds to n*6 entries in 'StatePreActionHistory',
+            //     where n is the number of input tiles,
+            //     storing the possibility set of the 6 neighbors just before the change.
+            // 
+            //You can unwind this history by calling `Unwind(n)`.
+            // 
+            //This history is lost any time a bulk of cells are cleared.
+            std::vector<Vector3i> ActionHistory;
+            //For each entry in 'ActionHistory', this stores
+            //     the possible permutations of that cell's 6 neighbors just before it was set,
+            //     followed by the possible permutations of that cell itself.
+            //This means there are n*7 as many entries (where n is the number of input tiles).
+            //
+            //If the neighbor cell does not exist then it stores an empty set for that neighbor's input tiles.
+            std::vector<TransformSet> StatePreActionHistory;
+            //Gets the order of the 6 neighbors + self in 'StatePreActionHistory',
+            //    per each entry in 'ActionHistory'.
+            //Ouputs a tuple of (neighborAxis, neighborDir), using (0, 0) for self.
+            static auto ActionHistoryNeighborsData(int idx) { return std::to_array({
+                std::make_tuple(0, -1),
+                std::make_tuple(0, 1),
+                std::make_tuple(1, -1),
+                std::make_tuple(1, 1),
+                std::make_tuple(2, -1),
+                std::make_tuple(2, 1),
+                std::make_tuple(0, 0)
+            })[idx]; }
+            //Given a cell from the action history and its neighbor index (7 representing the cell itself),
+            //     gets info on that neighbor in the moment before the cell was set.
+            //
+            //More precisely, returns a tuple of
+            //    (srcCell, neighborCell, neighborPreviousPossibilitiesBegin, neighborPreviousPossibilitiesEnd).
+            std::tuple<Vector3i, Vector3i, std::vector<TransformSet>::const_iterator, std::vector<TransformSet>::const_iterator>
+                ActionHistoryNeighborInfo(int cellHistoryIdx, int neighborI) const;
+
             void DEBUGMEM_ValidateOutputs() const
             {
                 //Note: iterate with indices as much as possible so it's clearer in the debugger where validation is failing.
@@ -123,7 +161,6 @@ namespace WFC
                 for (Vector4i idx : Region4i(PossiblePermutations.GetDimensions()))
                     PossiblePermutations[idx].DEBUGMEM_Validate();
             }
-
             void DEBUGMEM_ValidateAll() const
             {
                 #if WFCPP_CHECK_MEMORY
@@ -190,19 +227,31 @@ namespace WFC
                          const FaceIdentifiers& points,
                          Report* report = nullptr);
 
+            //Efficiently undoes the most recent cell placement.
+            void UnwindActionHistory(Report* report = nullptr);
+            //Efficiently undoes the N most recent cell placements.
+            //If you provide a report, it will be post-processed a bit to clean it up
+            //     after all actions are completed.
+            void UnwindActionHistories(int n, Report* report = nullptr);
+
             //Clears out the values of all cells in the given region.
             //Optionally, even cells marked "!IsChangeable" get cleared.
+            //
+            //This erases the 'action history' of all set cells and their neighbors' previous states,
+            //     UNLESS this region covers all the most recently-set cells so we can use Unwind() instead.
             void ClearCells(const Region3i& region, Report* report = nullptr,
                             bool includeImmutableCells = false,
                             bool clearedImmutableCellsAreMutableNow = true);
             //Clears the given cell, even if it's marked as "!IsChangeable".
             //Optionally, even cells marked "!IsChangeable" get cleared.
+            //
+            //This erases the 'action history' of set cells and their neighbors' previous states,
+            //    UNLESS this cell is the most recent bit of history and can be undone that way.
             void ClearCell(const Vector3i& cellPos, Report* report = nullptr,
                            bool becomeMutable = true);
             //Removes the constraint you previously placed on a specific cell face.
             //If you didn't place a constraint, then nothing happens.
             void ClearFace(Vector3i cell, Directions3D face, Report* report = nullptr);
-            //TODO: ClearFace(). Remember to clear both entries, on both sides of the face!
 
 
         private:
@@ -278,6 +327,7 @@ namespace WFC
             std::unordered_map<Vector4i, FaceIdentifiers> FaceConstraints;
 
             std::unordered_set<Vector3i> buffer_clearCells_leftovers;
+            std::unordered_map<Vector3i, int> buffer_unwindCells_originalNPossibilities;
         };
     }
 }

@@ -113,8 +113,29 @@ void StandardRunner::SetCell(const Vector3i& cellPos, TileIdx tile, Transform3D 
     }
 
     //Update the cell history.
-    auto& history = History[cellPos];
-    history.BaseTemperature = Math::Max(0.0f, history.BaseTemperature - CoolOffFromSetting);
+    //Skip this if we're redoing some unwound history; that shouldn't affect temperature.
+    if (CurrentUnwindingCount < 1)
+    {
+        auto& history = History[cellPos];
+        history.BaseTemperature = Math::Max(0.0f, history.BaseTemperature - CoolOffFromSetting);
+    }
+}
+void StandardRunner::UnwindCells(int n)
+{
+    report.Clear();
+    Grid.UnwindActionHistories(n, &report);
+
+    //Process the report.
+    //Note that the order is important; these collections aren't mutually exclusive.
+    for (const auto& c : report.GotBoring)
+        nextCells.erase(c);
+    for (const auto& c : report.GotInteresting)
+        nextCells.insert(c);
+    for (const auto& c : report.GotUnsolvable)
+    {
+        unsolvableCells.insert(c);
+        nextCells.erase(c);
+    }
 }
 
 void StandardRunner::SetFaceConstraint(const Vector3i& cellPos, Directions3D cellFace,
@@ -197,17 +218,45 @@ bool StandardRunner::Tick()
 {
     CurrentTimestamp += 1;
 
-    //If cells are unsolvable, clear them.
+    //If cells are unsolvable, clear or unwind them.
     bool hasUnsolvable = unsolvableCells.size() > 0;
-    for (const Vector3i& cellPos : unsolvableCells)
-        ClearAround(cellPos);
-    unsolvableCells.clear();
     if (hasUnsolvable)
     {
+        bool usedUnwinding = [&]() {
+            if (CurrentUnwindingCount < 1)
+                CurrentUnwindingCount = InitialUnwindingCount;
+            //If we were redoing previously-undone cells,
+            //     and we got at least halfway back towards redoing them all,
+            //     then double the unwinding size.
+            else if (PlacementsTillFinishedRewinding <= (CurrentUnwindingCount / 2))
+                CurrentUnwindingCount *= 2;
+
+            //If the unwinding size got too big, or we can't undo that many cells, give up.
+            if (CurrentUnwindingCount >= MaxUnwindingCount || CurrentUnwindingCount < 1 ||
+                CurrentUnwindingCount >= Grid.ActionHistory.size())
+            {
+                CurrentUnwindingCount = -1;
+                return false;
+            }
+
+            PlacementsTillFinishedRewinding = CurrentUnwindingCount;
+            UnwindCells(CurrentUnwindingCount);
+
+            return true;
+        }();
+
+        if (!usedUnwinding)
+        {
+            for (const Vector3i& cellPos : unsolvableCells)
+                ClearAround(cellPos);
+        }
+
+        unsolvableCells.clear();
         return false;
     }
+
     //If there's no search frontier, re-scan the grid for options.
-    else if (nextCells.size() == 0)
+    if (nextCells.size() == 0)
     {
         //Look for any cells with less than full range of possibilities,
         //    and track how many are set.
@@ -245,6 +294,11 @@ bool StandardRunner::Tick()
     {
         std::tie(tileIdx, tilePermutation) = *tryRandomTile;
         SetCell(cellPos, tileIdx, tilePermutation);
+
+        //Update unwiding count logic.
+        PlacementsTillFinishedRewinding -= 1;
+        if (PlacementsTillFinishedRewinding < 1)
+            CurrentUnwindingCount = -1;
     }
     else
     {
