@@ -72,6 +72,10 @@ I tried to make it a git submodule, but they're quite annoying to work with so t
 The actual unit tests are in the project *WFCtests*.
 Just run this project to run the unit tests.
 
+To aid in tracking down memory corruption in the Tiled3D module,
+    debug builds of WFCpp add header and footer bytes to many data structures and frequently check them for changes in value.
+If any code writes to places it shouldn't, there's a solid chance that it wrote to these padding bytes.
+
 ## License
 
 MIT license; go crazy.
