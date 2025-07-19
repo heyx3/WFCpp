@@ -127,9 +127,12 @@ namespace Tiled3D
                      bool makeImmutable = false);
         void UnwindCells(int nToUnwind);
 
+        void SetCellConstraintNot(const Vector3i& cellPos, TileIdx tile, TransformSet permutations = TransformSet::All());
         void SetFaceConstraint(const Vector3i& cellPos, Directions3D cellFace,
-                               const FaceIdentifiers& facePermutation);
-        void ClearFaceConstraint(const Vector3i& cellPos, Directions3D cellFace);
+                               const FaceIdentifiers& facePermutation,
+                               bool invert = false);
+        void SetFaceConstraintNot(const Vector3i& cellPos, Directions3D cellFace,
+                                  const FaceIdentifiers& facePermutation);
 
 
         StandardRunner(const std::vector<Tile>& inputTiles, const Vector3i& gridSize,

@@ -139,14 +139,21 @@ void StandardRunner::UnwindCells(int n)
 }
 
 void StandardRunner::SetFaceConstraint(const Vector3i& cellPos, Directions3D cellFace,
-                                       const FaceIdentifiers& facePermutation)
+                                       const FaceIdentifiers& facePermutation,
+                                       bool invert)
 {
+    if (invert)
+    {
+        SetFaceConstraintNot(cellPos, cellFace, facePermutation);
+        return;
+    }
+
     report.Clear();
     Grid.SetFace(cellPos, cellFace, facePermutation, &report);
 
     //Process the report.
     //Note that the order is important; these collections aren't mutually exclusive.
-    WFCPP_ASSERT(report.GotBoring.empty()); //Adding a constraint can't remove possibilities!
+    WFCPP_ASSERT(report.GotBoring.empty()); //Adding a constraint can't increase possibilities!
     for (const auto& c : report.GotInteresting)
         nextCells.insert(c);
     for (const auto& c : report.GotUnsolvable)
@@ -155,18 +162,39 @@ void StandardRunner::SetFaceConstraint(const Vector3i& cellPos, Directions3D cel
         nextCells.erase(c);
     }
 }
-void StandardRunner::ClearFaceConstraint(const Vector3i& cellPos, Directions3D cellFace)
+void StandardRunner::SetFaceConstraintNot(const Vector3i& cellPos, Directions3D cellFace,
+                                          const FaceIdentifiers& facePermutation)
 {
     report.Clear();
-    Grid.ClearFace(cellPos, cellFace, &report);
+    Grid.SetFaceNot(cellPos, cellFace, facePermutation, &report);
 
     //Process the report.
     //Note that the order is important; these collections aren't mutually exclusive.
-    for (const auto& c : report.GotBoring)
-        nextCells.erase(c);
+    WFCPP_ASSERT(report.GotBoring.empty()); //Adding a constraint can't increase possibilities!
     for (const auto& c : report.GotInteresting)
         nextCells.insert(c);
-    WFCPP_ASSERT(report.GotUnsolvable.empty()); //Removing a constraint can't cause impossible situations!
+    for (const auto& c : report.GotUnsolvable)
+    {
+        unsolvableCells.insert(c);
+        nextCells.erase(c);
+    }
+}
+
+void StandardRunner::SetCellConstraintNot(const Vector3i& cellPos, TileIdx tile, TransformSet permutations)
+{
+    report.Clear();
+    Grid.SetCellNot(cellPos, tile, permutations, &report);
+
+    //Process the report.
+    //Note that the order is important; these collections aren't mutually exclusive.
+    WFCPP_ASSERT(report.GotBoring.empty()); //Adding a constraint can't increase possibilities!
+    for (const auto& c : report.GotInteresting)
+        nextCells.insert(c);
+    for (const auto& c : report.GotUnsolvable)
+    {
+        unsolvableCells.insert(c);
+        nextCells.erase(c);
+    }
 }
 
 Vector3i StandardRunner::PickNextCellToSet()

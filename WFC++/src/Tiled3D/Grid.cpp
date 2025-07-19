@@ -12,7 +12,8 @@ Grid::Grid(const std::vector<Tile>& inputTiles, const Vector3i& outputSize)
       NPermutedTiles(std::accumulate(InputTiles.begin(), InputTiles.end(),
                                      0, [](int sum, const Tile& tile) { return sum + tile.Permutations.Size(); })),
       Cells(outputSize),
-      PossiblePermutations({ (int)inputTiles.size(), outputSize })
+      PossiblePermutations({ (int)inputTiles.size(), outputSize }),
+      InitialPossiblePermutations({ (int)inputTiles.size(), outputSize })
 {
     WFCPP_ASSERT(inputTiles.size() < TileIdx_INVALID); //The last index is reserved for [null]
 
@@ -37,6 +38,11 @@ Grid::Grid(const std::vector<Tile>& inputTiles, const Vector3i& outputSize)
                 matches.Add(transform);
             }
 
+    //Set up the initial possible permutation set.
+    for (int tileI = 0; tileI < static_cast<int>(InputTiles.size()); ++tileI)
+        for (const Vector3i& cellPos : Region3i(Cells.GetDimensions()))
+            InitialPossiblePermutations[Vector4i(tileI, cellPos)] = InputTiles[tileI].Permutations;
+
     DEBUGMEM_ValidateAll();
     Reset();
 }
@@ -48,10 +54,7 @@ void Grid::Reset()
     startingCellData.NPossibilities = NPermutedTiles;
     Cells.Fill(startingCellData);
 
-    //Set up PossiblePermutations.
-    for (int tileI = 0; tileI < static_cast<int>(InputTiles.size()); ++tileI)
-        for (const Vector3i& cellPos : Region3i(Cells.GetDimensions()))
-            PossiblePermutations[Vector4i(tileI, cellPos)] = InputTiles[tileI].Permutations;
+    InitialPossiblePermutations.MemCopyInto(PossiblePermutations.GetArray());
 
     //Clear history.
     ActionHistory.clear();
@@ -157,62 +160,9 @@ void Grid::SetCell(Vector3i pos, TileIdx tile, Transform3D tilePermutation,
     cell = { tile, tilePermutation, canBeChangedInFuture, 1 };
     for (const auto& [neighborPos, faceTowardsNeighbor] : GetNeighbors(pos))
         if (Cells.IsIndexValid(neighborPos))
-            ApplyFilter(pos, neighborPos, faceTowardsNeighbor, report);
+            ApplyFilter(pos, neighborPos, faceTowardsNeighbor, report, false);
 
     DEBUGMEM_ValidateAll();
-}
-void Grid::SetFace(Vector3i pos, Directions3D dir, const FaceIdentifiers& points, Report* report)
-{
-    pos = FilterPos(pos);
-    WFCPP_ASSERT(Cells.IsIndexValid(pos));
-
-    auto neighborPos = FilterPos(pos + GetFaceDirection(dir));
-    bool hasNeighbor = Cells.IsIndexValid(neighborPos);
-
-    CellState* faceCells[2] = {
-        &Cells[pos],
-        (hasNeighbor ? &Cells[neighborPos] : nullptr)
-    };
-    Directions3D faceDirs[2] = {
-        dir,
-        GetOpposite(dir)
-    };
-    Vector3i faceCellIdcs[2] = {
-        pos, neighborPos
-    };
-
-    for (int i = 0; i < 2; ++i)
-    {
-        if (faceCells[i] == nullptr)
-            continue;
-        auto& cell = *faceCells[i];
-        auto faceDir = faceDirs[i];
-        auto facePos = faceCellIdcs[i];
-
-        bool needsFiltering;
-        if (cell.IsSet())
-        {
-            const auto& tile = InputTiles[cell.ChosenTile];
-            auto chosenFace = GetFace(cell.ChosenTile, cell.ChosenPermutation, faceDir);
-            if (chosenFace.Points != points)
-            {
-                ClearCell(facePos, report, false);
-                needsFiltering = true;
-            }
-            else
-            {
-                needsFiltering = false;
-            }
-        }
-        else
-        {
-            needsFiltering = true;
-        }
-
-        FaceConstraints[{ facePos, static_cast<int>(faceDir) }] = points;
-        if (needsFiltering)
-            ApplyFilter(facePos, { faceDir, points }, cell, report);
-    }
 }
 
 void Grid::ClearCells(const Region3i& region, Report* report,
@@ -307,7 +257,7 @@ void Grid::ClearCells(const Region3i& region, Report* report,
 
                             auto sideTowardsOutside = Tiled3D::MakeDirection3D(side == 0, axis);
 
-                            ApplyFilter(outsidePos, clearedPos, GetOpposite(sideTowardsOutside), report);
+                            ApplyFilter(outsidePos, clearedPos, GetOpposite(sideTowardsOutside), report, false);
                         }
                         //Otherwise, the outside cell needs to recompute *its* possibilities
                         //    because the cleared cell may have opened them back up.
@@ -333,28 +283,100 @@ void Grid::ClearCells(const Region3i& region, Report* report,
             Directions3D sideTowardsNeighbor;
             std::tie(neighborPos, sideTowardsNeighbor) = neighborData;
             if (region.Contains(neighborPos) && Cells.IsIndexValid(neighborPos))
-                ApplyFilter(cellPos, neighborPos, sideTowardsNeighbor, report);
+                ApplyFilter(cellPos, neighborPos, sideTowardsNeighbor, report, false);
         }
     }
 
     DEBUGMEM_ValidateAll();
 }
 void Grid::ClearCell(const Vector3i& cellPos, Report* report,
-                     bool becomeMutable)
+                     bool becomeMutableIfImmutable)
 {
-    ClearCells(Region3i(cellPos, cellPos + 1), report, true, becomeMutable);
+    ClearCells(Region3i(cellPos, cellPos + 1), report, true, becomeMutableIfImmutable);
 }
-void Grid::ClearFace(Vector3i cellPos, Directions3D face, Report* report)
-{
-    cellPos = FilterPos(cellPos);
-    if (!Cells.IsIndexValid(cellPos) || FaceConstraints.find({ cellPos, face }) == FaceConstraints.end())
-        return;
 
-    RecalculateCellPossibilities(cellPos, Cells[cellPos], report);
+void Grid::SetCellNot(Vector3i pos,
+                      TileIdx tile, TransformSet specificPermutations,
+                      Report* report)
+{
+    Vector4i key{ static_cast<int>(tile), pos };
+    InitialPossiblePermutations[key].Remove(specificPermutations);
+
+    auto& cell = Cells[pos];
+    if (cell.IsSet())
+        ClearCell(pos, report, false);
+    else
+    {
+        auto nRemoved = PossiblePermutations[key].Remove(specificPermutations);
+        WFCPP_ASSERT(cell.NPossibilities >= nRemoved);
+
+        cell.NPossibilities -= nRemoved;
+        if (report && nRemoved > 0)
+            if (cell.NPossibilities < 1)
+                report->GotBoring.push_back(pos);
+            else if (nRemoved > 0)
+                report->GotInteresting.insert(pos);
+    }
+}
+void Grid::SetFaceImpl(Vector3i pos, Directions3D dir, const FaceIdentifiers& points,
+                       Report* report, bool isForbidding)
+{
+    pos = FilterPos(pos);
+    WFCPP_ASSERT(Cells.IsIndexValid(pos));
+
+    auto neighborPos = FilterPos(pos + GetFaceDirection(dir));
+    bool hasNeighbor = Cells.IsIndexValid(neighborPos);
+
+    CellState* faceCells[2] = {
+        &Cells[pos],
+        (hasNeighbor ? &Cells[neighborPos] : nullptr)
+    };
+    Directions3D faceDirs[2] = {
+        dir,
+        GetOpposite(dir)
+    };
+    Vector3i faceCellIdcs[2] = {
+        pos, neighborPos
+    };
+
+    for (int i = 0; i < 2; ++i)
+    {
+        if (faceCells[i] == nullptr)
+            continue;
+        auto& cell = *faceCells[i];
+        auto faceDir = faceDirs[i];
+        auto facePos = faceCellIdcs[i];
+
+        bool needsFiltering;
+        if (cell.IsSet())
+        {
+            const auto& tile = InputTiles[cell.ChosenTile];
+            auto chosenFace = GetFace(cell.ChosenTile, cell.ChosenPermutation, faceDir);
+            if ((chosenFace.Points == points) == isForbidding)
+            {
+                ClearCell(facePos, report, false);
+                needsFiltering = true;
+            }
+            else //The cell's choice already respects this new constraint
+            {
+                needsFiltering = false;
+            }
+        }
+        else
+        {
+            needsFiltering = true;
+        }
+
+        FacePermutation perm{ faceDir, points };
+        if (needsFiltering)
+            ApplyFilter(facePos, perm, cell, report, isForbidding);
+        ApplyInitialFilter(facePos, perm, isForbidding);
+    }
 }
 
 void Grid::ApplyFilter(const Vector3i& cellPos, const FacePermutation& face,
-                       CellState& cell, Report* report)
+                       CellState& cell, Report* report,
+                       bool isForbidding)
 {
     cell.DEBUGMEM_Validate();
     if (cell.IsSet())
@@ -363,9 +385,12 @@ void Grid::ApplyFilter(const Vector3i& cellPos, const FacePermutation& face,
     //It's possible, if uncommon, that a tileset has no match for a particular face.
     if (!FaceIndices.contains(face))
     {
-        for (int i = 0; i < static_cast<int>(InputTiles.size()); ++i)
-            PossiblePermutations[{ i, cellPos }] = { };
-        cell.NPossibilities = 0;
+        if (!isForbidding)
+        {
+            for (int i = 0; i < static_cast<int>(InputTiles.size()); ++i)
+                PossiblePermutations[{ i, cellPos }] = { };
+            cell.NPossibilities = 0;
+        }
     }
     else
     {
@@ -374,7 +399,7 @@ void Grid::ApplyFilter(const Vector3i& cellPos, const FacePermutation& face,
         {
             const auto& supported = MatchingFaces[{ tileI, faceIdx }];
             auto& available = PossiblePermutations[{ tileI, cellPos }];
-            auto nChoicesLost = available.Intersect(supported);
+            auto nChoicesLost = isForbidding ? available.Remove(supported) : available.Intersect(supported);
 
             WFCPP_ASSERT(nChoicesLost <= cell.NPossibilities);
             cell.NPossibilities -= nChoicesLost;
@@ -399,7 +424,7 @@ void Grid::ApplyFilter(const Vector3i& cellPos, const FacePermutation& face,
 void Grid::ApplyFilter(const Vector3i& cellPos,
                        const Vector3i& neighborPos,
                        Directions3D sideTowardsNeighbor,
-                       Report* report)
+                       Report* report, bool isForbidding)
 {
     auto& cell = Cells[cellPos];
     if (!cell.IsSet())
@@ -408,7 +433,35 @@ void Grid::ApplyFilter(const Vector3i& cellPos,
     auto cellFace = GetFace(cell.ChosenTile, cell.ChosenPermutation, sideTowardsNeighbor);
     auto neighborFace = cellFace.Flipped();
 
-    ApplyFilter(neighborPos, neighborFace, report);
+    ApplyFilter(neighborPos, neighborFace, report, isForbidding);
+}
+
+void Grid::ApplyInitialFilter(const Vector3i& cellPos,
+                              const FacePermutation& face,
+                              bool isForbidding)
+{
+    //It's possible, if uncommon, that a tileset has no match for a particular face.
+    if (!FaceIndices.contains(face))
+    {
+        for (int i = 0; i < static_cast<int>(InputTiles.size()); ++i)
+            InitialPossiblePermutations[{ i, cellPos }] = { };
+    }
+    else
+    {
+        auto faceIdx = FaceIndices[face];
+        for (int tileI = 0; tileI < static_cast<int>(InputTiles.size()); ++tileI)
+        {
+            const auto& supported = MatchingFaces[{ tileI, faceIdx }];
+            auto& available = InitialPossiblePermutations[{ tileI, cellPos }];
+
+            if (isForbidding)
+                available.Remove(supported);
+            else
+                available.Intersect(supported);
+        }
+    }
+
+    DEBUGMEM_ValidateAll();
 }
 
 void Grid::ResetCellPossibilities(const Vector3i& cellPos, CellState& cell, Report* report)
@@ -418,23 +471,18 @@ void Grid::ResetCellPossibilities(const Vector3i& cellPos, CellState& cell, Repo
         return;
 
     cell.ChosenTile = TileIdx_INVALID;
-    cell.NPossibilities = NPermutedTiles;
 
     if (report)
         report->GotBoring.push_back(cellPos);
 
+    cell.NPossibilities = 0;
     for (int tileI = 0; tileI < static_cast<int>(InputTiles.size()); ++tileI)
-        PossiblePermutations[{tileI, cellPos}] = InputTiles[tileI].Permutations;
-
-    //Apply any relevant face constraints.
-    for (int dirI = 0; dirI < static_cast<int>(N_DIRECTIONS_3D); ++dirI)
     {
-        auto constraint = FaceConstraints.find({ cellPos, dirI });
-        if (constraint != FaceConstraints.end())
-        {
-            FacePermutation constrainedFace{ static_cast<Directions3D>(dirI), constraint->second };
-            ApplyFilter(cellPos, constrainedFace, cell, report);
-        }
+        Vector4i key{ tileI, cellPos };
+        auto initialPossibilities = InitialPossiblePermutations[key];
+
+        PossiblePermutations[key] = initialPossibilities;
+        cell.NPossibilities += initialPossibilities.Size();
     }
 
     DEBUGMEM_ValidateAll();
@@ -450,7 +498,7 @@ void Grid::RecalculateCellPossibilities(const Vector3i& cellPos, CellState& cell
         std::tie(neighborPos, sideTowardsNeighbor) = neighborData;
 
         if (Cells.IsIndexValid(neighborPos))
-            ApplyFilter(neighborPos, cellPos, GetOpposite(sideTowardsNeighbor), report);
+            ApplyFilter(neighborPos, cellPos, GetOpposite(sideTowardsNeighbor), report, false);
     }
 }
 
