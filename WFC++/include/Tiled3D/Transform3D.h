@@ -464,11 +464,12 @@ namespace WFC
         }
 
 
-        //An optimized collection of all possible transforms.
+        //An optimized and sorted collection of all possible transforms.
+        //
         //The first half of the bits are for non-inverted rotations;
         //    the second half are for inverted ones.
+        //
         //The rotations are ordered by their enum values.
-        //Iteration order through this set is deterministic, based on the bit order.
         struct TransformSet
             //NOTE: static constexpr ints fail to compile for some reason when this class is marked WFC_API,
             //     so everything is kept inlined in the header.
@@ -484,10 +485,10 @@ namespace WFC
             using BitsType = Math::SmallestUInt<BIT_COUNT>;
             static constexpr BitsType ZERO = 0,
                                       ONE = 1,
-                                      ALL = ~ZERO,
+                                      ALL_BITS = ~ZERO,
                                       N_TYPE_BITS = 8 * sizeof(BitsType),
                                       FIRST_INVERT_BIT_IDX = N_ROTATIONS_3D,
-                                      USED_BITS = ALL >> (N_TYPE_BITS - BIT_COUNT),
+                                      USED_BITS = ALL_BITS >> (N_TYPE_BITS - BIT_COUNT),
                                       UNINVERTED_BITS = USED_BITS >> FIRST_INVERT_BIT_IDX,
                                       INVERTED_BITS = USED_BITS & (~UNINVERTED_BITS);
 
@@ -516,6 +517,8 @@ namespace WFC
                            Transform3D{ false, (Rotations3D)bitIdx } :
                            Transform3D{ true, (Rotations3D)(bitIdx - FIRST_INVERT_BIT_IDX) };
             }
+
+            static TransformSet All() { TransformSet s; s.bits = USED_BITS; s.nBits = BIT_COUNT; return s; }
 
 
             //Creates a set from any combination of iterators, subsets, and elements.
