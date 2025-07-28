@@ -986,6 +986,26 @@ SUITE(WFC_Tiled3D)
             //TODO: Clear an area, set a cell that makes the grid unsolvable, then test that another clear happens soon. Finally, test that it eventually completes the grid after clearing.
         }
     }
+
+    //Before using the SymmetricRods tileset, run a trivial test to make sure it's defined correctly.
+    TEST(SymmetricRodsIsValid)
+    {
+        auto tileset = SymmetricRods::Create(Transform3D{ false, Rotations3D::None });
+
+        StandardRunner state(
+            tileset.Tiles, { 4, 4, 8 },
+            { 0xa33eff3456a23423 }
+        );
+        state.ClearRegionGrowthRateT = 0.001f;
+        state.PriorityWeightRandomness = 0;
+        state.Reset();
+
+        bool finished = state.TickN(state.Grid.Cells.GetNumbElements() * 2000);
+        CHECK(finished);
+
+        //TODO: Check the result is valid, using 'tileset.FaceGroups'.
+    }
+
     TEST(StandardRunnerTickN)
     {
         //Use two permutations of a single tile,
@@ -1009,19 +1029,17 @@ SUITE(WFC_Tiled3D)
         state.PriorityWeightRandomness = 0;
 
         //Set one tile on each Z-slice.
-        std::unordered_map<Vector3i, std::tuple<TileIdx, Transform3D>> constants;
-        constants[{ 2, 2, 0 }] = std::make_tuple((TileIdx)0, Transform3D{ });
-        constants[{ 2, 2, 2 }] = std::make_tuple((TileIdx)0, Transform3D{ });
-        constants[{ 2, 2, 4 }] = std::make_tuple((TileIdx)0, Transform3D{ });
-        constants[{ 2, 2, 1 }] = std::make_tuple((TileIdx)0, Transform3D{ false, Rotations3D::AxisZ_90 });
-        constants[{ 2, 2, 3 }] = std::make_tuple((TileIdx)0, Transform3D{ false, Rotations3D::AxisZ_90 });
-        constants[{ 2, 2, 5 }] = std::make_tuple((TileIdx)0, Transform3D{ false, Rotations3D::AxisZ_90 });
-        state.Reset(constants);
+        state.SetCell({ 2, 2, 0 }, 0, Transform3D{ });
+        state.SetCell({ 2, 2, 2 }, 0, Transform3D{ });
+        state.SetCell({ 2, 2, 4 }, 0, Transform3D{ });
+        state.SetCell({ 2, 2, 1 }, 0, Transform3D{ false, Rotations3D::AxisZ_90 });
+        state.SetCell({ 2, 2, 3 }, 0, Transform3D{ false, Rotations3D::AxisZ_90 });
+        state.SetCell({ 2, 2, 5 }, 0, Transform3D{ false, Rotations3D::AxisZ_90 });
 
         //Run until the whole grid is solved.
         //The number of iterations needed is simple to calculate,
         //    as the grid can only be solved one way.
-        std::cout << "    (running a slow test..";
+        std::cout << "    (running slow test 1..";
         int nLeft = state.Grid.Cells.GetNumbElements() - 6;
         for (int i = 0; i < nLeft - 1; ++i)
         {
@@ -1056,7 +1074,7 @@ SUITE(WFC_Tiled3D)
     TEST(StandardRunnerTricky1)
     {
         //Use a large world grid and tile-set to do more thorough tests.
-        //TODO: This isn't complex enough; we need it to clear sometimes
+        //TODO: This isn't complex enough; we need a tileset that may lead to grid clearing without ruining a whole Z-slice
         StandardRunner state(
             OneTileArmy(TransformSet::Combine(
                 Transform3D{ false, Rotations3D::None },
@@ -1077,7 +1095,7 @@ SUITE(WFC_Tiled3D)
             #else
                 { 50, 75, 100 }
             #endif
-            , nullptr, { 0xababfefb43455501 }
+            , { 0xababfefb43455501 }
         );
         state.Reset();
 
@@ -1085,7 +1103,7 @@ SUITE(WFC_Tiled3D)
         state.PriorityWeightRandomness = 0;
 
         //Run until the whole grid is solved.
-        std::cout << "    (running a slow test..";
+        std::cout << "    (running slow test 2..";
         bool isFinished = false;
         while (!isFinished)
         {
@@ -1094,24 +1112,99 @@ SUITE(WFC_Tiled3D)
         std::cout << ". finished!)\n";
     }
 
-    //Before using the SymmetricRods tileset, run a trivial test to make sure it's defined correctly.
-    TEST(SymmetricRodsIsValid)
+    TEST(GridConstraints)
     {
-        auto tileset = SymmetricRods::Create(Transform3D{ false, Rotations3D::None });
+        //Use two permutations of the single-tile tileset
+        //    which can connect vertically.
+        //Add a third permutation which doesn't line up *at all* with the other two.
+        TransformSet usedTransforms;
+        usedTransforms.Add(Transform3D{ });
+        usedTransforms.Add(Transform3D{ false, Rotations3D::AxisZ_90 });
+        usedTransforms.Add(Transform3D{ false, Rotations3D::AxisY_90 }); // The odd one out
+        Grid state(OneTileArmy(usedTransforms), { 4, 4, 4 });
+        Grid::Report report;
 
-        StandardRunner state(
-            tileset.Tiles, { 4, 4, 8 },
-            nullptr, { 0xa33eff3456a23423 }
-        );
-        state.ClearRegionGrowthRateT = 0.1f;
-        state.PriorityWeightRandomness = 0;
-        state.Reset();
+        //Set a cell in the min corner with the identity transform.
+        //Horizontally, the neighbors should be locked into using the same permutation.
+        //Vertically, the neighbors could still be either permutation,
+        //    as the Z face is very symmetrical.
+        state.SetCell({ 0, 0, 0 }, 0, { }, false, nullptr, true);
 
+        //Set a face constraint on the second Z level that is consistent with the second permutation.
+        //This horizontal slice must now use that permutation only.
+        state.SetFace({ 1, 1, 1 }, WFC::Tiled3D::MaxX,
+                      state.InputTiles[0].Data.Faces[WFC::Tiled3D::MaxY].Points,
+                      &report);
+        CHECK(report.GotInteresting.contains({ 1, 1, 1 }));
+        CHECK(report.GotInteresting.contains({ 2, 1, 1 }));
+        CHECK_EQUAL(2, report.GotInteresting.size());
+        CHECK_EQUAL(0, report.GotBoring.size());
+        CHECK_EQUAL(0, report.GotUnsolvable.size());
+        report.Clear();
+
+        //Set a face not-constraint on the third Z level to forbid the second permutation.
+        state.SetFaceNot({ 2, 2, 2 }, WFC::Tiled3D::MaxX,
+                         state.InputTiles[0].Data.Faces[WFC::Tiled3D::MaxY].Points,
+                         &report);
+        CHECK(report.GotInteresting.contains({ 2, 2, 2 }));
+        CHECK(report.GotInteresting.contains({ 3, 2, 2 }));
+        CHECK_EQUAL(0, report.GotBoring.size());
+        CHECK_EQUAL(0, report.GotUnsolvable.size());
+        report.Clear();
+
+        //Add more FaceNot constraints to make the third Z level unsolvable.
+        state.SetFaceNot({ 2, 2, 2 }, WFC::Tiled3D::MaxX,
+                         state.InputTiles[0].Data.Faces[WFC::Tiled3D::MaxX].Points);
+        state.SetFace({ 2, 2, 2 }, WFC::Tiled3D::MaxZ,
+                      state.InputTiles[0].Data.Faces[WFC::Tiled3D::MaxZ].Points,
+                      &report);
+        CHECK(report.GotUnsolvable.contains({ 2, 2, 2 }));
+        CHECK_EQUAL(1, report.GotUnsolvable.size());
+        CHECK(report.GotInteresting.contains({ 2, 2, 3 }));
+        CHECK_EQUAL(1, report.GotInteresting.size());
+        CHECK_EQUAL(0, report.GotBoring.size());
+    }
+    TEST(GridConstraints2)
+    {
+        //Use two permutations of the single-tile tileset
+        //    which can connect vertically.
+        //Add a third permutation which doesn't line up *at all* with the other two.
+        TransformSet usedTransforms;
+        usedTransforms.Add(Transform3D{ });
+        usedTransforms.Add(Transform3D{ false, Rotations3D::AxisZ_90 });
+        usedTransforms.Add(Transform3D{ false, Rotations3D::AxisY_90 }); // The odd one out
+        StandardRunner state(OneTileArmy(usedTransforms), { 4, 4, 4 });
+
+        //Set a cell in the min corner with the identity transform.
+        //Horizontally, the neighbors should be locked into using the same permutation.
+        //Vertically, the neighbors could still be either permutation,
+        //    as the Z face is very symmetrical.
+        state.SetCell({ 0, 0, 0 }, 0, { }, false);
+
+        //Set a face constraint on the second Z level that is consistent with the second permutation.
+        //This horizontal slice must now use that permutation only.
+        state.SetFaceConstraint({ 1, 1, 1 }, WFC::Tiled3D::MaxX,
+                                state.Grid.InputTiles[0].Data.Faces[WFC::Tiled3D::MaxY].Points);
+
+        //Set a face not-constraint on the third Z level to forbid the second permutation.
+        state.SetFaceConstraintNot({ 2, 2, 2 }, WFC::Tiled3D::MaxX,
+                                   state.Grid.InputTiles[0].Data.Faces[WFC::Tiled3D::MaxY].Points);
+
+        //In the second test, run the solver and check that we get the expected permutations on the first three Z levels.
         bool finished = state.TickN(20000);
         CHECK(finished);
-
-        //TODO: Check the result is valid, using 'tileset.FaceGroups'.
+        for (int x = 0; x < state.Grid.Cells.GetWidth(); ++x)
+            for (int y = 0; y < state.Grid.Cells.GetHeight(); ++y)
+            {
+                CHECK_EQUAL(Transform3D{ },
+                            state.Grid.Cells[Vector3i(x, y, 0)].ChosenPermutation);
+                CHECK_EQUAL(Transform3D(false, Rotations3D::AxisZ_90),
+                            state.Grid.Cells[Vector3i(x, y, 1)].ChosenPermutation);
+                CHECK_EQUAL(Transform3D{ },
+                            state.Grid.Cells[Vector3i(x, y, 2)].ChosenPermutation);
+            }
     }
+
     //TODO: Test SymmetricRods while putting a constant tile C into the center, and check that it's never cleared.
 }
 

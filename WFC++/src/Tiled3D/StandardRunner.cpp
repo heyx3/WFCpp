@@ -303,18 +303,33 @@ bool StandardRunner::Tick()
         {
             return true;
         }
-        //If all cells have an equal chance to be set, then pick one at random.
+        //If all cells have an equal chance to be set, then pick one at random asap to save memory and time.
+        //This doesn't just help the first tick, but any tick after we've given up and cleared everything.
         else if (nextCells.size() == 0)
         {
+            //NOTE: there is a small chance of getting into this situation *despite* some cells being set!
+            //In particular, if all input tiles/permutations share a particular face,
+            //     then there are scenarios where the only boundary between set and unset cells is across that face,
+            //     meaning all unset cells have max possibilities.
+            //
+            //As a result, we need to make sure our random cell isn't one of the set ones.
+            //This scenario is very unoptimized, but shouldn't ever happen in the real world.
+
             Vector3i cellPos;
-            for (int i = 0; i < 3; ++i)
-                cellPos[i] = std::uniform_int_distribution<int>(0, Grid.Cells.GetDimensions()[i] - 1)(Rand);
+            do
+            {
+                for (int i = 0; i < 3; ++i)
+                    cellPos[i] = std::uniform_int_distribution<int>(0, Grid.Cells.GetDimensions()[i] - 1)(Rand);
+            } while (Grid.Cells[cellPos].IsSet());
+
             nextCells.insert(cellPos);
         }
     }
 
     //Pick the highest-priority cell.
     Vector3i cellPos = PickNextCellToSet();
+    WFCPP_ASSERT(Grid.Cells.IsIndexValid(cellPos));
+    WFCPP_ASSERT(!Grid.Cells[cellPos].IsSet());
     TileIdx tileIdx;
     Transform3D tilePermutation;
     auto tryRandomTile = RandomTile(&Grid.PossiblePermutations[{ 0, cellPos }]);

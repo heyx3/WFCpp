@@ -120,8 +120,6 @@ namespace Tiled3D
             nextCells.clear();
             unsolvableCells.clear();
         }
-        void Reset(const std::unordered_map<Vector3i, std::tuple<TileIdx, Transform3D>>& constants);
-        //TODO: Another overload that takes new 'constants'.
         
         void SetCell(const Vector3i& cellPos, TileIdx tile, Transform3D permutation,
                      bool makeImmutable = false);
@@ -136,27 +134,20 @@ namespace Tiled3D
 
 
         StandardRunner(const std::vector<Tile>& inputTiles, const Vector3i& gridSize,
-                       const std::unordered_map<Vector3i, std::tuple<TileIdx, Transform3D>>* constants = nullptr,
                        PRNG rand = { std::random_device{ }() })
             : History(gridSize, { }), Rand(rand), Grid(inputTiles, gridSize)
         {
-            if (constants != nullptr)
-                for (const auto& constant : *constants)
-                {
-                    Vector3i cellPos = std::get<0>(constant);
-                    TileIdx chosenTile = std::get<0>(std::get<1>(constant));
-                    Transform3D chosenPermutation = std::get<1>(std::get<1>(constant));
-                    SetCell(cellPos, chosenTile, chosenPermutation);
-                }
         }
 
 
     private:
         Grid::Report report;
         std::unordered_set<Vector3i> nextCells, unsolvableCells;
+
         std::vector<std::tuple<Vector3i, float>> buffer_pickCell_options;
         std::vector<float> buffer_randomTile_weights;
         std::unordered_map<Vector3i, int> buffer_unwindCells_originalNPossibilities;
+
 
         void ClearAround(const Vector3i& centerCellPos);
 

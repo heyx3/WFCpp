@@ -381,6 +381,7 @@ void Grid::ApplyFilter(const Vector3i& cellPos, const FacePermutation& face,
     cell.DEBUGMEM_Validate();
     if (cell.IsSet())
         return;
+    auto initialNPossibilities = cell.NPossibilities;
 
     //It's possible, if uncommon, that a tileset has no match for a particular face.
     if (!FaceIndices.contains(face))
@@ -406,17 +407,18 @@ void Grid::ApplyFilter(const Vector3i& cellPos, const FacePermutation& face,
         }
     }
 
-    //If the cell no longer has any tile choices, it's unsolvable.
-    if (cell.NPossibilities < 1)
+    if (report && initialNPossibilities != cell.NPossibilities)
     {
-        if (report)
+        //If the cell no longer has any tile choices, it's unsolvable.
+        if (cell.NPossibilities < 1)
+        {
             report->GotUnsolvable.insert(cellPos);
-    }
-    //Otherwise, it's a candidate of interest since it just had some possibilities narrowed down.
-    else
-    {
-        if (report)
+        }
+        //Otherwise, it's a candidate of interest since it just had some possibilities narrowed down.
+        else
+        {
             report->GotInteresting.insert(cellPos);
+        }
     }
 
     DEBUGMEM_ValidateAll();
