@@ -50,18 +50,6 @@ float StandardRunner::GetPriority(const Vector3i& cellPos)
 }
 
 
-void StandardRunner::Reset(const std::unordered_map<Vector3i, std::tuple<TileIdx, Transform3D>>& constants)
-{
-    Reset();
-    for (const auto& constant : constants)
-    {
-        Vector3i cellPos = std::get<0>(constant);
-        TileIdx tileIdx = std::get<0>(std::get<1>(constant));
-        Transform3D tilePermutation = std::get<1>(std::get<1>(constant));
-        SetCell(cellPos, tileIdx, tilePermutation, true);
-    }
-}
-
 void StandardRunner::ClearAround(const Vector3i& centerCellPos)
 {
     auto region = GetClearRegion(centerCellPos);

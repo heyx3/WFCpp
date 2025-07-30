@@ -225,6 +225,8 @@ namespace WFC
             //
             //If it already is using that tile, the cell will be cleared
             //    (even if marked as not changeable).
+            //
+            //Any existing action history will also be wiped out.
             void SetCellNot(Vector3i pos, TileIdx tile,
                             TransformSet specificPermutations = TransformSet::All(),
                             Report* report = nullptr);
@@ -233,6 +235,8 @@ namespace WFC
             //
             //If either of the two cells along that face do not fit,
             //     they will be cleared (even if they were marked as not changeable).
+            //
+            //Any existing action history will also be wiped out.
             void SetFace(Vector3i pos, Directions3D dir,
                          const FaceIdentifiers& points,
                          Report* report = nullptr) { SetFaceImpl(pos, dir, points, report, false); }
@@ -240,6 +244,8 @@ namespace WFC
             //
             //If either of the two cells along that face already violate this,
             //    they will be clared (even if they were marked as not changeable).
+            //
+            //Any existing action history will also be wiped out.
             void SetFaceNot(Vector3i pos, Directions3D dir,
                             const FaceIdentifiers& points,
                             Report* report = nullptr) { SetFaceImpl(pos, dir, points, report, true); }

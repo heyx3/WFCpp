@@ -299,6 +299,10 @@ void Grid::SetCellNot(Vector3i pos,
                       TileIdx tile, TransformSet specificPermutations,
                       Report* report)
 {
+    //Clear action history if any exists, because the cached possibilities may now be incorrect.
+    ActionHistory.clear();
+    StatePreActionHistory.clear();
+
     Vector4i key{ static_cast<int>(tile), pos };
     InitialPossiblePermutations[key].Remove(specificPermutations);
 
@@ -321,6 +325,10 @@ void Grid::SetCellNot(Vector3i pos,
 void Grid::SetFaceImpl(Vector3i pos, Directions3D dir, const FaceIdentifiers& points,
                        Report* report, bool isForbidding)
 {
+    //Clear action history if any exists, because the cached possibilities may now be incorrect.
+    ActionHistory.clear();
+    StatePreActionHistory.clear();
+
     pos = FilterPos(pos);
     WFCPP_ASSERT(Cells.IsIndexValid(pos));
 
