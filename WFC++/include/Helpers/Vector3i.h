@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <iterator>
+#include <array>
 #include <math.h>
 
 #include "../Platform.h"
@@ -69,6 +70,13 @@ namespace WFC
 
 		Vector3i Min(const Vector3i& b) const { return { std::min(x, b.x), std::min(y, b.y), std::min(z, b.z) }; }
 		Vector3i Max(const Vector3i& b) const { return { std::max(x, b.x), std::max(y, b.y), std::max(z, b.z) }; }
+
+		int ComponentProduct() const { return x * y * z; }
+
+		std::array<Vector3i, 6> OrthogonalNeighbors() const { return std::to_array({
+			LessX(), LessY(), LessZ(),
+			MoreX(), MoreY(), MoreZ()
+		}); }
 
 		uint32_t GetHashcode() const
 		{

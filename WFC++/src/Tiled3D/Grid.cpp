@@ -121,7 +121,7 @@ bool Grid::IsLegalPlacement(const Vector3i& cellPos,
 }
 
 void Grid::SetCell(Vector3i pos, TileIdx tile, Transform3D tilePermutation,
-                   bool canBeChangedInFuture,
+                   bool isPermanent,
                    Report* report, bool assertLegalPlacement)
 {
     pos = FilterPos(pos);
@@ -134,30 +134,70 @@ void Grid::SetCell(Vector3i pos, TileIdx tile, Transform3D tilePermutation,
     //    it could add tile possibilities as well as remove them.
     //The best and simplest option is to clear this cell so that setting it can only subtract possibliities.
     auto& cell = Cells[pos];
-    if (cell.IsSet())
-        ClearCell(pos, report, canBeChangedInFuture);
+    if (cell.IsSet() && (cell.ChosenTile != tile || cell.ChosenPermutation != tilePermutation))
+        ClearCell(pos, report);
     //Note that there's no chance of reallocation, so 'cell' is still valid!
 
-    //Add this event to the action history, so it can be quickly undone later.
-    ActionHistory.push_back(pos);
-    for (int neighborI = 0; neighborI < N_DIRECTIONS_3D + 1; ++neighborI)
+    if (isPermanent)
     {
-        //Get the neighbor cell in our history ordering.
-        auto [neighborAxis, neighborDir] = ActionHistoryNeighborsData(neighborI);
-        auto neighborCellPos = pos;
-        neighborCellPos[neighborAxis] += neighborDir;
-        neighborCellPos = FilterPos(neighborCellPos);
+        //Bake this constraint into the initial grid state.
+        for (int tileID = 0; tileID < InputTiles.size(); ++tileID)
+        {
+            Vector4i key{ tileID, pos };
+            if (tileID == tile)
+                InitialPossiblePermutations[key] = TransformSet::Combine(tilePermutation);
+            else
+                InitialPossiblePermutations[key] = TransformSet::None();
+        }
 
-        if (Cells.IsIndexValid(neighborCellPos))
-            for (int inputTileI = 0; inputTileI < InputTiles.size(); ++inputTileI)
-                StatePreActionHistory.push_back(PossiblePermutations[Vector4i{ inputTileI, neighborCellPos }]);
-        else
-            for (int inputTileI = 0; inputTileI < InputTiles.size(); ++inputTileI)
-                StatePreActionHistory.emplace_back();
+        //Bake this constraint into neighboring cells' initial faces.
+        for (int neighborAxis = 0; neighborAxis < 3; ++neighborAxis)
+            for (int neighborSide = 0; neighborSide < 2; ++neighborSide)
+            {
+                auto neighborPos = pos;
+                neighborPos[neighborAxis] += (neighborSide * 2) - 1;
+                neighborPos = FilterPos(neighborPos);
+
+                if (Cells.IsIndexValid(neighborPos))
+                {
+                    auto dir = WFC::Tiled3D::MakeDirection3D(neighborSide == 0, neighborAxis);
+
+                    auto cube = InputTiles[tile].Data;
+                    cube = tilePermutation.ApplyToCube(cube);
+
+                    auto face = cube.Faces[cube.GetFace(dir)];
+
+                    SetFaceInnerImpl(neighborPos, Cells[neighborPos], dir, face.Points, report, false);
+                }
+            }
+
+        //Changing the initial constraints removes all known action history.
+        ActionHistory.clear();
+        StatePreActionHistory.clear();
+    }
+    else
+    {
+        //Add this event to the action history, so it can be quickly undone later.
+        ActionHistory.push_back(pos);
+        for (int neighborI = 0; neighborI < N_DIRECTIONS_3D + 1; ++neighborI)
+        {
+            //Get the neighbor cell in our history ordering.
+            auto [neighborAxis, neighborDir] = ActionHistoryNeighborsData(neighborI);
+            auto neighborCellPos = pos;
+            neighborCellPos[neighborAxis] += neighborDir;
+            neighborCellPos = FilterPos(neighborCellPos);
+
+            if (Cells.IsIndexValid(neighborCellPos))
+                for (int inputTileI = 0; inputTileI < InputTiles.size(); ++inputTileI)
+                    StatePreActionHistory.push_back(PossiblePermutations[Vector4i{ inputTileI, neighborCellPos }]);
+            else
+                for (int inputTileI = 0; inputTileI < InputTiles.size(); ++inputTileI)
+                    StatePreActionHistory.emplace_back();
+        }
     }
 
     //Update the cell and its neighbors.
-    cell = { tile, tilePermutation, canBeChangedInFuture, 1 };
+    cell = { tile, tilePermutation, 1 };
     for (const auto& [neighborPos, faceTowardsNeighbor] : GetNeighbors(pos))
         if (Cells.IsIndexValid(neighborPos))
             ApplyFilter(pos, neighborPos, faceTowardsNeighbor, report, false);
@@ -165,9 +205,7 @@ void Grid::SetCell(Vector3i pos, TileIdx tile, Transform3D tilePermutation,
     DEBUGMEM_ValidateAll();
 }
 
-void Grid::ClearCells(const Region3i& region, Report* report,
-                      bool includeImmutableCells,
-                      bool clearedImmutableCellsAreMutableNow)
+void Grid::ClearCells(const Region3i& region, Report* report)
 {
     //Special case: all cells in the clear region are on the top of the history stack,
     //    allowing us to undo them more efficiently and without losing the rest of the grid's history.
@@ -178,7 +216,7 @@ void Grid::ClearCells(const Region3i& region, Report* report,
         for (int i = 0; i < nCells; ++i)
         {
             auto cellPos = ActionHistory[ActionHistory.size() - 1 - i];
-            if (!region.Contains(cellPos) || (!includeImmutableCells && !Cells[cellPos].IsChangeable))
+            if (!region.Contains(cellPos))
             {
                 allUnwindable = false;
                 break;
@@ -194,30 +232,16 @@ void Grid::ClearCells(const Region3i& region, Report* report,
     ActionHistory.clear();
     StatePreActionHistory.clear();
 
-    //Use a buffer to track the uncleared cells in the region.
-    buffer_clearCells_leftovers.clear();
-    auto& unclearedCellsInRegion = buffer_clearCells_leftovers;
-
     //Clear the cells.
     for (Vector3i cellPos : region)
     {
         cellPos = FilterPos(cellPos);
         auto& cell = Cells[cellPos];
 
-        if (!cell.IsChangeable && !includeImmutableCells)
-        {
-            //It's not likely for a cell to be immutable and unset, but it's possible.
-            if (cell.IsSet())
-                unclearedCellsInRegion.insert(cellPos);
-        }
-        else
-        {
-            cell.IsChangeable |= clearedImmutableCellsAreMutableNow;
-            #if defined(WFCPP_DEBUG)
-                cell.ChosenPermutation = { }; //Give unset cells a standardized value.
-            #endif
-            ResetCellPossibilities(cellPos, cell, report);
-        }
+        #if defined(WFCPP_DEBUG)
+            cell.ChosenPermutation = { }; //Give unset cells a standardized value.
+        #endif
+        ResetCellPossibilities(cellPos, report);
     }
 
     //The cells on the border of the clear region need to update
@@ -270,29 +294,10 @@ void Grid::ClearCells(const Region3i& region, Report* report,
     }
 
     DEBUGMEM_ValidateAll();
-
-    //Any immutable/uncleared cells will affect their newly-cleared neighbors.
-    for (const Vector3i& cellPos : unclearedCellsInRegion)
-    {
-        const auto& cell = Cells[cellPos];
-        WFCPP_ASSERT(cell.IsSet());
-
-        for (const auto& neighborData : GetNeighbors(cellPos))
-        {
-            Vector3i neighborPos;
-            Directions3D sideTowardsNeighbor;
-            std::tie(neighborPos, sideTowardsNeighbor) = neighborData;
-            if (region.Contains(neighborPos) && Cells.IsIndexValid(neighborPos))
-                ApplyFilter(cellPos, neighborPos, sideTowardsNeighbor, report, false);
-        }
-    }
-
-    DEBUGMEM_ValidateAll();
 }
-void Grid::ClearCell(const Vector3i& cellPos, Report* report,
-                     bool becomeMutableIfImmutable)
+void Grid::ClearCell(const Vector3i& cellPos, Report* report)
 {
-    ClearCells(Region3i(cellPos, cellPos + 1), report, true, becomeMutableIfImmutable);
+    ClearCells(Region3i(cellPos, cellPos + 1), report);
 }
 
 void Grid::SetCellNot(Vector3i pos,
@@ -303,23 +308,31 @@ void Grid::SetCellNot(Vector3i pos,
     ActionHistory.clear();
     StatePreActionHistory.clear();
 
+    //Bake this constraint into the initial grid state.
     Vector4i key{ static_cast<int>(tile), pos };
     InitialPossiblePermutations[key].Remove(specificPermutations);
 
+    //Update the current grid state.
     auto& cell = Cells[pos];
-    if (cell.IsSet())
-        ClearCell(pos, report, false);
-    else
+    //If the cell was set to this forbidden state, it must be cleared.
+    if (cell.IsSet() && cell.ChosenTile == tile && specificPermutations.Contains(cell.ChosenPermutation))
+    {
+        ClearCell(pos, report);
+    }
+    //If the cell is not set yet, its possibilities must be updated.
+    else if (!cell.IsSet())
     {
         auto nRemoved = PossiblePermutations[key].Remove(specificPermutations);
         WFCPP_ASSERT(cell.NPossibilities >= nRemoved);
 
         cell.NPossibilities -= nRemoved;
         if (report && nRemoved > 0)
+        {
             if (cell.NPossibilities < 1)
                 report->GotBoring.push_back(pos);
             else if (nRemoved > 0)
                 report->GotInteresting.insert(pos);
+        }
     }
 }
 void Grid::SetFaceImpl(Vector3i pos, Directions3D dir, const FaceIdentifiers& points,
@@ -355,31 +368,37 @@ void Grid::SetFaceImpl(Vector3i pos, Directions3D dir, const FaceIdentifiers& po
         auto faceDir = faceDirs[i];
         auto facePos = faceCellIdcs[i];
 
-        bool needsFiltering;
-        if (cell.IsSet())
+        SetFaceInnerImpl(faceCellIdcs[i], *faceCells[i], faceDir, points, report, isForbidding);
+    }
+}
+void Grid::SetFaceInnerImpl(Vector3i pos, CellState& cell,
+                            Directions3D face, const FaceIdentifiers& points,
+                            Report* report, bool isForbidding)
+{
+    bool needsFiltering;
+    if (cell.IsSet())
+    {
+        const auto& tile = InputTiles[cell.ChosenTile];
+        auto chosenFace = GetFace(cell.ChosenTile, cell.ChosenPermutation, face);
+        if ((chosenFace.Points == points) == isForbidding)
         {
-            const auto& tile = InputTiles[cell.ChosenTile];
-            auto chosenFace = GetFace(cell.ChosenTile, cell.ChosenPermutation, faceDir);
-            if ((chosenFace.Points == points) == isForbidding)
-            {
-                ClearCell(facePos, report, false);
-                needsFiltering = true;
-            }
-            else //The cell's choice already respects this new constraint
-            {
-                needsFiltering = false;
-            }
-        }
-        else
-        {
+            ClearCell(pos, report);
             needsFiltering = true;
         }
-
-        FacePermutation perm{ faceDir, points };
-        if (needsFiltering)
-            ApplyFilter(facePos, perm, cell, report, isForbidding);
-        ApplyInitialFilter(facePos, perm, isForbidding);
+        else //The cell's choice already respects this new constraint
+        {
+            needsFiltering = false;
+        }
     }
+    else
+    {
+        needsFiltering = true;
+    }
+
+    FacePermutation permutation{ face, points };
+    if (needsFiltering)
+        ApplyFilter(pos, permutation, cell, report, isForbidding);
+    ApplyInitialFilter(pos, permutation, isForbidding);
 }
 
 void Grid::ApplyFilter(const Vector3i& cellPos, const FacePermutation& face,
@@ -423,6 +442,7 @@ void Grid::ApplyFilter(const Vector3i& cellPos, const FacePermutation& face,
             report->GotUnsolvable.insert(cellPos);
         }
         //Otherwise, it's a candidate of interest since it just had some possibilities narrowed down.
+        //NOTE: I previously added a check here that the possibility count actually changed, but that seems to make solving worse.
         else
         {
             report->GotInteresting.insert(cellPos);
@@ -482,9 +502,6 @@ void Grid::ResetCellPossibilities(const Vector3i& cellPos, CellState& cell, Repo
 
     cell.ChosenTile = TileIdx_INVALID;
 
-    if (report)
-        report->GotBoring.push_back(cellPos);
-
     cell.NPossibilities = 0;
     for (int tileI = 0; tileI < static_cast<int>(InputTiles.size()); ++tileI)
     {
@@ -494,6 +511,9 @@ void Grid::ResetCellPossibilities(const Vector3i& cellPos, CellState& cell, Repo
         PossiblePermutations[key] = initialPossibilities;
         cell.NPossibilities += initialPossibilities.Size();
     }
+
+    if (report && cell.NPossibilities == NPermutedTiles)
+        report->GotBoring.push_back(cellPos);
 
     DEBUGMEM_ValidateAll();
 }
@@ -559,7 +579,7 @@ void Grid::UnwindActionHistory(Report* report)
 
     //Unset the cell itself.
     auto& cell = Cells[ActionHistory.back()];
-    cell = { TileIdx_INVALID, { }, cell.IsChangeable, cell.NPossibilities };
+    cell = { TileIdx_INVALID, { }, cell.NPossibilities };
     if (report)
         report->GotInteresting.insert(ActionHistory.back());
 

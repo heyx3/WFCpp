@@ -711,7 +711,6 @@ SUITE(WFC_Tiled3D)
         {
             const auto& cell = grid.Cells[v];
             CHECK_EQUAL((TileIdx)(-1), cell.ChosenTile);
-            CHECK_EQUAL(true, cell.IsChangeable);
             CHECK_EQUAL(4, cell.NPossibilities);
         }
     }
@@ -735,7 +734,6 @@ SUITE(WFC_Tiled3D)
         state.SetCell({ 0, 0, 0 }, 0, { }, false, &report, true);
         auto* minCell = &state.Cells[{0, 0, 0}];
         //Check cell state.
-        CHECK_EQUAL(false, minCell->IsChangeable);
         CHECK_EQUAL(0, minCell->ChosenTile);
         CHECK_EQUAL(Transform3D{ }, minCell->ChosenPermutation);
         CHECK_EQUAL(1, minCell->NPossibilities);
@@ -759,7 +757,7 @@ SUITE(WFC_Tiled3D)
 
         //Set a second-neighbor of that cell, to make the cell in-between them unsolvable.
         report.Clear();
-        state.SetCell({ 2, 0, 0 }, 0, { false, Rotations3D::AxisZ_90}, true, &report);
+        state.SetCell({ 2, 0, 0 }, 0, { false, Rotations3D::AxisZ_90}, false, &report);
         CHECK(minCell->IsSet());
         CHECK_EQUAL(1, report.GotUnsolvable.size());
         CHECK_EQUAL(3, report.GotInteresting.size());
@@ -773,10 +771,9 @@ SUITE(WFC_Tiled3D)
 
         //Clear the second-neighbor; it should make the immediate-neighbor solvable again.
         report.Clear();
-        state.ClearCell({ 2, 0, 0 }, &report, true);
+        state.ClearCell({ 2, 0, 0 }, &report);
         CHECK(minCell->IsSet());
         CHECK(!state.Cells[WFC_CONCAT({ 2, 0, 0 })].IsSet());
-        CHECK(state.Cells[WFC_CONCAT({ 2, 0, 0 })].IsChangeable);
         CHECK_EQUAL(0, report.GotUnsolvable.size());
         CHECK_EQUAL(1, report.GotInteresting.size());
         CHECK(report.GotInteresting.contains({ 2, 0, 0 }));
@@ -784,8 +781,8 @@ SUITE(WFC_Tiled3D)
         CHECK_EQUAL(TransformSet::Combine(Transform3D{ }),
                     state.PossiblePermutations[WFC_CONCAT({ 0, {1, 0, 0} })]);
 
-        //Set {1, 0, 0}, so tht the next test is more interesting.
-        //Don't pass the Report instance either, to make sure that use-case is fine.
+        //Set {1, 0, 0}, so that the next test is more interesting.
+        //Don't pass the Report instance either, to test that that use-case is fine.
         state.SetCell({ 1, 0, 0 }, 0, { }, true);
 
         //Set {1, 0, 1} to use the 2nd permutation, then {0, 0, 1} goes from 2 possibilities to 1.
@@ -796,7 +793,6 @@ SUITE(WFC_Tiled3D)
         CHECK(state.Cells[newCellPos].IsSet());
         CHECK_EQUAL(0, state.Cells[newCellPos].ChosenTile);
         CHECK_EQUAL(newCellTransform, state.Cells[newCellPos].ChosenPermutation);
-        CHECK(state.Cells[newCellPos].IsChangeable);
         CHECK(report.GotInteresting.contains({ 2, 0, 1 }));
         CHECK(report.GotInteresting.contains({ 1, 1, 1 }));
         CHECK(report.GotInteresting.contains({ 1, 0, 2 }));
@@ -812,98 +808,52 @@ SUITE(WFC_Tiled3D)
         TransformSet usedTransforms;
         usedTransforms.Add(Transform3D{ });
         usedTransforms.Add(Transform3D{ false, Rotations3D::AxisY_90 });
-        Grid grid(OneTileArmy(usedTransforms), { 8, 3, 4 });
+        Grid grid(OneTileArmy(usedTransforms), { 8, 3, 6 });
         Grid::Report report;
 
         //Set a bunch of cells in a region, some immutable.
         const Vector3i min(1, 2, 1),
-                       max(7, 2, 3);
-        const Region3i region(min, max + 1);
+                       max(7, 2, 4);
+        const Region3i region(min, max + 1),
+                       inflatedRegion(region.MinInclusive - 1, region.MaxExclusive + 1);
         const Vector3i range = region.GetSize();
-        std::function<bool(Vector3i)> isMutable = [](Vector3i p) { return p.z != 2; };
+        std::unordered_set<Vector3i> permanentCells;
+        std::function<bool(Vector3i)> isPermanent = [](Vector3i p) { return p.z != 2; };
         for (Vector3i p : region)
-            grid.SetCell(p, 0, Transform3D{ }, isMutable(p), nullptr, true);
+        {
+            grid.SetCell(p, 0, Transform3D{ }, isPermanent(p), nullptr, true);
+            if (isPermanent(p))
+                permanentCells.insert(p);
+        }
+        //Also track the cells neighboring permanent/nonpermanent.
+        //Permanent-neighbors will have a permanent constraint on the face bordering that neighbor.
+        std::unordered_set<Vector3i> neighborsOfPermanentCells, neighborsOfNormalClearedCells;
+        for (Vector3i p : inflatedRegion)
+        {
+            if (grid.Cells.IsIndexValid(p) && !permanentCells.contains(p))
+            {
+                auto neighbors = p.OrthogonalNeighbors();
+                if (std::any_of(neighbors.begin(), neighbors.end(), [&](Vector3i n) { return permanentCells.contains(n); }))
+                    neighborsOfPermanentCells.insert(p);
+                else if (!region.Contains(p) && std::any_of(neighbors.begin(), neighbors.end(), [&](Vector3i n) { return region.Contains(n); }))
+                    neighborsOfNormalClearedCells.insert(p);
+            }
+        }
 
-        //Clear all but the immutable cells.
+        //Clear all cells; the 'permanent' ones and their neighbors should remain fixed
+        //     (though not officially set).
         report.Clear();
         grid.ClearCells(region, &report);
-        for (Vector3i p : region)
-            CHECK_EQUAL(!isMutable(p), grid.Cells[p].IsSet());
-        //The immutable Z layer means that the other Z layer stays interesting.
-        for (Vector3i p : region)
-            CHECK_EQUAL(!grid.Cells[p].IsSet(), report.GotInteresting.contains(p));
-        CHECK(report.GotInteresting.size());
-
-        //Make sure their neighbors were updated (except for the neighbors of immutables).
-        auto checkClearedNeighbor = [&](int x, int y, int z, int dirX, int dirY, int dirZ) {
-            Vector3i p = Vector3i{ x, y, z } + Vector3i{ dirX, dirY, dirZ };
-            if (!grid.Cells.IsIndexValid(p))
-                return;
-            const auto& legalPermutations = grid.PossiblePermutations[{0, p}];
-            if (isMutable({ x, y, z }))
+        for (Vector3i p : inflatedRegion)
+            if (grid.Cells.IsIndexValid(p))
             {
-                CHECK_EQUAL(2, grid.Cells[p].NPossibilities);
-                CHECK_EQUAL(usedTransforms, legalPermutations);
+                CHECK_EQUAL((permanentCells.contains(p) || neighborsOfPermanentCells.contains(p)) ? 1 : usedTransforms.Size(),
+                            grid.Cells[p].NPossibilities);
             }
-            else
-            {
-                CHECK_EQUAL(1, grid.Cells[p].NPossibilities);
-                CHECK_EQUAL(TransformSet::Combine(Transform3D{ }), legalPermutations);
-            }
-        };
-        //The Z face neighbors:
-        for (int y = min.y; y <= max.y; ++y)
-            for (int x = min.x; x <= max.x; ++x)
-                for (auto [z, dir] : std::vector{ std::make_tuple(min.z, -1),
-                                                  std::make_tuple(max.z, +1) })
-                    checkClearedNeighbor(x, y, z, 0, 0, dir);
-        //The X- and Y-face neighbors:
-        for (int z = min.z; z <= max.z; ++z)
-        {
-            for (int x = min.x; x <= max.x; ++x)
-                for (auto [y, dir] : std::vector{ std::make_tuple(min.y, -1),
-                                                  std::make_tuple(max.y, +1) })
-                    checkClearedNeighbor(x, y, z, 0, dir, 0);
-            for (int y = min.y; y <= max.y; ++y)
-                for (auto [x, dir] : std::vector{ std::make_tuple(min.x, -1),
-                                                  std::make_tuple(max.x, +1) })
-                    checkClearedNeighbor(x, y, z, dir, 0, 0);
-        }
-
-        //Clear the immutable cells too.
-        //Change them to mutable as they're cleared.
-        report.Clear();
-        grid.ClearCells(region, &report, true, true);
-        for (Vector3i p : region)
-        {
-            CHECK(!grid.Cells[p].IsSet());
-            CHECK(grid.Cells[p].IsChangeable);
-            CHECK(std::find(report.GotBoring.begin(), report.GotBoring.end(), p) != report.GotBoring.end());
-        }
-        
-        //Now the entire grid is empty.
+        //Permanent cells and their neighbors are still interesting, but all the rest got boring.
+        CHECK_EQUAL(neighborsOfNormalClearedCells.size(), report.GotBoring.size());
         CHECK_EQUAL(0, report.GotInteresting.size());
         CHECK_EQUAL(0, report.GotUnsolvable.size());
-
-        //Look for all the cells marked boring.
-        std::unordered_set<Vector3i> affectedCells;
-        //The immutable Z-layer was affected, along with the layers above and below it.
-        for (int x = min.x; x <= max.x; ++x)
-            for (int y = min.y; y <= max.y; ++y)
-                for (int z = 1; z <= 3; ++z)
-                    affectedCells.insert({ x, y, z});
-        //The perimeter of the Z-layer was affected as well.
-        for (int x = min.x; x <= max.x; ++x)
-            affectedCells.insert({ x, min.y - 1, 2 });
-        for (int y = min.y; y <= max.y; ++y)
-            affectedCells.insert({ min.x - 1, y, 2 });
-        //Now test that reality lines up with expectations.
-        CHECK_EQUAL(affectedCells.size(), report.GotBoring.size());
-        for (Vector3i cell : affectedCells)
-            CHECK(std::find(report.GotBoring.begin(), report.GotBoring.end(), cell) != report.GotBoring.end());
-        for (Vector3i cell : Region3i(Vector3i(-1, -1, -1), grid.Cells.GetDimensions() + 1))
-            if (!affectedCells.contains(cell))
-                CHECK(std::find(report.GotBoring.begin(), report.GotBoring.end(), cell) == report.GotBoring.end());
     }
 
     TEST(StandardRunnerTick)

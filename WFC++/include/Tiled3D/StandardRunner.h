@@ -122,9 +122,18 @@ namespace Tiled3D
         }
         
         void SetCell(const Vector3i& cellPos, TileIdx tile, Transform3D permutation,
-                     bool makeImmutable = false);
+                     bool isPermanent = false);
         void UnwindCells(int nToUnwind);
 
+        //Sets a specific cell so that it must (or must not) be the given tile+permutation.
+        //It's recommended, but not required, to do this before any Ticks since it wipes out the grid's action history.
+        void SetCellConstraint(const Vector3i& cellPos, TileIdx tile, Transform3D permutation, bool invert = false)
+        {
+            if (invert)
+                SetCellConstraintNot(cellPos, tile, TransformSet::Combine(permutation));
+            else
+                SetCell(cellPos, tile, permutation, true);
+        }
         void SetCellConstraintNot(const Vector3i& cellPos, TileIdx tile, TransformSet permutations = TransformSet::All());
         void SetFaceConstraint(const Vector3i& cellPos, Directions3D cellFace,
                                const FaceIdentifiers& facePermutation,

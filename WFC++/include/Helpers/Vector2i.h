@@ -102,6 +102,8 @@ namespace WFC
 		Vector2i LessY() const { return Vector2i(x, y - 1); }
 		Vector2i MoreY() const { return Vector2i(x, y + 1); }
 
+		int ComponentProduct() const { return x * y; }
+
 	    //Transforms this vector with the given transformation, pivoting around the origin.
 	    Vector2i Transform(Transformations transf) const { return Transform(transf, Vector2i(1, 1)); }
 		//Transforms this vector with the given transformation,

@@ -1,8 +1,10 @@
 #include "../../include/Tiled3D/StandardRunner.h"
 
+
 using namespace WFC;
 using namespace WFC::Math;
 using namespace WFC::Tiled3D;
+
 
 float StandardRunner::GetTemperature(const Vector3i& cell) const
 {
@@ -81,10 +83,10 @@ void StandardRunner::ClearAround(const Vector3i& centerCellPos)
     }
 }
 void StandardRunner::SetCell(const Vector3i& cellPos, TileIdx tile, Transform3D permutation,
-                             bool makeImmutable)
+                             bool isPermanent)
 {
     report.Clear();
-    Grid.SetCell(cellPos, tile, permutation, !makeImmutable, &report, makeImmutable);
+    Grid.SetCell(cellPos, tile, permutation, isPermanent, &report);
     nextCells.erase(cellPos);
     unsolvableCells.erase(cellPos);
 
