@@ -2,6 +2,7 @@
 
 #include <tuple>
 #include <random>
+#include <variant>
 
 #include "Grid.h"
 
@@ -10,6 +11,39 @@ namespace WFC
 {
 namespace Tiled3D
 {
+    struct WFC_API StandardRunnerAction_SetCell
+    {
+        Vector3i Target;
+        TileIdx ChosenTile = 0;
+        Transform3D ChosenPermutation;
+        bool operator==(const StandardRunnerAction_SetCell& b) const { return Target == b.Target && ChosenTile == b.ChosenTile && ChosenPermutation == b.ChosenPermutation; }
+    };
+    //Found a particular cell to be unsolvable.
+    struct WFC_API StandardRunnerAction_FailedOnCell
+    {
+        Vector3i Target;
+        bool operator==(const StandardRunnerAction_FailedOnCell& b) const { return Target == b.Target; }
+    };
+    //Cleared the areas surrounding all Unsolvable cells.
+    struct WFC_API StandardRunnerAction_ClearCells { bool operator==(const StandardRunnerAction_ClearCells& b) const { return true; } };
+    struct WFC_API StandardRunnerAction_UndoCells
+    {
+        int Count = 0;
+        bool operator==(const StandardRunnerAction_UndoCells& b) const { return Count == b.Count; }
+    };
+    //Started or Reset the StandardRunner.
+    struct WFC_API StandardRunnerAction_Initialize { bool operator==(const StandardRunnerAction_Initialize& b) const { return true; } };
+    struct WFC_API StandardRunnerAction_Finish { bool operator==(const StandardRunnerAction_Finish& b) const { return true; } };
+
+    //Union type of the different kinds of actions a StandardRunner can take each Tick.
+    using StandardRunnerAction = std::variant<StandardRunnerAction_SetCell,
+                                              StandardRunnerAction_FailedOnCell,
+                                              StandardRunnerAction_ClearCells,
+                                              StandardRunnerAction_UndoCells,
+                                              StandardRunnerAction_Initialize,
+                                              StandardRunnerAction_Finish>;
+
+
     //Provides a flexible strategy to generate a tile Grid with WFC.
     class WFC_API StandardRunner
     {
@@ -35,6 +69,7 @@ namespace Tiled3D
 
         //TODO: Switch to a Set, since most cells won't need their history tracked.
         Array3D<CellHistory> History;
+        StandardRunnerAction LastAction = StandardRunnerAction_Initialize{ };
 
         uint32_t CurrentTimestamp = 0; //Incremented each time the simulation iterates.
 
@@ -105,6 +140,14 @@ namespace Tiled3D
         //Will be a bit randomized each time it's called.
         float GetPriority(const Vector3i& cellPos);
 
+        //Get the cells that may be set next.
+        //Note that if there are any Unsolvable cells (`GetUnsolvableCells()`),
+        //    those are handled first.
+        const auto& GetNextCellsToProcess() const { return nextCells; }
+        //Gets the cells that are currently unsolvable; these will be handled in the next tick.
+        const auto& GetUnsolvableCells() const { return unsolvableCells; }
+        
+
         //Runs one iteration of the algorithm.
         //Returns whether the algorithm is finished.
         bool Tick();
@@ -119,6 +162,8 @@ namespace Tiled3D
             report.Clear();
             nextCells.clear();
             unsolvableCells.clear();
+
+            LastAction = StandardRunnerAction_Initialize{ };
         }
         
         void SetCell(const Vector3i& cellPos, TileIdx tile, Transform3D permutation,

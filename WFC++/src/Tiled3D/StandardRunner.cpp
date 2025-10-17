@@ -260,6 +260,7 @@ bool StandardRunner::Tick()
             PlacementsTillFinishedRewinding = CurrentUnwindingCount;
             UnwindCells(CurrentUnwindingCount);
 
+            LastAction = StandardRunnerAction_UndoCells{ CurrentUnwindingCount };
             return true;
         }();
 
@@ -267,6 +268,7 @@ bool StandardRunner::Tick()
         {
             for (const Vector3i& cellPos : unsolvableCells)
                 ClearAround(cellPos);
+            LastAction = StandardRunnerAction_ClearCells{ };
         }
 
         unsolvableCells.clear();
@@ -291,6 +293,7 @@ bool StandardRunner::Tick()
         //If every cell was set, then the algorithm is done.
         if (nSetCells == Grid.Cells.GetNumbElements())
         {
+            LastAction = StandardRunnerAction_Finish{ };
             return true;
         }
         //If all cells have an equal chance to be set, then pick one at random asap to save memory and time.
@@ -327,6 +330,7 @@ bool StandardRunner::Tick()
     {
         std::tie(tileIdx, tilePermutation) = *tryRandomTile;
         SetCell(cellPos, tileIdx, tilePermutation);
+        LastAction = StandardRunnerAction_SetCell{ cellPos, tileIdx, tilePermutation };
 
         //Update unwiding count logic.
         PlacementsTillFinishedRewinding -= 1;
@@ -336,6 +340,7 @@ bool StandardRunner::Tick()
     else
     {
         unsolvableCells.insert(cellPos);
+        LastAction = StandardRunnerAction_FailedOnCell{ cellPos };
     }
 
     return false;

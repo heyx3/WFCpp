@@ -995,14 +995,17 @@ SUITE(WFC_Tiled3D)
         {
             auto didEnd = state.Tick();
             CHECK(!didEnd);
+            CHECK(state.LastAction != StandardRunnerAction{ StandardRunnerAction_Finish{ } });
         }
         std::cout << ". finished!)\n";
         //Finish the last tile.
         auto didEnd = state.Tick();
         CHECK(!didEnd);
+        CHECK(std::holds_alternative<StandardRunnerAction_SetCell>(state.LastAction));
         //Tick once more to detect that the algorithm is finished.
         didEnd = state.Tick();
         CHECK(didEnd);
+        CHECK(state.LastAction == StandardRunnerAction{ StandardRunnerAction_Finish{ } });
 
         //Check the chosen tiles on each Z-slice.
         for (int z = 0; z < state.Grid.Cells.GetDepth(); ++z)
@@ -1048,6 +1051,7 @@ SUITE(WFC_Tiled3D)
             , { 0xababfefb43455501 }
         );
         state.Reset();
+        CHECK(std::holds_alternative<StandardRunnerAction_Initialize>(state.LastAction));
 
         //Disable randomness in the standard-runner.
         state.PriorityWeightRandomness = 0;
@@ -1057,9 +1061,11 @@ SUITE(WFC_Tiled3D)
         bool isFinished = false;
         while (!isFinished)
         {
+            CHECK(state.LastAction != StandardRunnerAction{ StandardRunnerAction_Finish{ } });
             isFinished = state.Tick();
         }
         std::cout << ". finished!)\n";
+        CHECK(std::holds_alternative<StandardRunnerAction_Finish>(state.LastAction));
     }
 
     TEST(GridConstraints)
