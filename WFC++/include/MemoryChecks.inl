@@ -72,6 +72,7 @@ namespace WFC::DEBUGMEM
         }
     };
 
+    //Do a compile-time test that padding works correctly.
     inline const char* TestPaddingHeaderGetter() { return "TestHere"; }
     using TestPadding = Padding<16, &TestPaddingHeaderGetter>;
     static_assert(

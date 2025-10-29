@@ -1067,6 +1067,40 @@ SUITE(WFC_Tiled3D)
         std::cout << ". finished!)\n";
         CHECK(std::holds_alternative<StandardRunnerAction_Finish>(state.LastAction));
     }
+    
+    TEST(StandardRunnerCopyState)
+    {
+        //Clone the 'StandardRunnerTickN' test, shrink it a bit for speed,
+        //    and periodically fork the Standard-Runner using the usual C++ copy constructor.
+
+        TransformSet usedTransforms;
+        usedTransforms.Add(Transform3D{ });
+        usedTransforms.Add(Transform3D{ false, Rotations3D::AxisZ_90 });
+        usedTransforms.Add(Transform3D{ false, Rotations3D::AxisY_90 });
+
+        StandardRunner state(
+            OneTileArmy(usedTransforms),
+            { 6, 6, 6 }
+        );
+        state.PriorityWeightRandomness = 0;
+
+        state.SetCell({ 2, 2, 0 }, 0, Transform3D{ });
+        state.SetCell({ 2, 2, 2 }, 0, Transform3D{ });
+        state.SetCell({ 2, 2, 4 }, 0, Transform3D{ });
+        state.SetCell({ 2, 2, 1 }, 0, Transform3D{ false, Rotations3D::AxisZ_90 });
+        state.SetCell({ 2, 2, 3 }, 0, Transform3D{ false, Rotations3D::AxisZ_90 });
+        state.SetCell({ 2, 2, 5 }, 0, Transform3D{ false, Rotations3D::AxisZ_90 });
+
+        while (state.LastAction != StandardRunnerAction{ StandardRunnerAction_Finish{ } })
+        {
+            if (state.CurrentTimestamp % 30 == 0)
+            {
+                StandardRunner stateCpy = state;
+                state = std::move(stateCpy);
+            }
+            state.TickN(state.Grid.Cells.GetNumbElements() * 2);
+        }
+    }
 
     TEST(GridConstraints)
     {

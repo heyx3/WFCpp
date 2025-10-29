@@ -53,7 +53,7 @@ namespace WFC
 		}
 
 		//Copy operator.
-		Array4D(const Array4D<ArrayType>& copy) { *this = copy; }
+		Array4D(const Array4D<ArrayType>& copy) noexcept : arrayVals(nullptr) { *this = copy; }
         Array4D& operator=(const Array4D<ArrayType>& other)
         {
 			if (&other == this)

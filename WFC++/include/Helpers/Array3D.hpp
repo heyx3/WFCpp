@@ -72,7 +72,7 @@ namespace WFC
 		}
 
 		//Copy operator.
-		Array3D(const Array3D<ArrayType>& copy) { *this = copy; }
+		Array3D(const Array3D<ArrayType>& copy) noexcept : arrayVals(nullptr) { *this = copy; }
         Array3D& operator=(const Array3D<ArrayType>& other)
         {
 			if (&other == this)

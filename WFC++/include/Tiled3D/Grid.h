@@ -78,8 +78,8 @@ namespace WFC
 
 
             //The input data:
-            const std::vector<Tile> InputTiles;
-            const int NPermutedTiles;
+            std::vector<Tile> InputTiles;
+            int NPermutedTiles;
             //Assigns a unique, contiguous, 0-based index to every face that appears in the tileset.
             const std::unordered_map<FacePermutation, int32_t>& GetFaceIndices() const { return FaceIndices; }
             //For each input tile (X) and FacePermutation (Y),
