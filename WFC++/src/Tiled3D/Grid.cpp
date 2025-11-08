@@ -7,11 +7,13 @@ using namespace WFC::Math;
 using namespace WFC::Tiled3D;
 
 
-Grid::Grid(const std::vector<Tile>& inputTiles, const Vector3i& outputSize)
+Grid::Grid(const std::vector<Tile>& inputTiles, const Vector3i& outputSize,
+           bool periodicX, bool periodicY, bool periodicZ)
     : InputTiles(inputTiles),
       NPermutedTiles(std::accumulate(InputTiles.begin(), InputTiles.end(),
                                      0, [](int sum, const Tile& tile) { return sum + tile.Permutations.Size(); })),
       Cells(outputSize),
+      IsPeriodicX(periodicX), IsPeriodicY(periodicY), IsPeriodicZ(periodicZ),
       PossiblePermutations({ (int)inputTiles.size(), outputSize }),
       InitialPossiblePermutations({ (int)inputTiles.size(), outputSize })
 {

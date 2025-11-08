@@ -8,6 +8,7 @@
 
 #include "Tile.hpp"
 
+
 namespace WFC
 {
     //TODO: Take advantage of std::span<>
@@ -195,10 +196,10 @@ namespace WFC
             //NOTE: The above shouldn't be publicly non-const, as changing them affects tile possibilities, but this will be refactored out eventually anyway.
 
             
-            //Allocates a new state for the given tileset and grid size.
-            //These will stay constant through the State's lifetime,
-            //    but you can configure it to use only a subset of them.
-            Grid(const std::vector<Tile>& inputTiles, const Vector3i& outputSize);
+            Grid(const std::vector<Tile>& inputTiles, const Vector3i& outputSize)
+                : Grid(inputTiles, outputSize, false, false, false) { }
+            Grid(const std::vector<Tile>& inputTiles, const Vector3i& outputSize,
+                 bool isPeriodicX, bool isPeriodicY, bool isPeriodicZ);
 
             //Sets up this instance for another run.
             void Reset();

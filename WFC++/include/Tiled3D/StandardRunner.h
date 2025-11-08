@@ -189,7 +189,13 @@ namespace Tiled3D
 
         StandardRunner(const std::vector<Tile>& inputTiles, const Vector3i& gridSize,
                        PRNG rand = { std::random_device{ }() })
-            : History(gridSize, { }), Rand(rand), Grid(inputTiles, gridSize)
+            : StandardRunner(inputTiles, gridSize, false, false, false, rand)
+        {
+        }
+        StandardRunner(const std::vector<Tile>& inputTiles, const Vector3i& gridSize,
+                       bool periodicX, bool periodicY, bool periodicZ,
+                       PRNG rand = { std::random_device{ }() })
+            : History(gridSize, { }), Rand(rand), Grid(inputTiles, gridSize, periodicX, periodicY, periodicZ)
         {
         }
 
