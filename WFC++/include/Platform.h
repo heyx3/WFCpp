@@ -55,8 +55,12 @@
 
 
 //Forcefully include debugging stuff here so that all files will see them.
-#if !defined(WFCPP_DEBUG) && !defined(NDEBUG)
-    #define WFCPP_DEBUG 1
+#if !defined(WFCPP_DEBUG)
+	#if defined(NDEBUG)
+		#define WFCPP_DEBUG 0
+	#else
+	    #define WFCPP_DEBUG 1
+	#endif
 #endif
 #if !defined(WFCPP_ASSERT)
     #define WFCPP_ASSERT(c, ...) assert(c)

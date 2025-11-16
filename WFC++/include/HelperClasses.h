@@ -2,15 +2,16 @@
 
 #include <optional>
 #include <vector>
+#include <unordered_set>
+#include <unordered_map>
+#include <random>
+
+#include "../Platform.h"
 #include "Helpers/Array2D.hpp"
 #include "Helpers/Array3D.hpp"
 #include "Helpers/Array4D.hpp"
-#include <unordered_set>
-#include <unordered_map>
 #include "Helpers/EnumFlags.h"
 #include "Helpers/xoshiro.hpp"
-
-#include <random>
 
 
 namespace WFC

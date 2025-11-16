@@ -3,6 +3,9 @@
 #include <numeric>
 #include <limits>
 
+#include "../Platform.h"
+
+
 namespace WFC
 {
     namespace Math
