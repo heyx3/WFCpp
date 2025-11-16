@@ -1,8 +1,10 @@
 #include "../../include/Tiled3D/StandardRunner.h"
 
+
 using namespace WFC;
 using namespace WFC::Math;
 using namespace WFC::Tiled3D;
+
 
 float StandardRunner::GetTemperature(const Vector3i& cell) const
 {
@@ -50,18 +52,6 @@ float StandardRunner::GetPriority(const Vector3i& cellPos)
 }
 
 
-void StandardRunner::Reset(const std::unordered_map<Vector3i, std::tuple<TileIdx, Transform3D>>& constants)
-{
-    Reset();
-    for (const auto& constant : constants)
-    {
-        Vector3i cellPos = std::get<0>(constant);
-        TileIdx tileIdx = std::get<0>(std::get<1>(constant));
-        Transform3D tilePermutation = std::get<1>(std::get<1>(constant));
-        SetCell(cellPos, tileIdx, tilePermutation, true);
-    }
-}
-
 void StandardRunner::ClearAround(const Vector3i& centerCellPos)
 {
     auto region = GetClearRegion(centerCellPos);
@@ -93,10 +83,10 @@ void StandardRunner::ClearAround(const Vector3i& centerCellPos)
     }
 }
 void StandardRunner::SetCell(const Vector3i& cellPos, TileIdx tile, Transform3D permutation,
-                             bool makeImmutable)
+                             bool isPermanent)
 {
     report.Clear();
-    Grid.SetCell(cellPos, tile, permutation, !makeImmutable, &report, makeImmutable);
+    Grid.SetCell(cellPos, tile, permutation, isPermanent, &report);
     nextCells.erase(cellPos);
     unsolvableCells.erase(cellPos);
 
@@ -139,14 +129,21 @@ void StandardRunner::UnwindCells(int n)
 }
 
 void StandardRunner::SetFaceConstraint(const Vector3i& cellPos, Directions3D cellFace,
-                                       const FaceIdentifiers& facePermutation)
+                                       const FaceIdentifiers& facePermutation,
+                                       bool invert)
 {
+    if (invert)
+    {
+        SetFaceConstraintNot(cellPos, cellFace, facePermutation);
+        return;
+    }
+
     report.Clear();
     Grid.SetFace(cellPos, cellFace, facePermutation, &report);
 
     //Process the report.
     //Note that the order is important; these collections aren't mutually exclusive.
-    WFCPP_ASSERT(report.GotBoring.empty()); //Adding a constraint can't remove possibilities!
+    WFCPP_ASSERT(report.GotBoring.empty()); //Adding a constraint can't increase possibilities!
     for (const auto& c : report.GotInteresting)
         nextCells.insert(c);
     for (const auto& c : report.GotUnsolvable)
@@ -155,18 +152,39 @@ void StandardRunner::SetFaceConstraint(const Vector3i& cellPos, Directions3D cel
         nextCells.erase(c);
     }
 }
-void StandardRunner::ClearFaceConstraint(const Vector3i& cellPos, Directions3D cellFace)
+void StandardRunner::SetFaceConstraintNot(const Vector3i& cellPos, Directions3D cellFace,
+                                          const FaceIdentifiers& facePermutation)
 {
     report.Clear();
-    Grid.ClearFace(cellPos, cellFace, &report);
+    Grid.SetFaceNot(cellPos, cellFace, facePermutation, &report);
 
     //Process the report.
     //Note that the order is important; these collections aren't mutually exclusive.
-    for (const auto& c : report.GotBoring)
-        nextCells.erase(c);
+    WFCPP_ASSERT(report.GotBoring.empty()); //Adding a constraint can't increase possibilities!
     for (const auto& c : report.GotInteresting)
         nextCells.insert(c);
-    WFCPP_ASSERT(report.GotUnsolvable.empty()); //Removing a constraint can't cause impossible situations!
+    for (const auto& c : report.GotUnsolvable)
+    {
+        unsolvableCells.insert(c);
+        nextCells.erase(c);
+    }
+}
+
+void StandardRunner::SetCellConstraintNot(const Vector3i& cellPos, TileIdx tile, TransformSet permutations)
+{
+    report.Clear();
+    Grid.SetCellNot(cellPos, tile, permutations, &report);
+
+    //Process the report.
+    //Note that the order is important; these collections aren't mutually exclusive.
+    WFCPP_ASSERT(report.GotBoring.empty()); //Adding a constraint can't increase possibilities!
+    for (const auto& c : report.GotInteresting)
+        nextCells.insert(c);
+    for (const auto& c : report.GotUnsolvable)
+    {
+        unsolvableCells.insert(c);
+        nextCells.erase(c);
+    }
 }
 
 Vector3i StandardRunner::PickNextCellToSet()
@@ -242,6 +260,7 @@ bool StandardRunner::Tick()
             PlacementsTillFinishedRewinding = CurrentUnwindingCount;
             UnwindCells(CurrentUnwindingCount);
 
+            LastAction = StandardRunnerAction_UndoCells{ CurrentUnwindingCount };
             return true;
         }();
 
@@ -249,6 +268,7 @@ bool StandardRunner::Tick()
         {
             for (const Vector3i& cellPos : unsolvableCells)
                 ClearAround(cellPos);
+            LastAction = StandardRunnerAction_ClearCells{ };
         }
 
         unsolvableCells.clear();
@@ -273,20 +293,36 @@ bool StandardRunner::Tick()
         //If every cell was set, then the algorithm is done.
         if (nSetCells == Grid.Cells.GetNumbElements())
         {
+            LastAction = StandardRunnerAction_Finish{ };
             return true;
         }
-        //If all cells have an equal chance to be set, then pick one at random.
+        //If all cells have an equal chance to be set, then pick one at random asap to save memory and time.
+        //This doesn't just help the first tick, but any tick after we've given up and cleared everything.
         else if (nextCells.size() == 0)
         {
+            //NOTE: there is a small chance of getting into this situation *despite* some cells being set!
+            //In particular, if all input tiles/permutations share a particular face,
+            //     then there are scenarios where the only boundary between set and unset cells is across that face,
+            //     meaning all unset cells have max possibilities.
+            //
+            //As a result, we need to make sure our random cell isn't one of the set ones.
+            //This scenario is very unoptimized, but shouldn't ever happen in the real world.
+
             Vector3i cellPos;
-            for (int i = 0; i < 3; ++i)
-                cellPos[i] = std::uniform_int_distribution<int>(0, Grid.Cells.GetDimensions()[i] - 1)(Rand);
+            do
+            {
+                for (int i = 0; i < 3; ++i)
+                    cellPos[i] = std::uniform_int_distribution<int>(0, Grid.Cells.GetDimensions()[i] - 1)(Rand);
+            } while (Grid.Cells[cellPos].IsSet());
+
             nextCells.insert(cellPos);
         }
     }
 
     //Pick the highest-priority cell.
     Vector3i cellPos = PickNextCellToSet();
+    WFCPP_ASSERT(Grid.Cells.IsIndexValid(cellPos));
+    WFCPP_ASSERT(!Grid.Cells[cellPos].IsSet());
     TileIdx tileIdx;
     Transform3D tilePermutation;
     auto tryRandomTile = RandomTile(&Grid.PossiblePermutations[{ 0, cellPos }]);
@@ -294,6 +330,7 @@ bool StandardRunner::Tick()
     {
         std::tie(tileIdx, tilePermutation) = *tryRandomTile;
         SetCell(cellPos, tileIdx, tilePermutation);
+        LastAction = StandardRunnerAction_SetCell{ cellPos, tileIdx, tilePermutation };
 
         //Update unwiding count logic.
         PlacementsTillFinishedRewinding -= 1;
@@ -303,6 +340,7 @@ bool StandardRunner::Tick()
     else
     {
         unsolvableCells.insert(cellPos);
+        LastAction = StandardRunnerAction_FailedOnCell{ cellPos };
     }
 
     return false;

@@ -68,6 +68,8 @@ namespace WFC
 		Vector4i LessW() const { return Vector4i(x, y, z, w - 1); }
 		Vector4i MoreW() const { return Vector4i(x, y, z, w + 1); }
 
+		int ComponentProduct() const { return x * y * z * w; }
+
 		uint32_t GetHashcode() const
 		{
 			auto a = Vector2i(x, y).GetHashcode(),

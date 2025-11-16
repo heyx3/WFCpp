@@ -30,16 +30,16 @@ namespace WFC
     	//    to make those points functionally interchangeable.
     	using PointID = std::uint_fast32_t;
 
-        //Unique identifiers for the four corners or edges of a face,
+        //Unique identifiers for the four corners/edges of a face,
         //     ordered in world-space to achieve trivial comparison of opposite faces.
-        //Axes are always ordered X->Y->Z, for example on the Y face axis 1 is X and axis 2 is Z.
+        //Face axes are always ordered X->Y->Z, for example on the Y face axis 1 is X and axis 2 is Z.
         //
         //For the four corners, each letter puts you on the Min ('A') or Max ('B') of that face axis.
         //For example on the X face, 'BA' means the 'MaxY-MinZ' corner.
         //
         //For the four edges, the first letter represents
         //    the axis parallel to that edge, 1 ('A') or 2 ('B'),
-        //    while the second letter represents Min or Max side.
+        //    while the second letter represents Min or Max side of the perpendicular axis.
         //E.g. on the Y face 'AB' means the {0, 0, 1}=>{1, 0, 1} edge
         //    and 'BB' means the {1, 0, 0}=>{1, 0, 1} edge.
     	//
@@ -60,6 +60,7 @@ namespace WFC
             BA, BB
         };
         constexpr int N_FACE_POINTS = 4;
+        constexpr auto ALL_FACE_POINTS = std::to_array({ AA, AB, BA, BB });
         template<typename T>
         using PerFacePoint = std::array<T, N_FACE_POINTS>;
 
@@ -113,6 +114,7 @@ namespace WFC
             MinZ, MaxZ,
         };
         const uint_fast8_t N_DIRECTIONS_3D = 6;
+        constexpr auto ALL_DIRECTIONS_3D = std::to_array({ MinX, MaxX, MinY, MaxY, MinZ, MaxZ });
 
         inline bool WFC_API IsMin(Directions3D dir) { return (uint_fast8_t)dir % 2 == 0; }
         inline bool WFC_API IsMax(Directions3D dir) { return (uint_fast8_t)dir % 2 == 1; }
@@ -425,16 +427,34 @@ namespace WFC
             //Applies the given transform after this one, and returns the resulting transform.
             Transform3D Then(const Transform3D& tr2) const;
 
+
+            //A small yet performant uint type to contain a transform's perfect hash.
+            using HashTypePerformant = uint_fast8_t;
+            //A minimal uint type to contain a transform's perfect hash.
+            using HashTypeSmallest = uint8_t;
+            
+            static_assert(N_ROTATIONS_3D == 24); //Mathematically guaranteed but still, it's important to hashing implementation
+            static constexpr HashTypePerformant InvertHashBitMask = 1 << 5;
             //Generates a perfect, unique hash code for this instance.
-            using HashType = uint_fast8_t;
-            HashType GetID() const
+            HashTypePerformant GetID() const
             {
-                static_assert(sizeof(Rotations3D) == 1, "Rotations3D changed size! Update this hash function");
-                HashType field1 = static_cast<HashType>(Rot),
-                         field2 = (Invert ? HashType{1} : HashType{0}) << HashType{5};
+                using U = HashTypePerformant;
+                
+                U field1 = static_cast<U>(Rot),
+                  field2 = (Invert ? InvertHashBitMask : U{0});
                 return field1 | field2;
             }
-            //Mixes the perfect, unique hash code in order to provide a more even bit distribution.
+            static Transform3D FromID(HashTypePerformant id)
+            {
+                using U = HashTypePerformant;
+                
+                return {
+                    (id & InvertHashBitMask) != U{0},
+                    static_cast<Rotations3D>(id & ~InvertHashBitMask)
+                };
+            }
+            
+            //Mixes the perfect, unique hash code into a larger uint to provide a more even bit distribution.
             uint32_t GetHashcode() const
             {
                 auto h = static_cast<uint32_t>(GetID());
@@ -464,11 +484,13 @@ namespace WFC
         }
 
 
-        //An optimized collection of all possible transforms.
+        //An optimized and sorted collection of transforms (no heap usage necessary).
+        //The default constructor creates an empty set; use static functions to create other kinds of sets.
+        //
         //The first half of the bits are for non-inverted rotations;
         //    the second half are for inverted ones.
+        //
         //The rotations are ordered by their enum values.
-        //Iteration order through this set is deterministic, based on the bit order.
         struct TransformSet
             //NOTE: static constexpr ints fail to compile for some reason when this class is marked WFC_API,
             //     so everything is kept inlined in the header.
@@ -484,10 +506,10 @@ namespace WFC
             using BitsType = Math::SmallestUInt<BIT_COUNT>;
             static constexpr BitsType ZERO = 0,
                                       ONE = 1,
-                                      ALL = ~ZERO,
+                                      ALL_BITS = ~ZERO,
                                       N_TYPE_BITS = 8 * sizeof(BitsType),
                                       FIRST_INVERT_BIT_IDX = N_ROTATIONS_3D,
-                                      USED_BITS = ALL >> (N_TYPE_BITS - BIT_COUNT),
+                                      USED_BITS = ALL_BITS >> (N_TYPE_BITS - BIT_COUNT),
                                       UNINVERTED_BITS = USED_BITS >> FIRST_INVERT_BIT_IDX,
                                       INVERTED_BITS = USED_BITS & (~UNINVERTED_BITS);
 
@@ -516,6 +538,9 @@ namespace WFC
                            Transform3D{ false, (Rotations3D)bitIdx } :
                            Transform3D{ true, (Rotations3D)(bitIdx - FIRST_INVERT_BIT_IDX) };
             }
+
+            static TransformSet All() { TransformSet s; s.bits = USED_BITS; s.nBits = BIT_COUNT; return s; }
+            static TransformSet None() { return TransformSet{ }; }
 
 
             //Creates a set from any combination of iterators, subsets, and elements.

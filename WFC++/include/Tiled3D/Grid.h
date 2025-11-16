@@ -8,6 +8,7 @@
 
 #include "Tile.hpp"
 
+
 namespace WFC
 {
     //TODO: Take advantage of std::span<>
@@ -30,26 +31,21 @@ namespace WFC
                 TileIdx ChosenTile = TileIdx_INVALID;
                 Transform3D ChosenPermutation = { };
 
-                //Some tiles are given by the user, and this algorithm has to work around them.
-                //Those tiles must not be cleared or otherwise manipulated.
-                bool IsChangeable = true;
-
                 //Cached count of the data in "PossiblePermutations" at this cell.
                 //A value of 0 means "unsolvable".
-                //A value of 1 means that it's set, OR that it only has one possiblity left.
+                //A value of 1 means that it's set OR that it only has one possiblity left.
                 uint16_t NPossibilities = 0;
 
                 //Constructors written explicitly so we can insert breakpoints as needed.
                 CellState() { }
-                CellState(TileIdx chosenTile, Transform3D chosenPermutation, bool isChangeable, uint16_t nPossibilities)
-                    #if !(UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT)
-                        : ChosenTile(chosenTile), ChosenPermutation(chosenPermutation), IsChangeable(isChangeable), NPossibilities(nPossibilities)
+                CellState(TileIdx chosenTile, Transform3D chosenPermutation, uint16_t nPossibilities)
+                    #if !WFCPP_DEBUG
+                        : ChosenTile(chosenTile), ChosenPermutation(chosenPermutation), NPossibilities(nPossibilities)
                     #endif
                 {
-                    #if UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
+                    #if WFCPP_DEBUG
                         ChosenTile = chosenTile;
                         ChosenPermutation = chosenPermutation;
-                        IsChangeable = isChangeable;
                         NPossibilities = nPossibilities;
                     #endif
                 }
@@ -83,8 +79,8 @@ namespace WFC
 
 
             //The input data:
-            const std::vector<Tile> InputTiles;
-            const int NPermutedTiles;
+            std::vector<Tile> InputTiles;
+            int NPermutedTiles;
             //Assigns a unique, contiguous, 0-based index to every face that appears in the tileset.
             const std::unordered_map<FacePermutation, int32_t>& GetFaceIndices() const { return FaceIndices; }
             //For each input tile (X) and FacePermutation (Y),
@@ -116,6 +112,8 @@ namespace WFC
             //NOTE: after a cell is set, its entry here no longer gets updated,
             //    so you should check whether a cell is set before paying attention to this data.
             Array4D<TransformSet> PossiblePermutations;
+            //The initial state of 'PossiblePermutations', including any constraints that have been put on cells or faces.
+            Array4D<TransformSet> InitialPossiblePermutations;
 
             //The record of cells that have been set.
             //Each entry in here corresponds to n*6 entries in 'StatePreActionHistory',
@@ -198,10 +196,10 @@ namespace WFC
             //NOTE: The above shouldn't be publicly non-const, as changing them affects tile possibilities, but this will be refactored out eventually anyway.
 
             
-            //Allocates a new state for the given tileset and grid size.
-            //These will stay constant through the State's lifetime,
-            //    but you can configure it to use only a subset of them.
-            Grid(const std::vector<Tile>& inputTiles, const Vector3i& outputSize);
+            Grid(const std::vector<Tile>& inputTiles, const Vector3i& outputSize)
+                : Grid(inputTiles, outputSize, false, false, false) { }
+            Grid(const std::vector<Tile>& inputTiles, const Vector3i& outputSize,
+                 bool isPeriodicX, bool isPeriodicY, bool isPeriodicZ);
 
             //Sets up this instance for another run.
             void Reset();
@@ -211,21 +209,42 @@ namespace WFC
                                   TileIdx tileIdx, Transform3D tilePermutation) const;
 
 
-            //Overwrites the tile in the given cell (even if it was marked as not changeable).
+            //Overwrites the tile in the given cell.
+            //
+            //If 'isPermanent' is true, then this is written into the core constraints of the grid
+            //     (and all Action History is reset, i.e. the Undo history is cleared).
             void SetCell(Vector3i pos, TileIdx tile, Transform3D tilePermutation,
-                         bool canBeChangedInFuture,
+                         bool isPermanent,
                          Report* report = nullptr,
                          bool assertLegalPlacement = true);
-            //Forces a particular grid face to fit a specific configuration.
+            //Permanently forbids a particular cell from using a particular tile.
+            //
+            //If it already is using that tile, the cell will be cleared
+            //    (even if marked as not changeable).
+            //
+            //Any existing action history will also be wiped out.
+            void SetCellNot(Vector3i pos, TileIdx tile,
+                            TransformSet specificPermutations = TransformSet::All(),
+                            Report* report = nullptr);
+
+            //Permanently forces a particular grid face to fit a specific configuration.
             //
             //If either of the two cells along that face do not fit,
             //     they will be cleared (even if they were marked as not changeable).
             //
-            //This constraint will be permanent (until you remove it with 'ClearFace()');
-            //    it's not affected by cell clearing.
+            //Any existing action history will also be wiped out.
             void SetFace(Vector3i pos, Directions3D dir,
                          const FaceIdentifiers& points,
-                         Report* report = nullptr);
+                         Report* report = nullptr) { SetFaceImpl(pos, dir, points, report, false); }
+            //Permanently forbids a particular grid face from having a certain value.
+            //
+            //If either of the two cells along that face already violate this,
+            //    they will be clared (even if they were marked as not changeable).
+            //
+            //Any existing action history will also be wiped out.
+            void SetFaceNot(Vector3i pos, Directions3D dir,
+                            const FaceIdentifiers& points,
+                            Report* report = nullptr) { SetFaceImpl(pos, dir, points, report, true); }
 
             //Efficiently undoes the most recent cell placement.
             void UnwindActionHistory(Report* report = nullptr);
@@ -235,24 +254,15 @@ namespace WFC
             void UnwindActionHistories(int n, Report* report = nullptr);
 
             //Clears out the values of all cells in the given region.
-            //Optionally, even cells marked "!IsChangeable" get cleared.
             //
             //This erases the 'action history' of all set cells and their neighbors' previous states,
             //     UNLESS this region covers all the most recently-set cells so we can use Unwind() instead.
-            void ClearCells(const Region3i& region, Report* report = nullptr,
-                            bool includeImmutableCells = false,
-                            bool clearedImmutableCellsAreMutableNow = true);
-            //Clears the given cell, even if it's marked as "!IsChangeable".
-            //Optionally, even cells marked "!IsChangeable" get cleared.
+            void ClearCells(const Region3i& region, Report* report = nullptr);
+            //Clears the given cell.
             //
             //This erases the 'action history' of set cells and their neighbors' previous states,
-            //    UNLESS this cell is the most recent bit of history and can be undone that way.
-            void ClearCell(const Vector3i& cellPos, Report* report = nullptr,
-                           bool becomeMutable = true);
-            //Removes the constraint you previously placed on a specific cell face.
-            //If you didn't place a constraint, then nothing happens.
-            void ClearFace(Vector3i cell, Directions3D face, Report* report = nullptr);
-
+            //    UNLESS this cell is the most recent bit of history and can be cleared through Undoing history.
+            void ClearCell(const Vector3i& cellPos, Report* report = nullptr);
 
         private:
 
@@ -279,25 +289,36 @@ namespace WFC
                 return Tiled3D::GetFace(InputTiles[tileIdx].Data,
                                         permutation, sideAfterTransform);
             }
+            void SetFaceImpl(Vector3i pos, Directions3D dir,
+                             const FaceIdentifiers& points,
+                             Report* report, bool isForbidding);
+            void SetFaceInnerImpl(Vector3i pos, CellState& cell,
+                                  Directions3D face, const FaceIdentifiers& points,
+                                  Report* report, bool isForbidding);
 
-            //Removes tile options from the given cell that do not fit the given face.
+            //Removes tile options from the given cell that do not (or do) fit the given face.
             void ApplyFilter(const Vector3i& cellPos, const FacePermutation& chosenFace,
-                             CellState& cell,
-                             Report* report);
+                             CellState& cell, Report* report, bool isForbidding);
             //Removes tile options from the given cell that do not fit the given face.
             inline void ApplyFilter(const Vector3i& cellPos, const FacePermutation& chosenFace,
-                                    Report* report)
+                                    Report* report, bool isForbidding)
             {
                 auto& cell = Cells[cellPos];
-                ApplyFilter(cellPos, chosenFace, cell, report);
+                ApplyFilter(cellPos, chosenFace, cell, report, isForbidding);
             }
             //Updates a given neighbor of a cell, based on the given cell (presumably set).
             void ApplyFilter(const Vector3i& cellPos,
                              const Vector3i& neighborPos,
                              Directions3D sideTowardsNeighbor,
-                             Report* report);
+                             Report* report, bool isForbidding);
 
-            //Clears a cell's possibilities, resetting it to *all* possible tiles, respecting any FaceConstraints.
+            //Removes tile options from the initial state of the given cell,
+            //    by either forbidding or forcing the given face.
+            //Does not touch the current cell possibilities, assuming you already handled those.
+            void ApplyInitialFilter(const Vector3i& cellPos, const FacePermutation& chosenFace,
+                                    bool isForbidding);
+
+            //Clears a cell's possibilities, resetting it to *all* possible tiles, respecting any constraints.
             inline void ResetCellPossibilities(const Vector3i& cellPos, Report* report) { ResetCellPossibilities(cellPos, Cells[cellPos], report); }
             void ResetCellPossibilities(const Vector3i& cellPos, CellState& cell, Report* report);
 
@@ -322,11 +343,6 @@ namespace WFC
             //    caches all permutations of the tile which possess that face.
             Array2D<TransformSet> MatchingFaces;
 
-            //Hard-coded constraints for specific faces of specific grid cells.
-            //The key's W component is the face Direction3D.
-            std::unordered_map<Vector4i, FaceIdentifiers> FaceConstraints;
-
-            std::unordered_set<Vector3i> buffer_clearCells_leftovers;
             std::unordered_map<Vector3i, int> buffer_unwindCells_originalNPossibilities;
         };
     }
