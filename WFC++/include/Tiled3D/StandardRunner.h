@@ -109,7 +109,7 @@ namespace Tiled3D
         //If heuristics are telling us to do this many undo operations or more,
         //    switch to clearing cells instead.
         int MaxUnwindingCount = 64;
-        //Set to -1 when not in the middle of redoing some unwinding operations.
+        //Equal to -1 when not in the middle of redoing some unwinding operations.
         int CurrentUnwindingCount = -1;
         //Tracks how long until we're finished redoing the last group of unwinding operations.
         //Once this hits 0 we can reset the current unwinding count.

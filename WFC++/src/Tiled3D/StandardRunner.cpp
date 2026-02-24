@@ -205,15 +205,6 @@ Vector3i StandardRunner::PickNextCellToSet()
         cellPriorities.emplace_back(cellPos, priority);
         maxPriority = Math::Max(maxPriority, priority);
     }
-    //Sort the options, because 'nextCells' is a set and not ordered deterministically.
-    std::sort(cellPriorities.begin(), cellPriorities.end(),
-              [](const std::tuple<Vector3i, float>& a,
-                 const std::tuple<Vector3i, float>& b)
-    {
-        return std::get<0>(a).GetHashcode() <
-                std::get<0>(b).GetHashcode();
-    });
-
 
     //Filter out the cells of less-than-max priority.
     auto newEndIterator = std::remove_if(
@@ -225,6 +216,19 @@ Vector3i StandardRunner::PickNextCellToSet()
     );
     cellPriorities.erase(newEndIterator, cellPriorities.end());
     WFCPP_ASSERT(cellPriorities.size() > 0);
+
+    //Sort the options, because 'nextCells' is a set and not ordered deterministically.
+    std::sort(cellPriorities.begin(), cellPriorities.end(),
+              [](const std::tuple<Vector3i, float>& a,
+                 const std::tuple<Vector3i, float>& b)
+    {
+        const auto& vA = std::get<0>(a);
+        const auto& vB = std::get<0>(b);
+        return (vA.x < vB.x) ||
+               (vA.x == vB.x &&
+                  (vA.y < vB.y ||
+                    (vA.y == vB.y && vA.z < vB.z)));
+    });
 
     //Randomly choose one max-priority cell.
     return std::get<0>(cellPriorities[
@@ -257,7 +261,7 @@ bool StandardRunner::Tick()
                 return false;
             }
 
-            PlacementsTillFinishedRewinding = CurrentUnwindingCount;
+            PlacementsTillFinishedRewinding = CurrentUnwindingCount * 2;
             UnwindCells(CurrentUnwindingCount);
 
             LastAction = StandardRunnerAction_UndoCells{ CurrentUnwindingCount };
