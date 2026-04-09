@@ -250,7 +250,7 @@ bool StandardRunner::Tick()
             //If we were redoing previously-undone cells,
             //     and we got at least halfway back towards redoing them all,
             //     then double the unwinding size.
-            else if (PlacementsTillFinishedRewinding <= (CurrentUnwindingCount / 2))
+            else if (PlacementsTillFinishedRewinding <= CurrentUnwindingCount)
                 CurrentUnwindingCount *= 2;
 
             //If the unwinding size got too big, or we can't undo that many cells, give up.
