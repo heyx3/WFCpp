@@ -7,10 +7,14 @@
 #include <cstdio>
 
 
-//To debug heap memory corruption, `#define WFCPP_CHECK_MEMORY 1` before including this library.
-//You may also define a printf-like error handler, `WFCPP_CHECK_MEMORY_ERROR(s, ...)`.
-//It defaults to `fprintf(stderr, ...)`.
-//Then you can call `DEBUGMEM_Validate()` on an instance to check the padding bits for corruption.
+//To debug memory corruption, define `WFCPP_CHECK_MEMORY` as 1 before compiling/including this library.
+//This will inflate the size of most structs and classes, with "padding" bits that hopefully catch bad writes.
+//You may also define a printf-like error handler, `WFCPP_CHECK_MEMORY_ERROR(s, ...)`,
+//    defaulting to `fprintf(stderr, ...)`.
+
+//When memory checks are enabled, you can call `DEBUGMEM_Validate()` on an object to check the padding bits for corruption.
+//Objects internally call this before and after many of their operations.
+
 
 //For Intellisense, act as if memory debugging is always on.
 #if !defined(WFCPP_CHECK_MEMORY) && (defined(__INTELLISENSE__) || defined(__RESHARPER__))
@@ -19,7 +23,7 @@
 
 //By default, only enable memory debugging in debug builds.
 #if !defined(WFCPP_CHECK_MEMORY)
-    #if defined(WFCPP_DEBUG)
+    #if defined(WFCPP_DEBUG) && WFCPP_DEBUG
         #define WFCPP_CHECK_MEMORY 1
     #else
         #define WFCPP_CHECK_MEMORY 0
@@ -29,7 +33,7 @@
 //Make sure there is an error handler.
 #if WFCPP_CHECK_MEMORY && !defined(WFCPP_CHECK_MEMORY_ERROR)
     #define WFCPP_CHECK_MEMORY_ERROR(s, ...) { \
-        fprintf(stderr, "WFCPP: heap corruption detected! " s "\n", ##__VA_ARGS__); \
+        fprintf(stderr, "WFCpp: heap corruption detected! " s "\n", ##__VA_ARGS__); \
         fflush(stderr); \
     }
 #endif
