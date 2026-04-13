@@ -255,7 +255,7 @@ bool StandardRunner::Tick()
 
             //If the unwinding size got too big, or we can't undo that many cells, give up.
             if (CurrentUnwindingCount >= MaxUnwindingCount || CurrentUnwindingCount < 1 ||
-                CurrentUnwindingCount >= Grid.ActionHistory.size())
+                CurrentUnwindingCount >= static_cast<int>(Grid.ActionHistory.size()))
             {
                 CurrentUnwindingCount = -1;
                 return false;

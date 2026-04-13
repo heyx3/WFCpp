@@ -100,26 +100,34 @@ bool Grid::IsLegalPlacement(const Vector3i& cellPos,
         Directions3D mySide;
         std::tie(neighborPos, mySide) = neighborData;
 
-        if (Cells.IsIndexValid(neighborPos) && Cells[neighborPos].IsSet())
-        {
-            const auto& neighborCell = Cells[neighborPos];
-            auto neighborSide = GetOpposite(mySide);
-
-            auto neighborFace = GetFace(neighborCell.ChosenTile,
-                                        neighborCell.ChosenPermutation,
-                                        neighborSide);
-            auto myRequiredFace = neighborFace.Flipped();
-
-            auto faceIndex = FaceIndices.at(myRequiredFace);
-            Vector2i faceLookup{ tileIdx, faceIndex };
-            const auto& faces = MatchingFaces[faceLookup];
-            bool hasFace = faces.Contains(tilePermutation);
-            if (!hasFace)
-                return false;
-        }
+        if (!IsLegalPlacement(cellPos, mySide, tileIdx, tilePermutation, neighborPos, GetOpposite(mySide)))
+            return false;
     }
 
     return true;
+}
+bool Grid::IsLegalPlacement(const Vector3i& cellPos, Directions3D cellFace,
+                            TileIdx tileIdx, Transform3D tilePermutation,
+                            const Vector3i& cellNeighborPos, Directions3D cellNeighborFace) const
+{
+    if (!Cells.IsIndexValid(cellNeighborPos))
+        return true;
+    const auto& cellNeighbor = Cells[cellNeighborPos];
+    if (!cellNeighbor.IsSet())
+        return true;
+
+    auto neighborFaceData = GetFace(cellNeighbor.ChosenTile,
+                                    cellNeighbor.ChosenPermutation,
+                                    cellNeighborFace);
+    auto myRequiredFaceData = neighborFaceData.Flipped();
+
+    WFCPP_ASSERT(FaceIndices.contains(myRequiredFaceData),
+                 "Somehow a tile permutation's faces are missing from our accelerated lookup!");
+    auto requiredFaceIndex = FaceIndices.at(myRequiredFaceData);
+    Vector2i requiredFaceLookup{ tileIdx, requiredFaceIndex };
+    const auto& matchingPermutations = MatchingFaces[requiredFaceLookup];
+
+    return matchingPermutations.Contains(tilePermutation);
 }
 
 void Grid::SetCell(Vector3i pos, TileIdx tile, Transform3D tilePermutation,
@@ -143,7 +151,7 @@ void Grid::SetCell(Vector3i pos, TileIdx tile, Transform3D tilePermutation,
     if (isPermanent)
     {
         //Bake this constraint into the initial grid state.
-        for (int tileID = 0; tileID < InputTiles.size(); ++tileID)
+        for (int tileID = 0; tileID < static_cast<int>(InputTiles.size()); ++tileID)
         {
             Vector4i key{ tileID, pos };
             if (tileID == tile)
@@ -190,10 +198,10 @@ void Grid::SetCell(Vector3i pos, TileIdx tile, Transform3D tilePermutation,
             neighborCellPos = FilterPos(neighborCellPos);
 
             if (Cells.IsIndexValid(neighborCellPos))
-                for (int inputTileI = 0; inputTileI < InputTiles.size(); ++inputTileI)
+                for (int inputTileI = 0; inputTileI < static_cast<int>(InputTiles.size()); ++inputTileI)
                     StatePreActionHistory.push_back(PossiblePermutations[Vector4i{ inputTileI, neighborCellPos }]);
             else
-                for (int inputTileI = 0; inputTileI < InputTiles.size(); ++inputTileI)
+                for (int inputTileI = 0; inputTileI < static_cast<int>(InputTiles.size()); ++inputTileI)
                     StatePreActionHistory.emplace_back();
         }
     }
@@ -212,7 +220,7 @@ void Grid::ClearCells(const Region3i& region, Report* report)
     //Special case: all cells in the clear region are on the top of the history stack,
     //    allowing us to undo them more efficiently and without losing the rest of the grid's history.
     int nCells = region.GetNumbElements();
-    if (ActionHistory.size() >= nCells)
+    if (static_cast<int>(ActionHistory.size()) >= nCells)
     {
         bool allUnwindable = true;
         for (int i = 0; i < nCells; ++i)
@@ -557,7 +565,7 @@ void Grid::UnwindActionHistory(Report* report)
             int originalNPossibilities = neighborCell.NPossibilities;
             neighborCell.NPossibilities = 0;
 
-            for (int tileI = 0; tileI < InputTiles.size(); ++tileI)
+            for (int tileI = 0; tileI < static_cast<int>(InputTiles.size()); ++tileI)
             {
                 auto possibilities = *(neighborPermutationsStart + tileI);
                 neighborCell.NPossibilities += possibilities.Size();

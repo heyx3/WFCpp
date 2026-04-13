@@ -154,9 +154,9 @@ namespace WFC
             void DEBUGMEM_ValidateOutputs() const
             {
                 //Note: iterate with indices as much as possible so it's clearer in the debugger where validation is failing.
-                for (Vector3i idx : Region3i(Cells.GetDimensions()))
+                for (const Vector3i& idx : Region3i(Cells.GetDimensions()))
                     Cells[idx].DEBUGMEM_Validate();
-                for (Vector4i idx : Region4i(PossiblePermutations.GetDimensions()))
+                for (const Vector4i& idx : Region4i(PossiblePermutations.GetDimensions()))
                     PossiblePermutations[idx].DEBUGMEM_Validate();
             }
             void DEBUGMEM_ValidateAll() const
@@ -171,6 +171,7 @@ namespace WFC
             //  * BoundaryPolicy (e.x. wrapping, clamping, or assuming a specific edge face)
             //  * SubsetPolicy (only allow some tiles/permutations in specific locations)
             //  * WeightPolicy (change the weights of tiles/permutations, possibly based on location)
+            //NOTE that policies will need to support unwinding (if they change over time)!
 
             //The simulation settings:
             bool IsPeriodicX = false,
@@ -193,7 +194,7 @@ namespace WFC
                     ),
                 };
             }
-            //NOTE: The above shouldn't be publicly non-const, as changing them affects tile possibilities, but this will be refactored out eventually anyway.
+            //NOTE: The above shouldn't be publicly non-const, as changing them affects tile possibilities, but this will be refactored out eventually anyway -- as a "BoundaryPolicy".
 
             
             Grid(const std::vector<Tile>& inputTiles, const Vector3i& outputSize)
@@ -201,12 +202,25 @@ namespace WFC
             Grid(const std::vector<Tile>& inputTiles, const Vector3i& outputSize,
                  bool isPeriodicX, bool isPeriodicY, bool isPeriodicZ);
 
-            //Sets up this instance for another run.
+            //Set up this instance for a fresh run (but constraints are still preserved).
             void Reset();
 
-            
+            //Checks the given cell's neighbors to see if this tile can be placed there.
+            //Ignores the current state for this tile.
+            //
+            //Only meant for debugging and visualization -- the real logic uses acceleration structures.
             bool IsLegalPlacement(const Vector3i& cellPos,
                                   TileIdx tileIdx, Transform3D tilePermutation) const;
+            //Checks the given cell's neighboring face to see if this tile can be placed against it.
+            //Ignores this tile's current state and other neighbors.
+            //
+            //Only meant for debugging and visualization -- the real logic uses acceleration structures.
+            bool IsLegalPlacement(const Vector3i& cellPos, Directions3D cellFace,
+                                  TileIdx tileIdx, Transform3D tilePermutation) const
+            {
+                return IsLegalPlacement(cellPos, cellFace, tileIdx, tilePermutation,
+                                        GetNeighbor(cellPos, cellFace), GetOpposite(cellFace));
+            }
 
 
             //Overwrites the tile in the given cell.
@@ -266,21 +280,32 @@ namespace WFC
 
         private:
 
-            //Gets the position and connecting face towards each neighbor of a cell.
-            //The neighbor positions are pre-filtered for convenience.
+            //Gets the (filtered) position and connecting face towards each neighbor of a cell,
+            //  ordered by the Directions3D enum.
             inline std::array<std::tuple<Vector3i, Directions3D>, N_DIRECTIONS_3D>
                 GetNeighbors(const Vector3i& cellPos) const
             {
                 std::array<std::tuple<Vector3i, Directions3D>, N_DIRECTIONS_3D> neighbors;
-                neighbors[0] = { FilterPos(cellPos.LessX()), Directions3D::MinX };
-                neighbors[1] = { FilterPos(cellPos.MoreX()), Directions3D::MaxX };
-                neighbors[2] = { FilterPos(cellPos.LessY()), Directions3D::MinY };
-                neighbors[3] = { FilterPos(cellPos.MoreY()), Directions3D::MaxY };
-                neighbors[4] = { FilterPos(cellPos.LessZ()), Directions3D::MinZ };
-                neighbors[5] = { FilterPos(cellPos.MoreZ()), Directions3D::MaxZ };
+                neighbors[Directions3D::MinX] = { FilterPos(cellPos.LessX()), Directions3D::MinX };
+                neighbors[Directions3D::MaxX] = { FilterPos(cellPos.MoreX()), Directions3D::MaxX };
+                neighbors[Directions3D::MinY] = { FilterPos(cellPos.LessY()), Directions3D::MinY };
+                neighbors[Directions3D::MaxY] = { FilterPos(cellPos.MoreY()), Directions3D::MaxY };
+                neighbors[Directions3D::MinZ] = { FilterPos(cellPos.LessZ()), Directions3D::MinZ };
+                neighbors[Directions3D::MaxZ] = { FilterPos(cellPos.MoreZ()), Directions3D::MaxZ };
                 return neighbors;
             }
-
+            //Gets the (filtered) position of the given neighbor of a cell.
+            inline Vector3i GetNeighbor(const Vector3i& cellPos, Directions3D cellFace) const
+            {
+                auto nPos = cellPos;
+                nPos[GetAxisIndex(cellFace)] += IsMin(cellFace) ? -1 : 1;
+                return FilterPos(nPos);
+            }
+            
+            //Internal implementation overload
+            bool IsLegalPlacement(const Vector3i& cellPos, Directions3D cellFace,
+                                  TileIdx tileIdx, Transform3D tilePermutation,
+                                  const Vector3i& cellNeighborPos, Directions3D cellNeighborFace) const;
 
             //Gets a specific face of a transformed tile, by its side (after transformation).
             inline FacePermutation GetFace(TileIdx tileIdx, Transform3D permutation,
