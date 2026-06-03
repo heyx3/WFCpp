@@ -2,7 +2,6 @@
 
 #include <assert.h>
 #include <iterator>
-#include <math.h>
 
 #include "../Platform.h"
 #include "EnumFlags.h"
@@ -13,7 +12,7 @@
 
 namespace WFC
 {
-    //NOTE: By convention, the positive Y axis points downward.
+    //NOTE: Coordinates are right-handed, and conventionally +Y points downward.
 
 	//Things that can be done to 2D integer vectors.
     //This set is completely closed -- any combination of these transformations
@@ -51,7 +50,8 @@ namespace WFC
     WFC_API bool WillSwapAxes(Transformations t);
     WFC_API const char* ToString(Transformations t);
     WFC_API bool IsReflection(Transformations t);
-
+	WFC_API Transformations FlipHandedness(Transformations t);
+	WFC_API Transformations CombineTr2D(Transformations first, Transformations second);
 
 	//A 2D integer coordinate.
 	struct WFC_API Vector2i
@@ -107,7 +107,7 @@ namespace WFC
 	    //Transforms this vector with the given transformation, pivoting around the origin.
 	    Vector2i Transform(Transformations transf) const { return Transform(transf, Vector2i(1, 1)); }
 		//Transforms this vector with the given transformation,
-		//    assuming the "pivot" is halfway between the origin and "size".
+		//    assuming the "pivot" is halfway between the origin and "size", rounding down.
 		Vector2i Transform(Transformations trnsf, Vector2i size) const;
 
 		uint32_t GetHashcode() const

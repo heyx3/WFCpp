@@ -3,6 +3,7 @@
 #include <stdint.h> //TODO: Why? remove this
 #include <utility>
 #include <array>
+#include <type_traits>
 
 #include "../Platform.h"
 
@@ -79,6 +80,12 @@ namespace WFC
         {
 	        return MakeCornerFacePoint(faceVector.x < 0, faceVector.y < 0);
         }
+        inline FacePoints WFC_API TransformFaceCorner(FacePoints inP, Transformations faceTransform)
+        {
+            //The 2D transforms are implemented for right-handed systems, so invert them.
+            faceTransform = Invert(faceTransform);
+            return MakeCornerFacePoint(MakeCornerFaceVector(inP).Transform(faceTransform));
+        }
 
         inline bool WFC_API IsEdgeParallelToFirstAxis(FacePoints p) { return ((uint_fast8_t)p / 2) == 0; }
         inline bool WFC_API IsEdgeOnMinSide(FacePoints p) { return ((uint_fast8_t)p % 2) == 0; }
@@ -103,6 +110,12 @@ namespace WFC
 	        	vector.x == 0,
 	        	std::min(vector.x, vector.y) < 0
 	        );
+        } 
+        inline FacePoints WFC_API TransformFaceEdge(FacePoints inP, Transformations faceTransform)
+        {
+            //The 2D transforms are implemented for right-handed systems, so invert them.
+            faceTransform = Invert(faceTransform);
+            return MakeEdgeFacePoint(MakeEdgeFaceVector(inP).Transform(faceTransform));
         }
 
 
@@ -168,13 +181,15 @@ namespace WFC
 				default: WFCPP_ASSERT(false); return true;
 			}
         }
-    	
-    	//Applies a 2D transformation to the given corner of the given face.
-    	//This transformation is from the point of view looking at this face on the rotation axis.
-    	WFC_API FacePoints TransformFaceCorner(FacePoints p, Directions3D dir, Transformations tr2D);
-    	//Applies a 2D transformation to the given edge of the given face.
-    	//This transformation is from the point of view looking at this face on the rotation axis.
-    	WFC_API FacePoints TransformFaceEdge(FacePoints p, Directions3D dir, Transformations tr2D);
+        //Generally we like to apply 2D face transformations from the point of view looking at a face.
+        //However the face permutation math is left-handed, so every other face effectively inverts the transform.
+        inline Transformations FaceTransformOnSide(Directions3D dir, Transformations tr2D)
+        {
+            if (IsFaceLeftHanded(dir))
+                return tr2D;
+            else
+                return WFC::Invert(tr2D);
+        }
 
         //Unique identifier for a face, including any symmetries implicit in the arrangement of corners and faces.
         struct WFC_API FaceIdentifiers
@@ -196,7 +211,36 @@ namespace WFC
             }
             FaceIdentifiers(const PerFacePoint<PointID>& corners, const PerFacePoint<PointID>& edges)
                 : Corners(corners), Edges(edges) { }
-
+            
+            FaceIdentifiers TransformedBy(Transformations tr) const;
+            //Enumerates all permutations of this face that are symmetric with the given one,
+            //    including the given one.
+            //Ordered by the 2D transform enum's integer values.
+            //
+            //If you want this enumeration to be interruptible, have your lambda return a boolean for whether to quit early.
+            template<typename ProcessFunc>
+            void ForEachSymmetry(Transformations permutation, ProcessFunc processFn) const
+            {
+                for (int trI = 0; trI < Transformations::Count; ++trI)
+                {
+                    auto localTr = static_cast<Transformations>(trI);
+                    if (*this == TransformedBy(localTr))
+                    {
+                        auto globalTr = CombineTr2D(permutation, localTr);
+                        //If the user's lambda returns bool, interpret it as a signal to exit early.
+                        if constexpr (std::is_same_v<std::invoke_result_t<decltype(processFn), decltype(globalTr)>, bool>)
+                        {
+                            if (processFn(globalTr))
+                                return;
+                        }
+                        else
+                        {
+                            processFn(globalTr);
+                        }
+                    }
+                }
+            }
+            
             inline uint32_t GetHashCode() const
             {
                 uint64_t h = GetHashcodeLarge();
@@ -230,7 +274,6 @@ namespace WFC
                        std::equal(Edges.begin(), Edges.end(), f2.Edges.begin());
             }
             inline bool operator!=(const FaceIdentifiers& f2) const { return !(operator==(f2)); }
-
             
             WFCPP_MEMORY_CHECK_FOOTER(8);
         };
@@ -262,7 +305,7 @@ namespace WFC
 
                 return copy;
             }
-
+            
 
             inline uint32_t GetHashCode() const
             {

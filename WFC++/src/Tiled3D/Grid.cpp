@@ -14,8 +14,8 @@ Grid::Grid(const std::vector<Tile>& inputTiles, const Vector3i& outputSize,
                                      0, [](int sum, const Tile& tile) { return sum + tile.Permutations.Size(); })),
       Cells(outputSize),
       PossiblePermutations({ (int)inputTiles.size(), outputSize }),
-      IsPeriodicX(periodicX), IsPeriodicY(periodicY), IsPeriodicZ(periodicZ),
-      InitialPossiblePermutations({ (int)inputTiles.size(), outputSize })
+      InitialPossiblePermutations({ (int)inputTiles.size(), outputSize }),
+      IsPeriodicX(periodicX), IsPeriodicY(periodicY), IsPeriodicZ(periodicZ)
 {
     WFCPP_ASSERT(inputTiles.size() < TileIdx_INVALID); //The last index is reserved for [null]
 

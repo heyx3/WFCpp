@@ -1,6 +1,8 @@
 #include "TestTilesets.hpp"
 
+#include <array>
 #include <iostream>
+
 
 #define WFC_CONCAT(...) __VA_ARGS__
 
@@ -11,6 +13,7 @@ TEST(Sanity)
 
 SUITE(Utils)
 {
+    using namespace WFC;
     using namespace WFC::Math;
 
     TEST(SmallestUInt)
@@ -323,6 +326,37 @@ SUITE(Utils)
         CHECK_EQUAL(0, PositiveModulo(-6, 2));
         CHECK_EQUAL(3, PositiveModulo(-13, 4));
     }
+
+    TEST(Transforms2D)
+    {
+        for (int trI = 0; trI < Transformations::Count; ++trI)
+        {
+            auto tr = static_cast<Transformations>(trI);
+
+            //Any transform combined with its inverse should produce None.
+            auto invTr = Invert(tr);
+            CHECK_EQUAL(Transformations::None, CombineTr2D(tr, invTr));
+            CHECK_EQUAL(Transformations::None, CombineTr2D(invTr, tr));
+
+            //Any transform combined with None should produce itself.
+            CHECK_EQUAL(tr, CombineTr2D(tr, Transformations::None));
+            CHECK_EQUAL(tr, CombineTr2D(Transformations::None, tr));
+        }
+        
+        //Some other ad-hoc tests:
+        CHECK_EQUAL(Transformations::Rotate180,
+                    CombineTr2D(Transformations::Rotate90CW, Transformations::Rotate90CW));
+        CHECK_EQUAL(Transformations::Rotate270CW,
+                    CombineTr2D(Transformations::Rotate90CW, Transformations::Rotate180));
+        CHECK_EQUAL(Transformations::Rotate270CW,
+                    CombineTr2D(Transformations::Rotate180, Transformations::Rotate90CW));
+        CHECK_EQUAL(Transformations::Rotate180,
+                    CombineTr2D(Transformations::Rotate270CW, Transformations::Rotate270CW));
+        CHECK_EQUAL(Transformations::Rotate180,
+                    CombineTr2D(Transformations::FlipX, Transformations::FlipY));
+        CHECK_EQUAL(Transformations::Rotate180,
+                    CombineTr2D(Transformations::FlipY, Transformations::FlipX));
+    }
 }
 
 SUITE(WFC_Simple)
@@ -352,6 +386,38 @@ SUITE(WFC_Tiled3D)
         output.resize(set.Size());
         std::copy(set.begin(), set.end(), output.begin());
         return output;
+    }
+
+    std::vector<WFC::Transformations> GetMatchingSymmetries(const FaceIdentifiers& face, Transformations tr2D)
+    {
+        std::vector<Transformations> out;
+        face.ForEachSymmetry(tr2D, [&](Transformations tr) { out.push_back(tr); });
+        return out;
+    }
+
+    TEST(TransformFace)
+    {
+        //Test a face with no symmetries:
+        FaceIdentifiers face{
+            std::to_array({
+                PointID{ 0 },
+                PointID{ 1 },
+                PointID{ 2 },
+                PointID{ 3 }
+            }),
+            std::to_array({
+                PointID{ 0 },
+                PointID{ 0 },
+                PointID{ 0 },
+                PointID{ 0 }
+            }),
+        };
+        for (int trI = 0; trI < Transformations::Count; ++trI)
+        {
+            auto tr = static_cast<Transformations>(trI);
+            auto symmetries = GetMatchingSymmetries(face, tr);
+            CHECK(symmetries.size() == 1 && symmetries[0] == tr);
+        }
     }
 
     TEST(TransformPoint)
@@ -394,7 +460,7 @@ SUITE(WFC_Tiled3D)
 
             //Check that inverting then rotating is the same as inverting+rotating.
             CHECK_EQUAL((Transform3D{ true, Rotations3D::None }.Then(Transform3D{ false, rot })),
-                (Transform3D{ true, rot }));
+                        (Transform3D{ true, rot }));
 
             for (int invert = 0; invert < 2; ++invert)
             {

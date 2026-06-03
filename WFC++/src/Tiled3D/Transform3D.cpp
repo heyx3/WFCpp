@@ -20,7 +20,7 @@ namespace
     //    when applying RotY90, use
     //    "Lookup_DirTransforms[MinX][RotY90]".
     constexpr std::array<std::array<Directions3D, (size_t)N_ROTATIONS_3D>,
-               N_DIRECTIONS_3D> Lookup_DirTransforms = { {
+                         N_DIRECTIONS_3D> Lookup_DirTransforms = { {
         #pragma region MinX
         {
             MinX, //None
@@ -190,6 +190,19 @@ namespace
         }
         #pragma endregion
     } };
+}
+
+FaceIdentifiers FaceIdentifiers::TransformedBy(Transformations tr) const
+{
+    auto out = *this;
+    for (int_fast8_t srcFacePointI = 0; srcFacePointI < N_FACE_POINTS; ++srcFacePointI)
+    {
+        auto srcFacePoint = static_cast<FacePoints>(srcFacePointI);
+
+        out.Corners[TransformFaceCorner(srcFacePoint, tr)] = Corners[srcFacePointI];
+        out.Edges[TransformFaceEdge(srcFacePoint, tr)] = Edges[srcFacePointI];
+    }
+    return out;
 }
 
 Rotations3D CombineRotations(Rotations3D a, Rotations3D b)
@@ -443,7 +456,7 @@ FacePermutation WFC::Tiled3D::GetFace(CubePermutation cubeBeforeTransform,
 }
 
 //Data object that precomputes all possible transform sequences.
-struct TransformApplicationCache
+struct TransformApplicationCache3D
 {
     std::array<Transform3D, N_TRANSFORMS * N_TRANSFORMS> cachedAnswers;
     Transform3D& GetAnswer(const Transform3D& a, const Transform3D& b)
@@ -453,7 +466,7 @@ struct TransformApplicationCache
         return cachedAnswers[aID + (bID * N_TRANSFORMS)];
     }
 
-    TransformApplicationCache()
+    TransformApplicationCache3D()
     {
         //Enumerating this is a nightmare -- 2304 cases!
         //Instead, for each pair of transforms, apply them to the eight corner points,
@@ -511,7 +524,7 @@ struct TransformApplicationCache
                 auto transformedCorners = cornerPointsTransform(cornerPointsInitial(), tr);
                 auto cornersID = cornerPointsToID(transformedCorners);
 
-                assert(transformByCornerArrangement.find(cornersID) == transformByCornerArrangement.end());
+                WFCPP_ASSERT(transformByCornerArrangement.find(cornersID) == transformByCornerArrangement.end());
                 transformByCornerArrangement[cornersID] = tr;
             }
         }
@@ -541,60 +554,8 @@ struct TransformApplicationCache
 };
 Transform3D Transform3D::Then(const Transform3D& next) const
 {
-    static TransformApplicationCache cache;
+    static TransformApplicationCache3D cache;
     return cache.GetAnswer(*this, next);
-}
-
-FacePoints WFC::Tiled3D::TransformFaceCorner(FacePoints p, Directions3D dir, Transformations tr2D)
-{
-	if (!IsFaceLeftHanded(dir))
-		return TransformFaceCorner(p, GetOpposite(dir), WFC::Invert(tr2D));
-
-	#define WFCPP_RETURN(aa, ab, ba, bb) switch (p) { \
-		case FacePoints::AA: return FacePoints::aa; \
-		case FacePoints::AB: return FacePoints::ab; \
-		case FacePoints::BA: return FacePoints::ba; \
-		case FacePoints::BB: return FacePoints::bb; \
-		default: assert(false); return aa; \
-	}
-    switch (tr2D)
-    {
-		case Transformations::None: WFCPP_RETURN(AA, AB, BA, BB);
-		case Transformations::Rotate90CW: WFCPP_RETURN(AB, BB, AA, BA);
-		case Transformations::Rotate180: WFCPP_RETURN(BB, BA, AB, AA);
-		case Transformations::Rotate270CW: WFCPP_RETURN(BA, AA, BB, AB);
-		case Transformations::FlipX: WFCPP_RETURN(BA, BB, AA, AB);
-		case Transformations::FlipY: WFCPP_RETURN(AB, AA, BB, BA);
-		case Transformations::FlipDiag1: WFCPP_RETURN(AA, BA, AB, BB);
-		case Transformations::FlipDiag2: WFCPP_RETURN(BB, AB, BA, AA);
-		default: assert(false); return p;
-    }
-}
-FacePoints WFC::Tiled3D::TransformFaceEdge(FacePoints p, Directions3D dir, Transformations tr2D)
-{
-	if (!IsFaceLeftHanded(dir))
-		return TransformFaceEdge(p, GetOpposite(dir), WFC::Invert(tr2D));
-
-	#define WFCPP_RETURN(aa, ab, ba, bb) switch (p) { \
-		case FacePoints::AA: return FacePoints::aa; \
-		case FacePoints::AB: return FacePoints::ab; \
-		case FacePoints::BA: return FacePoints::ba; \
-		case FacePoints::BB: return FacePoints::bb; \
-		default: assert(false); return aa; \
-	}
-
-    switch (tr2D)
-    {
-		case Transformations::None: WFCPP_RETURN(AA, AB, BA, BB);
-		case Transformations::Rotate90CW: WFCPP_RETURN(BA, BB, AB, AA);
-		case Transformations::Rotate180: WFCPP_RETURN(AB, AA, BB, BA);
-		case Transformations::Rotate270CW: WFCPP_RETURN(BB, BA, AA, AB);
-		case Transformations::FlipX: WFCPP_RETURN(AA, AB, BB, BA);
-		case Transformations::FlipY: WFCPP_RETURN(AB, AA, BA, BB);
-		case Transformations::FlipDiag1: WFCPP_RETURN(BA, BB, AA, AB);
-		case Transformations::FlipDiag2: WFCPP_RETURN(BB, BA, AB, AA);
-		default: assert(false); return p;
-    }
 }
 
 uint_fast8_t ImplicitTransformSet::PackFlags() const
